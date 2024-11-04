@@ -13,7 +13,7 @@ Parties involved: Party A (ETF creator), Party B (ETF buyer), Validators
    - Both parties call offchain(signEarlyAgreement)
    - Either party calls onchain(executeInstantWithdraw)
 
-## PSymm Settlement Flow
+## PSymm Settlement flow
 
 Parties involved: Party A (trader), Party B (counterparty), Validators
 
@@ -29,7 +29,7 @@ Parties involved: Party A (trader), Party B (counterparty), Validators
    - Party B signs EIP712 accepting agreement
    - Either party calls onchain(executeEarlyAgreement) with both signatures
 
-## Validator Registry Flow
+## Validator Registry flow
 
 Parties involved: Validators
 
@@ -51,7 +51,7 @@ Parties involved: Validators
    - Receive approval via voting process
    - Have equal vote weight (1) once approved
 
-## RFQ Flow
+## RFQ flow
 
 Parties involved: Party A (requester), Solvers
 
@@ -62,7 +62,7 @@ Parties involved: Party A (requester), Solvers
 5. Solver calls offchain(acceptRFQ), signs EIP712.
 6. Party A calls onchain(executeRFQ) with selected quote
 
-## Soft Fork Periodic Batch Flow
+## Soft Fork Periodic Batch flow
 
 Parties involved: Settlement makers, Validators
 
@@ -83,7 +83,7 @@ Parties involved: Settlement makers, Validators
    - Settlement makers call onchain(executeSettlements) with merkle proofs
    - Validators call onchain(claimVoterRewards) for correct votes
 
-## Instant Withdraw Flow
+## Instant Withdraw flow
 
 Parties involved: Party wanting to exit, Solver
 
