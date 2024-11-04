@@ -1,0 +1,21 @@
+{
+  "name": "SettleMaker",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@gitq:FundMakerFdn/SettleMaker.git",
+  "author": "Vladyslav <web.user@ukr.net>",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
+    "hardhat": "^2.22.15",
+    "viem": "^2.21.40"
+  },
+  "dependencies": {
+    "@nomicfoundation/hardhat-ignition": "^0.15.7",
+    "@nomicfoundation/hardhat-ignition-viem": "^0.15.7",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.12",
+    "@nomicfoundation/hardhat-verify": "^2.0.1",
+    "@nomicfoundation/hardhat-viem": "^2.0.5"
+  }
+}
