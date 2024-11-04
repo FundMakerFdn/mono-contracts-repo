@@ -2,12 +2,18 @@
 pragma solidity ^0.8.24;
 
 /// @title Base Settlement Contract
-abstract contract Settlement {
-    address private settleMaker;
+contract Settlement {
+    address private immutable settleMaker;
+    
+    // ============ Storage ============
+    mapping(bytes32 => SettlementData) private settlements;
+    mapping(bytes32 => bool) private nextBatchSchedule;
+    uint256 private currentBatch;
+    
     constructor(address _settleMaker) {
+        require(_settleMaker != address(0), "Settlement: zero address");
         settleMaker = _settleMaker;
     }
-    function getSettleMaker() virtual external view returns (address);
 
     // ============ Events ============
     event SettlementCreated(bytes32 indexed settlementId, address indexed partyA, address indexed partyB);
@@ -26,6 +32,19 @@ abstract contract Settlement {
         uint8 state; // 0=open, 1=settled, 2=nextBatch
     }
 
+    // ============ View Functions ============
+    function getSettleMaker() external view returns (address) {
+        return settleMaker;
+    }
+
+    function getSettlementData(bytes32 settlementId) external view returns (SettlementData memory) {
+        return settlements[settlementId];
+    }
+
+    function isScheduledForNextBatch(bytes32 settlementId) external view returns (bool) {
+        return nextBatchSchedule[settlementId];
+    }
+
     // ============ Core Functions ============
     /// @notice Create new settlement, lock the collateral
     function createSettlement(
@@ -34,12 +53,63 @@ abstract contract Settlement {
         uint256 partyACollateral,
         uint256 partyBCollateral,
         address collateralToken
-    ) external virtual returns (bytes32 settlementId);
+    ) external returns (bytes32 settlementId) {
+        require(partyA != address(0) && partyB != address(0), "Settlement: zero address");
+        require(collateralToken != address(0), "Settlement: invalid token");
+        require(partyACollateral > 0 || partyBCollateral > 0, "Settlement: zero collateral");
 
-    function claimCollateral(bytes32 settlementId) external virtual;
+        // Generate unique settlement ID
+        settlementId = keccak256(abi.encodePacked(
+            partyA,
+            partyB,
+            partyACollateral,
+            partyBCollateral,
+            collateralToken,
+            block.timestamp
+        ));
 
-    // Keep track of non-settled settlements and include to next softFork offchain without onchain ?
-    function moveToNextBatch(bytes32 settlementId) external virtual returns (bool);
-    
-    function isScheduledForNextBatch(bytes32 settlementId) external virtual view returns (bool);
+        // Store settlement data
+        settlements[settlementId] = SettlementData({
+            partyA: partyA,
+            partyB: partyB,
+            settlementTime: block.timestamp,
+            partyACollateral: partyACollateral,
+            partyBCollateral: partyBCollateral,
+            collateralToken: collateralToken,
+            state: 0 // Open state
+        });
+
+        emit SettlementCreated(settlementId, partyA, partyB);
+        emit CollateralLocked(settlementId, partyACollateral + partyBCollateral);
+
+        return settlementId;
+    }
+
+    function claimCollateral(bytes32 settlementId) external {
+        SettlementData storage settlement = settlements[settlementId];
+        require(settlement.partyA != address(0), "Settlement: does not exist");
+        require(settlement.state == 1, "Settlement: not settled");
+        
+        // Implementation of collateral claiming logic would go here
+        // This would interact with the collateral token contract
+        
+        emit CollateralReleased(settlementId);
+    }
+
+    function moveToNextBatch(bytes32 settlementId) external returns (bool) {
+        SettlementData storage settlement = settlements[settlementId];
+        require(settlement.partyA != address(0), "Settlement: does not exist");
+        require(settlement.state == 0, "Settlement: not open");
+        
+        settlement.state = 2; // nextBatch state
+        nextBatchSchedule[settlementId] = true;
+        
+        emit SettlementMovedToNextBatch(
+            settlementId,
+            currentBatch,
+            currentBatch + 1
+        );
+        
+        return true;
+    }
 }
