@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "./Settlement.sol";
+import "./BaseSettlement.sol";
 
 /// @title PSymm Settlement Contract
-abstract contract PSymmSettlement is Settlement {
+abstract contract PSymmSettlement is BaseSettlement {
     struct PSymmParameters {
         uint256 entryPrice;
         uint256 settlementPrice;
