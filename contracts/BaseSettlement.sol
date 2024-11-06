@@ -69,6 +69,14 @@ abstract contract BaseSettlement is ISettlement, EIP712 {
             collateralToken
         );
 
+        // Transfer collateral
+        if (partyACollateral > 0) {
+            IERC20(collateralToken).safeTransferFrom(partyA, address(this), partyACollateral);
+        }
+        if (partyBCollateral > 0) {
+            IERC20(collateralToken).safeTransferFrom(partyB, address(this), partyBCollateral);
+        }
+
         settlements[settlementId] = SettlementData({
             partyA: partyA,
             partyB: partyB,
@@ -78,14 +86,6 @@ abstract contract BaseSettlement is ISettlement, EIP712 {
             collateralToken: collateralToken,
             state: 0 // Open state
         });
-
-        // Transfer collateral
-        if (partyACollateral > 0) {
-            IERC20(collateralToken).safeTransferFrom(partyA, address(this), partyACollateral);
-        }
-        if (partyBCollateral > 0) {
-            IERC20(collateralToken).safeTransferFrom(partyB, address(this), partyBCollateral);
-        }
 
         emit SettlementCreated(settlementId, partyA, partyB);
         emit CollateralLocked(settlementId, partyACollateral + partyBCollateral);

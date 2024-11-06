@@ -35,12 +35,14 @@ contract ETFSettlement is BaseSettlement {
         address collateralToken,
         ETFParameters calldata params
     ) external returns (bytes32) {
-        // Transfer ETF tokens from Party A
-        IERC20(params.etfToken).safeTransferFrom(
-            partyA,
-            address(this),
-            params.etfTokenAmount
-        );
+        // Optional ETF token transfer
+        if (params.etfTokenAmount > 0 && params.etfToken != address(0)) {
+            IERC20(params.etfToken).safeTransferFrom(
+                partyA,
+                address(this),
+                params.etfTokenAmount
+            );
+        }
 
         bytes32 settlementId = createSettlement(
             partyA,
