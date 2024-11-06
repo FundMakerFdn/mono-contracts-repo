@@ -5,6 +5,7 @@ import "./ISettlement.sol";
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "hardhat/console.sol";
 
 /// @title Base Settlement Contract Implementation
 abstract contract BaseSettlement is ISettlement, EIP712 {
@@ -61,6 +62,17 @@ abstract contract BaseSettlement is ISettlement, EIP712 {
         require(collateralToken != address(0), "Settlement: invalid token");
         require(partyACollateral > 0 || partyBCollateral > 0, "Settlement: zero collateral");
 
+        // Log allowance before settlement
+        uint256 allowanceA = IERC20(collateralToken).allowance(partyA, address(this));
+        uint256 allowanceB = IERC20(collateralToken).allowance(partyB, address(this));
+        
+		console.log("address(this): %s\naddress(collateralToken):%s", address(this), collateralToken);
+        console.log("Party A Allowance: %s", allowanceA);
+        console.log("Party B Allowance: %s", allowanceB);
+        console.log("Required Collateral A: %s", partyACollateral);
+        console.log("Required Collateral B: %s", partyBCollateral);
+
+
         settlementId = _generateSettlementId(
             partyA,
             partyB,
@@ -68,6 +80,18 @@ abstract contract BaseSettlement is ISettlement, EIP712 {
             partyBCollateral,
             collateralToken
         );
+
+		console.log("--- Settlement ID generated ---");
+		console.logBytes32(settlementId);
+		console.log("-------------------------------");
+
+        // Transfer collateral
+        if (partyACollateral > 0) {
+            IERC20(collateralToken).safeTransferFrom(partyA, address(this), partyACollateral);
+        }
+        if (partyBCollateral > 0) {
+            IERC20(collateralToken).safeTransferFrom(partyB, address(this), partyBCollateral);
+        }
 
         settlements[settlementId] = SettlementData({
             partyA: partyA,
@@ -78,14 +102,6 @@ abstract contract BaseSettlement is ISettlement, EIP712 {
             collateralToken: collateralToken,
             state: 0 // Open state
         });
-
-        // Transfer collateral
-        if (partyACollateral > 0) {
-            IERC20(collateralToken).safeTransferFrom(partyA, address(this), partyACollateral);
-        }
-        if (partyBCollateral > 0) {
-            IERC20(collateralToken).safeTransferFrom(partyB, address(this), partyBCollateral);
-        }
 
         emit SettlementCreated(settlementId, partyA, partyB);
         emit CollateralLocked(settlementId, partyACollateral + partyBCollateral);

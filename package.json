@@ -9,7 +9,7 @@
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
     "hardhat": "^2.22.15",
-    "viem": "^2.21.40"
+    "viem": "^2.21.42"
   },
   "dependencies": {
     "@nomicfoundation/hardhat-ignition": "^0.15.7",

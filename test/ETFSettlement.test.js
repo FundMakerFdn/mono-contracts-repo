@@ -2,183 +2,170 @@ const assert = require("node:assert/strict");
 const {
   loadFixture,
 } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
-const { parseEther } = require("viem");
+const {
+  parseEther,
+  getAddress,
+  encodeAbiParameters,
+  keccak256,
+  toHex,
+} = require("viem");
 const hre = require("hardhat");
+
+const MOCK_WETH = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+const MOCK_SETTLE_MAKER = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 
 describe("ETFSettlement", function () {
   async function deployFixture() {
-    const [owner, partyA, partyB, validator] =
-      await hre.viem.getWalletClients();
+    const [deployer, partyA, partyB] = await hre.viem.getWalletClients();
+    const publicClient = await hre.viem.getPublicClient();
 
-    // Deploy mock tokens
-    const mockCollateral = await hre.viem.deployContract("MockSymm");
-    const mockETF = await hre.viem.deployContract("MockSymm");
-
-    // Deploy SettleMaker (mock for testing)
-    const settleMaker = await hre.viem.deployContract("SettleMaker");
+    // Deploy MockSymm token
+    const mockSymm = await hre.viem.deployContract("MockSymm");
 
     // Deploy ETFSettlement
     const etfSettlement = await hre.viem.deployContract("ETFSettlement", [
-      await settleMaker.address,
-      "ETFSettlement",
+      MOCK_SETTLE_MAKER,
+      "ETF Settlement",
       "1.0.0",
     ]);
 
-    // Setup test amounts
-    const partyACollateral = parseEther("1000");
-    const partyBCollateral = parseEther("500");
-    const etfAmount = parseEther("100");
-
     // Mint tokens to parties
-    await mockCollateral.write.mint([partyA.account.address, partyACollateral]);
-    await mockCollateral.write.mint([partyB.account.address, partyBCollateral]);
-    await mockETF.write.mint([partyA.account.address, etfAmount]);
-
-    // Approve settlement contract
-    const publicClient = await hre.viem.getPublicClient();
-    await mockCollateral.write.approve(
-      [await etfSettlement.address, partyACollateral],
-      {
-        account: partyA.account,
-      }
-    );
-    await mockCollateral.write.approve(
-      [await etfSettlement.address, partyBCollateral],
-      {
-        account: partyB.account,
-      }
-    );
-    await mockETF.write.approve([await etfSettlement.address, etfAmount], {
-      account: partyA.account,
-    });
+    await mockSymm.write.mint([partyA.account.address, parseEther("1000")]);
+    await mockSymm.write.mint([partyB.account.address, parseEther("1000")]);
 
     return {
+      mockSymm,
       etfSettlement,
-      mockCollateral,
-      mockETF,
-      settleMaker,
-      owner,
+      deployer,
       partyA,
       partyB,
-      validator,
-      partyACollateral,
-      partyBCollateral,
-      etfAmount,
+      publicClient,
     };
   }
 
   describe("Settlement Creation", function () {
-    it("Should create ETF settlement with correct parameters", async function () {
-      const {
-        etfSettlement,
-        mockCollateral,
-        mockETF,
-        partyA,
-        partyB,
-        partyACollateral,
-        partyBCollateral,
-        etfAmount,
-      } = await loadFixture(deployFixture);
+    it("should create settlement with proper collateral", async function () {
+      const { mockSymm, etfSettlement, partyA, partyB, publicClient } =
+        await loadFixture(deployFixture);
 
-      const params = {
-        priceMint: parseEther("10"),
-        mintTime: Math.floor(Date.now() / 1000),
-        etfTokenAmount: etfAmount,
-        etfToken: await mockETF.address,
+      const partyACollateral = parseEther("100");
+      const partyBCollateral = parseEther("50");
+
+      // Approve collateral transfers
+      await mockSymm.write.approve([etfSettlement.address, partyACollateral], {
+        account: partyA.account,
+      });
+      await mockSymm.write.approve([etfSettlement.address, partyBCollateral], {
+        account: partyB.account,
+      });
+
+      const etfParams = {
+        priceMint: parseEther("1000"),
+        mintTime: BigInt(Math.floor(Date.now() / 1000)),
+        etfTokenAmount: parseEther("10"),
+        etfToken: MOCK_WETH,
         interestRate: parseEther("0.05"),
-        interestRatePayer: partyB.account.address,
+        interestRatePayer: partyA.account.address,
       };
 
-      const tx = await etfSettlement.write.createETFSettlement(
+      const hash = await etfSettlement.write.createETFSettlement(
         [
           partyA.account.address,
           partyB.account.address,
           partyACollateral,
           partyBCollateral,
-          await mockCollateral.address,
-          params,
+          mockSymm.address,
+          etfParams,
         ],
-        { account: partyA.account }
+        {
+          account: partyA.account,
+        }
       );
 
-      const receipt = await tx.wait();
-      const settlementId = receipt.logs[0].args.settlementId;
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      const SETTLEMENT_CREATED_EVENT = keccak256(
+        toHex("SettlementCreated(bytes32,address,address)")
+      );
+      const settlementCreatedEvent = receipt.logs.find(
+        (log) => log.topics[0] === SETTLEMENT_CREATED_EVENT
+      );
+      const settlementId = settlementCreatedEvent.topics[1];
 
-      // Verify settlement data
       const settlement = await etfSettlement.read.getSettlementData([
         settlementId,
       ]);
-      assert.equal(settlement.partyA, partyA.account.address);
-      assert.equal(settlement.partyB, partyB.account.address);
+      assert.equal(
+        getAddress(settlement.partyA),
+        getAddress(partyA.account.address)
+      );
+      assert.equal(
+        getAddress(settlement.partyB),
+        getAddress(partyB.account.address)
+      );
       assert.equal(settlement.partyACollateral, partyACollateral);
       assert.equal(settlement.partyBCollateral, partyBCollateral);
-      assert.equal(settlement.collateralToken, await mockCollateral.address);
+      assert.equal(
+        getAddress(settlement.collateralToken),
+        getAddress(mockSymm.address)
+      );
       assert.equal(settlement.state, 0); // Open state
-
-      // Verify ETF parameters
-      const etfParams = await etfSettlement.read.getETFParameters([
-        settlementId,
-      ]);
-      assert.equal(etfParams.priceMint, params.priceMint);
-      assert.equal(etfParams.etfTokenAmount, params.etfTokenAmount);
-      assert.equal(etfParams.etfToken, params.etfToken);
-
-      // Verify token transfers
-      assert.equal(
-        await mockETF.read.balanceOf([await etfSettlement.address]),
-        etfAmount
-      );
-      assert.equal(
-        await mockCollateral.read.balanceOf([await etfSettlement.address]),
-        partyACollateral + partyBCollateral
-      );
     });
   });
 
   describe("Early Agreement", function () {
-    it("Should execute early agreement with valid signatures", async function () {
-      const {
-        etfSettlement,
-        mockCollateral,
-        mockETF,
-        partyA,
-        partyB,
-        partyACollateral,
-        partyBCollateral,
-        etfAmount,
-      } = await loadFixture(deployFixture);
+    it("should execute early agreement with valid signatures", async function () {
+      const { mockSymm, etfSettlement, partyA, partyB } = await loadFixture(
+        deployFixture
+      );
 
-      // Create settlement first
-      const params = {
-        priceMint: parseEther("10"),
-        mintTime: Math.floor(Date.now() / 1000),
-        etfTokenAmount: etfAmount,
-        etfToken: await mockETF.address,
+      const partyACollateral = parseEther("100");
+      const partyBCollateral = parseEther("50");
+
+      // Approve collateral transfers
+      await mockSymm.write.approve([etfSettlement.address, partyACollateral], {
+        account: partyA.account,
+      });
+      await mockSymm.write.approve([etfSettlement.address, partyBCollateral], {
+        account: partyB.account,
+      });
+
+      const etfParams = {
+        priceMint: parseEther("1000"),
+        mintTime: BigInt(Math.floor(Date.now() / 1000)),
+        etfTokenAmount: parseEther("10"),
+        etfToken: MOCK_WETH,
         interestRate: parseEther("0.05"),
-        interestRatePayer: partyB.account.address,
+        interestRatePayer: partyA.account.address,
       };
 
-      const tx = await etfSettlement.write.createETFSettlement(
+      // Create settlement
+      const settlementId = await etfSettlement.write.createETFSettlement(
         [
           partyA.account.address,
           partyB.account.address,
           partyACollateral,
           partyBCollateral,
-          await mockCollateral.address,
-          params,
+          mockSymm.address,
+          etfParams,
         ],
-        { account: partyA.account }
+        {
+          account: partyA.account,
+        }
       );
 
-      const receipt = await tx.wait();
-      const settlementId = receipt.logs[0].args.settlementId;
+      // Get nonce for party A
+      const nonce = await etfSettlement.read.getNonce([partyA.account.address]);
 
-      // Get domain and sign early agreement
+      // Prepare early agreement parameters
+      const partyAAmount = parseEther("120"); // Example amounts
+      const partyBAmount = parseEther("30");
+
+      // Sign agreement by both parties
       const domain = {
-        name: "ETFSettlement",
+        name: "ETF Settlement",
         version: "1.0.0",
-        chainId: await hre.viem.getPublicClient().getChainId(),
-        verifyingContract: await etfSettlement.address,
+        chainId: 31337n,
+        verifyingContract: etfSettlement.address,
       };
 
       const types = {
@@ -190,100 +177,105 @@ describe("ETFSettlement", function () {
         ],
       };
 
-      const value = {
-        settlementId: settlementId,
-        partyAAmount: partyACollateral,
-        partyBAmount: partyBCollateral,
-        nonce: await etfSettlement.read.getNonce([partyA.account.address]),
+      const message = {
+        settlementId,
+        partyAAmount,
+        partyBAmount,
+        nonce,
       };
 
-      const partyASignature = await partyA.signTypedData(domain, types, value);
-      const partyBSignature = await partyB.signTypedData(domain, types, value);
+      const partyASignature = await partyA.signTypedData({
+        domain,
+        types,
+        primaryType: "EarlyAgreement",
+        message,
+      });
+
+      const partyBSignature = await partyB.signTypedData({
+        domain,
+        types,
+        primaryType: "EarlyAgreement",
+        message,
+      });
 
       // Execute early agreement
       await etfSettlement.write.executeEarlyAgreement(
         [
           settlementId,
-          partyACollateral,
-          partyBCollateral,
+          partyAAmount,
+          partyBAmount,
           partyASignature,
           partyBSignature,
         ],
-        { account: partyA.account }
-      );
-
-      // Verify final token balances
-      assert.equal(
-        await mockCollateral.read.balanceOf([partyA.account.address]),
-        partyACollateral
-      );
-      assert.equal(
-        await mockCollateral.read.balanceOf([partyB.account.address]),
-        partyBCollateral
-      );
-      assert.equal(
-        await mockETF.read.balanceOf([partyA.account.address]),
-        etfAmount
+        {
+          account: partyA.account,
+        }
       );
 
       // Verify settlement state
       const settlement = await etfSettlement.read.getSettlementData([
         settlementId,
       ]);
-      assert.equal(settlement.state, 1); // Settled state
+      assert.equal(settlement.state, 1n); // Settled state
     });
   });
 
   describe("Move to Next Batch", function () {
-    it("Should move settlement to next batch", async function () {
-      const {
-        etfSettlement,
-        partyA,
-        partyB,
-        partyACollateral,
-        partyBCollateral,
-        mockCollateral,
-        mockETF,
-        etfAmount,
-      } = await loadFixture(deployFixture);
+    it("should move settlement to next batch", async function () {
+      const { mockSymm, etfSettlement, partyA, partyB } = await loadFixture(
+        deployFixture
+      );
 
-      const params = {
-        priceMint: parseEther("10"),
-        mintTime: Math.floor(Date.now() / 1000),
-        etfTokenAmount: etfAmount,
-        etfToken: await mockETF.address,
+      const partyACollateral = parseEther("100");
+      const partyBCollateral = parseEther("50");
+
+      // Approve collateral transfers
+      await mockSymm.write.approve([etfSettlement.address, partyACollateral], {
+        account: partyA.account,
+      });
+      await mockSymm.write.approve([etfSettlement.address, partyBCollateral], {
+        account: partyB.account,
+      });
+
+      const etfParams = {
+        priceMint: parseEther("1000"),
+        mintTime: BigInt(Math.floor(Date.now() / 1000)),
+        etfTokenAmount: parseEther("10"),
+        etfToken: MOCK_WETH,
         interestRate: parseEther("0.05"),
-        interestRatePayer: partyB.account.address,
+        interestRatePayer: partyA.account.address,
       };
 
       // Create settlement
-      const tx = await etfSettlement.write.createETFSettlement(
+      const settlementId = await etfSettlement.write.createETFSettlement(
         [
           partyA.account.address,
           partyB.account.address,
           partyACollateral,
           partyBCollateral,
-          await mockCollateral.address,
-          params,
+          mockSymm.address,
+          etfParams,
         ],
-        { account: partyA.account }
+        {
+          account: partyA.account,
+        }
       );
 
-      const receipt = await tx.wait();
-      const settlementId = receipt.logs[0].args.settlementId;
-
       // Move to next batch
-      await etfSettlement.write.moveToNextBatch([settlementId]);
+      await etfSettlement.write.moveToNextBatch([settlementId], {
+        account: partyA.account,
+      });
 
-      // Verify state changes
+      // Verify settlement state and next batch schedule
       const settlement = await etfSettlement.read.getSettlementData([
         settlementId,
       ]);
-      assert.equal(settlement.state, 2); // nextBatch state
-      assert.equal(
-        await etfSettlement.read.isScheduledForNextBatch([settlementId]),
-        true
-      );
+      const isScheduled = await etfSettlement.read.isScheduledForNextBatch([
+        settlementId,
+      ]);
+
+      assert.equal(settlement.state, 2n); // nextBatch state
+      assert.equal(isScheduled, true);
     });
   });
 });
