@@ -8,6 +8,7 @@ interface ISettlement {
     event CollateralLocked(bytes32 indexed settlementId, uint256 amount);
     event CollateralReleased(bytes32 indexed settlementId);
     event SettlementMovedToNextBatch(bytes32 indexed settlementId, uint256 indexed currentBatch, uint256 indexed nextBatch);
+    event EarlyAgreementExecuted(bytes32 indexed settlementId, uint256 partyAAmount, uint256 partyBAmount, address indexed partyA, address indexed partyB);
 
     // ============ Structs ============
     struct SettlementData {

@@ -208,7 +208,6 @@ describe("ETFSettlement", function () {
         );
         assert.fail("Should have thrown error");
       } catch (error) {
-        console.log(error.message);
         assert(error.message.includes("ERC20InsufficientBalance"));
       }
     });
@@ -262,42 +261,88 @@ describe("ETFSettlement", function () {
       const partyAAmount = parseEther("120"); // Example amounts
       const partyBAmount = parseEther("30");
 
-      // Sign agreement by both parties
-      const domain = {
-        name: "ETF Settlement",
-        version: "1.0.0",
-        chainId: 31337n,
-        verifyingContract: etfSettlement.address,
-      };
+      // Calculate the struct hash using the same format as the contract
+      const structHash = keccak256(
+        encodeAbiParameters(
+          [
+            { type: "bytes32" }, // EARLY_AGREEMENT_TYPEHASH
+            { type: "bytes32" }, // settlementId
+            { type: "uint256" }, // partyAAmount
+            { type: "uint256" }, // partyBAmount
+            { type: "uint256" }, // nonce
+          ],
+          [
+            keccak256(
+              toHex(
+                "EarlyAgreement(bytes32 settlementId,uint256 partyAAmount,uint256 partyBAmount,uint256 nonce)"
+              )
+            ),
+            settlementId,
+            partyAAmount,
+            partyBAmount,
+            nonce,
+          ]
+        )
+      );
 
-      const types = {
-        EarlyAgreement: [
-          { name: "settlementId", type: "bytes32" },
-          { name: "partyAAmount", type: "uint256" },
-          { name: "partyBAmount", type: "uint256" },
-          { name: "nonce", type: "uint256" },
-        ],
-      };
+      // Get domain separator from contract
+      const domainSeparator = await etfSettlement.read.getDomainSeparator();
 
-      const message = {
-        settlementId,
-        partyAAmount,
-        partyBAmount,
-        nonce,
-      };
+      // Calculate final hash to sign
+      const digest = keccak256(
+        encodeAbiParameters(
+          [{ type: "bytes2" }, { type: "bytes32" }, { type: "bytes32" }],
+          ["0x1901", domainSeparator, structHash]
+        )
+      );
 
+      // Sign the digest with the correct format
       const partyASignature = await partyA.signTypedData({
-        domain,
-        types,
+        domain: {
+          name: "ETF Settlement",
+          version: "1.0.0",
+          chainId: await partyA.getChainId(),
+          verifyingContract: etfSettlement.address,
+        },
+        types: {
+          EarlyAgreement: [
+            { name: "settlementId", type: "bytes32" },
+            { name: "partyAAmount", type: "uint256" },
+            { name: "partyBAmount", type: "uint256" },
+            { name: "nonce", type: "uint256" },
+          ],
+        },
         primaryType: "EarlyAgreement",
-        message,
+        message: {
+          settlementId,
+          partyAAmount,
+          partyBAmount,
+          nonce,
+        },
       });
 
       const partyBSignature = await partyB.signTypedData({
-        domain,
-        types,
+        domain: {
+          name: "ETF Settlement",
+          version: "1.0.0",
+          chainId: await partyB.getChainId(),
+          verifyingContract: etfSettlement.address,
+        },
+        types: {
+          EarlyAgreement: [
+            { name: "settlementId", type: "bytes32" },
+            { name: "partyAAmount", type: "uint256" },
+            { name: "partyBAmount", type: "uint256" },
+            { name: "nonce", type: "uint256" },
+          ],
+        },
         primaryType: "EarlyAgreement",
-        message,
+        message: {
+          settlementId,
+          partyAAmount,
+          partyBAmount,
+          nonce,
+        },
       });
 
       // Execute early agreement
@@ -376,7 +421,7 @@ describe("ETFSettlement", function () {
         settlementId,
       ]);
 
-      assert.equal(settlement.state, 2n); // nextBatch state
+      assert.equal(settlement.state, 2); // nextBatch state
       assert.equal(isScheduled, true);
     });
   });

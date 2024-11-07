@@ -1,112 +1,74 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "./ISettlement.sol";
-import "./ISettleMaker.sol";
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "hardhat/console.sol";
 
-/// @title Base Settlement Contract Implementation
-abstract contract BaseSettlement is ISettlement, EIP712 {
+abstract contract BaseSettlement is EIP712 {
     using SafeERC20 for IERC20;
 
-    // ============ Constants ============
-    bytes32 private constant EARLY_AGREEMENT_TYPEHASH = keccak256(
-        "EarlyAgreement(bytes32 settlementId,uint256 partyAAmount,uint256 partyBAmount,uint256 nonce)"
-    );
-
-    // ============ Storage ============
-    address public immutable settleMaker;
-    mapping(bytes32 => SettlementData) public settlements;
-    mapping(bytes32 => bool) private nextBatchSchedule;
-    mapping(address => uint256) private nonces;
-    uint256 private currentBatch;
+    enum SettlementState { Open, Settled, NextBatch }
     
-    // ============ Constructor ============
-    constructor(
-        address _settleMaker,
-        string memory name,
-        string memory version
-    ) EIP712(name, version) {
-        require(_settleMaker != address(0), "Settlement: zero address");
+    struct SettlementData {
+        address partyA;
+        address partyB;
+        uint256 partyACollateral;
+        uint256 partyBCollateral;
+        address collateralToken;
+        SettlementState state;
+    }
+
+    bytes32 private constant EARLY_AGREEMENT_TYPEHASH = 
+        keccak256("EarlyAgreement(bytes32 settlementId,uint256 partyAAmount,uint256 partyBAmount,uint256 nonce)");
+
+    address public immutable settleMaker;
+    mapping(bytes32 => SettlementData) internal settlements;
+    mapping(address => uint256) private nonces;
+    mapping(bytes32 => bool) public isScheduledForNextBatch;
+
+    event SettlementCreated(bytes32 indexed settlementId, address indexed partyA, address indexed partyB);
+    event EarlyAgreementExecuted(bytes32 indexed settlementId);
+    event MovedToNextBatch(bytes32 indexed settlementId);
+
+    constructor(address _settleMaker, string memory name, string memory version) 
+        EIP712(name, version) 
+    {
         settleMaker = _settleMaker;
     }
 
-    // ============ View Functions ============
-    function getSettleMaker() external view returns (address) {
-        return settleMaker;
-    }
-
-    function getSettlementData(bytes32 settlementId) external view returns (SettlementData memory) {
-        return settlements[settlementId];
-    }
-
-    function isScheduledForNextBatch(bytes32 settlementId) external view returns (bool) {
-        return nextBatchSchedule[settlementId];
-    }
-
-    function getNonce(address account) external view returns (uint256) {
-        return nonces[account];
-    }
-
-    // ============ Core Functions ============
     function createSettlement(
         address partyA,
         address partyB,
         uint256 partyACollateral,
         uint256 partyBCollateral,
         address collateralToken
-    ) public virtual returns (bytes32 settlementId) {
-        require(partyA != address(0) && partyB != address(0), "Settlement: zero address");
-        require(collateralToken != address(0), "Settlement: invalid token");
-        require(partyACollateral > 0 || partyBCollateral > 0, "Settlement: zero collateral");
-
-        // Log allowance before settlement
-        uint256 allowanceA = IERC20(collateralToken).allowance(partyA, address(this));
-        uint256 allowanceB = IERC20(collateralToken).allowance(partyB, address(this));
-        
-		console.log("address(this): %s\naddress(collateralToken):%s", address(this), collateralToken);
-        console.log("Party A Allowance: %s", allowanceA);
-        console.log("Party B Allowance: %s", allowanceB);
-        console.log("Required Collateral A: %s", partyACollateral);
-        console.log("Required Collateral B: %s", partyBCollateral);
-
-
-        settlementId = _generateSettlementId(
-            partyA,
-            partyB,
-            partyACollateral,
-            partyBCollateral,
-            collateralToken
+    ) internal returns (bytes32) {
+        bytes32 settlementId = keccak256(
+            abi.encodePacked(
+                partyA,
+                partyB,
+                partyACollateral,
+                partyBCollateral,
+                collateralToken,
+                block.timestamp
+            )
         );
-
-		console.log("--- Settlement ID generated ---");
-		console.logBytes32(settlementId);
-		console.log("-------------------------------");
-
-        // Transfer collateral
-        if (partyACollateral > 0) {
-            IERC20(collateralToken).safeTransferFrom(partyA, address(this), partyACollateral);
-        }
-        if (partyBCollateral > 0) {
-            IERC20(collateralToken).safeTransferFrom(partyB, address(this), partyBCollateral);
-        }
 
         settlements[settlementId] = SettlementData({
             partyA: partyA,
             partyB: partyB,
-            settlementTime: block.timestamp,
             partyACollateral: partyACollateral,
             partyBCollateral: partyBCollateral,
             collateralToken: collateralToken,
-            state: 0 // Open state
+            state: SettlementState.Open
         });
 
-        emit SettlementCreated(settlementId, partyA, partyB);
-        emit CollateralLocked(settlementId, partyACollateral + partyBCollateral);
+        // Transfer collateral
+        IERC20(collateralToken).safeTransferFrom(partyA, address(this), partyACollateral);
+        IERC20(collateralToken).safeTransferFrom(partyB, address(this), partyBCollateral);
 
+        emit SettlementCreated(settlementId, partyA, partyB);
         return settlementId;
     }
 
@@ -116,75 +78,54 @@ abstract contract BaseSettlement is ISettlement, EIP712 {
         uint256 partyBAmount,
         bytes memory partyASignature,
         bytes memory partyBSignature
-    ) external virtual override {
+    ) public virtual {
         SettlementData storage settlement = settlements[settlementId];
-        require(settlement.state == 0, "Settlement: invalid state");
-        
+        require(settlement.state == SettlementState.Open, "Settlement not open");
+
+        // Verify signatures
         bytes32 structHash = keccak256(abi.encode(
             EARLY_AGREEMENT_TYPEHASH,
             settlementId,
             partyAAmount,
             partyBAmount,
-            nonces[settlement.partyA]++
+            nonces[settlement.partyA]
         ));
-
         bytes32 hash = _hashTypedDataV4(structHash);
-        
-        require(
-            _verifySignature(hash, partyASignature, settlement.partyA) &&
-            _verifySignature(hash, partyBSignature, settlement.partyB),
-            "Settlement: invalid signatures"
-        );
 
-        _executeSettlement(settlementId, partyAAmount, partyBAmount);
+        require(_verifySignature(hash, partyASignature, settlement.partyA), "Invalid party A signature");
+        require(_verifySignature(hash, partyBSignature, settlement.partyB), "Invalid party B signature");
+
+        // Increment nonce
+        nonces[settlement.partyA]++;
+
+        // Transfer collateral based on agreement
+        IERC20(settlement.collateralToken).safeTransfer(settlement.partyA, partyAAmount);
+        IERC20(settlement.collateralToken).safeTransfer(settlement.partyB, partyBAmount);
+
+        settlement.state = SettlementState.Settled;
+        emit EarlyAgreementExecuted(settlementId);
     }
 
-    function moveToNextBatch(
-        bytes32 settlementId,
-        bytes32[] calldata merkleProof
-    ) external virtual returns (bool) {
+    function moveToNextBatch(bytes32 settlementId) external {
         SettlementData storage settlement = settlements[settlementId];
-        require(settlement.partyA != address(0), "Settlement: does not exist");
-        require(settlement.state == 0, "Settlement: not open");
+        require(settlement.state == SettlementState.Open, "Settlement not open");
         
-        // Verify merkle proof against SettleMaker's current batch merkle root
-        require(
-            ISettleMaker(settleMaker).verifySettlementInBatch(
-                currentBatch + 1,
-                settlementId,
-                merkleProof
-            ),
-            "Settlement: invalid merkle proof"
-        );
+        settlement.state = SettlementState.NextBatch;
+        isScheduledForNextBatch[settlementId] = true;
         
-        settlement.state = 2; // nextBatch state
-        nextBatchSchedule[settlementId] = true;
-        
-        emit SettlementMovedToNextBatch(
-            settlementId,
-            currentBatch,
-            currentBatch + 1
-        );
-        
-        return true;
+        emit MovedToNextBatch(settlementId);
     }
 
-    // ============ Internal Functions ============
-    function _generateSettlementId(
-        address partyA,
-        address partyB,
-        uint256 partyACollateral,
-        uint256 partyBCollateral,
-        address collateralToken
-    ) internal view returns (bytes32) {
-        return keccak256(abi.encodePacked(
-            partyA,
-            partyB,
-            partyACollateral,
-            partyBCollateral,
-            collateralToken,
-            block.timestamp
-        ));
+    function getSettlementData(bytes32 settlementId) external view returns (SettlementData memory) {
+        return settlements[settlementId];
+    }
+
+    function getNonce(address account) external view returns (uint256) {
+        return nonces[account];
+    }
+
+    function getDomainSeparator() external view returns (bytes32) {
+        return _domainSeparatorV4();
     }
 
     function _verifySignature(
@@ -195,56 +136,13 @@ abstract contract BaseSettlement is ISettlement, EIP712 {
         bytes32 r;
         bytes32 s;
         uint8 v;
+
         assembly {
             r := mload(add(signature, 32))
             s := mload(add(signature, 64))
             v := byte(0, mload(add(signature, 96)))
         }
+
         return ecrecover(hash, v, r, s) == signer;
-    }
-
-    function claimCollateral(bytes32 settlementId) external {
-        SettlementData storage settlement = settlements[settlementId];
-        require(settlement.state == 2, "Settlement: not in nextBatch state");
-        
-        // Transfer all collateral to SettleMaker contract for distribution
-        if (settlement.partyACollateral > 0) {
-            IERC20(settlement.collateralToken).safeTransfer(
-                settleMaker,
-                settlement.partyACollateral
-            );
-        }
-        if (settlement.partyBCollateral > 0) {
-            IERC20(settlement.collateralToken).safeTransfer(
-                settleMaker,
-                settlement.partyBCollateral
-            );
-        }
-
-        settlement.state = 1; // Set to settled state
-        emit CollateralReleased(settlementId);
-    }
-
-    function _executeSettlement(
-        bytes32 settlementId,
-        uint256 partyAAmount,
-        uint256 partyBAmount
-    ) internal virtual {
-        SettlementData storage settlement = settlements[settlementId];
-        require(
-            partyAAmount + partyBAmount == settlement.partyACollateral + settlement.partyBCollateral,
-            "Settlement: invalid amounts"
-        );
-
-        settlement.state = 1; // Settled state
-
-        if (partyAAmount > 0) {
-            IERC20(settlement.collateralToken).safeTransfer(settlement.partyA, partyAAmount);
-        }
-        if (partyBAmount > 0) {
-            IERC20(settlement.collateralToken).safeTransfer(settlement.partyB, partyBAmount);
-        }
-
-        emit CollateralReleased(settlementId);
     }
 }
