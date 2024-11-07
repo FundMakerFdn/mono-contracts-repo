@@ -109,6 +109,108 @@ describe("ETFSettlement", function () {
         getAddress(mockSymm.address)
       );
       assert.equal(settlement.state, 0); // Open state
+
+      // Verify balances after settlement creation
+      const partyABalance = await mockSymm.read.balanceOf([
+        partyA.account.address,
+      ]);
+      const partyBBalance = await mockSymm.read.balanceOf([
+        partyB.account.address,
+      ]);
+      const contractBalance = await mockSymm.read.balanceOf([
+        etfSettlement.address,
+      ]);
+
+      assert.equal(partyABalance, parseEther("900")); // 1000 - 100
+      assert.equal(partyBBalance, parseEther("950")); // 1000 - 50
+      assert.equal(contractBalance, parseEther("150")); // 100 + 50
+    });
+
+    it("should fail to create settlement without approval", async function () {
+      const { mockSymm, etfSettlement, partyA, partyB } = await loadFixture(
+        deployFixture
+      );
+
+      const partyACollateral = parseEther("100");
+      const partyBCollateral = parseEther("50");
+
+      // Don't approve transfers
+      const etfParams = {
+        priceMint: parseEther("1000"),
+        mintTime: BigInt(Math.floor(Date.now() / 1000)),
+        etfTokenAmount: parseEther("10"),
+        etfToken: MOCK_WETH,
+        interestRate: parseEther("0.05"),
+        interestRatePayer: partyA.account.address,
+      };
+
+      // Attempt to create settlement should fail
+      try {
+        await etfSettlement.write.createETFSettlement(
+          [
+            partyA.account.address,
+            partyB.account.address,
+            partyACollateral,
+            partyBCollateral,
+            mockSymm.address,
+            etfParams,
+          ],
+          {
+            account: partyA.account,
+          }
+        );
+        assert.fail("Should have thrown error");
+      } catch (error) {
+        debugger;
+        assert(error.message.includes("ERC20InsufficientAllowance"));
+      }
+    });
+
+    it("should fail to create settlement with insufficient balance", async function () {
+      const { mockSymm, etfSettlement, partyA, partyB } = await loadFixture(
+        deployFixture
+      );
+
+      const partyACollateral = parseEther("2000"); // More than minted amount
+      const partyBCollateral = parseEther("50");
+
+      // Approve transfers
+      await mockSymm.write.approve([etfSettlement.address, partyACollateral], {
+        account: partyA.account,
+      });
+      await mockSymm.write.approve([etfSettlement.address, partyBCollateral], {
+        account: partyB.account,
+      });
+
+      const etfParams = {
+        priceMint: parseEther("1000"),
+        mintTime: BigInt(Math.floor(Date.now() / 1000)),
+        etfTokenAmount: parseEther("10"),
+        etfToken: MOCK_WETH,
+        interestRate: parseEther("0.05"),
+        interestRatePayer: partyA.account.address,
+      };
+
+      // Attempt to create settlement should fail
+      try {
+        await etfSettlement.write.createETFSettlement(
+          [
+            partyA.account.address,
+            partyB.account.address,
+            partyACollateral,
+            partyBCollateral,
+            mockSymm.address,
+            etfParams,
+          ],
+          {
+            account: partyA.account,
+          }
+        );
+        assert.fail("Should have thrown error");
+      } catch (error) {
+        console.log(error.message);
+        assert(error.message.includes("ERC20InsufficientBalance"));
+      }
     });
   });
 
