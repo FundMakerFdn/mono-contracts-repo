@@ -211,6 +211,67 @@ describe("ETFSettlement", function () {
         assert(error.message.includes("ERC20InsufficientBalance"));
       }
     });
+
+    it("should verify balances decrease by collateral amount after settlement creation", async function () {
+      const { mockSymm, etfSettlement, partyA, partyB } = await loadFixture(
+        deployFixture
+      );
+
+      const partyACollateral = parseEther("100");
+      const partyBCollateral = parseEther("50");
+
+      // Get initial balances
+      const partyAInitialBalance = await mockSymm.read.balanceOf([
+        partyA.account.address,
+      ]);
+      const partyBInitialBalance = await mockSymm.read.balanceOf([
+        partyB.account.address,
+      ]);
+
+      // Approve collateral transfers
+      await mockSymm.write.approve([etfSettlement.address, partyACollateral], {
+        account: partyA.account,
+      });
+      await mockSymm.write.approve([etfSettlement.address, partyBCollateral], {
+        account: partyB.account,
+      });
+
+      const etfParams = {
+        priceMint: parseEther("1000"),
+        mintTime: BigInt(Math.floor(Date.now() / 1000)),
+        etfTokenAmount: parseEther("10"),
+        etfToken: MOCK_WETH,
+        interestRate: parseEther("0.05"),
+        interestRatePayer: partyA.account.address,
+      };
+
+      // Create settlement
+      await etfSettlement.write.createETFSettlement(
+        [
+          partyA.account.address,
+          partyB.account.address,
+          partyACollateral,
+          partyBCollateral,
+          mockSymm.address,
+          etfParams,
+        ],
+        {
+          account: partyA.account,
+        }
+      );
+
+      // Get final balances
+      const partyAFinalBalance = await mockSymm.read.balanceOf([
+        partyA.account.address,
+      ]);
+      const partyBFinalBalance = await mockSymm.read.balanceOf([
+        partyB.account.address,
+      ]);
+
+      // Verify balances decreased exactly by collateral amounts
+      assert.equal(partyAFinalBalance, partyAInitialBalance - partyACollateral);
+      assert.equal(partyBFinalBalance, partyBInitialBalance - partyBCollateral);
+    });
   });
 
   describe("Early Agreement", function () {
@@ -368,7 +429,7 @@ describe("ETFSettlement", function () {
   });
 
   describe("Move to Next Batch", function () {
-    it("should move settlement to next batch", async function () {
+    it("should change state after moveToNextBatch call", async function () {
       const { mockSymm, etfSettlement, partyA, partyB } = await loadFixture(
         deployFixture
       );
