@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "./ISettlement.sol";
+import "./ISettleMaker.sol";
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -138,10 +139,23 @@ abstract contract BaseSettlement is ISettlement, EIP712 {
         _executeSettlement(settlementId, partyAAmount, partyBAmount);
     }
 
-    function moveToNextBatch(bytes32 settlementId) external virtual returns (bool) {
+    function moveToNextBatch(
+        bytes32 settlementId,
+        bytes32[] calldata merkleProof
+    ) external virtual returns (bool) {
         SettlementData storage settlement = settlements[settlementId];
         require(settlement.partyA != address(0), "Settlement: does not exist");
         require(settlement.state == 0, "Settlement: not open");
+        
+        // Verify merkle proof against SettleMaker's current batch merkle root
+        require(
+            ISettleMaker(settleMaker).verifySettlementInBatch(
+                currentBatch + 1,
+                settlementId,
+                merkleProof
+            ),
+            "Settlement: invalid merkle proof"
+        );
         
         settlement.state = 2; // nextBatch state
         nextBatchSchedule[settlementId] = true;

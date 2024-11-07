@@ -35,7 +35,7 @@ interface ISettlement {
     ) external returns (bytes32 settlementId);
 
     function claimCollateral(bytes32 settlementId) external;
-    function moveToNextBatch(bytes32 settlementId) external returns (bool);
+    function moveToNextBatch(bytes32 settlementId, bytes32[] calldata merkleProof) external returns (bool);
 
     function executeEarlyAgreement(
         bytes32 settlementId,
