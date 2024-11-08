@@ -21,14 +21,24 @@ function shouldExecuteEarlyAgreement() {
       account: partyB.account,
     });
 
+    // Mint WETH to both parties
+    await mockWeth.write.mint([partyA.account.address, parseEther("100")]);
+    await mockWeth.write.mint([partyB.account.address, parseEther("100")]);
+
     const etfParams = {
-      priceMint: parseEther("1000"),
+      priceMint: parseEther("10"),
       mintTime: BigInt(Math.floor(Date.now() / 1000)),
       etfTokenAmount: parseEther("10"),
-      etfToken: mockWeth.address, // Use deployed mockWeth
+      etfToken: mockWeth.address,
       interestRate: parseEther("0.05"),
       interestRatePayer: partyA.account.address,
     };
+
+    // Mint ETF tokens to settlement contract
+    await mockWeth.write.mint([
+      etfSettlement.address,
+      etfParams.etfTokenAmount,
+    ]);
 
     const hash = await etfSettlement.write.createETFSettlement(
       [
@@ -114,7 +124,7 @@ function shouldExecuteEarlyAgreement() {
     const settlement = await etfSettlement.read.getSettlementData([
       settlementId,
     ]);
-    assert.equal(settlement.state, 1n);
+    assert.equal(settlement.state, 1);
   });
 }
 
