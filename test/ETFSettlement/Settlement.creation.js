@@ -5,13 +5,17 @@ const {
 const { parseEther, getAddress, keccak256, toHex } = require("viem");
 const hre = require("hardhat");
 
-const { MOCK_WETH, MOCK_SETTLE_MAKER } = require("./constants");
+const { MOCK_SETTLE_MAKER } = require("./constants");
 
 async function deployFixture() {
   const [deployer, partyA, partyB] = await hre.viem.getWalletClients();
   const publicClient = await hre.viem.getPublicClient();
 
   const mockSymm = await hre.viem.deployContract("MockSymm");
+  const mockWeth = await hre.viem.deployContract("MockToken", [
+    "Mock Wrapped Ether",
+    "WETH",
+  ]);
   const etfSettlement = await hre.viem.deployContract("ETFSettlement", [
     MOCK_SETTLE_MAKER,
     "ETF Settlement",
@@ -21,8 +25,13 @@ async function deployFixture() {
   await mockSymm.write.mint([partyA.account.address, parseEther("1000")]);
   await mockSymm.write.mint([partyB.account.address, parseEther("1000")]);
 
+  // Also mint some WETH for testing
+  await mockWeth.write.mint([partyA.account.address, parseEther("1000")]);
+  await mockWeth.write.mint([partyB.account.address, parseEther("1000")]);
+
   return {
     mockSymm,
+    mockWeth,
     etfSettlement,
     deployer,
     partyA,
@@ -33,7 +42,7 @@ async function deployFixture() {
 
 function shouldCreateSettlement() {
   it("should create settlement with proper collateral", async function () {
-    const { mockSymm, etfSettlement, partyA, partyB, publicClient } =
+    const { mockWeth, mockSymm, etfSettlement, partyA, partyB, publicClient } =
       await loadFixture(deployFixture);
 
     const partyACollateral = parseEther("100");
@@ -50,7 +59,7 @@ function shouldCreateSettlement() {
       priceMint: parseEther("1000"),
       mintTime: BigInt(Math.floor(Date.now() / 1000)),
       etfTokenAmount: parseEther("10"),
-      etfToken: MOCK_WETH,
+      etfToken: mockWeth.address,
       interestRate: parseEther("0.05"),
       interestRatePayer: partyA.account.address,
     };
@@ -113,9 +122,8 @@ function shouldCreateSettlement() {
   });
 
   it("should fail to create settlement without approval", async function () {
-    const { mockSymm, etfSettlement, partyA, partyB } = await loadFixture(
-      deployFixture
-    );
+    const { mockWeth, mockSymm, etfSettlement, partyA, partyB } =
+      await loadFixture(deployFixture);
 
     const partyACollateral = parseEther("100");
     const partyBCollateral = parseEther("50");
@@ -124,7 +132,7 @@ function shouldCreateSettlement() {
       priceMint: parseEther("1000"),
       mintTime: BigInt(Math.floor(Date.now() / 1000)),
       etfTokenAmount: parseEther("10"),
-      etfToken: MOCK_WETH,
+      etfToken: mockWeth.address,
       interestRate: parseEther("0.05"),
       interestRatePayer: partyA.account.address,
     };
@@ -152,9 +160,8 @@ function shouldCreateSettlement() {
   });
 
   it("should fail to create settlement with insufficient balance", async function () {
-    const { mockSymm, etfSettlement, partyA, partyB } = await loadFixture(
-      deployFixture
-    );
+    const { mockWeth, mockSymm, etfSettlement, partyA, partyB } =
+      await loadFixture(deployFixture);
 
     const partyACollateral = parseEther("2000"); // More than minted amount
     const partyBCollateral = parseEther("50");
@@ -170,7 +177,7 @@ function shouldCreateSettlement() {
       priceMint: parseEther("1000"),
       mintTime: BigInt(Math.floor(Date.now() / 1000)),
       etfTokenAmount: parseEther("10"),
-      etfToken: MOCK_WETH,
+      etfToken: mockWeth.address,
       interestRate: parseEther("0.05"),
       interestRatePayer: partyA.account.address,
     };
@@ -198,9 +205,8 @@ function shouldCreateSettlement() {
   });
 
   it("should verify balances decrease by collateral amount after settlement creation", async function () {
-    const { mockSymm, etfSettlement, partyA, partyB } = await loadFixture(
-      deployFixture
-    );
+    const { mockWeth, mockSymm, etfSettlement, partyA, partyB } =
+      await loadFixture(deployFixture);
 
     const partyACollateral = parseEther("100");
     const partyBCollateral = parseEther("50");
@@ -226,7 +232,7 @@ function shouldCreateSettlement() {
       priceMint: parseEther("1000"),
       mintTime: BigInt(Math.floor(Date.now() / 1000)),
       etfTokenAmount: parseEther("10"),
-      etfToken: MOCK_WETH,
+      etfToken: mockWeth.address,
       interestRate: parseEther("0.05"),
       interestRatePayer: partyA.account.address,
     };

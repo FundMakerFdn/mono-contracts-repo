@@ -9,7 +9,7 @@ const { deployFixture } = require("./Settlement.creation");
 
 function shouldStoreSettlementData() {
   it("should store settlement data correctly", async function () {
-    const { mockSymm, etfSettlement, partyA, partyB } = await loadFixture(
+    const { mockSymm, mockWeth, etfSettlement, partyA, partyB } = await loadFixture(
       deployFixture
     );
 
@@ -27,7 +27,7 @@ function shouldStoreSettlementData() {
       priceMint: parseEther("1000"),
       mintTime: BigInt(Math.floor(Date.now() / 1000)),
       etfTokenAmount: parseEther("10"),
-      etfToken: MOCK_WETH,
+      etfToken: mockWeth.address,
       interestRate: parseEther("0.05"),
       interestRatePayer: partyA.account.address,
     };
