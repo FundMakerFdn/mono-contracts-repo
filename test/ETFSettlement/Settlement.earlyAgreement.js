@@ -2,7 +2,13 @@ const assert = require("node:assert/strict");
 const {
   loadFixture,
 } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
-const { parseEther, keccak256, toHex } = require("viem");
+const {
+  parseEther,
+  keccak256,
+  toHex,
+  decodeEventLog,
+  parseAbi,
+} = require("viem");
 const hre = require("hardhat");
 const { deployFixture } = require("./Settlement.creation");
 
@@ -108,17 +114,47 @@ function shouldExecuteEarlyAgreement() {
       message,
     });
 
-    await etfSettlement.write.executeEarlyAgreement(
-      [
-        settlementId,
-        partyAAmount,
-        partyBAmount,
-        partyASignature,
-        partyBSignature,
-      ],
-      {
-        account: partyA.account,
+    const earlyAgreementReceipt = await publicClient.waitForTransactionReceipt({
+      hash: await etfSettlement.write.executeEarlyAgreement(
+        [
+          settlementId,
+          partyAAmount,
+          partyBAmount,
+          partyASignature,
+          partyBSignature,
+        ],
+        {
+          account: partyA.account,
+        }
+      ),
+    });
+
+    // Find and decode the EarlyAgreementExecuted event
+    const earlyAgreementLog = earlyAgreementReceipt.logs.find((log) => {
+      try {
+        const decoded = decodeEventLog({
+          abi: etfSettlement.abi,
+          data: log.data,
+          topics: log.topics,
+        });
+        return decoded.eventName === "EarlyAgreementExecuted";
+      } catch {
+        return false;
       }
+    });
+
+    const decodedLog = decodeEventLog({
+      abi: parseAbi([
+        "event EarlyAgreementExecuted(bytes32 indexed settlementId)",
+      ]),
+      data: earlyAgreementLog.data,
+      topics: earlyAgreementLog.topics,
+    });
+
+    assert.equal(
+      decodedLog.args.settlementId,
+      settlementId,
+      "Incorrect settlementId in EarlyAgreementExecuted event"
     );
 
     const settlement = await etfSettlement.read.getSettlementData([

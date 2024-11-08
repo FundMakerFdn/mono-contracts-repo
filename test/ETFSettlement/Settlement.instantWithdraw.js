@@ -2,7 +2,14 @@ const assert = require("node:assert/strict");
 const {
   loadFixture,
 } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
-const { parseEther, keccak256, toHex } = require("viem");
+const {
+  parseEther,
+  keccak256,
+  toHex,
+  getAddress,
+  decodeEventLog,
+  parseAbi,
+} = require("viem");
 const hre = require("hardhat");
 const { deployFixture } = require("./Settlement.creation");
 
@@ -49,9 +56,16 @@ function shouldExecuteInstantWithdraw() {
     const SETTLEMENT_CREATED_EVENT = keccak256(
       toHex("SettlementCreated(bytes32,address,address)")
     );
-    const settlementCreatedEvent = receipt.logs.find(
-      (log) => log.topics[0] === SETTLEMENT_CREATED_EVENT
-    );
+    // Filter out Transfer events and find SettlementCreated
+    const settlementCreatedEvent = receipt.logs.find((log) => {
+      // Skip Transfer events
+      if (
+        log.topics[0] === keccak256(toHex("Transfer(address,address,uint256)"))
+      ) {
+        return false;
+      }
+      return log.topics[0] === SETTLEMENT_CREATED_EVENT;
+    });
     const settlementId = settlementCreatedEvent.topics[1];
 
     const chainId = await publicClient.getChainId();
@@ -107,7 +121,7 @@ function shouldExecuteInstantWithdraw() {
       partyB.account.address,
     ]);
 
-    await etfSettlement.write.executeInstantWithdraw(
+    const instantWithdrawTx = await etfSettlement.write.executeInstantWithdraw(
       [
         settlementId,
         replacedParty,
@@ -119,6 +133,53 @@ function shouldExecuteInstantWithdraw() {
       {
         account: partyB.account,
       }
+    );
+
+    const instantWithdrawReceipt = await publicClient.waitForTransactionReceipt(
+      {
+        hash: instantWithdrawTx,
+      }
+    );
+
+    // Check event
+    const INSTANT_WITHDRAW_EVENT = keccak256(
+      toHex("InstantWithdrawExecuted(bytes32,address,uint256)")
+    );
+    const instantWithdrawEvent = instantWithdrawReceipt.logs.find((log) => {
+      // Skip Transfer events
+      if (
+        log.topics[0] === keccak256(toHex("Transfer(address,address,uint256)"))
+      ) {
+        return false;
+      }
+      return log.topics[0] === INSTANT_WITHDRAW_EVENT;
+    });
+
+    assert.ok(instantWithdrawEvent, "Instant withdraw event not emitted");
+    assert.equal(
+      instantWithdrawEvent.topics[1],
+      settlementId,
+      "Incorrect settlement ID in event"
+    );
+    // Decode the event log to get all parameters including the indexed ones
+    const decodedLog = decodeEventLog({
+      abi: parseAbi([
+        "event InstantWithdrawExecuted(bytes32 indexed settlementId, address indexed replacedParty, uint256 fee)",
+      ]),
+      data: instantWithdrawEvent.data,
+      topics: instantWithdrawEvent.topics,
+    });
+
+    assert.equal(
+      getAddress(decodedLog.args.replacedParty),
+      getAddress(replacedParty),
+      "Incorrect replaced party in event"
+    );
+
+    assert.equal(
+      decodedLog.args.fee,
+      instantWithdrawFee,
+      "Incorrect instant withdraw fee in event"
     );
 
     const finalPartyABalance = await mockSymm.read.balanceOf([
@@ -249,6 +310,32 @@ function shouldExecuteInstantWithdraw() {
             account: partyB.account,
           }
         );
+      },
+      {
+        message: /Invalid signature/,
+      }
+    );
+
+    // Verify no event was emitted for invalid signature
+    const instantWithdrawTx = etfSettlement.write.executeInstantWithdraw(
+      [
+        settlementId,
+        replacedParty,
+        instantWithdrawFee,
+        partyAAmount,
+        partyBAmount,
+        signature,
+      ],
+      {
+        account: partyB.account,
+      }
+    );
+
+    await assert.rejects(
+      async () => {
+        await publicClient.waitForTransactionReceipt({
+          hash: await instantWithdrawTx,
+        });
       },
       {
         message: /Invalid signature/,

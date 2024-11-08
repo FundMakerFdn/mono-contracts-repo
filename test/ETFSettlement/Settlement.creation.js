@@ -2,7 +2,7 @@ const assert = require("node:assert/strict");
 const {
   loadFixture,
 } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
-const { parseEther, getAddress, keccak256, toHex } = require("viem");
+const { parseEther, getAddress, keccak256, toHex, decodeEventLog } = require("viem");
 const hre = require("hardhat");
 
 const { MOCK_SETTLE_MAKER } = require("./constants");
@@ -36,7 +36,7 @@ async function deployFixture() {
     deployer,
     partyA,
     partyB,
-    publicClient,
+    publicClient
   };
 }
 
@@ -85,7 +85,25 @@ function shouldCreateSettlement() {
     const settlementCreatedEvent = receipt.logs.find(
       (log) => log.topics[0] === SETTLEMENT_CREATED_EVENT
     );
-    const settlementId = settlementCreatedEvent.topics[1];
+    const decodedLog = decodeEventLog({
+      abi: etfSettlement.abi,
+      eventName: "SettlementCreated",
+      topics: settlementCreatedEvent.topics,
+      data: settlementCreatedEvent.data,
+    });
+
+    const settlementId = decodedLog.args.settlementId;
+
+    assert.equal(
+      getAddress(decodedLog.args.partyA),
+      getAddress(partyA.account.address),
+      "Incorrect partyA in event"
+    );
+    assert.equal(
+      getAddress(decodedLog.args.partyB),
+      getAddress(partyB.account.address),
+      "Incorrect partyB in event"
+    );
 
     const settlement = await etfSettlement.read.getSettlementData([
       settlementId,

@@ -2,16 +2,22 @@ const assert = require("node:assert/strict");
 const {
   loadFixture,
 } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
-const { parseEther, getAddress, keccak256, toHex } = require("viem");
+const {
+  parseEther,
+  getAddress,
+  keccak256,
+  toHex,
+  parseAbi,
+  decodeEventLog,
+} = require("viem");
 const hre = require("hardhat");
 const { MOCK_WETH } = require("./constants");
 const { deployFixture } = require("./Settlement.creation");
 
 function shouldStoreSettlementData() {
   it("should store settlement data correctly", async function () {
-    const { mockSymm, mockWeth, etfSettlement, partyA, partyB } = await loadFixture(
-      deployFixture
-    );
+    const { mockSymm, mockWeth, etfSettlement, partyA, partyB } =
+      await loadFixture(deployFixture);
 
     const partyACollateral = parseEther("100");
     const partyBCollateral = parseEther("50");
@@ -48,13 +54,32 @@ function shouldStoreSettlementData() {
 
     const publicClient = await hre.viem.getPublicClient();
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
-    const SETTLEMENT_CREATED_EVENT = keccak256(
-      toHex("SettlementCreated(bytes32,address,address)")
-    );
-    const settlementCreatedEvent = receipt.logs.find(
-      (log) => log.topics[0] === SETTLEMENT_CREATED_EVENT
-    );
-    const settlementId = settlementCreatedEvent.topics[1];
+
+    // Find the SettlementCreated event specifically
+    const settlementCreatedLog = receipt.logs.find((log) => {
+      try {
+        const decoded = decodeEventLog({
+          abi: parseAbi([
+            "event SettlementCreated(bytes32 indexed settlementId, address indexed partyA, address indexed partyB)",
+          ]),
+          data: log.data,
+          topics: log.topics,
+        });
+        return decoded.eventName === "SettlementCreated";
+      } catch {
+        return false;
+      }
+    });
+
+    const decodedLog = decodeEventLog({
+      abi: parseAbi([
+        "event SettlementCreated(bytes32 indexed settlementId, address indexed partyA, address indexed partyB)",
+      ]),
+      data: settlementCreatedLog.data,
+      topics: settlementCreatedLog.topics,
+    });
+
+    const settlementId = decodedLog.args.settlementId;
 
     const settlement = await etfSettlement.read.getSettlementData([
       settlementId,

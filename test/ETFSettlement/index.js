@@ -3,6 +3,7 @@ const { shouldExecuteEarlyAgreement } = require('./Settlement.earlyAgreement');
 const { shouldMoveToNextBatch } = require('./Settlement.nextBatch');
 const { shouldStoreSettlementData } = require('./Settlement.data');
 const { shouldExecuteInstantWithdraw } = require('./Settlement.instantWithdraw');
+const { shouldEmitEvents } = require('./Settlement.events');
 
 function shouldBehaveLikeETFSettlement() {
     describe("Settlement Creation", async function () {
@@ -23,6 +24,10 @@ function shouldBehaveLikeETFSettlement() {
 
     describe("Instant Withdraw", async function () {
         shouldExecuteInstantWithdraw();
+    });
+
+    describe("Events", async function () {
+        shouldEmitEvents();
     });
 }
 

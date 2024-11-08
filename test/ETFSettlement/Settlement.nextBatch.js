@@ -2,15 +2,14 @@ const assert = require("node:assert/strict");
 const {
   loadFixture,
 } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
-const { parseEther } = require("viem");
+const { parseEther, parseAbi, decodeEventLog } = require("viem");
 const hre = require("hardhat");
 const { deployFixture } = require("./Settlement.creation");
 
 function shouldMoveToNextBatch() {
   it("should change state after moveToNextBatch call", async function () {
-    const { mockSymm, mockWeth, etfSettlement, partyA, partyB } = await loadFixture(
-      deployFixture
-    );
+    const { mockSymm, mockWeth, etfSettlement, partyA, partyB, publicClient } =
+      await loadFixture(deployFixture);
 
     const partyACollateral = parseEther("100");
     const partyBCollateral = parseEther("50");
@@ -45,9 +44,25 @@ function shouldMoveToNextBatch() {
       }
     );
 
-    await etfSettlement.write.moveToNextBatch([settlementId], {
-      account: partyA.account,
+    const moveToNextBatchReceipt = await publicClient.waitForTransactionReceipt(
+      {
+        hash: await etfSettlement.write.moveToNextBatch([settlementId], {
+          account: partyA.account,
+        }),
+      }
+    );
+
+    const movedToNextBatchLog = decodeEventLog({
+      abi: parseAbi(["event MovedToNextBatch(bytes32 indexed settlementId)"]),
+      data: moveToNextBatchReceipt.logs[0].data,
+      topics: moveToNextBatchReceipt.logs[0].topics,
     });
+
+    assert.equal(
+      movedToNextBatchLog.args.settlementId,
+      settlementId,
+      "Incorrect settlementId in MovedToNextBatch event"
+    );
 
     const settlement = await etfSettlement.read.getSettlementData([
       settlementId,
