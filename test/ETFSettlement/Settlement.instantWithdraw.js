@@ -111,15 +111,10 @@ function shouldExecuteInstantWithdraw() {
       message,
     });
 
-    const initialPartyABalance = await mockSymm.read.balanceOf([
-      partyA.account.address,
-    ]);
-    const initialPartyBBalance = await mockSymm.read.balanceOf([
-      partyB.account.address,
-    ]);
-    const initialSolverBalance = await mockSymm.read.balanceOf([
-      partyB.account.address,
-    ]);
+    // Get initial balances
+    const initialPartyABalance = await mockSymm.read.balanceOf([partyA.account.address]);
+    const initialPartyBBalance = await mockSymm.read.balanceOf([partyB.account.address]);
+    const initialContractBalance = await mockSymm.read.balanceOf([etfSettlement.address]);
 
     const instantWithdrawTx = await etfSettlement.write.executeInstantWithdraw(
       [
@@ -182,25 +177,31 @@ function shouldExecuteInstantWithdraw() {
       "Incorrect instant withdraw fee in event"
     );
 
-    const finalPartyABalance = await mockSymm.read.balanceOf([
-      partyA.account.address,
-    ]);
-    const finalPartyBBalance = await mockSymm.read.balanceOf([
-      partyB.account.address,
-    ]);
-    const finalSolverBalance = await mockSymm.read.balanceOf([
-      partyB.account.address,
-    ]);
+    // Get final balances
+    const finalPartyABalance = await mockSymm.read.balanceOf([partyA.account.address]);
+    const finalPartyBBalance = await mockSymm.read.balanceOf([partyB.account.address]);
+    const finalContractBalance = await mockSymm.read.balanceOf([etfSettlement.address]);
 
-    const settlement = await etfSettlement.read.getSettlementData([
-      settlementId,
-    ]);
+    const settlement = await etfSettlement.read.getSettlementData([settlementId]);
 
-    assert.equal(settlement.state, 1); // Settled state
-    assert.equal(finalPartyABalance, initialPartyABalance + partyAAmount);
+    // Verify settlement state
+    assert.equal(settlement.state, 1, "Settlement should be in Settled state");
+
+    // Verify balance changes
     assert.equal(
-      finalPartyBBalance,
-      initialPartyBBalance + partyBAmount + instantWithdrawFee
+      finalPartyABalance - initialPartyABalance,
+      partyAAmount,
+      "PartyA balance change incorrect"
+    );
+    assert.equal(
+      finalPartyBBalance - initialPartyBBalance,
+      partyBAmount + instantWithdrawFee,
+      "PartyB balance change incorrect"
+    );
+    assert.equal(
+      initialContractBalance - finalContractBalance,
+      partyAAmount + partyBAmount + instantWithdrawFee,
+      "Contract balance change incorrect"
     );
   });
 

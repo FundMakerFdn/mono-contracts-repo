@@ -207,13 +207,13 @@ abstract contract BaseSettlement is EIP712 {
         address recoveredSigner = ECDSA.recover(hash, signature);
         
         // Debug logging
-        console.log("Verification Debug:");
-        console.log("Expected Signer:", expectedSigner);
-        console.log("Recovered Signer:", recoveredSigner);
-        console.log("Hash to verify:");
-        console.logBytes32(hash);
-        console.log("Signature:");
-        console.logBytes(signature);
+        // console.log("Verification Debug:");
+        // console.log("Expected Signer:", expectedSigner);
+        // console.log("Recovered Signer:", recoveredSigner);
+        // console.log("Hash to verify:");
+        // console.logBytes32(hash);
+        // console.log("Signature:");
+        // console.logBytes(signature);
         
         return recoveredSigner == expectedSigner;
     }
