@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import "./BaseSettlement.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "hardhat/console.sol";
 
 /// @title ETF Settlement Contract
 contract ETFSettlement is BaseSettlement {
@@ -45,7 +46,20 @@ contract ETFSettlement is BaseSettlement {
             collateralToken
         );
         
-        etfParameters[settlementId] = params;
+        // Explicitly store each parameter
+        ETFParameters storage storedParams = etfParameters[settlementId];
+        storedParams.priceMint = params.priceMint;
+        storedParams.mintTime = params.mintTime;
+        storedParams.etfTokenAmount = params.etfTokenAmount;
+        storedParams.etfToken = params.etfToken;
+        storedParams.interestRate = params.interestRate;
+        storedParams.interestRatePayer = params.interestRatePayer;
+        
+        // Debug logging
+        console.log("Creating ETF Settlement with ID:", uint256(settlementId));
+        console.log("Price Mint:", storedParams.priceMint);
+        console.log("Mint Time:", storedParams.mintTime);
+        
         return settlementId;
     }
 
@@ -77,7 +91,18 @@ contract ETFSettlement is BaseSettlement {
     }
 
     function getETFParameters(bytes32 settlementId) external view returns (ETFParameters memory) {
-        return etfParameters[settlementId];
+        ETFParameters memory params = etfParameters[settlementId];
+        
+        // Debug logging
+        console.log("Retrieving ETF Parameters:");
+        console.log("Price Mint:", params.priceMint);
+        console.log("Mint Time:", params.mintTime);
+        console.log("ETF Token Amount:", params.etfTokenAmount);
+        console.log("ETF Token:", params.etfToken);
+        console.log("Interest Rate:", params.interestRate);
+        console.log("Interest Rate Payer:", params.interestRatePayer);
+        
+        return params;
     }
 
     function calculateETFHash(ETFParameters memory params) public view returns (bytes32) {
@@ -89,6 +114,22 @@ contract ETFSettlement is BaseSettlement {
             params.etfToken,
             params.interestRate,
             params.interestRatePayer
+        ));
+        return _hashTypedDataV4(structHash);
+    }
+
+    function calculateLeaf(
+        bytes32 settlementId, 
+        uint256 partyAAmount, 
+        uint256 partyBAmount, 
+        uint256 nonce
+    ) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(
+            keccak256("EarlyAgreement(bytes32 settlementId,uint256 partyAAmount,uint256 partyBAmount,uint256 nonce)"),
+            settlementId,
+            partyAAmount,
+            partyBAmount,
+            nonce
         ));
         return _hashTypedDataV4(structHash);
     }
