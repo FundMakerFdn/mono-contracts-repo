@@ -95,20 +95,4 @@ contract ETFSettlement is BaseSettlement {
         ));
         return _hashTypedDataV4(structHash);
     }
-
-    function calculateLeaf(
-        bytes32 settlementId, 
-        uint256 partyAAmount, 
-        uint256 partyBAmount, 
-        uint256 nonce
-    ) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(
-            keccak256("EarlyAgreement(bytes32 settlementId,uint256 partyAAmount,uint256 partyBAmount,uint256 nonce)"),
-            settlementId,
-            partyAAmount,
-            partyBAmount,
-            nonce
-        ));
-        return _hashTypedDataV4(structHash);
-    }
 }
