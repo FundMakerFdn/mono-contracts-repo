@@ -44,12 +44,6 @@ abstract contract BaseSettlement is EIP712 {
     );
     event MovedToNextBatch(bytes32 indexed settlementId);
 
-    struct InstantWithdrawParams {
-        address replacedParty;
-        uint256 instantWithdrawFee;
-        uint256 partyAAmount;
-        uint256 partyBAmount;
-    }
 
     constructor(address _settleMaker, string memory name, string memory version) 
         EIP712(name, version) 
@@ -64,16 +58,15 @@ abstract contract BaseSettlement is EIP712 {
         uint256 partyBCollateral,
         address collateralToken
     ) internal returns (bytes32) {
-        bytes32 settlementId = keccak256(
-            abi.encodePacked(
-                partyA,
-                partyB,
-                partyACollateral,
-                partyBCollateral,
-                collateralToken,
-                block.timestamp
-            )
-        );
+        bytes32 settlementId = keccak256(abi.encode(
+            partyA,
+            partyB,
+            partyACollateral,
+            partyBCollateral,
+            collateralToken,
+            block.timestamp,
+            block.number
+        ));
 
         settlements[settlementId] = SettlementData({
             partyA: partyA,
@@ -102,16 +95,29 @@ abstract contract BaseSettlement is EIP712 {
         SettlementData storage settlement = settlements[settlementId];
         require(settlement.state == SettlementState.Open, "Settlement not open");
 
+        // Get the current nonce
+        uint256 currentNonce = nonces[settlement.partyA];
+
+        // Create the EIP712 hash
         bytes32 structHash = keccak256(abi.encode(
             EARLY_AGREEMENT_TYPEHASH,
             settlementId,
             partyAAmount,
             partyBAmount,
-            nonces[settlement.partyA]
+            currentNonce
         ));
+        
+        bytes32 hash = _hashTypedDataV4(structHash);
 
-        require(_verifySignature(structHash, partyASignature, settlement.partyA), "Invalid party A signature");
-        require(_verifySignature(structHash, partyBSignature, settlement.partyB), "Invalid party B signature");
+        // Verify signatures directly against the parties from the settlement
+        require(
+            _verifySignature(hash, partyASignature, settlement.partyA),
+            "Invalid party A signature"
+        );
+        require(
+            _verifySignature(hash, partyBSignature, settlement.partyB),
+            "Invalid party B signature"
+        );
 
         // Increment nonce
         nonces[settlement.partyA]++;
@@ -126,7 +132,10 @@ abstract contract BaseSettlement is EIP712 {
 
     function executeInstantWithdraw(
         bytes32 settlementId,
-        InstantWithdrawParams memory params,
+        address replacedParty,
+        uint256 instantWithdrawFee,
+        uint256 partyAAmount,
+        uint256 partyBAmount,
         bytes memory signature
     ) public virtual {
         SettlementData storage settlement = settlements[settlementId];
@@ -136,36 +145,36 @@ abstract contract BaseSettlement is EIP712 {
         bytes32 structHash = keccak256(abi.encode(
             INSTANT_WITHDRAW_TYPEHASH,
             settlementId,
-            params.replacedParty,
-            params.instantWithdrawFee,
-            params.partyAAmount,
-            params.partyBAmount,
-            nonces[params.replacedParty]
+            replacedParty,
+            instantWithdrawFee,
+            partyAAmount,
+            partyBAmount,
+            nonces[replacedParty]
         ));
         bytes32 hash = _hashTypedDataV4(structHash);
 
-        require(_verifySignature(hash, signature, params.replacedParty), "Invalid signature");
+        require(_verifySignature(hash, signature, replacedParty), "Invalid signature");
         require(
-            params.replacedParty == settlement.partyA || 
-            params.replacedParty == settlement.partyB, 
+            replacedParty == settlement.partyA || 
+            replacedParty == settlement.partyB, 
             "Invalid replaced party"
         );
 
         // Increment nonce
-        nonces[params.replacedParty]++;
+        nonces[replacedParty]++;
 
         // Transfer amounts including fee
         IERC20 token = IERC20(settlement.collateralToken);
-        if (params.partyAAmount > 0) {
-            token.safeTransfer(settlement.partyA, params.partyAAmount);
+        if (partyAAmount > 0) {
+            token.safeTransfer(settlement.partyA, partyAAmount);
         }
-        if (params.partyBAmount > 0) {
-            token.safeTransfer(settlement.partyB, params.partyBAmount);
+        if (partyBAmount > 0) {
+            token.safeTransfer(settlement.partyB, partyBAmount);
         }
-        token.safeTransfer(msg.sender, params.instantWithdrawFee); // Fee to solver
+        token.safeTransfer(msg.sender, instantWithdrawFee); // Fee to solver
 
         settlement.state = SettlementState.Settled;
-        emit InstantWithdrawExecuted(settlementId, params.replacedParty, params.instantWithdrawFee);
+        emit InstantWithdrawExecuted(settlementId, replacedParty, instantWithdrawFee);
     }
 
     function moveToNextBatch(bytes32 settlementId) external {
@@ -193,22 +202,19 @@ abstract contract BaseSettlement is EIP712 {
     function _verifySignature(
         bytes32 hash,
         bytes memory signature,
-        address signer
+        address expectedSigner
     ) internal pure returns (bool) {
-        bytes32 ethSignedHash = hash.toEthSignedMessageHash();
-        address recoveredSigner = ECDSA.recover(ethSignedHash, signature);
+        address recoveredSigner = ECDSA.recover(hash, signature);
         
         // Debug logging
         console.log("Verification Debug:");
-        console.log("Expected Signer:", signer);
+        console.log("Expected Signer:", expectedSigner);
         console.log("Recovered Signer:", recoveredSigner);
-		console.log("Original Hash:");
+        console.log("Hash to verify:");
         console.logBytes32(hash);
-		console.log("Eth-signed Hash:");
-        console.logBytes32(ethSignedHash);
-		console.log("Signature:");
+        console.log("Signature:");
         console.logBytes(signature);
         
-        return recoveredSigner == signer;
+        return recoveredSigner == expectedSigner;
     }
 }

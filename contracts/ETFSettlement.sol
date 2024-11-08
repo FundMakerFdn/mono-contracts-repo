@@ -46,19 +46,7 @@ contract ETFSettlement is BaseSettlement {
             collateralToken
         );
         
-        // Explicitly store each parameter
-        ETFParameters storage storedParams = etfParameters[settlementId];
-        storedParams.priceMint = params.priceMint;
-        storedParams.mintTime = params.mintTime;
-        storedParams.etfTokenAmount = params.etfTokenAmount;
-        storedParams.etfToken = params.etfToken;
-        storedParams.interestRate = params.interestRate;
-        storedParams.interestRatePayer = params.interestRatePayer;
-        
-        // Debug logging
-        console.log("Creating ETF Settlement with ID:", uint256(settlementId));
-        console.log("Price Mint:", storedParams.priceMint);
-        console.log("Mint Time:", storedParams.mintTime);
+		etfParameters[settlementId] = params;
         
         return settlementId;
     }
@@ -92,16 +80,6 @@ contract ETFSettlement is BaseSettlement {
 
     function getETFParameters(bytes32 settlementId) external view returns (ETFParameters memory) {
         ETFParameters memory params = etfParameters[settlementId];
-        
-        // Debug logging
-        console.log("Retrieving ETF Parameters:");
-        console.log("Price Mint:", params.priceMint);
-        console.log("Mint Time:", params.mintTime);
-        console.log("ETF Token Amount:", params.etfTokenAmount);
-        console.log("ETF Token:", params.etfToken);
-        console.log("Interest Rate:", params.interestRate);
-        console.log("Interest Rate Payer:", params.interestRatePayer);
-        
         return params;
     }
 
