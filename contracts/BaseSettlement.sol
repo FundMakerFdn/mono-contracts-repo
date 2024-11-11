@@ -32,7 +32,6 @@ abstract contract BaseSettlement is EIP712 {
 
     address public immutable settleMaker;
     mapping(bytes32 => SettlementData) internal settlements;
-    mapping(address => uint256) private nonces;
     mapping(bytes32 => bool) public isScheduledForNextBatch;
 
     event SettlementCreated(bytes32 indexed settlementId, address indexed partyA, address indexed partyB);
@@ -54,15 +53,13 @@ abstract contract BaseSettlement is EIP712 {
     function createSettlement(
         address partyA,
         address partyB,
-        uint256 partyACollateral,
-        uint256 partyBCollateral,
+        uint256 collateralAmount,
         address collateralToken
     ) internal returns (bytes32) {
         bytes32 settlementId = keccak256(abi.encode(
             partyA,
             partyB,
-            partyACollateral,
-            partyBCollateral,
+            collateralAmount,
             collateralToken,
             block.timestamp,
             block.number
@@ -71,8 +68,7 @@ abstract contract BaseSettlement is EIP712 {
         settlements[settlementId] = SettlementData({
             partyA: partyA,
             partyB: partyB,
-            partyACollateral: partyACollateral,
-            partyBCollateral: partyBCollateral,
+            collateralAmount: collateralAmount,
             collateralToken: collateralToken,
             state: SettlementState.Open
         });
@@ -89,8 +85,7 @@ abstract contract BaseSettlement is EIP712 {
         bytes32 settlementId,
         uint256 partyAAmount,
         uint256 partyBAmount,
-        bytes memory partyASignature,
-        bytes memory partyBSignature
+        bytes memory signature
     ) public virtual {
         SettlementData storage settlement = settlements[settlementId];
         require(settlement.state == SettlementState.Open, "Settlement not open");
@@ -111,13 +106,11 @@ abstract contract BaseSettlement is EIP712 {
 
         // Verify signatures directly against the parties from the settlement
         require(
-            _verifySignature(hash, partyASignature, settlement.partyA),
-            "Invalid party A signature"
+            (_verifySignature(hash, signature, settlement.partyA) && msg.sender == settlement.partyB ) ||
+            (_verifySignature(hash, signature, settlement.partyB) && msg.sender == settlement.partyA ),
+            "Invalid signature"
         );
-        require(
-            _verifySignature(hash, partyBSignature, settlement.partyB),
-            "Invalid party B signature"
-        );
+
 
         // Increment nonce
         nonces[settlement.partyA]++;
@@ -175,16 +168,6 @@ abstract contract BaseSettlement is EIP712 {
 
         settlement.state = SettlementState.Settled;
         emit InstantWithdrawExecuted(settlementId, replacedParty, instantWithdrawFee);
-    }
-
-    function moveToNextBatch(bytes32 settlementId) external {
-        SettlementData storage settlement = settlements[settlementId];
-        require(settlement.state == SettlementState.Open, "Settlement not open");
-        
-        settlement.state = SettlementState.NextBatch;
-        isScheduledForNextBatch[settlementId] = true;
-        
-        emit MovedToNextBatch(settlementId);
     }
 
     function getSettlementData(bytes32 settlementId) external view returns (SettlementData memory) {
