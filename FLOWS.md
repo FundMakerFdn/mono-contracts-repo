@@ -76,7 +76,6 @@ Parties involved: Settlement makers, Validators
 2. Validators call onchain(castVote) during 3-day voting period
 
    - Validators can call onchain(modifyVote) to change votes
-   - TODO: time-weighted average voting
 
 3. After voting period ends:
 
