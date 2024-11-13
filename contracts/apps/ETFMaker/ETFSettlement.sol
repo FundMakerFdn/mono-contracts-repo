@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "./BaseSettlement.sol";
+import "contracts/BaseSettlement.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "hardhat/console.sol";
@@ -33,16 +33,14 @@ contract ETFSettlement is BaseSettlement {
     function createETFSettlement(
         address partyA,
         address partyB,
-        uint256 partyACollateral,
-        uint256 partyBCollateral,
+        uint256 collateralAmount,
         address collateralToken,
         ETFParameters calldata params
     ) external returns (bytes32) {
         bytes32 settlementId = createSettlement(
             partyA,
             partyB,
-            partyACollateral,
-            partyBCollateral,
+            collateralAmount,
             collateralToken
         );
         
@@ -55,8 +53,7 @@ contract ETFSettlement is BaseSettlement {
         bytes32 settlementId,
         uint256 partyAAmount,
         uint256 partyBAmount,
-        bytes memory partyASignature,
-        bytes memory partyBSignature
+        bytes memory signature
     ) public override {
         SettlementData storage settlement = settlements[settlementId];
         ETFParameters storage params = etfParameters[settlementId];
@@ -66,8 +63,7 @@ contract ETFSettlement is BaseSettlement {
             settlementId,
             partyAAmount,
             partyBAmount,
-            partyASignature,
-            partyBSignature
+            signature
         );
         
         // Transfer ETF tokens based on agreement

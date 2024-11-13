@@ -17,19 +17,30 @@ function shouldExecuteEarlyAgreement() {
     const { mockSymm, mockWeth, etfSettlement, partyA, partyB } =
       await loadFixture(deployFixture);
 
-    const partyACollateral = parseEther("100");
-    const partyBCollateral = parseEther("50");
+    const collateralAmount = parseEther("100");
 
-    await mockSymm.write.approve([etfSettlement.address, partyACollateral], {
+    // Verify initial state
+    const initialPartyABalance = await mockSymm.read.balanceOf([
+      partyA.account.address,
+    ]);
+    const initialPartyBBalance = await mockSymm.read.balanceOf([
+      partyB.account.address,
+    ]);
+
+    await mockSymm.write.approve([etfSettlement.address, collateralAmount], {
       account: partyA.account,
     });
-    await mockSymm.write.approve([etfSettlement.address, partyBCollateral], {
-      account: partyB.account,
-    });
 
-    // Mint WETH to both parties
-    await mockWeth.write.mint([partyA.account.address, parseEther("100")]);
-    await mockWeth.write.mint([partyB.account.address, parseEther("100")]);
+    // Mint exact amount needed for distribution
+    const partyAAmount = parseEther("70");
+    const partyBAmount = parseEther("30");
+    assert.equal(
+      partyAAmount + partyBAmount,
+      collateralAmount,
+      "Distribution must match collateral"
+    );
+
+    await mockSymm.write.mint([etfSettlement.address, collateralAmount]);
 
     const etfParams = {
       priceMint: parseEther("10"),
@@ -50,8 +61,7 @@ function shouldExecuteEarlyAgreement() {
       [
         partyA.account.address,
         partyB.account.address,
-        partyACollateral,
-        partyBCollateral,
+        collateralAmount,
         mockSymm.address,
         etfParams,
       ],
@@ -70,10 +80,6 @@ function shouldExecuteEarlyAgreement() {
     );
     const settlementId = settlementCreatedEvent.topics[1];
 
-    const nonce = await etfSettlement.read.getNonce([partyA.account.address]);
-    const partyAAmount = parseEther("120");
-    const partyBAmount = parseEther("30");
-
     const chainId = await publicClient.getChainId();
     const contractAddress = await etfSettlement.address;
 
@@ -89,7 +95,6 @@ function shouldExecuteEarlyAgreement() {
         { name: "settlementId", type: "bytes32" },
         { name: "partyAAmount", type: "uint256" },
         { name: "partyBAmount", type: "uint256" },
-        { name: "nonce", type: "uint256" },
       ],
     };
 
@@ -97,17 +102,10 @@ function shouldExecuteEarlyAgreement() {
       settlementId,
       partyAAmount,
       partyBAmount,
-      nonce,
     };
 
-    const partyASignature = await partyA.signTypedData({
-      domain,
-      types,
-      primaryType: "EarlyAgreement",
-      message,
-    });
-
-    const partyBSignature = await partyB.signTypedData({
+    // Get signature from party B since msg.sender will be party A
+    const signature = await partyB.signTypedData({
       domain,
       types,
       primaryType: "EarlyAgreement",
@@ -116,13 +114,7 @@ function shouldExecuteEarlyAgreement() {
 
     const earlyAgreementReceipt = await publicClient.waitForTransactionReceipt({
       hash: await etfSettlement.write.executeEarlyAgreement(
-        [
-          settlementId,
-          partyAAmount,
-          partyBAmount,
-          partyASignature,
-          partyBSignature,
-        ],
+        [settlementId, partyAAmount, partyBAmount, signature],
         {
           account: partyA.account,
         }

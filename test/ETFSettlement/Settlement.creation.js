@@ -2,7 +2,13 @@ const assert = require("node:assert/strict");
 const {
   loadFixture,
 } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
-const { parseEther, getAddress, keccak256, toHex, decodeEventLog } = require("viem");
+const {
+  parseEther,
+  getAddress,
+  keccak256,
+  toHex,
+  decodeEventLog,
+} = require("viem");
 const hre = require("hardhat");
 
 const { MOCK_SETTLE_MAKER } = require("./constants");
@@ -36,7 +42,7 @@ async function deployFixture() {
     deployer,
     partyA,
     partyB,
-    publicClient
+    publicClient,
   };
 }
 
@@ -45,14 +51,10 @@ function shouldCreateSettlement() {
     const { mockWeth, mockSymm, etfSettlement, partyA, partyB, publicClient } =
       await loadFixture(deployFixture);
 
-    const partyACollateral = parseEther("100");
-    const partyBCollateral = parseEther("50");
+    const collateralAmount = parseEther("100");
 
-    await mockSymm.write.approve([etfSettlement.address, partyACollateral], {
+    await mockSymm.write.approve([etfSettlement.address, collateralAmount], {
       account: partyA.account,
-    });
-    await mockSymm.write.approve([etfSettlement.address, partyBCollateral], {
-      account: partyB.account,
     });
 
     const etfParams = {
@@ -68,8 +70,7 @@ function shouldCreateSettlement() {
       [
         partyA.account.address,
         partyB.account.address,
-        partyACollateral,
-        partyBCollateral,
+        collateralAmount,
         mockSymm.address,
         etfParams,
       ],
@@ -108,6 +109,14 @@ function shouldCreateSettlement() {
     const settlement = await etfSettlement.read.getSettlementData([
       settlementId,
     ]);
+
+    // Verify settlement ID format
+    assert.match(
+      settlementId.toString(),
+      /^0x[a-fA-F0-9]{64}$/,
+      "Invalid settlement ID format"
+    );
+
     assert.equal(
       getAddress(settlement.partyA),
       getAddress(partyA.account.address)
@@ -116,13 +125,47 @@ function shouldCreateSettlement() {
       getAddress(settlement.partyB),
       getAddress(partyB.account.address)
     );
-    assert.equal(settlement.partyACollateral, partyACollateral);
-    assert.equal(settlement.partyBCollateral, partyBCollateral);
+    assert.equal(settlement.collateralAmount, collateralAmount);
     assert.equal(
       getAddress(settlement.collateralToken),
       getAddress(mockSymm.address)
     );
     assert.equal(settlement.state, 0);
+
+    // Verify ETF parameters
+    const etfSettlementParams = await etfSettlement.read.getETFParameters([
+      settlementId,
+    ]);
+    assert.equal(
+      etfSettlementParams.priceMint,
+      etfParams.priceMint,
+      "Incorrect mint price"
+    );
+    assert.equal(
+      etfSettlementParams.mintTime,
+      etfParams.mintTime,
+      "Incorrect mint time"
+    );
+    assert.equal(
+      etfSettlementParams.etfTokenAmount,
+      etfParams.etfTokenAmount,
+      "Incorrect ETF token amount"
+    );
+    assert.equal(
+      getAddress(etfSettlementParams.etfToken),
+      getAddress(etfParams.etfToken),
+      "Incorrect ETF token"
+    );
+    assert.equal(
+      etfSettlementParams.interestRate,
+      etfParams.interestRate,
+      "Incorrect interest rate"
+    );
+    assert.equal(
+      getAddress(etfSettlementParams.interestRatePayer),
+      getAddress(etfParams.interestRatePayer),
+      "Incorrect interest rate payer"
+    );
 
     const partyABalance = await mockSymm.read.balanceOf([
       partyA.account.address,
@@ -135,16 +178,15 @@ function shouldCreateSettlement() {
     ]);
 
     assert.equal(partyABalance, parseEther("900"));
-    assert.equal(partyBBalance, parseEther("950"));
-    assert.equal(contractBalance, parseEther("150"));
+    assert.equal(partyBBalance, parseEther("1000"));
+    assert.equal(contractBalance, parseEther("100"));
   });
 
   it("should fail to create settlement without approval", async function () {
     const { mockWeth, mockSymm, etfSettlement, partyA, partyB } =
       await loadFixture(deployFixture);
 
-    const partyACollateral = parseEther("100");
-    const partyBCollateral = parseEther("50");
+    const collateralAmount = parseEther("100");
 
     const etfParams = {
       priceMint: parseEther("1000"),
@@ -161,8 +203,7 @@ function shouldCreateSettlement() {
           [
             partyA.account.address,
             partyB.account.address,
-            partyACollateral,
-            partyBCollateral,
+            collateralAmount,
             mockSymm.address,
             etfParams,
           ],
@@ -181,14 +222,10 @@ function shouldCreateSettlement() {
     const { mockWeth, mockSymm, etfSettlement, partyA, partyB } =
       await loadFixture(deployFixture);
 
-    const partyACollateral = parseEther("2000"); // More than minted amount
-    const partyBCollateral = parseEther("50");
+    const collateralAmount = parseEther("2000"); // More than minted amount
 
-    await mockSymm.write.approve([etfSettlement.address, partyACollateral], {
+    await mockSymm.write.approve([etfSettlement.address, collateralAmount], {
       account: partyA.account,
-    });
-    await mockSymm.write.approve([etfSettlement.address, partyBCollateral], {
-      account: partyB.account,
     });
 
     const etfParams = {
@@ -206,8 +243,7 @@ function shouldCreateSettlement() {
           [
             partyA.account.address,
             partyB.account.address,
-            partyACollateral,
-            partyBCollateral,
+            collateralAmount,
             mockSymm.address,
             etfParams,
           ],
@@ -226,24 +262,17 @@ function shouldCreateSettlement() {
     const { mockWeth, mockSymm, etfSettlement, partyA, partyB } =
       await loadFixture(deployFixture);
 
-    const partyACollateral = parseEther("100");
-    const partyBCollateral = parseEther("50");
+    const collateralAmount = parseEther("100");
 
     const initialPartyABalance = await mockSymm.read.balanceOf([
       partyA.account.address,
-    ]);
-    const initialPartyBBalance = await mockSymm.read.balanceOf([
-      partyB.account.address,
     ]);
     const initialContractBalance = await mockSymm.read.balanceOf([
       etfSettlement.address,
     ]);
 
-    await mockSymm.write.approve([etfSettlement.address, partyACollateral], {
+    await mockSymm.write.approve([etfSettlement.address, collateralAmount], {
       account: partyA.account,
-    });
-    await mockSymm.write.approve([etfSettlement.address, partyBCollateral], {
-      account: partyB.account,
     });
 
     const etfParams = {
@@ -259,8 +288,7 @@ function shouldCreateSettlement() {
       [
         partyA.account.address,
         partyB.account.address,
-        partyACollateral,
-        partyBCollateral,
+        collateralAmount,
         mockSymm.address,
         etfParams,
       ],
@@ -279,11 +307,10 @@ function shouldCreateSettlement() {
       etfSettlement.address,
     ]);
 
-    assert.equal(finalPartyABalance, initialPartyABalance - partyACollateral);
-    assert.equal(finalPartyBBalance, initialPartyBBalance - partyBCollateral);
+    assert.equal(finalPartyABalance, initialPartyABalance - collateralAmount);
     assert.equal(
       finalContractBalance,
-      initialContractBalance + partyACollateral + partyBCollateral
+      initialContractBalance + collateralAmount
     );
   });
 }

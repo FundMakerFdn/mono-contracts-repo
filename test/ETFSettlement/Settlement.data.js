@@ -19,14 +19,10 @@ function shouldStoreSettlementData() {
     const { mockSymm, mockWeth, etfSettlement, partyA, partyB } =
       await loadFixture(deployFixture);
 
-    const partyACollateral = parseEther("100");
-    const partyBCollateral = parseEther("50");
+    const collateralAmount = parseEther("100");
 
-    await mockSymm.write.approve([etfSettlement.address, partyACollateral], {
+    await mockSymm.write.approve([etfSettlement.address, collateralAmount], {
       account: partyA.account,
-    });
-    await mockSymm.write.approve([etfSettlement.address, partyBCollateral], {
-      account: partyB.account,
     });
 
     const etfParams = {
@@ -42,8 +38,7 @@ function shouldStoreSettlementData() {
       [
         partyA.account.address,
         partyB.account.address,
-        partyACollateral,
-        partyBCollateral,
+        collateralAmount,
         mockSymm.address,
         etfParams,
       ],
@@ -94,8 +89,7 @@ function shouldStoreSettlementData() {
       getAddress(settlement.partyB),
       getAddress(partyB.account.address)
     );
-    assert.equal(settlement.partyACollateral, partyACollateral);
-    assert.equal(settlement.partyBCollateral, partyBCollateral);
+    assert.equal(settlement.collateralAmount, collateralAmount);
     assert.equal(
       getAddress(settlement.collateralToken),
       getAddress(mockSymm.address)

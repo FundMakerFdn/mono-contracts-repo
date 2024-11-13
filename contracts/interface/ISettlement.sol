@@ -30,8 +30,7 @@ interface ISettlement {
     function createSettlement(
         address partyA,
         address partyB,
-        uint256 partyACollateral,
-        uint256 partyBCollateral,
+        uint256 collateralAmount,
         address collateralToken
     ) external returns (bytes32 settlementId);
 

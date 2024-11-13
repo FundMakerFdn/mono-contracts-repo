@@ -18,17 +18,16 @@ abstract contract BaseSettlement is EIP712 {
     struct SettlementData {
         address partyA;
         address partyB;
-        uint256 partyACollateral;
-        uint256 partyBCollateral;
+        uint256 collateralAmount;
         address collateralToken;
         SettlementState state;
     }
 
     bytes32 private constant EARLY_AGREEMENT_TYPEHASH = 
-        keccak256("EarlyAgreement(bytes32 settlementId,uint256 partyAAmount,uint256 partyBAmount,uint256 nonce)");
+        keccak256("EarlyAgreement(bytes32 settlementId,uint256 partyAAmount,uint256 partyBAmount)");
     
     bytes32 private constant INSTANT_WITHDRAW_TYPEHASH = 
-        keccak256("InstantWithdraw(bytes32 settlementId,address replacedParty,uint256 instantWithdrawFee,uint256 partyAAmount,uint256 partyBAmount,uint256 nonce)");
+        keccak256("InstantWithdraw(bytes32 settlementId,address replacedParty,uint256 instantWithdrawFee,uint256 partyAAmount,uint256 partyBAmount)");
 
     address public immutable settleMaker;
     mapping(bytes32 => SettlementData) internal settlements;
@@ -73,9 +72,8 @@ abstract contract BaseSettlement is EIP712 {
             state: SettlementState.Open
         });
 
-        // Transfer collateral
-        IERC20(collateralToken).safeTransferFrom(partyA, address(this), partyACollateral);
-        IERC20(collateralToken).safeTransferFrom(partyB, address(this), partyBCollateral);
+        // Transfer total collateral amount
+        IERC20(collateralToken).safeTransferFrom(partyA, address(this), collateralAmount);
 
         emit SettlementCreated(settlementId, partyA, partyB);
         return settlementId;
@@ -90,16 +88,12 @@ abstract contract BaseSettlement is EIP712 {
         SettlementData storage settlement = settlements[settlementId];
         require(settlement.state == SettlementState.Open, "Settlement not open");
 
-        // Get the current nonce
-        uint256 currentNonce = nonces[settlement.partyA];
-
         // Create the EIP712 hash
         bytes32 structHash = keccak256(abi.encode(
             EARLY_AGREEMENT_TYPEHASH,
             settlementId,
             partyAAmount,
-            partyBAmount,
-            currentNonce
+            partyBAmount
         ));
         
         bytes32 hash = _hashTypedDataV4(structHash);
@@ -110,10 +104,6 @@ abstract contract BaseSettlement is EIP712 {
             (_verifySignature(hash, signature, settlement.partyB) && msg.sender == settlement.partyA ),
             "Invalid signature"
         );
-
-
-        // Increment nonce
-        nonces[settlement.partyA]++;
 
         // Transfer collateral based on agreement
         IERC20(settlement.collateralToken).safeTransfer(settlement.partyA, partyAAmount);
@@ -141,8 +131,7 @@ abstract contract BaseSettlement is EIP712 {
             replacedParty,
             instantWithdrawFee,
             partyAAmount,
-            partyBAmount,
-            nonces[replacedParty]
+            partyBAmount
         ));
         bytes32 hash = _hashTypedDataV4(structHash);
 
@@ -154,7 +143,6 @@ abstract contract BaseSettlement is EIP712 {
         );
 
         // Increment nonce
-        nonces[replacedParty]++;
 
         // Transfer amounts including fee
         IERC20 token = IERC20(settlement.collateralToken);
@@ -172,10 +160,6 @@ abstract contract BaseSettlement is EIP712 {
 
     function getSettlementData(bytes32 settlementId) external view returns (SettlementData memory) {
         return settlements[settlementId];
-    }
-
-    function getNonce(address account) external view returns (uint256) {
-        return nonces[account];
     }
 
     function getDomainSeparator() external view returns (bytes32) {

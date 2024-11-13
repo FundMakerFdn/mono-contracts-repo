@@ -23,62 +23,77 @@ Parties involved: Party A (trader), Party B (counterparty), Validators
    - Validators call onchain(castVote) during voting period
    - After voting period, anyone calls onchain(claimCollateral)
 4. If agreed:
-   - Party A calls offchain(broadcastEarlyAgreement) with unsigned proposal
-   - Party B calls offchain(respondToEarlyAgreement) with unsigned acceptance
-   - Party A signs EIP712 for agreement
-   - Party B signs EIP712 accepting agreement
-   - Either party calls onchain(executeEarlyAgreement) with both signatures
+   - Both parties call offchain(signEarlyAgreement)
+   - Either party calls onchain(executeInstantWithdraw)
+
+## Cross-Chain Settlement flow
+
+Parties involved: Validators, Settlement makers
+
+1. On main chain:
+
+   - Validators sign EIP191 message containing:
+     - Batch ID
+     - Merkle root
+     - Contract address
+     - Chain ID
+   - Submit signatures during voting period
+
+2. On other chains:
+   - Anyone can submit root with validator signatures
+   - Root is accepted when 51% consensus reached
+   - 12 hour resolution period if under 51%
+   - Malicious submissions can be proven and slashed on main chain
 
 ## Validator Registry flow
 
 Parties involved: Validators
 
-1. OFFCHAIN: Each period, Validators:
+1. New validators must:
 
-   - Generate validator registry changes as ValidatorRegistryLeaf structs
-   - Build merkle tree from changes
-   - Submit merkle root via onchain(submitValidatorRegistryBatch)
+   - Complete KYC/AML process
+   - Meet jurisdiction diversity requirements
+   - Lock required SYMM amount
+   - Receive approval via voting process
+   - Have equal vote weight (1) once approved
 
 2. ONCHAIN: Voting process:
-
    - Validators call onchain(castVote) during voting period
    - After voting period ends, winning merkle determines validator set
    - Any validator can call onchain(executeValidatorRegistryChange) with merkle proofs
 
-3. New validators must:
-   - Complete KYC/AML process
-   - Meet jurisdiction diversity requirements
-   - Receive approval via voting process
-   - Have equal vote weight (1) once approved
-
 ## RFQ flow
 
-Parties involved: Party A (requester), Solvers
+1. Party A calls offchain(broadcastRFQ) with parameters
+2. Solvers call offchain(respondToRFQ) with quotes
+3. Party A calls offchain(selectBestQuote)
+4. Selected solver calls offchain(acceptRFQ)
+5. Both parties sign EIP712 messages
+6. Either party calls onchain(executeRFQ) with signatures
 
-1. Solver calls onchain(registerSolver) with IP address
-2. Party A calls offchain(broadcastRFQ) (unsigned) to all solver IPs
-3. Solvers call offchain(respondToRFQ) with unsigned quotes (if they want)
-4. Party A calls offchain(selectBestQuote), signs EIP712 (or none)
-5. Solver calls offchain(acceptRFQ), signs EIP712.
-6. Party A calls onchain(executeRFQ) with selected quote
-
-## Soft Fork Periodic Batch flow
+## Periodic Batch Settlement flow
 
 Parties involved: Settlement makers, Validators
 
 1. After period ends:
 
-   - Each validator computes the merkle tree for all settlements
-   - If a matching merkle already exists, validator votes for it
+   - Each validator computes the merkle tree for all settlements using StandardMerkleTree:
+     - Leaf structure: `(settlementId, batchNumber, amountToPartyA, settlementContract, parameters)`
+     - `parameters` are ABI encoded based on settlement type
+   - Validators sort leaves by settlementId before tree generation
+   - For each manual settlement requiring verification:
+     - Review dispute evidence and parameters
+     - Calculate appropriate amountToPartyA based on settlement rules
+   - If a matching merkle exists, validator votes for it
    - Otherwise, validator submits new merkle via onchain(submitSoftFork)
-   - Merkle data is stored on Arweave
 
-2. Validators call onchain(castVote) during 3-day voting period
+2. Manual Voting Process:
 
-   - Validators can call onchain(modifyVote) to change votes
+   - All settlements undergo manual review each period
+   - Validators review and vote on all proposed resolutions
+   - Can modify votes if new evidence emerges
 
 3. After voting period ends:
-
    - Settlement makers call onchain(executeSettlements) with merkle proofs
    - Validators call onchain(claimVoterRewards) for correct votes
 

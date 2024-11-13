@@ -18,14 +18,9 @@ function shouldEmitEvents() {
     const { mockSymm, mockWeth, etfSettlement, partyA, partyB, publicClient } =
       await loadFixture(deployFixture);
 
-    const partyACollateral = parseEther("100");
-    const partyBCollateral = parseEther("50");
-
-    await mockSymm.write.approve([etfSettlement.address, partyACollateral], {
+    const collateralAmount = parseEther("100");
+    await mockSymm.write.approve([etfSettlement.address, collateralAmount], {
       account: partyA.account,
-    });
-    await mockSymm.write.approve([etfSettlement.address, partyBCollateral], {
-      account: partyB.account,
     });
 
     const etfParams = {
@@ -41,8 +36,7 @@ function shouldEmitEvents() {
       [
         partyA.account.address,
         partyB.account.address,
-        partyACollateral,
-        partyBCollateral,
+        collateralAmount,
         mockSymm.address,
         etfParams,
       ],
@@ -100,7 +94,7 @@ function shouldEmitEvents() {
 
     // Setup and create settlement first
     await mockWeth.write.mint([etfSettlement.address, parseEther("10")]);
-    
+
     const { settlementId } = await createSettlement(
       mockSymm,
       mockWeth,
@@ -110,11 +104,21 @@ function shouldEmitEvents() {
       publicClient
     );
 
-    // Setup early agreement parameters
-    const nonce = await etfSettlement.read.getNonce([partyA.account.address]);
-    const partyAAmount = parseEther("120");
-    const partyBAmount = parseEther("30");
+    // Setup instant withdraw parameters
+    const replacedParty = partyA.account.address;
+    const instantWithdrawFee = parseEther("1");
+    const withdrawPartyAAmount = parseEther("80");
+    const withdrawPartyBAmount = parseEther("20");
 
+    // Mint tokens to contract for instant withdraw
+    const totalWithdrawAmount = withdrawPartyAAmount + withdrawPartyBAmount + instantWithdrawFee;
+    await mockSymm.write.mint([etfSettlement.address, totalWithdrawAmount]);
+
+    // Setup early agreement parameters and mint required tokens
+    const earlyPartyAAmount = parseEther("120");
+    const earlyPartyBAmount = parseEther("30");
+    // Mint tokens to contract for early agreement distribution
+    await mockSymm.write.mint([etfSettlement.address, earlyPartyAAmount + earlyPartyBAmount]);
     const chainId = await publicClient.getChainId();
     const domain = {
       name: "ETF Settlement",
@@ -128,25 +132,17 @@ function shouldEmitEvents() {
         { name: "settlementId", type: "bytes32" },
         { name: "partyAAmount", type: "uint256" },
         { name: "partyBAmount", type: "uint256" },
-        { name: "nonce", type: "uint256" },
       ],
     };
 
     const message = {
       settlementId,
-      partyAAmount,
-      partyBAmount,
-      nonce,
+      partyAAmount: earlyPartyAAmount,
+      partyBAmount: earlyPartyBAmount,
     };
 
-    const partyASignature = await partyA.signTypedData({
-      domain,
-      types,
-      primaryType: "EarlyAgreement",
-      message,
-    });
-
-    const partyBSignature = await partyB.signTypedData({
+    // Get signature from party B since msg.sender will be party A
+    const signature = await partyB.signTypedData({
       domain,
       types,
       primaryType: "EarlyAgreement",
@@ -155,13 +151,7 @@ function shouldEmitEvents() {
 
     const earlyAgreementTxHash =
       await etfSettlement.write.executeEarlyAgreement(
-        [
-          settlementId,
-          partyAAmount,
-          partyBAmount,
-          partyASignature,
-          partyBSignature,
-        ],
+        [settlementId, earlyPartyAAmount, earlyPartyBAmount, signature],
         {
           account: partyA.account,
         }
@@ -173,10 +163,14 @@ function shouldEmitEvents() {
     // Find EarlyAgreementExecuted event, skipping Transfer events
     const earlyAgreementEvent = earlyAgreementReceipt.logs.find((log) => {
       // Skip Transfer events
-      if (log.topics[0] === keccak256(toHex("Transfer(address,address,uint256)"))) {
+      if (
+        log.topics[0] === keccak256(toHex("Transfer(address,address,uint256)"))
+      ) {
         return false;
       }
-      return log.topics[0] === keccak256(toHex("EarlyAgreementExecuted(bytes32)"));
+      return (
+        log.topics[0] === keccak256(toHex("EarlyAgreementExecuted(bytes32)"))
+      );
     });
 
     const earlyAgreementLog = decodeEventLog({
@@ -208,7 +202,6 @@ function shouldEmitEvents() {
       publicClient
     );
 
-    const nonce = await etfSettlement.read.getNonce([partyA.account.address]);
     const replacedParty = partyA.account.address;
     const instantWithdrawFee = parseEther("1");
     const partyAAmount = parseEther("80");
@@ -229,9 +222,12 @@ function shouldEmitEvents() {
         { name: "instantWithdrawFee", type: "uint256" },
         { name: "partyAAmount", type: "uint256" },
         { name: "partyBAmount", type: "uint256" },
-        { name: "nonce", type: "uint256" },
       ],
     };
+
+    // Mint tokens to contract for instant withdraw
+    const totalAmount = partyAAmount + partyBAmount + instantWithdrawFee;
+    await mockSymm.write.mint([etfSettlement.address, totalAmount]);
 
     const message = {
       settlementId,
@@ -239,7 +235,6 @@ function shouldEmitEvents() {
       instantWithdrawFee,
       partyAAmount,
       partyBAmount,
-      nonce,
     };
 
     const signature = await partyA.signTypedData({
@@ -270,10 +265,15 @@ function shouldEmitEvents() {
     // Find InstantWithdrawExecuted event, skipping Transfer events
     const instantWithdrawEvent = instantWithdrawReceipt.logs.find((log) => {
       // Skip Transfer events
-      if (log.topics[0] === keccak256(toHex("Transfer(address,address,uint256)"))) {
+      if (
+        log.topics[0] === keccak256(toHex("Transfer(address,address,uint256)"))
+      ) {
         return false;
       }
-      return log.topics[0] === keccak256(toHex("InstantWithdrawExecuted(bytes32,address,uint256)"));
+      return (
+        log.topics[0] ===
+        keccak256(toHex("InstantWithdrawExecuted(bytes32,address,uint256)"))
+      );
     });
 
     const instantWithdrawLog = decodeEventLog({
@@ -300,54 +300,6 @@ function shouldEmitEvents() {
       "Incorrect fee in InstantWithdrawExecuted event"
     );
   });
-
-  it("should emit MovedToNextBatch event with correct parameters", async function () {
-    const { mockSymm, mockWeth, etfSettlement, partyA, partyB, publicClient } =
-      await loadFixture(deployFixture);
-
-    // Setup and create settlement first
-    const { settlementId } = await createSettlement(
-      mockSymm,
-      mockWeth,
-      etfSettlement,
-      partyA,
-      partyB,
-      publicClient
-    );
-
-    const nextBatchTxHash = await etfSettlement.write.moveToNextBatch(
-      [settlementId],
-      {
-        account: partyA.account,
-      }
-    );
-
-    const nextBatchReceipt = await publicClient.waitForTransactionReceipt({
-      hash: nextBatchTxHash,
-    });
-    // Find MovedToNextBatch event, skipping Transfer events
-    const movedToNextBatchEvent = nextBatchReceipt.logs.find((log) => {
-      // Skip Transfer events
-      if (
-        log.topics[0] === keccak256(toHex("Transfer(address,address,uint256)"))
-      ) {
-        return false;
-      }
-      return log.topics[0] === keccak256(toHex("MovedToNextBatch(bytes32)"));
-    });
-
-    const movedToNextBatchLog = decodeEventLog({
-      abi: parseAbi(["event MovedToNextBatch(bytes32 indexed settlementId)"]),
-      data: movedToNextBatchEvent.data,
-      topics: movedToNextBatchEvent.topics,
-    });
-
-    assert.equal(
-      movedToNextBatchLog.args.settlementId,
-      settlementId,
-      "Incorrect settlementId in MovedToNextBatch event"
-    );
-  });
 }
 
 // Helper function to create a settlement and return the settlementId
@@ -359,14 +311,10 @@ async function createSettlement(
   partyB,
   publicClient
 ) {
-  const partyACollateral = parseEther("100");
-  const partyBCollateral = parseEther("50");
+  const collateralAmount = parseEther("100");
 
-  await mockSymm.write.approve([etfSettlement.address, partyACollateral], {
+  await mockSymm.write.approve([etfSettlement.address, collateralAmount], {
     account: partyA.account,
-  });
-  await mockSymm.write.approve([etfSettlement.address, partyBCollateral], {
-    account: partyB.account,
   });
 
   const etfParams = {
@@ -382,8 +330,7 @@ async function createSettlement(
     [
       partyA.account.address,
       partyB.account.address,
-      partyACollateral,
-      partyBCollateral,
+      collateralAmount,
       mockSymm.address,
       etfParams,
     ],

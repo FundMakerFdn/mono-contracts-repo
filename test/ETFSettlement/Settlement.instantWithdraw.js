@@ -21,11 +21,9 @@ function shouldExecuteInstantWithdraw() {
     const partyACollateral = parseEther("100");
     const partyBCollateral = parseEther("50");
 
-    await mockSymm.write.approve([etfSettlement.address, partyACollateral], {
+    const collateralAmount = parseEther("100");
+    await mockSymm.write.approve([etfSettlement.address, collateralAmount], {
       account: partyA.account,
-    });
-    await mockSymm.write.approve([etfSettlement.address, partyBCollateral], {
-      account: partyB.account,
     });
 
     const etfParams = {
@@ -37,12 +35,24 @@ function shouldExecuteInstantWithdraw() {
       interestRatePayer: partyA.account.address,
     };
 
+    const replacedParty = partyA.account.address;
+    const instantWithdrawFee = parseEther("1");
+    const partyAAmount = parseEther("80");
+    const partyBAmount = parseEther("20");
+
+    // PartyA wants to exit early and requests quotes with these amounts
+    const requestedPartyAAmount = partyAAmount; // Amount PartyA wants to receive
+    const requestedPartyBAmount = partyBAmount; // Remaining amount after PartyA exit
+    
+    // PartyB (acting as solver) offers quote with their fee
+    const solverFee = instantWithdrawFee;
+    const totalNeeded = requestedPartyAAmount + requestedPartyBAmount + solverFee;
+
     const hash = await etfSettlement.write.createETFSettlement(
       [
         partyA.account.address,
         partyB.account.address,
-        partyACollateral,
-        partyBCollateral,
+        collateralAmount,
         mockSymm.address,
         etfParams,
       ],
@@ -50,6 +60,10 @@ function shouldExecuteInstantWithdraw() {
         account: partyA.account,
       }
     );
+
+    // Mint tokens to the contract to cover the withdrawals and fee
+    const totalAmount = partyAAmount + partyBAmount + instantWithdrawFee;
+    await mockSymm.write.mint([etfSettlement.address, totalAmount]);
 
     const publicClient = await hre.viem.getPublicClient();
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
@@ -85,15 +99,8 @@ function shouldExecuteInstantWithdraw() {
         { name: "instantWithdrawFee", type: "uint256" },
         { name: "partyAAmount", type: "uint256" },
         { name: "partyBAmount", type: "uint256" },
-        { name: "nonce", type: "uint256" },
       ],
     };
-
-    const nonce = await etfSettlement.read.getNonce([partyA.account.address]);
-    const replacedParty = partyA.account.address;
-    const instantWithdrawFee = parseEther("1");
-    const partyAAmount = parseEther("80");
-    const partyBAmount = parseEther("20");
 
     const message = {
       settlementId,
@@ -101,9 +108,25 @@ function shouldExecuteInstantWithdraw() {
       instantWithdrawFee,
       partyAAmount,
       partyBAmount,
-      nonce,
     };
 
+    // First PartyA verifies the solver's quote matches their request
+    assert.equal(
+      message.partyAAmount,
+      requestedPartyAAmount,
+      "Solver quote doesn't match requested PartyA amount"
+    );
+    assert.equal(
+      message.partyBAmount,
+      requestedPartyBAmount,
+      "Solver quote doesn't match requested PartyB amount"
+    );
+    assert.ok(
+      message.instantWithdrawFee <= parseEther("2"),
+      "Solver fee too high"
+    );
+
+    // If quote acceptable, PartyA signs it
     const signature = await partyA.signTypedData({
       domain,
       types,
@@ -111,10 +134,18 @@ function shouldExecuteInstantWithdraw() {
       message,
     });
 
-    // Get initial balances
-    const initialPartyABalance = await mockSymm.read.balanceOf([partyA.account.address]);
-    const initialPartyBBalance = await mockSymm.read.balanceOf([partyB.account.address]);
-    const initialContractBalance = await mockSymm.read.balanceOf([etfSettlement.address]);
+    // Track all balances before execution
+    const initialBalances = {
+      partyA: await mockSymm.read.balanceOf([partyA.account.address]),
+      partyB: await mockSymm.read.balanceOf([partyB.account.address]),
+      contract: await mockSymm.read.balanceOf([etfSettlement.address])
+    };
+
+    // Verify solver (PartyB) has enough balance to take over position
+    assert.ok(
+      initialBalances.partyB >= message.partyBAmount,
+      "Solver has insufficient balance to take over position"
+    );
 
     const instantWithdrawTx = await etfSettlement.write.executeInstantWithdraw(
       [
@@ -177,31 +208,33 @@ function shouldExecuteInstantWithdraw() {
       "Incorrect instant withdraw fee in event"
     );
 
-    // Get final balances
-    const finalPartyABalance = await mockSymm.read.balanceOf([partyA.account.address]);
-    const finalPartyBBalance = await mockSymm.read.balanceOf([partyB.account.address]);
-    const finalContractBalance = await mockSymm.read.balanceOf([etfSettlement.address]);
+    // Get final balances after execution
+    const finalBalances = {
+      partyA: await mockSymm.read.balanceOf([partyA.account.address]),
+      partyB: await mockSymm.read.balanceOf([partyB.account.address]), 
+      contract: await mockSymm.read.balanceOf([etfSettlement.address])
+    };
 
     const settlement = await etfSettlement.read.getSettlementData([settlementId]);
 
-    // Verify settlement state
+    // Verify settlement state transitions
     assert.equal(settlement.state, 1, "Settlement should be in Settled state");
 
     // Verify balance changes
     assert.equal(
-      finalPartyABalance - initialPartyABalance,
+      finalBalances.partyA - initialBalances.partyA,
       partyAAmount,
       "PartyA balance change incorrect"
     );
     assert.equal(
-      finalPartyBBalance - initialPartyBBalance,
+      finalBalances.partyB - initialBalances.partyB,
       partyBAmount + instantWithdrawFee,
-      "PartyB balance change incorrect"
+      "PartyB (solver) balance change incorrect - should receive position amount + fee"
     );
     assert.equal(
-      initialContractBalance - finalContractBalance,
+      initialBalances.contract - finalBalances.contract,
       partyAAmount + partyBAmount + instantWithdrawFee,
-      "Contract balance change incorrect"
+      "Contract balance change incorrect - should decrease by total distributed amount"
     );
   });
 
@@ -228,12 +261,16 @@ function shouldExecuteInstantWithdraw() {
       interestRatePayer: partyA.account.address,
     };
 
+    const replacedParty = partyA.account.address;
+    const instantWithdrawFee = parseEther("1");
+    const partyAAmount = parseEther("80");
+    const partyBAmount = parseEther("20");
+
     const hash = await etfSettlement.write.createETFSettlement(
       [
         partyA.account.address,
         partyB.account.address,
         partyACollateral,
-        partyBCollateral,
         mockSymm.address,
         etfParams,
       ],
@@ -241,6 +278,10 @@ function shouldExecuteInstantWithdraw() {
         account: partyA.account,
       }
     );
+
+    // Mint tokens to the contract to cover potential withdrawals
+    const totalAmount = partyAAmount + partyBAmount + instantWithdrawFee;
+    await mockSymm.write.mint([etfSettlement.address, totalAmount]);
 
     const publicClient = await hre.viem.getPublicClient();
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
@@ -269,15 +310,8 @@ function shouldExecuteInstantWithdraw() {
         { name: "instantWithdrawFee", type: "uint256" },
         { name: "partyAAmount", type: "uint256" },
         { name: "partyBAmount", type: "uint256" },
-        { name: "nonce", type: "uint256" },
       ],
     };
-
-    const nonce = await etfSettlement.read.getNonce([partyA.account.address]);
-    const replacedParty = partyA.account.address;
-    const instantWithdrawFee = parseEther("1");
-    const partyAAmount = parseEther("80");
-    const partyBAmount = parseEther("20");
 
     const message = {
       settlementId,
@@ -285,7 +319,14 @@ function shouldExecuteInstantWithdraw() {
       instantWithdrawFee,
       partyAAmount,
       partyBAmount,
-      nonce,
+    };
+
+    // Record initial states and balances
+    const initialSettlement = await etfSettlement.read.getSettlementData([settlementId]);
+    const initialBalances = {
+      partyA: await mockSymm.read.balanceOf([partyA.account.address]),
+      partyB: await mockSymm.read.balanceOf([partyB.account.address]),
+      contract: await mockSymm.read.balanceOf([etfSettlement.address])
     };
 
     // Intentionally sign with partyB instead of partyA to create an invalid signature
@@ -296,6 +337,7 @@ function shouldExecuteInstantWithdraw() {
       message,
     });
 
+    // Verify transaction reverts with correct error
     await assert.rejects(
       async () => {
         await etfSettlement.write.executeInstantWithdraw(
@@ -316,6 +358,22 @@ function shouldExecuteInstantWithdraw() {
         message: /Invalid signature/,
       }
     );
+
+    // Verify no state changes occurred
+    const finalSettlement = await etfSettlement.read.getSettlementData([settlementId]);
+    const finalBalances = {
+      partyA: await mockSymm.read.balanceOf([partyA.account.address]),
+      partyB: await mockSymm.read.balanceOf([partyB.account.address]),
+      contract: await mockSymm.read.balanceOf([etfSettlement.address])
+    };
+
+    // Verify settlement state unchanged
+    assert.deepEqual(finalSettlement, initialSettlement, "Settlement state should not change");
+
+    // Verify balances unchanged
+    assert.equal(finalBalances.partyA, initialBalances.partyA, "PartyA balance should not change");
+    assert.equal(finalBalances.partyB, initialBalances.partyB, "PartyB balance should not change");
+    assert.equal(finalBalances.contract, initialBalances.contract, "Contract balance should not change");
 
     // Verify no event was emitted for invalid signature
     const instantWithdrawTx = etfSettlement.write.executeInstantWithdraw(
