@@ -142,8 +142,6 @@ abstract contract BaseSettlement is EIP712 {
             "Invalid replaced party"
         );
 
-        // Increment nonce
-
         // Transfer amounts including fee
         IERC20 token = IERC20(settlement.collateralToken);
         if (partyAAmount > 0) {
