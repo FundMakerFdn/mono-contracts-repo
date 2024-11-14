@@ -11,8 +11,6 @@ const {
 } = require("viem");
 const hre = require("hardhat");
 
-const { MOCK_SETTLE_MAKER } = require("./constants");
-
 async function deployFixture() {
   const [deployer, partyA, partyB] = await hre.viem.getWalletClients();
   const publicClient = await hre.viem.getPublicClient();
@@ -23,7 +21,7 @@ async function deployFixture() {
     "WETH",
   ]);
   const etfSettlement = await hre.viem.deployContract("ETFSettlement", [
-    MOCK_SETTLE_MAKER,
+    mockSymm.address,
     "ETF Settlement",
     "1.0.0",
   ]);

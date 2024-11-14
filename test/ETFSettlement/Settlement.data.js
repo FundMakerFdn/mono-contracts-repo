@@ -11,7 +11,6 @@ const {
   decodeEventLog,
 } = require("viem");
 const hre = require("hardhat");
-const { MOCK_WETH } = require("./constants");
 const { deployFixture } = require("./Settlement.creation");
 
 function shouldStoreSettlementData() {
