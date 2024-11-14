@@ -62,15 +62,6 @@ Parties involved: Validators
    - After voting period ends, winning merkle determines validator set
    - Any validator can call onchain(executeValidatorRegistryChange) with merkle proofs
 
-## RFQ flow
-
-1. Party A calls offchain(broadcastRFQ) with parameters
-2. Solvers call offchain(respondToRFQ) with quotes
-3. Party A calls offchain(selectBestQuote)
-4. Selected solver calls offchain(acceptRFQ)
-5. Both parties sign EIP712 messages
-6. Either party calls onchain(executeRFQ) with signatures
-
 ## Periodic Batch Settlement flow
 
 Parties involved: Settlement makers, Validators

@@ -20,7 +20,6 @@ interface ISettleMaker {
 
     struct ValidatorData {
         bool isWhitelisted;
-        uint256 totalDelegated;
     }
 
     struct Vote {

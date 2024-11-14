@@ -23,8 +23,6 @@ abstract contract SettleMaker {
     event SoftForkExecuted(bytes32 indexed settlementId, uint256 resolution);
     event ValidatorWhitelisted(address indexed validator);
     event ValidatorRemoved(address indexed validator);
-    event SymmDelegated(address indexed delegator, address indexed validator, uint256 amount);
-    event SymmUndelegated(address indexed delegator, address indexed validator, uint256 amount);
 
     // ============ Structs ============
     struct ValidatorRegistryLeaf {
@@ -135,16 +133,7 @@ abstract contract SettleMaker {
     );
 
     // ============ Validator Management Functions ============
-    function delegateToValidator(address validator, uint256 amount) external virtual;
-    function undelegateFromValidator(address validator, uint256 amount) external virtual;
-    function getValidatorData(address validator) external view virtual returns (
-        bool isWhitelisted,
-        uint256 totalDelegated
-    );
-    function getDelegatedAmount(address delegator, address validator) external view virtual returns (uint256);
-    function claimDelegatingRewards(address validator) external virtual returns (uint256);
-    function getPendingRewards(address delegator, address validator) external view virtual returns (uint256);
-    function getTotalValidatorRewards(address validator) external view virtual returns (uint256);
+    function getValidatorData(address validator) external view virtual returns (bool isWhitelisted);
 
     // ============ Validator Registry Functions ============
     /// @notice Submit batch of validator registry changes for voting
