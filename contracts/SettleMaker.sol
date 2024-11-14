@@ -33,7 +33,6 @@ abstract contract SettleMaker {
 
     struct ValidatorData {
         bool isWhitelisted;
-        uint256 totalDelegated;
     }
 
     struct SoftFork {

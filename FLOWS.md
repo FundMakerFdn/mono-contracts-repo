@@ -86,7 +86,7 @@ Parties involved: Settlement makers, Validators
 
 3. After voting period ends:
    - Settlement makers call onchain(executeSettlements) with merkle proofs
-   - Validators call onchain(claimVoterRewards) for correct votes
+   - Validators call onchain(claimValidatorRewards) for correct votes
 
 ## Instant Withdraw flow
 
