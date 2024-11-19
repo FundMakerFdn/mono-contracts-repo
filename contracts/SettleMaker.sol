@@ -1,161 +1,124 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-/// @title SettleMaker Core Contract
-abstract contract SettleMaker {
-    // ============ Merkle Tree Structure ============
-    struct SoftForkLeaf {
-        bytes32 settlementId;
-        uint256 batchNumber;
-        uint256 amountToPartyA;
-        address settlementContract;
-        bytes parameters;
+import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "./interface/ISettlement.sol";
+
+contract SettleMaker is ReentrancyGuard {
+    // State enum for batch lifecycle
+    enum StateEnum {
+        PAUSE,      // Before settlement start
+        SETTLEMENT, // During settlement submission
+        VOTING,     // During voting period
+        VOTING_END  // After voting ends
     }
 
-    // ============ Events ============
-    event BatchlyBatchCreated(uint256 indexed batchId, bytes32 merkleRoot);
-    event VoteCast(address indexed voter, bytes32 indexed resolutionHash);
-    event VoteModified(address indexed voter, bytes32 indexed resolutionHash, uint256 newWeight);
-    event SettlementTypeRegistered(address indexed settlementContract);
-    event SettlementTypeRemoved(address indexed settlementContract);
-    event VoterRewardsClaimed(address indexed voter, uint256 indexed batchNumber, uint256 amount);
-    event SoftForkProposed(bytes32 indexed settlementId, bytes32 proposalHash);
-    event SoftForkExecuted(bytes32 indexed settlementId, uint256 resolution);
-    event ValidatorWhitelisted(address indexed validator);
-    event ValidatorRemoved(address indexed validator);
-
-    // ============ Structs ============
-    struct ValidatorRegistryLeaf {
-        address validatorAddress;
-        bool isEntry;  // true for adding, false for removing
-        uint256 timestamp;
+    // Batch metadata structure
+    struct BatchMetadata {
+        uint256 settlementStart;
+        uint256 votingStart; 
+        uint256 votingEnd;
     }
 
-    struct ValidatorData {
-        bool isWhitelisted;
+    // State variables
+    address public editSettlementAddress;
+    BatchMetadata public currentBatchMetadata;
+    mapping(uint256 => bytes32) public batchSoftFork;
+    mapping(bytes32 => uint256) public votes;
+    mapping(address => mapping(bytes32 => bool)) public hasVoted;
+    bytes32 public currentBatchWinner;
+    uint256 public currentBatch;
+
+    // Events
+    event VoteCast(address indexed validator, bytes32 softForkRoot);
+    event BatchFinalized(uint256 indexed batchNumber, bytes32 winningRoot);
+    event EditSettlementUpdated(address newEditSettlement);
+
+    constructor(
+        address _editSettlementAddress,
+        bytes32 initialMerkleRoot
+    ) {
+        require(_editSettlementAddress != address(0), "Invalid edit settlement");
+        require(
+            IERC165(_editSettlementAddress).supportsInterface(type(ISettlement).interfaceId),
+            "Must implement ISettlement"
+        );
+        
+        editSettlementAddress = _editSettlementAddress;
+        batchSoftFork[0] = initialMerkleRoot;
+        currentBatch = 1;
     }
 
-    struct SoftFork {
-        bytes32 settlementsMerkleRoot;
-        bytes32 validatorsMerkleRoot; 
-        uint256 batchNumber;
-        mapping(bytes32 => bool) processedSettlements;
-        mapping(bytes32 => bool) processedValidatorChanges;
-        uint256 totalVotes;
-        uint256 settlementsTimeEnd;
-        uint256 votesTimeEnd;
-        bool finalized;
-        mapping(address => uint256) rewardPools; // token address => total reward amount
-        mapping(address => mapping(address => uint256)) claimedRewards; // token address => (voter address => claimed amount)
+    // Get current state based on timestamps
+    function getCurrentState() public view returns (StateEnum) {
+        BatchMetadata memory metadata = currentBatchMetadata;
+        
+        if (block.timestamp > metadata.votingEnd) return StateEnum.VOTING_END;
+        if (block.timestamp > metadata.votingStart) return StateEnum.VOTING;
+        if (block.timestamp > metadata.settlementStart) return StateEnum.SETTLEMENT;
+        return StateEnum.PAUSE;
     }
 
-    struct Vote {
-        address voter;
-        bytes32 resolutionHash;
-        uint256 weight;
-        uint256 timestamp;
+    // Allow edit settlement to update itself
+    function setEditSettlement(address newEditSettlement) external {
+        require(msg.sender == editSettlementAddress, "Only edit settlement");
+        require(newEditSettlement != address(0), "Invalid address");
+        require(
+            IERC165(newEditSettlement).supportsInterface(type(ISettlement).interfaceId),
+            "Must implement ISettlement"
+        );
+        
+        editSettlementAddress = newEditSettlement;
+        emit EditSettlementUpdated(newEditSettlement);
     }
 
-    // ============ Core Functions ============
-    /// @notice Register a new settlement type with merkle proof verification
-    /// @param settlementContract Address of the settlement contract to register
-    /// @param merkleProof Merkle proof verifying the settlement type is valid
-    /// @param merkleLeafData ABI encoded data used to construct the leaf for verification
-    function registerSettlementType(
-        address settlementContract,
-        bytes32[] calldata merkleProof,
-        bytes calldata merkleLeafData
-    ) external virtual;
+    // Cast vote for a soft fork
+    function castVote(bytes32 softForkRoot) external nonReentrant {
+        require(getCurrentState() == StateEnum.VOTING, "Invalid state");
+        require(isValidator(msg.sender), "Not a validator");
+        require(!hasVoted[msg.sender][softForkRoot], "Already voted");
 
-    /// @notice Remove a settlement type with merkle proof verification
-    /// @param settlementContract Address of the settlement contract to remove
-    /// @param merkleProof Merkle proof verifying the removal is valid
-    /// @param merkleLeafData ABI encoded data used to construct the leaf for verification
-    function removeSettlementType(
-        address settlementContract,
-        bytes32[] calldata merkleProof,
-        bytes calldata merkleLeafData
-    ) external virtual;
+        hasVoted[msg.sender][softForkRoot] = true;
+        votes[softForkRoot]++;
 
-    /// @notice Check if a settlement type is currently valid
-    function isValidSettlementType(address settlementContract) external view virtual returns (bool);
-    function validateSettlement(bytes32 settlementId, bytes calldata data) external view virtual returns (bool);
-    
-    /// @notice Submit batchly batch of settlements as a Merkle tree
-    /// @param leafData Array of settlement leaf data for the Merkle tree
-    function submitSoftFork(
-        SoftForkLeaf[] calldata leafData
-    ) external virtual;
+        // Update current winner if this fork has more votes
+        if (votes[softForkRoot] > votes[currentBatchWinner]) {
+            currentBatchWinner = softForkRoot;
+        }
 
-    /// @notice Verify a settlement is part of a batchly batch
-    /// @param batchNumber The batch number to verify against
-    /// @param leaf The leaf data for the settlement
-    /// @param proof The Merkle proof for the leaf
-    function verifySettlementInBatch(
-        uint256 batchNumber,
-        SoftForkLeaf calldata leaf,
-        bytes32[] calldata proof
-    ) external view virtual returns (bool);
+        emit VoteCast(msg.sender, softForkRoot);
+    }
 
-    /// @notice Get the encoded leaf hash for a settlement
-    /// @param leaf The leaf data to encode
-    function getLeafHash(SoftForkLeaf calldata leaf) external pure virtual returns (bytes32);
-    function castVote(bytes32 resolutionHash) external virtual;
-    function getCurrentBatch() external view virtual returns (uint256);
+    // Finalize the current batch
+    function finalizeBatchWinner() external nonReentrant {
+        require(getCurrentState() == StateEnum.VOTING_END, "Invalid state");
+        
+        // Store winning root
+        batchSoftFork[currentBatch] = currentBatchWinner;
+        
+        emit BatchFinalized(currentBatch, currentBatchWinner);
 
-    // ============ Soft Fork Functions ============
-    function proposeSoftFork(
-        bytes32 settlementId, uint256 resolution
-    ) external virtual returns (bytes32);
+        // Reset state for next batch
+        delete currentBatchWinner;
+        currentBatch++;
+    }
 
-    function verifySoftFork(
-        bytes32 settlementId, uint256 resolution
-    ) external view virtual returns (bool);
+    // Helper to check if address is validator
+    function isValidator(address account) public view returns (bool) {
+        // Get validator settlement from edit settlement and verify
+        address validatorSettlement = IEditSettlement(editSettlementAddress)
+            .validatorSettlementAddress();
+        return IValidatorSettlement(validatorSettlement).verifyValidator(account);
+    }
+}
 
-    function executeSoftFork(
-        bytes32 settlementId, uint256 resolution
-    ) external virtual;
+// Interfaces needed
+interface IEditSettlement is ISettlement {
+    function validatorSettlementAddress() external view returns (address);
+    function batchMetadataSettlementAddress() external view returns (address);
+}
 
-    // ============ View Functions ============
-    function getVoteDetails(uint256 batch, address voter) external view virtual returns (Vote memory);
-    function getBatchVotes(uint256 batch) external view virtual returns (uint256);
-    function getResolutionVotes(bytes32 resolutionHash) external view virtual returns (uint256);
-    function isWhitelistedVoter(address voter) external view virtual returns (bool);
-    function getSoftFork(bytes32 settlementId) external view virtual returns (uint256 resolution, bytes32 proposalHash, bool executed);
-    
-    // ============ Rewards Functions ============
-    function claimVoterRewards(uint256 batchNumber, address token) external virtual;
-    function getVoterRewards(address voter, uint256 batchNumber, address token) external view virtual returns (
-        uint256 rewardAmount,
-        bool votedCorrectly,
-        bytes32 votedResolutionHash
-    );
-
-    // ============ Validator Management Functions ============
-    function getValidatorData(address validator) external view virtual returns (bool isWhitelisted);
-
-    // ============ Validator Registry Functions ============
-    /// @notice Submit batch of validator registry changes for voting
-    function submitValidatorRegistryBatch(
-        ValidatorRegistryLeaf[] calldata leaves,
-        bytes32 merkleRoot
-    ) external virtual;
-
-    /// @notice Execute approved validator registry change with merkle proof
-    function executeValidatorRegistryChange(
-        ValidatorRegistryLeaf calldata leaf,
-        bytes32[] calldata merkleProof,
-        uint256 batchId
-    ) external virtual;
-
-    /// @notice Get current validator status
-    function getValidatorStatus(address validator) external view virtual returns (bool isWhitelisted);
-    
-    // ============ Instant Withdraw Functions ============
-    function executeInstantWithdraw(
-        bytes32 settlementId,
-        address replacedParty,
-        uint256 instantWithdrawFee,
-        bytes calldata signature
-    ) external virtual;
+interface IValidatorSettlement is ISettlement {
+    function verifyValidator(address account) external view returns (bool);
 }

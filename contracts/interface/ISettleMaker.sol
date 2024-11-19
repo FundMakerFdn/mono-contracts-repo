@@ -33,6 +33,8 @@ interface ISettleMaker {
     event BatchlyBatchCreated(uint256 indexed batchId, bytes32 merkleRoot);
     event VoteCast(address indexed validator, bytes32 indexed resolutionHash);
     event VoteModified(address indexed validator, bytes32 indexed resolutionHash, uint256 newWeight);
+    event SoftForkProposed(bytes32 indexed settlementId, bytes32 indexed proposalHash);
+    event SoftForkExecuted(bytes32 indexed settlementId, uint256 resolution);
     event SettlementTypeRegistered(address indexed settlementContract);
     event SettlementTypeRemoved(address indexed settlementContract);
     event ValidatorRewardsClaimed(address indexed validator, uint256 indexed batchNumber, uint256 amount);
@@ -72,9 +74,6 @@ interface ISettleMaker {
     /// @notice Get votes for a specific resolution
     function getResolutionVotes(bytes32 resolutionHash) external view returns (uint256);
 
-    /// @notice Check if address is whitelisted validator
-    function isWhitelistedValidator(address validator) external view returns (bool);
-
     /// @notice Claim rewards for correct votes
     function claimValidatorRewards(uint256 batchNumber, address token) external;
 
@@ -89,20 +88,15 @@ interface ISettleMaker {
         bytes32 votedResolutionHash
     );
 
-    /// @notice Submit validator registry changes
-    function submitValidatorRegistryBatch(
-        ValidatorRegistryLeaf[] calldata leaves,
-        bytes32 merkleRoot
-    ) external;
+    /// @notice Register as a validator by locking SYMM tokens
+    function registerValidator() external;
 
-    /// @notice Execute validator registry change
-    function executeValidatorRegistryChange(
-        ValidatorRegistryLeaf calldata leaf,
-        bytes32[] calldata merkleProof,
-        uint256 batchId
-    ) external;
+    /// @notice Remove validator status and return locked tokens
+    function removeValidator() external;
 
-    /// @notice Get validator status and data
-    function getValidatorStatus(address validator) external view returns (bool isWhitelisted);
+    /// @notice Check if address is whitelisted validator
+    function isWhitelistedValidator(address validator) external view returns (bool);
+
+    /// @notice Get validator data
     function getValidatorData(address validator) external view returns (ValidatorData memory);
 }

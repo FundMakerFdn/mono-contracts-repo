@@ -51,16 +51,14 @@ Parties involved: Validators
 
 1. New validators must:
 
-   - Complete KYC/AML process
-   - Meet jurisdiction diversity requirements
-   - Lock required SYMM amount
-   - Receive approval via voting process
-   - Have equal vote weight (1) once approved
+   - Have required SYMM tokens amount
+   - Approve SettleMaker contract to take SYMM tokens
+   - Call registerValidator() to lock SYMM and become validator
+   - Have equal vote weight (1) once registered
 
-2. ONCHAIN: Voting process:
-   - Validators call onchain(castVote) during voting period
-   - After voting period ends, winning merkle determines validator set
-   - Any validator can call onchain(executeValidatorRegistryChange) with merkle proofs
+2. To exit validator set:
+   - Call removeValidator()
+   - Receive back locked SYMM tokens
 
 ## Periodic Batch Settlement flow
 

@@ -90,7 +90,6 @@ function shouldEmitEvents() {
   it("should emit EarlyAgreementExecuted event with correct parameters", async function () {
     const { mockSymm, mockWeth, etfSettlement, partyA, partyB, publicClient } =
       await loadFixture(deployFixture);
-    debugger;
 
     // Setup and create settlement first
     await mockWeth.write.mint([etfSettlement.address, parseEther("10")]);
@@ -111,14 +110,18 @@ function shouldEmitEvents() {
     const withdrawPartyBAmount = parseEther("20");
 
     // Mint tokens to contract for instant withdraw
-    const totalWithdrawAmount = withdrawPartyAAmount + withdrawPartyBAmount + instantWithdrawFee;
+    const totalWithdrawAmount =
+      withdrawPartyAAmount + withdrawPartyBAmount + instantWithdrawFee;
     await mockSymm.write.mint([etfSettlement.address, totalWithdrawAmount]);
 
     // Setup early agreement parameters and mint required tokens
     const earlyPartyAAmount = parseEther("120");
     const earlyPartyBAmount = parseEther("30");
     // Mint tokens to contract for early agreement distribution
-    await mockSymm.write.mint([etfSettlement.address, earlyPartyAAmount + earlyPartyBAmount]);
+    await mockSymm.write.mint([
+      etfSettlement.address,
+      earlyPartyAAmount + earlyPartyBAmount,
+    ]);
     const chainId = await publicClient.getChainId();
     const domain = {
       name: "ETF Settlement",
