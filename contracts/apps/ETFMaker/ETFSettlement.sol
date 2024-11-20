@@ -49,32 +49,6 @@ contract ETFSettlement is CollateralSettlement {
         return settlementId;
     }
 
-    function executeEarlyAgreement(
-        bytes32 settlementId,
-        uint256 partyAAmount,
-        uint256 partyBAmount,
-        bytes memory signature
-    ) public override {
-        // Get ETF parameters before executing parent's collateral transfers
-        ETFParameters storage params = etfParameters[settlementId];
-        CollateralData memory data = collateralData[settlementId];
-        
-        // Transfer ETF tokens from ETF creator (partyA) to buyer (partyB)
-        IERC20(params.etfToken).safeTransferFrom(
-            data.partyA,
-            data.partyB, 
-            params.etfTokenAmount
-        );
-
-        // Handle collateral distribution through parent implementation
-        super.executeEarlyAgreement(
-            settlementId,
-            partyAAmount,
-            partyBAmount,
-            signature
-        );
-    }
-
     function getETFParameters(bytes32 settlementId) external view returns (ETFParameters memory) {
         ETFParameters memory params = etfParameters[settlementId];
         return params;

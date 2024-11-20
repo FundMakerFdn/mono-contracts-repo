@@ -16,6 +16,12 @@ interface ICollateralSettlement is ISettlement {
         uint256 fee
     );
 
+    event SettlementExecuted(
+        bytes32 indexed settlementId,
+        uint256 partyAAmount,
+        uint256 partyBAmount
+    );
+
     function executeEarlyAgreement(
         bytes32 settlementId,
         uint256 partyAAmount,
