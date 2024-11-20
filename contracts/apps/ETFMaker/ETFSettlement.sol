@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "contracts/BaseSettlement.sol";
+import "contracts/CollateralSettlement.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "hardhat/console.sol";
 
 /// @title ETF Settlement Contract
-contract ETFSettlement is BaseSettlement {
+contract ETFSettlement is CollateralSettlement {
     using SafeERC20 for IERC20;
     
     struct ETFParameters {
@@ -28,7 +28,7 @@ contract ETFSettlement is BaseSettlement {
         address _settleMaker,
         string memory name,
         string memory version
-    ) BaseSettlement(_settleMaker, name, version) {}
+    ) CollateralSettlement(_settleMaker, name, version) {}
 
     function createETFSettlement(
         address partyA,
@@ -37,7 +37,7 @@ contract ETFSettlement is BaseSettlement {
         address collateralToken,
         ETFParameters calldata params
     ) external returns (bytes32) {
-        bytes32 settlementId = createSettlement(
+        bytes32 settlementId = createCollateralSettlement(
             partyA,
             partyB,
             collateralAmount,
@@ -55,23 +55,24 @@ contract ETFSettlement is BaseSettlement {
         uint256 partyBAmount,
         bytes memory signature
     ) public override {
-        SettlementData storage settlement = settlements[settlementId];
+        // Get ETF parameters before executing parent's collateral transfers
         ETFParameters storage params = etfParameters[settlementId];
+        CollateralData memory data = collateralData[settlementId];
+        
+        // Transfer ETF tokens from ETF creator (partyA) to buyer (partyB)
+        IERC20(params.etfToken).safeTransferFrom(
+            data.partyA,
+            data.partyB, 
+            params.etfTokenAmount
+        );
 
-        // Call parent implementation first for signature verification
+        // Handle collateral distribution through parent implementation
         super.executeEarlyAgreement(
             settlementId,
             partyAAmount,
             partyBAmount,
             signature
         );
-        
-        // Transfer ETF tokens based on agreement
-        if (partyAAmount > 0) {
-            IERC20(params.etfToken).safeTransfer(settlement.partyA, params.etfTokenAmount);
-        } else {
-            IERC20(params.etfToken).safeTransfer(settlement.partyB, params.etfTokenAmount);
-        }
     }
 
     function getETFParameters(bytes32 settlementId) external view returns (ETFParameters memory) {

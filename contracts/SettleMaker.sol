@@ -3,56 +3,48 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interface/ISettlement.sol";
+import "./interface/ISettleMaker.sol";
 
-contract SettleMaker is ReentrancyGuard {
-    // State enum for batch lifecycle
-    enum StateEnum {
-        PAUSE,      // Before settlement start
-        SETTLEMENT, // During settlement submission
-        VOTING,     // During voting period
-        VOTING_END  // After voting ends
-    }
-
-    // Batch metadata structure
-    struct BatchMetadata {
-        uint256 settlementStart;
-        uint256 votingStart; 
-        uint256 votingEnd;
-    }
-
+contract SettleMaker is ISettleMaker, ReentrancyGuard {
     // State variables
     address public editSettlementAddress;
-    BatchMetadata public currentBatchMetadata;
+    address public immutable symmToken;
+    BatchMetadata private _currentBatchMetadata;
+
+    function currentBatchMetadata() external view returns (BatchMetadata memory) {
+        return _currentBatchMetadata;
+    }
     mapping(uint256 => bytes32) public batchSoftFork;
     mapping(bytes32 => uint256) public votes;
     mapping(address => mapping(bytes32 => bool)) public hasVoted;
     bytes32 public currentBatchWinner;
     uint256 public currentBatch;
 
-    // Events
-    event VoteCast(address indexed validator, bytes32 softForkRoot);
-    event BatchFinalized(uint256 indexed batchNumber, bytes32 winningRoot);
-    event EditSettlementUpdated(address newEditSettlement);
 
     constructor(
         address _editSettlementAddress,
+        address _symmToken,
         bytes32 initialMerkleRoot
     ) {
         require(_editSettlementAddress != address(0), "Invalid edit settlement");
+        require(_symmToken != address(0), "Invalid SYMM token");
         require(
             IERC165(_editSettlementAddress).supportsInterface(type(ISettlement).interfaceId),
             "Must implement ISettlement"
         );
+        require(IERC20(_symmToken).totalSupply() > 0, "Invalid ERC20 token");
         
         editSettlementAddress = _editSettlementAddress;
+        symmToken = _symmToken;
         batchSoftFork[0] = initialMerkleRoot;
         currentBatch = 1;
     }
 
     // Get current state based on timestamps
     function getCurrentState() public view returns (StateEnum) {
-        BatchMetadata memory metadata = currentBatchMetadata;
+        BatchMetadata memory metadata = _currentBatchMetadata;
         
         if (block.timestamp > metadata.votingEnd) return StateEnum.VOTING_END;
         if (block.timestamp > metadata.votingStart) return StateEnum.VOTING;
