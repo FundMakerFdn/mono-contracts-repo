@@ -83,6 +83,23 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
     }
 
     // Finalize the current batch
+    function updateBatchMetadata(
+        uint256 settlementStart,
+        uint256 votingStart,
+        uint256 votingEnd
+    ) external {
+        // Only allow batch metadata settlement to update
+        address batchMetadataSettlement = IEditSettlement(editSettlementAddress)
+            .batchMetadataSettlementAddress();
+        require(msg.sender == batchMetadataSettlement, "Only batch metadata settlement");
+        
+        _currentBatchMetadata = BatchMetadata({
+            settlementStart: settlementStart,
+            votingStart: votingStart,
+            votingEnd: votingEnd
+        });
+    }
+
     function finalizeBatchWinner() external nonReentrant {
         require(getCurrentState() == StateEnum.VOTING_END, "Invalid state");
         

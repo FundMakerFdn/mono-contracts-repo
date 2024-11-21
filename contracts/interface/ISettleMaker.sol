@@ -39,4 +39,10 @@ interface ISettleMaker {
     function setEditSettlement(address newEditSettlement) external;
     function castVote(bytes32 softForkRoot) external;
     function finalizeBatchWinner() external;
+
+    function updateBatchMetadata(
+        uint256 settlementStart,
+        uint256 votingStart, 
+        uint256 votingEnd
+    ) external;
 }
