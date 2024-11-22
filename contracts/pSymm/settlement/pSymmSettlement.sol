@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import "../../SettleMaker/CollateralSettlement.sol";
+import "../../SettleMaker/settlement/Settlement.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "contracts/pSymm/pSymm.sol"; 
 import "hardhat/console.sol";
 
 /// @title pSymm Settlement Contract
-contract pSymmSettlement is CollateralSettlement {
+contract pSymmSettlement is Settlement {
     using SafeERC20 for IERC20;
     
     struct pSymmParameters {

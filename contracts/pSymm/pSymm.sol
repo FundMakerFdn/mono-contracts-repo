@@ -20,7 +20,7 @@ contract pSymm is EIP712 {
         address settlementAddress;
         bytes32 MA;
         bool isManaged;
-        uint8 state; // 0: open, 1: inSettlement, 2: settled
+        uint8 state; // 0: open, 1: inSettlement
         uint256 timestamp;
         uint256 nonce;
     }
@@ -173,7 +173,7 @@ contract pSymm is EIP712 {
     function settlementWithdraw(address collateralToken, uint256 collateralAmount, address partyA, address partyB, uint256 _custodyRollupId, bool isA) external {
         bytes32 custodyRollupId = keccak256(abi.encodePacked(partyA, partyB, _custodyRollupId));
         bytes32 receiverCustodyRollupId = keccak256(abi.encodePacked(isA ? partyB : partyA, isA ? partyB : partyA, _custodyRollupId));
-        require(custodyRollups[custodyRollupId].state == 2, "Settlement not settled");
+        require(custodyRollups[custodyRollupId].state == 1, "Settlement not in settlement state");
         require(msg.sender == custodyRollups[custodyRollupId].settlementAddress, "Invalid Caller");
 
         _transferCustodyRollupBalance(custodyRollupId, receiverCustodyRollupId, collateralToken, collateralAmount);
