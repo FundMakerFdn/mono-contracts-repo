@@ -41,13 +41,13 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
     }
 
     // Get current state based on timestamps
-    function getCurrentState() public view returns (StateEnum) {
+    function getCurrentState() public view returns (uint8) {
         BatchMetadata memory metadata = _currentBatchMetadata;
         
-        if (block.timestamp > metadata.votingEnd) return StateEnum.VOTING_END;
-        if (block.timestamp > metadata.votingStart) return StateEnum.VOTING;
-        if (block.timestamp > metadata.settlementStart) return StateEnum.SETTLEMENT;
-        return StateEnum.PAUSE;
+        if (block.timestamp > metadata.votingEnd) return VOTING_END;
+        if (block.timestamp > metadata.votingStart) return VOTING;
+        if (block.timestamp > metadata.settlementStart) return SETTLEMENT;
+        return PAUSE;
     }
 
     // Allow edit settlement to update itself
@@ -61,7 +61,7 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
 
     // Cast vote for a soft fork
     function castVote(bytes32 softForkRoot) external nonReentrant {
-        require(getCurrentState() == StateEnum.VOTING, "Invalid state");
+        require(getCurrentState() == VOTING, "Invalid state");
         require(isValidator(msg.sender), "Not a validator");
         require(!hasVoted[msg.sender][softForkRoot], "Already voted");
 
@@ -126,7 +126,7 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
     }
 
     function finalizeBatchWinner() external nonReentrant {
-        require(getCurrentState() == StateEnum.VOTING_END, "Invalid state");
+        require(getCurrentState() == VOTING_END, "Invalid state");
         
         // Store winning root
         batchSoftFork[currentBatch] = currentBatchWinner;

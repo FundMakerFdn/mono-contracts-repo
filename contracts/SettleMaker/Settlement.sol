@@ -7,7 +7,7 @@ import "./interface/ISettlement.sol";
 import "./interface/ISettleMaker.sol";
 
 abstract contract Settlement is ISettlement, EIP712 {
-    mapping(bytes32 => SettlementState) internal settlements;
+    mapping(bytes32 => uint8) internal settlements;
     address public settleMaker;
 
     constructor(address _settleMaker, string memory name, string memory version) 
@@ -41,8 +41,8 @@ abstract contract Settlement is ISettlement, EIP712 {
             "Invalid merkle proof"
         );
 
-        require(settlements[settlementId] == SettlementState.Open, "Invalid state");
-        settlements[settlementId] = SettlementState.Settled;
+        require(settlements[settlementId] == OPEN, "Invalid state");
+        settlements[settlementId] = SETTLED;
         
         emit SettlementExecuted(settlementId);
     }
