@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "./interface/ISettlement.sol";
 import "./interface/ISettleMaker.sol";
-import "hardhat/console.sol";
 
 abstract contract Settlement is ISettlement, EIP712 {
     mapping(bytes32 => SettlementState) internal settlements;
@@ -31,18 +30,12 @@ abstract contract Settlement is ISettlement, EIP712 {
         bytes32[] calldata merkleProof
     ) public virtual {
         require(settleMaker != address(0), "SettleMaker not set");
-        console.log("Executing settlement in base contract:");
-        console.log("Batch number:", batchNumber);
-        console.log("Settlement ID:", uint256(settlementId));
-        console.log("Merkle proof length:", merkleProof.length);
         
         // Verify merkle proof against SettleMaker's batchSoftFork
         bytes32 root = ISettleMaker(settleMaker).batchSoftFork(batchNumber);
-        console.log("Retrieved root:", uint256(root));
         require(root != bytes32(0), "Invalid batch");
         
         bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(settlementId))));
-        console.log("Calculated leaf:", uint256(leaf));
         require(
             MerkleProof.verify(merkleProof, root, leaf),
             "Invalid merkle proof"

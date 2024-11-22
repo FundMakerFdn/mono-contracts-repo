@@ -65,8 +65,6 @@ async function deployFixture() {
     batchMetadataSettlement
   );
 
-  console.log("BatchMetadataId:", batchMetadataId);
-
   // Create edit settlements for validator and batch metadata
   const validatorEditTx = await editSettlement.write.createEditSettlement(
     [validatorSettlement.address, 0n], // 0n = VALIDATOR type
@@ -105,8 +103,6 @@ async function deployFixture() {
     mockSymm.address,
     merkleTree.root,
   ]);
-
-  console.log("Merkle Root:", merkleTree.root);
 
   // Set SettleMaker addresses first
   await editSettlement.write.setSettleMaker([settleMaker.address], {
@@ -160,7 +156,6 @@ function shouldDeploySettleMaker() {
 
     const currentTimestamp = BigInt(await time.latest());
 
-    console.log(initialBatchMetadataId);
     // Get metadata from settlement
     const [settlementStart, votingStart, votingEnd] =
       await batchMetadataSettlement.read.getBatchMetadataParameters([

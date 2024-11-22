@@ -63,7 +63,6 @@ contract BatchMetadataSettlement is IBatchMetadataSettlement, Settlement {
         });
 
         batchMetadataParameters[settlementId] = params;
-        console.log("Saved", uint256(settlementId));
         
         emit SettlementCreated(settlementId, msg.sender, address(this));
         
@@ -75,19 +74,13 @@ contract BatchMetadataSettlement is IBatchMetadataSettlement, Settlement {
         bytes32 settlementId,
         bytes32[] calldata merkleProof
     ) public override(ISettlement, Settlement) {
-        console.log("BatchMetadataSettlement.executeSettlement called");
-        console.log("SettleMaker address:", settleMaker);
-        console.log("settlementId:", uint256(settlementId));
-        
         BatchMetadataParameters memory params = batchMetadataParameters[settlementId];
-        console.log("Parameters found:", params.settlementStart, params.votingStart, params.votingEnd);
         
         super.executeSettlement(batchNumber, settlementId, merkleProof);
 
         // Update SettleMaker's batch metadata
         ISettleMaker(settleMaker).updateBatchMetadata(params.settlementStart, params.votingStart, params.votingEnd);
         
-        console.log("BatchMetadataSettlement.executeSettlement completed");
     }
 
     function getBatchMetadataParameters(bytes32 settlementId) external view returns (

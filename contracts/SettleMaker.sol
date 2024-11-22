@@ -9,7 +9,6 @@ import "./interface/IEditSettlement.sol";
 import "./interface/IValidatorSettlement.sol";
 import "./interface/IBatchMetadataSettlement.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import "hardhat/console.sol";
 
 contract SettleMaker is ISettleMaker, ReentrancyGuard {
     // State variables
@@ -86,8 +85,6 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
         // Only allow batch metadata settlement to update
         address batchMetadataSettlement = IEditSettlement(editSettlementAddress)
             .batchMetadataSettlementAddress();
-		console.log("msg sender", msg.sender);
-		console.log("settlement abavadshfoe2", batchMetadataSettlement);
         require(msg.sender == batchMetadataSettlement, "Only batch metadata settlement");
         
         _currentBatchMetadata = BatchMetadata({
