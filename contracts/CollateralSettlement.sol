@@ -116,16 +116,13 @@ abstract contract CollateralSettlement is Settlement, ICollateralSettlement {
         uint256 batchNumber,
         bytes32 settlementId,
         bytes32[] calldata merkleProof
-    ) public virtual override(ISettlement, Settlement) returns (bool) {
-        bool success = super.executeSettlement(batchNumber, settlementId, merkleProof);
-        require(success, "Settlement execution failed");
+    ) public virtual override(ISettlement, Settlement) {
+        super.executeSettlement(batchNumber, settlementId, merkleProof);
 
         CollateralData storage data = lockedCollateral[settlementId];
         _releaseCollateral(settlementId);
         
         emit SettlementExecuted(settlementId, data.collateralAmount, data.collateralAmount);
-        
-        return true;
     }
 
     function executeInstantWithdraw(

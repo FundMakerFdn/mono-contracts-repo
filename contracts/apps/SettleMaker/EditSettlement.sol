@@ -63,6 +63,8 @@ contract EditSettlement is IEditSettlement, Settlement {
             settlementType: settlementType
         });
 
+        emit SettlementCreated(settlementId, msg.sender, address(this));
+
         return settlementId;
     }
 
@@ -70,9 +72,8 @@ contract EditSettlement is IEditSettlement, Settlement {
         uint256 batchNumber,
         bytes32 settlementId, 
         bytes32[] calldata merkleProof
-    ) public override(ISettlement, Settlement) returns (bool) {
-        bool success = super.executeSettlement(batchNumber, settlementId, merkleProof);
-        require(success, "Settlement execution failed");
+    ) public override(ISettlement, Settlement) {
+        super.executeSettlement(batchNumber, settlementId, merkleProof);
 
         EditParameters memory params = editParameters[settlementId];
 
@@ -87,8 +88,6 @@ contract EditSettlement is IEditSettlement, Settlement {
                 ISettleMaker(settleMaker).setEditSettlement(params.newSettlementAddress);
             }
         }
-
-        return true;
     }
 
     function getEditParameters(bytes32 settlementId) external view returns (EditParameters memory) {

@@ -22,6 +22,7 @@ interface ISettleMaker {
     event VoteCast(address indexed validator, bytes32 softForkRoot);
     event BatchFinalized(uint256 indexed batchNumber, bytes32 winningRoot);
     event EditSettlementUpdated(address newEditSettlement);
+    event SoftForkSubmitted(bytes32 indexed softForkRoot, address indexed submitter);
 
     // View functions
     function symmToken() external view returns (address);

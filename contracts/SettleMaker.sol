@@ -7,6 +7,9 @@ import "./interface/ISettlement.sol";
 import "./interface/ISettleMaker.sol";
 import "./interface/IEditSettlement.sol";
 import "./interface/IValidatorSettlement.sol";
+import "./interface/IBatchMetadataSettlement.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "hardhat/console.sol";
 
 contract SettleMaker is ISettleMaker, ReentrancyGuard {
     // State variables
@@ -41,9 +44,6 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
     // Get current state based on timestamps
     function getCurrentState() public view returns (StateEnum) {
         BatchMetadata memory metadata = _currentBatchMetadata;
-        
-        // If no metadata is set (all timestamps are 0), return PAUSE
-        if (metadata.settlementStart == 0) return StateEnum.PAUSE;
         
         if (block.timestamp > metadata.votingEnd) return StateEnum.VOTING_END;
         if (block.timestamp > metadata.votingStart) return StateEnum.VOTING;
@@ -86,6 +86,8 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
         // Only allow batch metadata settlement to update
         address batchMetadataSettlement = IEditSettlement(editSettlementAddress)
             .batchMetadataSettlementAddress();
+		console.log("msg sender", msg.sender);
+		console.log("settlement abavadshfoe2", batchMetadataSettlement);
         require(msg.sender == batchMetadataSettlement, "Only batch metadata settlement");
         
         _currentBatchMetadata = BatchMetadata({
@@ -93,6 +95,37 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
             votingStart: votingStart,
             votingEnd: votingEnd
         });
+    }
+
+    function submitSoftFork(
+        bytes32 softForkRoot,
+        bytes32 batchMetadataSettlementId,
+        bytes32[] calldata merkleProof
+    ) external {
+        require(getCurrentState() == StateEnum.VOTING, "Invalid state");
+        
+        // Verify the batch metadata settlement is included in the soft fork
+        bytes32 leaf = batchMetadataSettlementId;
+        require(
+            MerkleProof.verify(merkleProof, softForkRoot, leaf),
+            "Invalid merkle proof"
+        );
+
+        // Get batch metadata parameters and verify timestamps
+        address batchMetadataSettlement = IEditSettlement(editSettlementAddress)
+            .batchMetadataSettlementAddress();
+        
+        (uint256 settlementStart, uint256 votingStart, uint256 votingEnd) = 
+            IBatchMetadataSettlement(batchMetadataSettlement)
+                .getBatchMetadataParameters(batchMetadataSettlementId);
+
+        // Verify the new batch metadata has valid timestamps
+        BatchMetadata memory currentMetadata = _currentBatchMetadata;
+        require(settlementStart > currentMetadata.votingEnd, "Invalid settlement start");
+        require(votingStart > settlementStart, "Invalid voting start");
+        require(votingEnd > votingStart, "Invalid voting end");
+
+        emit SoftForkSubmitted(softForkRoot, msg.sender);
     }
 
     function finalizeBatchWinner() external nonReentrant {

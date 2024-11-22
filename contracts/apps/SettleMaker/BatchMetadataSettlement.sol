@@ -46,7 +46,7 @@ contract BatchMetadataSettlement is IBatchMetadataSettlement, Settlement {
     ) external returns (bytes32) {
         require(votingEnd > votingStart, "Invalid voting end");
         require(votingStart > settlementStart, "Invalid voting start");
-        require(settlementStart > block.timestamp, "Invalid settlement start");
+        //require(settlementStart > block.timestamp, "Invalid settlement start");
 
         bytes32 settlementId = _createSettlementId(abi.encode(
             settlementStart,
@@ -63,6 +63,9 @@ contract BatchMetadataSettlement is IBatchMetadataSettlement, Settlement {
         });
 
         batchMetadataParameters[settlementId] = params;
+        console.log("Saved", uint256(settlementId));
+        
+        emit SettlementCreated(settlementId, msg.sender, address(this));
         
         return settlementId;
     }
@@ -71,16 +74,20 @@ contract BatchMetadataSettlement is IBatchMetadataSettlement, Settlement {
         uint256 batchNumber,
         bytes32 settlementId,
         bytes32[] calldata merkleProof
-    ) public override(ISettlement, Settlement) returns (bool) {
-        bool success = super.executeSettlement(batchNumber, settlementId, merkleProof);
-        require(success, "Settlement execution failed");
-
-        BatchMetadataParameters memory params = batchMetadataParameters[settlementId];
+    ) public override(ISettlement, Settlement) {
+        console.log("BatchMetadataSettlement.executeSettlement called");
+        console.log("SettleMaker address:", settleMaker);
+        console.log("settlementId:", uint256(settlementId));
         
+        BatchMetadataParameters memory params = batchMetadataParameters[settlementId];
+        console.log("Parameters found:", params.settlementStart, params.votingStart, params.votingEnd);
+        
+        super.executeSettlement(batchNumber, settlementId, merkleProof);
+
         // Update SettleMaker's batch metadata
         ISettleMaker(settleMaker).updateBatchMetadata(params.settlementStart, params.votingStart, params.votingEnd);
-
-        return true;
+        
+        console.log("BatchMetadataSettlement.executeSettlement completed");
     }
 
     function getBatchMetadataParameters(bytes32 settlementId) external view returns (

@@ -1,9 +1,25 @@
 const assert = require("node:assert/strict");
 const {
   loadFixture,
+  time,
 } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
-const { parseEther, getAddress, keccak256, toHex } = require("viem");
+const {
+  parseEther,
+  getAddress,
+  hashTypedData,
+  keccak256,
+  toHex,
+  encodeAbiParameters,
+  decodeEventLog,
+  parseAbi,
+} = require("viem");
+const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
 const hre = require("hardhat");
+
+// Helper to create merkle tree from settlements
+function createInitialMerkleTree(leaves) {
+  return StandardMerkleTree.of(leaves, ["bytes32"]);
+}
 
 async function deployFixture() {
   const [deployer, validator1, validator2] = await hre.viem.getWalletClients();
@@ -11,8 +27,6 @@ async function deployFixture() {
 
   // Deploy mock SYMM token first
   const mockSymm = await hre.viem.deployContract("MockSymm");
-
-  debugger;
 
   // Deploy EditSettlement first without settleMaker
   const editSettlement = await hre.viem.deployContract("EditSettlement", [
@@ -30,20 +44,99 @@ async function deployFixture() {
     ["Batch Metadata Settlement", "1.0.0"]
   );
 
-  // Create initial merkle root with settlements
-  const initialRoot = keccak256(toHex("initial root")); // This should be generated properly
+  // Get current timestamp
+  const currentTimestamp = BigInt(await time.latest());
 
-  // Deploy SettleMaker with EditSettlement address
+  const createTx =
+    await batchMetadataSettlement.write.createBatchMetadataSettlement(
+      [
+        0n, // settlement start
+        currentTimestamp + BigInt(5 * 24 * 60 * 60), // voting start: now + 5 days
+        currentTimestamp + BigInt(7 * 24 * 60 * 60), // voting end: now + 7 days
+      ],
+      {
+        account: deployer.account,
+      }
+    );
+
+  const batchMetadataId = await getSettlementIdFromReceipt(
+    createTx,
+    publicClient,
+    batchMetadataSettlement
+  );
+
+  console.log("BatchMetadataId:", batchMetadataId);
+
+  // Create edit settlements for validator and batch metadata
+  const validatorEditTx = await editSettlement.write.createEditSettlement(
+    [validatorSettlement.address, 0n], // 0n = VALIDATOR type
+    {
+      account: deployer.account,
+    }
+  );
+  const validatorEditId = await getSettlementIdFromReceipt(
+    validatorEditTx,
+    publicClient,
+    editSettlement
+  );
+
+  const batchMetadataEditTx = await editSettlement.write.createEditSettlement(
+    [batchMetadataSettlement.address, 1n], // 1n = BATCH_METADATA type
+    {
+      account: deployer.account,
+    }
+  );
+  const batchMetadataEditId = await getSettlementIdFromReceipt(
+    batchMetadataEditTx,
+    publicClient,
+    editSettlement
+  );
+
+  // Create merkle tree with all initial settlements
+  const merkleTree = createInitialMerkleTree([
+    [validatorEditId],
+    [batchMetadataEditId],
+    [batchMetadataId],
+  ]);
+
+  // Deploy SettleMaker with EditSettlement address and merkle root
   const settleMaker = await hre.viem.deployContract("SettleMaker", [
     editSettlement.address,
     mockSymm.address,
-    initialRoot,
+    merkleTree.root,
   ]);
 
-  // Set SettleMaker in EditSettlement
+  console.log("Merkle Root:", merkleTree.root);
+
+  // Set SettleMaker addresses first
   await editSettlement.write.setSettleMaker([settleMaker.address], {
     account: deployer.account,
   });
+
+  await batchMetadataSettlement.write.setSettleMaker([settleMaker.address], {
+    account: deployer.account,
+  });
+
+  // 1. Execute batch metadata edit settlement first
+  const batchMetadataProof = merkleTree.getProof([batchMetadataEditId]);
+  await editSettlement.write.executeSettlement(
+    [0n, batchMetadataEditId, batchMetadataProof],
+    { account: deployer.account }
+  );
+
+  // 2. Execute validator edit settlement second
+  const validatorProof = merkleTree.getProof([validatorEditId]);
+  await editSettlement.write.executeSettlement(
+    [0n, validatorEditId, validatorProof],
+    { account: deployer.account }
+  );
+
+  // 3. Execute the batch metadata settlement last
+  const proof = merkleTree.getProof([batchMetadataId]);
+  await batchMetadataSettlement.write.executeSettlement(
+    [0n, batchMetadataId, proof],
+    { account: deployer.account }
+  );
 
   return {
     mockSymm,
@@ -55,10 +148,51 @@ async function deployFixture() {
     validator1,
     validator2,
     publicClient,
+    merkleTree,
+    initialBatchMetadataId: batchMetadataId,
   };
 }
 
 function shouldDeploySettleMaker() {
+  it("should have correct initial batch metadata", async function () {
+    const { settleMaker, batchMetadataSettlement, initialBatchMetadataId } =
+      await loadFixture(deployFixture);
+
+    const currentTimestamp = BigInt(await time.latest());
+
+    console.log(initialBatchMetadataId);
+    // Get metadata from settlement
+    const [settlementStart, votingStart, votingEnd] =
+      await batchMetadataSettlement.read.getBatchMetadataParameters([
+        initialBatchMetadataId,
+      ]);
+    // Get metadata from SettleMaker to verify it was applied
+    const currentMetadata = await settleMaker.read.currentBatchMetadata();
+
+    // Verify timestamps in both places match
+    assert.equal(
+      currentMetadata.settlementStart,
+      settlementStart,
+      "Settlement start mismatch"
+    );
+    assert.equal(
+      currentMetadata.votingStart,
+      votingStart,
+      "Voting start mismatch"
+    );
+    assert.equal(currentMetadata.votingEnd, votingEnd, "Voting end mismatch");
+
+    // Verify actual values
+    assert.equal(settlementStart, 0n, "Invalid settlement start");
+    assert.ok(
+      votingStart > currentTimestamp + BigInt(4 * 24 * 60 * 60),
+      "Voting start should be ~5 days in future"
+    );
+    assert.ok(
+      votingEnd > votingStart + BigInt(24 * 60 * 60),
+      "Voting end should be ~2 days after voting start"
+    );
+  });
   it("should deploy with correct initial state", async function () {
     const { settleMaker, editSettlement, mockSymm, publicClient } =
       await loadFixture(deployFixture);
@@ -84,26 +218,13 @@ function shouldDeploySettleMaker() {
     // Check initial batch metadata is empty
     const metadata = await settleMaker.read.currentBatchMetadata();
     assert.equal(metadata.settlementStart, 0n);
-    assert.equal(metadata.votingStart, 0n);
-    assert.equal(metadata.votingEnd, 0n);
   });
 
-  it("should have initial merkle root in batch 0", async function () {
-    const { settleMaker } = await loadFixture(deployFixture);
-
-    const initialRoot = await settleMaker.read.batchSoftFork([0n]);
-    assert.notEqual(
-      initialRoot,
-      "0x" + "0".repeat(64),
-      "Initial root should not be zero"
-    );
-  });
-
-  it("should start in PAUSE state", async function () {
+  it("should start in VOTING_END state", async function () {
     const { settleMaker } = await loadFixture(deployFixture);
 
     const currentState = await settleMaker.read.getCurrentState();
-    assert.equal(currentState, 0, "Initial state should be PAUSE");
+    assert.equal(currentState, 1, "Initial state should be VOTING_END");
   });
 
   it("should not allow non-edit-settlement to update edit settlement", async function () {
@@ -125,7 +246,28 @@ function shouldDeploySettleMaker() {
   });
 }
 
+async function getSettlementIdFromReceipt(txHash, publicClient, settlement) {
+  const receipt = await publicClient.waitForTransactionReceipt({
+    hash: txHash,
+  });
+  const SETTLEMENT_CREATED_EVENT = keccak256(
+    toHex("SettlementCreated(bytes32,address,address)")
+  );
+  const settlementCreatedEvent = receipt.logs.find(
+    (log) => log.topics[0] === SETTLEMENT_CREATED_EVENT
+  );
+  const decodedLog = decodeEventLog({
+    abi: settlement.abi,
+    eventName: "SettlementCreated",
+    topics: settlementCreatedEvent.topics,
+    data: settlementCreatedEvent.data,
+  });
+
+  return decodedLog.args.settlementId;
+}
+
 module.exports = {
   shouldDeploySettleMaker,
   deployFixture,
+  getSettlementIdFromReceipt,
 };

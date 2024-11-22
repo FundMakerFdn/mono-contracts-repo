@@ -51,6 +51,8 @@ contract ValidatorSettlement is IValidatorSettlement, Settlement {
 
         validatorParameters[settlementId] = params;
         
+        emit SettlementCreated(settlementId, msg.sender, address(this));
+        
         return settlementId;
     }
 
@@ -59,9 +61,8 @@ contract ValidatorSettlement is IValidatorSettlement, Settlement {
         uint256 batchNumber,
         bytes32 settlementId,
         bytes32[] calldata merkleProof
-    ) public override(ISettlement, Settlement) returns (bool) {
-        bool success = super.executeSettlement(batchNumber, settlementId, merkleProof);
-        require(success, "Settlement execution failed");
+    ) public override(ISettlement, Settlement) {
+        super.executeSettlement(batchNumber, settlementId, merkleProof);
 
         ValidatorParameters memory params = validatorParameters[settlementId];
         
@@ -91,8 +92,6 @@ contract ValidatorSettlement is IValidatorSettlement, Settlement {
             delete validatorStakes[params.validator];
             isActiveValidator[params.validator] = false;
         }
-
-        return true;
     }
 
     // Required interface method for SettleMaker
