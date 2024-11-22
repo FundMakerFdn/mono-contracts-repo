@@ -80,7 +80,7 @@ library EIP712SignatureChecker {
     );
 
     function verifyCreateCustodyRollupEIP712(createCustodyRollupParams memory params) internal view returns (bool) {
- bytes32 structHash = keccak256(
+        bytes32 structHash = keccak256(
             abi.encode(
                 CREATE_CUSTODYROLLUP_TYPEHASH,
                 params.partyA,

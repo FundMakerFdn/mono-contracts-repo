@@ -31,7 +31,7 @@ contract pSymm is EIP712 {
     mapping(bytes32 => bool) private signatureClaimed;
     
 
-    constructor() EIP712("pSymm", "1") {}
+    constructor() EIP712("pSymm", "1.0") {}
 
     modifier checkAndClaimSignatures(bytes32 signatureA, bytes32 signatureB) {
         require(signatureClaimed[signatureA] == false && signatureClaimed[signatureB] == false, "Signature already claimed");
@@ -122,7 +122,6 @@ contract pSymm is EIP712 {
         checkCustodialRollupOwner(params.partyA, params.partyB, params.custodyRollupId)
     {
         require(EIP712SignatureChecker.verifyUpdateMA(params), "Invalid signature");
-
        
         custodyRollups[params.custodyRollupId].MA = params.MA;
 
