@@ -8,11 +8,19 @@ import "./interface/ISettleMaker.sol";
 
 abstract contract Settlement is ISettlement, EIP712 {
     mapping(bytes32 => SettlementState) internal settlements;
-    address public immutable settleMaker;
+    address public settleMaker;
 
     constructor(address _settleMaker, string memory name, string memory version) 
         EIP712(name, version) 
     {
+        if (_settleMaker != address(0)) {
+            _setSettleMaker(_settleMaker);
+        }
+    }
+
+    function _setSettleMaker(address _settleMaker) internal {
+        require(settleMaker == address(0), "SettleMaker already set");
+        require(_settleMaker != address(0), "Invalid SettleMaker address");
         settleMaker = _settleMaker;
     }
 
@@ -40,6 +48,14 @@ abstract contract Settlement is ISettlement, EIP712 {
 
     function getSettlementState(bytes32 settlementId) external view returns (SettlementState) {
         return settlements[settlementId];
+    }
+
+    function _createSettlementId(bytes memory encodedParams) internal view returns (bytes32) {
+        return keccak256(abi.encode(
+            encodedParams,
+            block.timestamp,
+            block.number
+        ));
     }
 
     function getDomainSeparator() external view returns (bytes32) {

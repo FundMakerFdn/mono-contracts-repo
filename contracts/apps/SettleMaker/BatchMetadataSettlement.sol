@@ -2,11 +2,12 @@
 pragma solidity ^0.8.24;
 
 import "contracts/Settlement.sol";
+import "contracts/interface/IBatchMetadataSettlement.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /// @title Batch Metadata Settlement Contract
-contract BatchMetadataSettlement is Settlement {
+contract BatchMetadataSettlement is IBatchMetadataSettlement, Settlement {
     using SafeERC20 for IERC20;
     
     struct BatchMetadataParameters {
@@ -15,6 +16,8 @@ contract BatchMetadataSettlement is Settlement {
         uint256 votingEnd;
     }
 
+    address private immutable deployer;
+
     bytes32 private constant BATCH_METADATA_TYPEHASH = 
         keccak256("BatchMetadataParameters(uint256 settlementStart,uint256 votingStart,uint256 votingEnd)");
 
@@ -22,10 +25,19 @@ contract BatchMetadataSettlement is Settlement {
     mapping(bytes32 => BatchMetadataParameters) private batchMetadataParameters;
 
     constructor(
-        address _settleMaker,
         string memory name,
         string memory version
-    ) Settlement(_settleMaker, name, version) {}
+    ) Settlement(address(0), name, version) {
+		deployer = msg.sender;
+	}
+
+    function setSettleMaker(address _settleMaker) external {
+        require(msg.sender == deployer, "Only deployer can set");
+        require(settleMaker == address(0), "SettleMaker already set");
+        require(_settleMaker != address(0), "Invalid SettleMaker address");
+        
+        settleMaker = _settleMaker;
+    }
 
     function createBatchMetadataSettlement(
         uint256 settlementStart,
@@ -36,12 +48,10 @@ contract BatchMetadataSettlement is Settlement {
         require(votingStart > settlementStart, "Invalid voting start");
         require(settlementStart > block.timestamp, "Invalid settlement start");
 
-        bytes32 settlementId = keccak256(abi.encode(
+        bytes32 settlementId = _createSettlementId(abi.encode(
             settlementStart,
             votingStart,
-            votingEnd,
-            block.timestamp,
-            block.number
+            votingEnd
         ));
         
         settlements[settlementId] = SettlementState.Open;
@@ -61,7 +71,7 @@ contract BatchMetadataSettlement is Settlement {
         uint256 batchNumber,
         bytes32 settlementId,
         bytes32[] calldata merkleProof
-    ) public override returns (bool) {
+    ) public override(ISettlement, Settlement) returns (bool) {
         bool success = super.executeSettlement(batchNumber, settlementId, merkleProof);
         require(success, "Settlement execution failed");
 
@@ -73,8 +83,13 @@ contract BatchMetadataSettlement is Settlement {
         return true;
     }
 
-    function getBatchMetadataParameters(bytes32 settlementId) external view returns (BatchMetadataParameters memory) {
-        return batchMetadataParameters[settlementId];
+    function getBatchMetadataParameters(bytes32 settlementId) external view returns (
+        uint256 settlementStart,
+        uint256 votingStart,
+        uint256 votingEnd
+    ) {
+        BatchMetadataParameters memory params = batchMetadataParameters[settlementId];
+        return (params.settlementStart, params.votingStart, params.votingEnd);
     }
 
     function calculateBatchMetadataHash(BatchMetadataParameters memory params) public view returns (bytes32) {

@@ -2,11 +2,12 @@
 pragma solidity ^0.8.24;
 
 import "contracts/Settlement.sol";
+import "contracts/interface/IValidatorSettlement.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /// @title Validator Settlement Contract
-contract ValidatorSettlement is Settlement {
+contract ValidatorSettlement is IValidatorSettlement, Settlement {
     using SafeERC20 for IERC20;
     
     struct ValidatorParameters {
@@ -25,22 +26,19 @@ contract ValidatorSettlement is Settlement {
     mapping(bytes32 => ValidatorParameters) private validatorParameters;
 
     constructor(
-        address _settleMaker,
         string memory name,
         string memory version
-    ) Settlement(_settleMaker, name, version) {}
+    ) Settlement(address(0), name, version) {}
 
     function createValidatorSettlement(
         address validator,
         uint256 requiredSymmAmount,
         bool isAdd
     ) external returns (bytes32) {
-        bytes32 settlementId = keccak256(abi.encode(
+        bytes32 settlementId = _createSettlementId(abi.encode(
             validator,
             requiredSymmAmount,
-            isAdd,
-            block.timestamp,
-            block.number
+            isAdd
         ));
         
         settlements[settlementId] = SettlementState.Open;
@@ -61,7 +59,7 @@ contract ValidatorSettlement is Settlement {
         uint256 batchNumber,
         bytes32 settlementId,
         bytes32[] calldata merkleProof
-    ) public override returns (bool) {
+    ) public override(ISettlement, Settlement) returns (bool) {
         bool success = super.executeSettlement(batchNumber, settlementId, merkleProof);
         require(success, "Settlement execution failed");
 

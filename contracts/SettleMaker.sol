@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interface/ISettlement.sol";
 import "./interface/ISettleMaker.sol";
+import "./interface/IEditSettlement.sol";
+import "./interface/IValidatorSettlement.sol";
 
 contract SettleMaker is ISettleMaker, ReentrancyGuard {
     // State variables
@@ -30,11 +31,6 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
     ) {
         require(_editSettlementAddress != address(0), "Invalid edit settlement");
         require(_symmToken != address(0), "Invalid SYMM token");
-        require(
-            IERC165(_editSettlementAddress).supportsInterface(type(ISettlement).interfaceId),
-            "Must implement ISettlement"
-        );
-        require(IERC20(_symmToken).totalSupply() > 0, "Invalid ERC20 token");
         
         editSettlementAddress = _editSettlementAddress;
         symmToken = _symmToken;
@@ -46,6 +42,9 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
     function getCurrentState() public view returns (StateEnum) {
         BatchMetadata memory metadata = _currentBatchMetadata;
         
+        // If no metadata is set (all timestamps are 0), return PAUSE
+        if (metadata.settlementStart == 0) return StateEnum.PAUSE;
+        
         if (block.timestamp > metadata.votingEnd) return StateEnum.VOTING_END;
         if (block.timestamp > metadata.votingStart) return StateEnum.VOTING;
         if (block.timestamp > metadata.settlementStart) return StateEnum.SETTLEMENT;
@@ -56,10 +55,6 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
     function setEditSettlement(address newEditSettlement) external {
         require(msg.sender == editSettlementAddress, "Only edit settlement");
         require(newEditSettlement != address(0), "Invalid address");
-        require(
-            IERC165(newEditSettlement).supportsInterface(type(ISettlement).interfaceId),
-            "Must implement ISettlement"
-        );
         
         editSettlementAddress = newEditSettlement;
         emit EditSettlementUpdated(newEditSettlement);
@@ -122,12 +117,3 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
     }
 }
 
-// Interfaces needed
-interface IEditSettlement is ISettlement {
-    function validatorSettlementAddress() external view returns (address);
-    function batchMetadataSettlementAddress() external view returns (address);
-}
-
-interface IValidatorSettlement is ISettlement {
-    function verifyValidator(address account) external view returns (bool);
-}

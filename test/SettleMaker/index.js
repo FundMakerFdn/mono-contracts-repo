@@ -1,11 +1,11 @@
-const { shouldManageValidators } = require('./SettleMaker.validators');
+const { shouldDeploySettleMaker } = require('./SettleMaker.deployment');
 
 function shouldBehaveLikeSettleMaker() {
-    describe("Validator Registry", async function () {
-        shouldManageValidators();
-    });
+  describe("Deployment", async function() {
+    shouldDeploySettleMaker();
+  });
 }
 
 module.exports = {
-    shouldBehaveLikeSettleMaker
+  shouldBehaveLikeSettleMaker
 };
