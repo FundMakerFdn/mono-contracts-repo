@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "contracts/Settlement.sol";
-import "contracts/interface/IEditSettlement.sol";
+import "contracts/SettleMaker/Settlement.sol";
+import "contracts/SettleMaker/interface/IEditSettlement.sol";
 
 /// @title Edit Settlement Contract
 /// @notice Manages core settlement contract addresses through voting

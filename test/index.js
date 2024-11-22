@@ -1,4 +1,4 @@
-const { shouldBehaveLikeETFSettlement } = require("./ETFSettlement");
+const { shouldBehaveLikeETFSettlement } = require("./ETFMaker");
 const { shouldBehaveLikeSettleMaker } = require("./SettleMaker");
 
 describe("SettleMaker Unit Tests", function () {
