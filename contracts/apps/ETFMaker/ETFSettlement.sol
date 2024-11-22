@@ -4,7 +4,6 @@ pragma solidity ^0.8.24;
 import "contracts/CollateralSettlement.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "hardhat/console.sol";
 
 /// @title ETF Settlement Contract
 contract ETFSettlement is CollateralSettlement {
@@ -44,7 +43,9 @@ contract ETFSettlement is CollateralSettlement {
             collateralToken
         );
         
-		etfParameters[settlementId] = params;
+        etfParameters[settlementId] = params;
+        
+        emit SettlementCreated(settlementId, msg.sender, address(this));
         
         return settlementId;
     }
