@@ -168,6 +168,10 @@ async function main() {
     account: deployer.account,
   });
 
+  await validatorSettlement.write.setSettleMaker([settleMaker.address], {
+    account: deployer.account,
+  });
+
   // Execute settlements
   console.log("Executing initial settlements...");
 

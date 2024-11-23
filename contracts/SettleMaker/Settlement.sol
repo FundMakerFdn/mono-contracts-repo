@@ -14,14 +14,8 @@ abstract contract Settlement is ISettlement, EIP712 {
         EIP712(name, version) 
     {
         if (_settleMaker != address(0)) {
-            _setSettleMaker(_settleMaker);
+            settleMaker = _settleMaker;
         }
-    }
-
-    function _setSettleMaker(address _settleMaker) internal {
-        require(settleMaker == address(0), "SettleMaker already set");
-        require(_settleMaker != address(0), "Invalid SettleMaker address");
-        settleMaker = _settleMaker;
     }
 
     function executeSettlement(

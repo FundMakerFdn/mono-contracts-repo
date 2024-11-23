@@ -16,6 +16,8 @@ contract ValidatorSettlement is IValidatorSettlement, Settlement {
         bool isAdd; // true = add validator, false = remove
     }
 
+    address private immutable deployer;
+
     bytes32 private constant VALIDATOR_SETTLEMENT_TYPEHASH = 
         keccak256("ValidatorSettlement(address validator,uint256 requiredSymmAmount,bool isAdd)");
 
@@ -29,6 +31,14 @@ contract ValidatorSettlement is IValidatorSettlement, Settlement {
         string memory name,
         string memory version
     ) Settlement(address(0), name, version) {}
+
+    function setSettleMaker(address _settleMaker) external {
+        require(msg.sender == deployer, "Only deployer can set");
+        require(settleMaker == address(0), "SettleMaker already set");
+        require(_settleMaker != address(0), "Invalid SettleMaker address");
+        
+        settleMaker = _settleMaker;
+    }
 
     function createValidatorSettlement(
         address validator,
