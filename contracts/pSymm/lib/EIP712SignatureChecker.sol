@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 library EIP712SignatureChecker {
     using ECDSA for bytes32;
@@ -181,9 +181,17 @@ library EIP712SignatureChecker {
         address expectedSignerA,
         address expectedSignerB
     ) internal view returns (bool) {
-        bytes32 hash = EIP712._hashTypedDataV4(structHash);
-        address signerA = hash.recover(signatureA);
-        address signerB = hash.recover(signatureB);
-        return signerA == expectedSignerA && signerB == expectedSignerB;
+        require(_verifySignature(structHash, signatureA, expectedSignerA), "Invalid signature");
+        require(_verifySignature(structHash, signatureB, expectedSignerB), "Invalid signature");
+        return true;
+    }
+
+    function _verifySignature(
+        bytes32 hash,
+        bytes memory signature,
+        address expectedSigner
+    ) internal pure returns (bool) {
+        address recoveredSigner = ECDSA.recover(hash, signature);
+        return recoveredSigner == expectedSigner;
     }
 }

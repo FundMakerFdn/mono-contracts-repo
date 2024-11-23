@@ -129,24 +129,20 @@ contract pSymm is EIP712 {
     }
 
     // @notice Open a settlement by calling the openSettlement function in pSymmSettlement contract
-    function openSettlement(bytes32 custodyRollupId, bytes32 custodyRollupIdHash, address[] collateralTokens, uint256[] collateralAmounts) external {
-        require(custodyRollups[custodyRollupId].state == 0, "Settlement already open");
-        custodyRollups[custodyRollupId].state = 1;
+    function openSettlement(bytes32 custodyRollupId, bytes32 merkleRoot, bool isA) external {
+        CustodyRollup storage custodyRollup = custodyRollups[custodyRollupId];
+        require(custodyRollup.state == 0, "Settlement already open");
+        require(msg.sender == custodyRollup.partyA || msg.sender == custodyRollup.partyB, "Invalid Caller");
+        custodyRollup.state = 1;
 
         pSymmSettlement pSymmSettlementContract = pSymmSettlement(custodyRollups[custodyRollupId].settlementAddress);
     
         // Call openSettlement with necessary parameters
         pSymmSettlementContract.openSettlement(
-            this.address, 
-            custodyRollups[custodyRollupId].partyA, 
-            custodyRollups[custodyRollupId].partyB, 
-            custodyRollups[custodyRollupId].custodyRollupId,
-            custodyRollups[custodyRollupId].MA, 
-            custodyRollups[custodyRollupId].isManaged,
-            custodyRollupIdHash
-            );  
-
-        custodyRollups[custodyRollupId].state = 1;
+            custodyRollupId,
+            merkleRoot,
+            isA
+        );  
 
         emit SettlementOpened(custodyRollupId);
     }
@@ -170,14 +166,28 @@ contract pSymm is EIP712 {
     }
 
     // @notice Withdraw from settlement, only the settlement contract can call this function
-    function settlementWithdraw(address collateralToken, uint256 collateralAmount, address partyA, address partyB, uint256 _custodyRollupId, bool isA) external {
-        bytes32 custodyRollupId = keccak256(abi.encodePacked(partyA, partyB, _custodyRollupId));
-        bytes32 receiverCustodyRollupId = keccak256(abi.encodePacked(isA ? partyB : partyA, isA ? partyB : partyA, _custodyRollupId));
-        require(custodyRollups[custodyRollupId].state == 1, "Settlement not in settlement state");
-        require(msg.sender == custodyRollups[custodyRollupId].settlementAddress, "Invalid Caller");
+    function settlementWithdraw(address collateralToken, uint256 collateralAmount, bytes32 custodyRollupTarget, bytes32 custodyRollupIdReceiver) external {
+        require(custodyRollups[custodyRollupTarget].state == 1, "Settlement not in settlement state");
+        require(msg.sender == custodyRollups[custodyRollupTarget].settlementAddress, "Invalid Caller");
 
-        _transferCustodyRollupBalance(custodyRollupId, receiverCustodyRollupId, collateralToken, collateralAmount);
+        _transferCustodyRollupBalance(custodyRollupTarget, custodyRollupIdReceiver, collateralToken, collateralAmount);
 
-        emit Withdraw(collateralToken, collateralAmount);
+        emit Settlement(collateralToken, collateralAmount);
+    }
+    
+    // @notice Withdraw from settlement, only the settlement contract can call this function
+    function settlementWithdraw(bytes32 custodyRollupTarget, address instantWithdraw, address replacedParty, bool isA) external {
+
+        require(custodyRollups[custodyRollupTarget].state == 1, "Settlement not in settlement state");
+        require(msg.sender == custodyRollups[custodyRollupTarget].settlementAddress, "Invalid Caller");
+        if (isA) {
+            require(replacedParty == custodyRollups[custodyRollupTarget].partyA, "Invalid replaced party"); 
+            custodyRollups[custodyRollupTarget].partyA = instantWithdraw;
+        } else {
+            require(replacedParty == custodyRollups[custodyRollupTarget].partyB, "Invalid replaced party");
+            custodyRollups[custodyRollupTarget].partyB = instantWithdraw;
+        }
+
+        emit InstantWithdraw(custodyRollupTarget, instantWithdraw);
     }
 }
