@@ -46,7 +46,7 @@ async function main() {
 
   const validatorSettlement = await hre.viem.deployContract(
     "ValidatorSettlement",
-    ["Validator Settlement", "1.0", mockSymm.address]
+    ["Validator Settlement", "1.0"]
   );
   console.log("ValidatorSettlement deployed to:", validatorSettlement.address);
 
@@ -222,6 +222,14 @@ async function main() {
     merkleRoot: merkleTree.root,
     chainId: await publicClient.getChainId(),
   };
+
+  // Verify deployer is properly registered as validator
+  const isValidator = await settleMaker.read.isValidator([deployer.account.address]);
+  if (!isValidator) {
+    throw new Error("Deployer was not properly registered as validator");
+  }
+
+  console.log("Verified deployer is registered as validator");
 
   const arweaveHash = arweave.store(deploymentData);
   arweave.close();

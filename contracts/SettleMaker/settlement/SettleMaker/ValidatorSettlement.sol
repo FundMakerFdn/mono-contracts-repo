@@ -30,7 +30,9 @@ contract ValidatorSettlement is IValidatorSettlement, Settlement {
     constructor(
         string memory name,
         string memory version
-    ) Settlement(address(0), name, version) {}
+    ) Settlement(address(0), name, version) {
+		deployer = msg.sender;
+	}
 
     function setSettleMaker(address _settleMaker) external {
         require(msg.sender == deployer, "Only deployer can set");
