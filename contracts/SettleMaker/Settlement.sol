@@ -41,13 +41,13 @@ abstract contract Settlement is ISettlement, EIP712 {
             "Invalid merkle proof"
         );
 
-        require(settlements[settlementId] == OPEN, "Invalid state");
-        settlements[settlementId] = SETTLED;
+        require(settlements[settlementId] == 0, "Invalid state");
+        settlements[settlementId] = 1;
         
         emit SettlementExecuted(settlementId);
     }
 
-    function getSettlementState(bytes32 settlementId) external view returns (SettlementState) {
+    function getSettlementState(bytes32 settlementId) external view returns (uint8) {
         return settlements[settlementId];
     }
 

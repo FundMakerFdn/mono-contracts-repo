@@ -29,7 +29,7 @@ interface ISettleMaker {
 
     // View functions
     function symmToken() external view returns (address);
-    function getCurrentState() external view returns (StateEnum);
+    function getCurrentState() external view returns (uint8);
     function editSettlementAddress() external view returns (address);
     function currentBatchMetadata() external view returns (BatchMetadata memory);
     function batchSoftFork(uint256 batchNumber) external view returns (bytes32);

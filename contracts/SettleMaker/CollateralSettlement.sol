@@ -68,7 +68,7 @@ abstract contract CollateralSettlement is Settlement, ICollateralSettlement {
             block.number
         ));
 
-        settlements[settlementId] = SettlementState.Open;
+        settlements[settlementId] = 0;
         
         _lockCollateral(
             settlementId,
@@ -87,7 +87,7 @@ abstract contract CollateralSettlement is Settlement, ICollateralSettlement {
         uint256 partyBAmount,
         bytes memory signature
     ) public virtual {
-        require(settlements[settlementId] == SettlementState.Open, "Settlement not open");
+        require(settlements[settlementId] == 0, "Settlement not open");
         CollateralData storage data = lockedCollateral[settlementId];
 
         bytes32 structHash = keccak256(abi.encode(
@@ -108,7 +108,7 @@ abstract contract CollateralSettlement is Settlement, ICollateralSettlement {
         IERC20(data.collateralToken).safeTransfer(data.partyA, partyAAmount);
         IERC20(data.collateralToken).safeTransfer(data.partyB, partyBAmount);
 
-        settlements[settlementId] = SettlementState.Settled;
+        settlements[settlementId] = 1;
         emit EarlyAgreementExecuted(settlementId, partyAAmount, partyBAmount);
     }
 
@@ -133,7 +133,7 @@ abstract contract CollateralSettlement is Settlement, ICollateralSettlement {
         uint256 partyBAmount,
         bytes memory signature
     ) external virtual {
-        require(settlements[settlementId] == SettlementState.Open, "Settlement not open");
+        require(settlements[settlementId] == 0, "Settlement not open");
         CollateralData storage data = lockedCollateral[settlementId];
 
         bytes32 structHash = keccak256(abi.encode(
@@ -162,7 +162,7 @@ abstract contract CollateralSettlement is Settlement, ICollateralSettlement {
         }
         token.safeTransfer(msg.sender, instantWithdrawFee);
 
-        settlements[settlementId] = SettlementState.Settled;
+        settlements[settlementId] = 1;
         emit InstantWithdrawExecuted(settlementId, replacedParty, instantWithdrawFee);
     }
 
