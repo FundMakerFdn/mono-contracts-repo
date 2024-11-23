@@ -1,3 +1,6 @@
+*.db
+
+# Aider data
 .aider.*
 
 node_modules

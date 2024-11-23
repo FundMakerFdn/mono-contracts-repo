@@ -90,11 +90,41 @@ async function deployFixture() {
     editSettlement
   );
 
+  // Add validator whitelist settlement for deployer
+  console.log("Creating validator whitelist settlement...");
+  const validatorWhitelistTx = await validatorSettlement.write.createValidatorSettlement(
+    [
+      deployer.account.address, // validator address
+      parseEther("1000"), // required SYMM amount
+      true, // isAdd = true to add validator
+    ],
+    {
+      account: deployer.account,
+    }
+  );
+
+  const validatorWhitelistId = await getSettlementIdFromReceipt(
+    validatorWhitelistTx,
+    publicClient,
+    validatorSettlement
+  );
+
+  // Mint SYMM tokens to deployer for staking
+  await mockSymm.write.mint([deployer.account.address, parseEther("1000")], {
+    account: deployer.account,
+  });
+
+  // Approve SYMM tokens for validator settlement
+  await mockSymm.write.approve([validatorSettlement.address, parseEther("1000")], {
+    account: deployer.account,
+  });
+
   // Create merkle tree with all initial settlements
   const merkleTree = createInitialMerkleTree([
     [validatorEditId],
     [batchMetadataEditId],
     [batchMetadataId],
+    [validatorWhitelistId]
   ]);
 
   // Deploy SettleMaker with EditSettlement address and merkle root
@@ -133,6 +163,7 @@ async function deployFixture() {
     [0n, batchMetadataId, proof],
     { account: deployer.account }
   );
+
 
   return {
     mockSymm,

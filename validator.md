@@ -2,7 +2,7 @@
 
 ## Architecture
 
-- Directory: `nativeValidator/'
+- Directory: `nativeValidator/' - stores EVERYTHING native validator-related
 - Scripts should be aliased through package.json (so we can run `yarn validator deploy` etc)
 - Use publicClient.watchContractEvent to get hold of the state changes
 - Have a mock Arweave implementation
@@ -16,7 +16,6 @@
 ## Setup
 
 - `yarn hardhat node`
-- `yarn mockArweave`
 - `yarn validator deploy` - deploy contracts, run initial validator
   - each time propose next batch metadata with timings described in its config json
   - castVote on all settlements
