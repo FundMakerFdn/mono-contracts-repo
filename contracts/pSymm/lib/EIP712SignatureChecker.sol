@@ -28,9 +28,8 @@ library EIP712SignatureChecker {
         address partyA;
         address partyB;
         uint256 custodyRollupId;
+        uint256 collateralAmount;
         address collateralToken;
-        uint256 tokenAmount;
-        address tokenAddress;
         bool isA;
         uint256 expiration;
         uint256 timestamp;
@@ -43,8 +42,8 @@ library EIP712SignatureChecker {
         address partyA;
         address partyB;
         uint256 custodyRollupId;
-        uint256 tokenAmount;
-        address tokenAddress;
+        uint256 collateralAmount    ;
+        address collateralToken;
         bool isA;
         uint256 expiration;
         uint256 timestamp;
@@ -68,18 +67,18 @@ library EIP712SignatureChecker {
     );
 
     bytes32 private constant TRANSFER_TO_CUSTODYROLLUP_SENDER_TYPEHASH = keccak256(
-        "transferToCustodyRollupParams(address partyA,address partyB,uint256 custodyRollupId,address collateralToken,uint256 tokenAmount,address tokenAddress,bool isA,uint256 expiration,uint256 timestamp,uint256 nonce)"
+        "transferToCustodyRollupParams(address partyA,address partyB,uint256 custodyRollupId,uint256 collateralAmount,address collateralToken,bool isA,uint256 expiration,uint256 timestamp,uint256 nonce)"
     );
 
     bytes32 private constant TRANSFER_FROM_CUSTODYROLLUP_TYPEHASH = keccak256(
-        "transferFromCustodyRollupParams(address partyA,address partyB,uint256 custodyRollupId,uint256 tokenAmount,address tokenAddress,bool isA,uint256 expiration,uint256 timestamp,uint256 nonce)"
+        "transferFromCustodyRollupParams(address partyA,address partyB,uint256 custodyRollupId,uint256 collateralAmount,address collateralToken,bool isA,uint256 expiration,uint256 timestamp,uint256 nonce)"
     );
 
     bytes32 private constant UPDATE_MA_TYPEHASH = keccak256(
         "updateMAParams(address partyA,address partyB,uint256 custodyRollupId,bytes32 MA,uint256 expiration,uint256 timestamp,uint256 nonce)"
     );
 
-    function verifyCreateCustodyRollupEIP712(createCustodyRollupParams memory params) internal view returns (bool) {
+    function verifyCreateCustodyRollupEIP712(createCustodyRollupParams memory params) internal pure returns (bool) {
         bytes32 structHash = keccak256(
             abi.encode(
                 CREATE_CUSTODYROLLUP_TYPEHASH,
@@ -109,16 +108,15 @@ library EIP712SignatureChecker {
         return true;
     }
 
-    function verifyTransferToCustodyRollupEIP712( transferToCustodyRollupParams memory params) internal view returns (bool) {
+    function verifyTransferToCustodyRollupEIP712( transferToCustodyRollupParams memory params) internal pure returns (bool) {
         bytes32 structHashSender = keccak256(
             abi.encode(
                 TRANSFER_TO_CUSTODYROLLUP_SENDER_TYPEHASH,
                 params.partyA,
                 params.partyB,
                 params.custodyRollupId,
+                params.collateralAmount,
                 params.collateralToken,
-                params.tokenAmount,
-                params.tokenAddress,
                 params.isA,
                 params.expiration,
                 params.timestamp,
@@ -140,15 +138,15 @@ library EIP712SignatureChecker {
         return true;
     }
 
-    function verifyTransferFromCustodyRollupEIP712(transferFromCustodyRollupParams memory params) internal view returns (bool) {
+    function verifyTransferFromCustodyRollupEIP712(transferFromCustodyRollupParams memory params) internal pure returns (bool) {
         bytes32 structHash = keccak256(
             abi.encode(
                 TRANSFER_FROM_CUSTODYROLLUP_TYPEHASH,
                 params.partyA,
                 params.partyB,
                 params.custodyRollupId,
-                params.tokenAmount,
-                params.tokenAddress,
+                params.collateralAmount,
+                params.collateralToken,
                 params.isA,
                 params.expiration,
                 params.timestamp,
@@ -170,7 +168,7 @@ library EIP712SignatureChecker {
         return true;
     }
 
-    function verifyUpdateMAEIP712(updateMAParams memory params) internal view returns (bool) {
+    function verifyUpdateMAEIP712(updateMAParams memory params) internal pure returns (bool) {
         bytes32 structHash = keccak256(
             abi.encode(
                 UPDATE_MA_TYPEHASH,

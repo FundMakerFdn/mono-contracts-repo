@@ -10,6 +10,7 @@ import "contracts/pSymm/settlement/pSymmSettlement.sol" as pSymmSettlement;
 import "contracts/pSymm/lib/EIP712SignatureChecker.sol"; // Import the library
 import "hardhat/console.sol";
 
+using SafeERC20 for IERC20;
 
 contract pSymm is EIP712 {
 
@@ -66,12 +67,12 @@ contract pSymm is EIP712 {
         bytes32 fromCustodyRollupId,
         bytes32 toCustodyRollupId,
         address collateralToken,
-        uint256 amount
+        uint256 collateralAmount
     ) private {
-        require(custodyRollupBalances[fromCustodyRollupId][collateralToken] >= amount, "Insufficient balance");
+        require(custodyRollupBalances[fromCustodyRollupId][collateralToken] >= collateralAmount, "Insufficient balance");
 
-        custodyRollupBalances[fromCustodyRollupId][collateralToken] -= amount;
-        custodyRollupBalances[toCustodyRollupId][collateralToken] += amount;
+        custodyRollupBalances[fromCustodyRollupId][collateralToken] -= collateralAmount;
+        custodyRollupBalances[toCustodyRollupId][collateralToken] += collateralAmount;
     }
 
     // @notice Create a new CustodyRollup with EIP712 signature of counterparty
@@ -81,47 +82,55 @@ contract pSymm is EIP712 {
         checkExpiration(params.expiration) 
         checkCustodialRollupOwner(params.partyA, params.partyB, params.custodyRollupId)
     {
-        require(EIP712SignatureChecker.verifyCreateCustodyRollup(params), "Invalid signature");
+        require(EIP712SignatureChecker.verifyCreateCustodyRollupEIP712(params), "Invalid signature");
 
         bytes32 custodyRollupId = keccak256(abi.encodePacked(params.partyA, params.partyB, params.custodyRollupId));
 
-        custodyRollups[custodyRollupId] = CustodyRollup(params.partyA, params.partyB, params.custodyRollupId, params.settlementAddress, params.MA, params.isManaged, 0);
+        custodyRollups[custodyRollupId] = CustodyRollup(
+            params.partyA, 
+            params.partyB, 
+            params.custodyRollupId, 
+            params.settlementAddress, 
+            params.MA, 
+            params.isManaged, 
+            0, 
+            block.timestamp, 
+            params.nonce
+        );
 
         emit CustodyRollupCreated(params.custodyRollupId, params.partyA, params.partyB, params.settlementAddress);
     }
 
     function transferToCustodyRollup(EIP712SignatureChecker.transferToCustodyRollupParams memory params, uint256 _senderCustodyRollupId) 
         external 
-        checkAndClaimSignatures(params.signSender, params.signReceiver) 
+        checkAndClaimSignatures(params.signatureA, params.signatureB) 
         checkExpiration(params.expiration) 
         checkCustodialRollupOwner(params.partyA, params.partyB, params.custodyRollupId)
     {
-        require(EIP712SignatureChecker.verifyTransferToCustodyRollup(params), "Invalid signature");
+        require(EIP712SignatureChecker.verifyTransferToCustodyRollupEIP712(params), "Invalid signature");
         address sender = params.isA ? params.partyA : params.partyB;
         bytes32 custodyRollupId = keccak256(abi.encodePacked(params.partyA, params.partyB, params.custodyRollupId));
         bytes32 senderCustodyRollupId = keccak256(abi.encodePacked(sender, sender, _senderCustodyRollupId));
 
-        _transferCustodyRollupBalance(senderCustodyRollupId, custodyRollupId, params.collateralToken, params.amount);
+        _transferCustodyRollupBalance(senderCustodyRollupId, custodyRollupId, params.collateralToken, params.collateralAmount);
 
-        emit TransferToCustodyRollup(custodyRollupId, params.collateralToken, params.amount, params.sender);
+        emit TransferToCustodyRollup(custodyRollupId, params.collateralToken, params.collateralAmount, params.isA ? params.partyA : params.partyB);
     }
 
     // @notice Withdraw from CustodyRollup, all withdraws requires EIP712 signature of counterparty    
-    function transferFromCustodyRollup(EIP712SignatureChecker.transferFromCustodyRollupParams memory params, uint256 _receiverCustodyRollupId) 
+    function transferFromCustodyRollup(EIP712SignatureChecker.transferFromCustodyRollupParams memory params, bytes32 _receiverCustodyRollupId) 
         external 
         checkAndClaimSignatures(params.signatureA, params.signatureB) 
         checkExpiration(params.expiration) 
         checkCustodialRollupOwner(params.partyA, params.partyB, params.custodyRollupId)
     {
-        require(EIP712SignatureChecker.verifyTransferFromCustodyRollup(params), "Invalid signature");
-
-        CustodyRollup storage custodyRollup = custodyRollups[params.custodyRollupId];
+        require(EIP712SignatureChecker.verifyTransferFromCustodyRollupEIP712(params), "Invalid signature");
+        bytes32 fromCustodyRollupId = keccak256(abi.encodePacked(params.partyA, params.partyB, params.custodyRollupId));
         address receiver = params.isA ? params.partyB : params.partyA;
-        bytes32 receiverCustodyRollupId = keccak256(abi.encodePacked(receiver, receiver, _receiverCustodyRollupId));
 
-        _transferCustodyRollupBalance(receiverCustodyRollupId, params.custodyRollupId, params.collateralToken, params.amount);
+        _transferCustodyRollupBalance(fromCustodyRollupId, _receiverCustodyRollupId, params.collateralToken, params.collateralAmount);
 
-        emit WithdrawFromCustodyRollup(params.custodyRollupId, params.collateralToken, params.amount, receiver);
+        emit WithdrawFromCustodyRollup(_receiverCustodyRollupId, params.collateralToken, params.collateralAmount, receiver);
     }
 
     function updateMA(EIP712SignatureChecker.updateMAParams memory params) 
@@ -130,11 +139,12 @@ contract pSymm is EIP712 {
         checkExpiration(params.expiration) 
         checkCustodialRollupOwner(params.partyA, params.partyB, params.custodyRollupId)
     {
-        require(EIP712SignatureChecker.verifyUpdateMA(params), "Invalid signature");
+        bytes32 custodyRollupId = keccak256(abi.encodePacked(params.partyA, params.partyB, params.custodyRollupId));
+        require(EIP712SignatureChecker.verifyUpdateMAEIP712(params), "Invalid signature");
        
-        custodyRollups[params.custodyRollupId].MA = params.MA;
+        custodyRollups[custodyRollupId].MA = params.MA;
 
-        emit MAUpdated(params.custodyRollupId, params.MA);
+        emit MAUpdated(custodyRollupId, params.MA);
     }
 
     // @notice Open a settlement by calling the openSettlement function in pSymmSettlement contract
@@ -146,12 +156,13 @@ contract pSymm is EIP712 {
 
         pSymmSettlement.pSymmSettlement pSymmSettlementContract = pSymmSettlement.pSymmSettlement(custodyRollups[custodyRollupId].settlementAddress);
     
-        // Call openSettlement with necessary parameters
         pSymmSettlementContract.openSettlement(
-            custodyRollupId,
-            merkleRoot,
-            isA
-        );  
+                custodyRollup.partyA,
+                custodyRollup.partyB,
+                custodyRollupId,
+                merkleRoot,
+                isA
+            );
 
         emit SettlementOpened(custodyRollupId);
     }
@@ -184,7 +195,7 @@ contract pSymm is EIP712 {
         emit SettlementWithdrawEvent(custodyRollupTarget, collateralToken, collateralAmount, custodyRollupIdReceiver);
     }
     
-    // @notice Withdraw from settlement, only the settlement contract can call this function
+    // @notice Instant withdraw from settlement, only the settlement contract can call this function
     function settlementWithdraw(bytes32 custodyRollupTarget, address instantWithdraw, address replacedParty, bool isA) external {
 
         require(custodyRollups[custodyRollupTarget].state == 1, "Settlement not in settlement state");

@@ -10,12 +10,14 @@ import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import "contracts/pSymm/lib/EIP712SignatureChecker.sol";
 import "contracts/pSymm/pSymm.sol" as pSymm;
 
-abstract contract pSymmSettlement is ISettlement, Settlement {
+contract pSymmSettlement is Settlement {
     using SafeERC20 for IERC20;
     using ECDSA for bytes;
     using MessageHashUtils for bytes32;
 
     struct pSymmSettlementData {
+        address partyA;
+        address partyB;
         bytes32 custodyRollupId;
         bytes32 merkleRootA;
         uint256 submittedAtA;
@@ -48,11 +50,13 @@ abstract contract pSymmSettlement is ISettlement, Settlement {
         string memory version
     ) Settlement(_settleMaker, name, version) {}
 
-    function createCollateralSettlement(
+    function openSettlement(
+        address partyA,
+        address partyB,
         bytes32 custodyRollupId,
         bytes32 merkleRoot,
         bool isA
-    ) internal returns (bytes32) {
+    ) external returns (bytes32) {
         bytes32 settlementId = keccak256(abi.encode(
             custodyRollupId,
             merkleRoot,
@@ -61,6 +65,7 @@ abstract contract pSymmSettlement is ISettlement, Settlement {
             block.timestamp,
             block.number
         ));
+        require( pSymmSettlementDatas[settlementId].state == 0, "Settlement already open" );
 
         pSymmSettlementData storage settlementData = pSymmSettlementDatas[settlementId];
 
@@ -74,6 +79,8 @@ abstract contract pSymmSettlement is ISettlement, Settlement {
 
         settlementData.pSymmAddress = msg.sender;
         settlementData.custodyRollupId = custodyRollupId;
+        settlementData.partyA = partyA;
+        settlementData.partyB = partyB;
 
         emit CollateralSettlementCreated(settlementId, msg.sender, merkleRoot, custodyRollupId, isA);
         return settlementId;
@@ -81,10 +88,10 @@ abstract contract pSymmSettlement is ISettlement, Settlement {
 
     function executeEarlyAgreement(
         bytes32 settlementId,
-        uint256 collateralAmount,
-        address collateralToken,
         bytes32 custodyRollupTarget,
         bytes32 custodyRollupReceiver,
+        address collateralToken,
+        uint256 collateralAmount,
         uint256 expiration,
         bytes32 nonce,
         bytes memory signature
@@ -114,10 +121,10 @@ abstract contract pSymmSettlement is ISettlement, Settlement {
         bytes32 structHash = keccak256(abi.encode(
             EARLY_AGREEMENT_TYPEHASH,
             settlementId,
-            collateralAmount,
-            collateralToken,
             custodyRollupTarget,
             custodyRollupReceiver,
+            collateralToken,
+            collateralAmount,
             expiration,
             nonce
         ));
@@ -132,7 +139,7 @@ abstract contract pSymmSettlement is ISettlement, Settlement {
         require(expiration > block.timestamp, "Early agreement expired");
 
         pSymm.pSymm pSymmInstance = pSymm.pSymm(data.pSymmAddress);
-        pSymmInstance.executeEarlyAgreement(collateralToken, collateralAmount, custodyRollupTarget, custodyRollupReceiver, expiration);
+        pSymmInstance.settlementWithdraw(collateralToken, collateralAmount, custodyRollupTarget, custodyRollupReceiver);
         
         emit EarlyAgreementExecuted(settlementId, collateralAmount, collateralToken, data.custodyRollupId);
     }
@@ -142,10 +149,11 @@ abstract contract pSymmSettlement is ISettlement, Settlement {
         uint256 batchNumber,
         bytes32 settlementId,
         bytes32[] calldata merkleProof
-    ) public virtual override(ISettlement, Settlement) {
+    ) public virtual override( Settlement) {
         super.executeSettlement(batchNumber, settlementId, merkleProof);
 
-        pSymmSettlementData storage data = pSymmSettlementDatas[settlementId];
+        //pSymmSettlementData storage data = pSymmSettlementDatas[settlementId];
+
         
         emit SettlementExecuted(settlementId);
     }

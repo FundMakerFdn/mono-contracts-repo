@@ -1,5 +1,5 @@
 const assert = require("node:assert/strict");
-const { shouldDeploySettleMaker } = require('../SettleMaker/SettleMaker.deployment');
+const { shouldDeploySettleMaker } = require('../../SettleMaker/SettleMaker.deployment');
 const {
   loadFixture,
   time,
@@ -53,7 +53,7 @@ async function deployFixture() {
   const solver2CustodyRollupId = keccak256(abi.encodePacked(deployer.solver2.address, deployer.solver2.address, 0));
   await pSymm.write.deposit(USDC.address, parseEther("1000000"), solver1CustodyRollupId);
   await pSymm.write.deposit(USDC.address, parseEther("1000000"), solver2CustodyRollupId);
-  
+
 
   // Get current timestamp
   const currentTimestamp = BigInt(await time.latest());
@@ -152,102 +152,8 @@ async function deployFixture() {
   };
 }
 
-function shouldDeploySettleMaker() {
-  it("should have correct initial batch metadata", async function () {
-    const { settleMaker, batchMetadataSettlement, initialBatchMetadataId } =
-      await loadFixture(deployFixture);
-
-    const currentTimestamp = BigInt(await time.latest());
-
-    // Get metadata from settlement
-    const [settlementStart, votingStart, votingEnd] =
-      await batchMetadataSettlement.read.getBatchMetadataParameters([
-        initialBatchMetadataId,
-      ]);
-    // Get metadata from SettleMaker to verify it was applied
-    const currentMetadata = await settleMaker.read.currentBatchMetadata();
-
-    // Verify timestamps in both places match
-    assert.equal(
-      currentMetadata.settlementStart,
-      settlementStart,
-      "Settlement start mismatch"
-    );
-    assert.equal(
-      currentMetadata.votingStart,
-      votingStart,
-      "Voting start mismatch"
-    );
-    assert.equal(currentMetadata.votingEnd, votingEnd, "Voting end mismatch");
-
-    // Verify actual values
-    assert.equal(settlementStart, 0n, "Invalid settlement start");
-    assert.ok(
-      votingStart > currentTimestamp + BigInt(4 * 24 * 60 * 60),
-      "Voting start should be ~5 days in future"
-    );
-    assert.ok(
-      votingEnd > votingStart + BigInt(24 * 60 * 60),
-      "Voting end should be ~2 days after voting start"
-    );
-  });
-  it("should deploy with correct initial state", async function () {
-    const { settleMaker, editSettlement, mockSymm, publicClient } =
-      await loadFixture(deployFixture);
-
-    // Check initial state
-    const currentBatch = await settleMaker.read.currentBatch();
-    assert.equal(currentBatch, 1n, "Initial batch should be 1");
-
-    const editSettlementAddr = await settleMaker.read.editSettlementAddress();
-    assert.equal(
-      getAddress(editSettlementAddr),
-      getAddress(editSettlement.address),
-      "Incorrect edit settlement address"
-    );
-
-    const symmToken = await settleMaker.read.symmToken();
-    assert.equal(
-      getAddress(symmToken),
-      getAddress(mockSymm.address),
-      "Incorrect SYMM token address"
-    );
-
-    // Check initial batch metadata is empty
-    const metadata = await settleMaker.read.currentBatchMetadata();
-    assert.equal(metadata.settlementStart, 0n);
-  });
-
-  it("should start in VOTING_END state", async function () {
-    const { settleMaker } = await loadFixture(deployFixture);
-
-    const currentState = await settleMaker.read.getCurrentState();
-    assert.equal(currentState, 1, "Initial state should be VOTING_END");
-  });
-
-  it("should not allow non-edit-settlement to update edit settlement", async function () {
-    const { settleMaker, validator1 } = await loadFixture(deployFixture);
-
-    await assert.rejects(
-      async () => {
-        await settleMaker.write.setEditSettlement(
-          [validator1.account.address],
-          {
-            account: validator1.account,
-          }
-        );
-      },
-      {
-        message: /Only edit settlement/,
-      }
-    );
-  });
-}
-
 
 
 module.exports = {
-  shouldDeploySettleMaker,
   deployFixture,
-  getSettlementIdFromReceipt,
 };
