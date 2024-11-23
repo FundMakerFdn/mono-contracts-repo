@@ -16,14 +16,16 @@ contract EditSettlement is IEditSettlement, Settlement {
     // Edit settlement parameters
     struct EditParameters {
         address newSettlementAddress;
-        SettlementType settlementType;
+        uint8 settlementType;
     }
 
+    /*
     enum SettlementType {
         VALIDATOR,
         BATCH_METADATA,
         EDIT_SETTLEMENT
     }
+    */
 
     bytes32 private constant EDIT_SETTLEMENT_TYPEHASH = 
         keccak256("EditSettlement(address newSettlementAddress,uint8 settlementType)");
@@ -48,7 +50,7 @@ contract EditSettlement is IEditSettlement, Settlement {
 
     function createEditSettlement(
         address newSettlementAddress,
-        SettlementType settlementType
+        uint8 settlementType
     ) external returns (bytes32) {
 
         bytes32 settlementId = _createSettlementId(abi.encode(
@@ -56,7 +58,7 @@ contract EditSettlement is IEditSettlement, Settlement {
             settlementType
         ));
         
-        settlements[settlementId] = SettlementState.Open;
+        settlements[settlementId] = 0;
 
         editParameters[settlementId] = EditParameters({
             newSettlementAddress: newSettlementAddress,
@@ -78,11 +80,11 @@ contract EditSettlement is IEditSettlement, Settlement {
         EditParameters memory params = editParameters[settlementId];
 
         // Update appropriate address based on settlement type
-        if (params.settlementType == SettlementType.VALIDATOR) {
+        if (params.settlementType == 0) {
             validatorSettlementAddress = params.newSettlementAddress;
-        } else if (params.settlementType == SettlementType.BATCH_METADATA) {
+        } else if (params.settlementType == 1) {
             batchMetadataSettlementAddress = params.newSettlementAddress;
-        } else if (params.settlementType == SettlementType.EDIT_SETTLEMENT) {
+        } else if (params.settlementType == 2) {
             // Special case - update SettleMaker's editSettlementAddress
             if (params.newSettlementAddress != address(this)) {
                 ISettleMaker(settleMaker).setEditSettlement(params.newSettlementAddress);

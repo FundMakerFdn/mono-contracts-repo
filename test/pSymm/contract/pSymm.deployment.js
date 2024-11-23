@@ -1,4 +1,5 @@
 const assert = require("node:assert/strict");
+const { shouldDeploySettleMaker } = require('../SettleMaker/SettleMaker.deployment');
 const {
   loadFixture,
   time,
@@ -16,33 +17,43 @@ const {
 const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
 const hre = require("hardhat");
 
-// Helper to create merkle tree from settlements
-function createInitialMerkleTree(leaves) {
-  return StandardMerkleTree.of(leaves, ["bytes32"]);
-}
-
 async function deployFixture() {
-  const [deployer, validator1, validator2] = await hre.viem.getWalletClients();
+  const [deployer, solver1, solver2] = await hre.viem.getWalletClients();
   const publicClient = await hre.viem.getPublicClient();
 
-  // Deploy mock SYMM token first
-  const mockSymm = await hre.viem.deployContract("MockSymm");
+  const USDC = await hre.viem.deployContract("MockToken", ["USDC", "USDC"]);
 
-  // Deploy EditSettlement first without settleMaker
-  const editSettlement = await hre.viem.deployContract("EditSettlement", [
-    "Edit Settlement",
+  const settleMaker = await loadFixture(shouldDeploySettleMaker);
+  const pSymmSettlement = await hre.viem.deployContract("pSymmSettlement", [
+    settleMaker.address,
+    "pSymm Settlement",
     "1.0",
   ]);
 
-  const validatorSettlement = await hre.viem.deployContract(
-    "ValidatorSettlement",
-    ["Validator Settlement", "1.0"]
-  );
 
-  const batchMetadataSettlement = await hre.viem.deployContract(
-    "BatchMetadataSettlement",
-    ["Batch Metadata Settlement", "1.0"]
-  );
+  const pSymm = await hre.viem.deployContract("pSymm");
+
+  await USDC.write.mint([deployer.solver1.address], [parseEther("1000000")], {
+    account: deployer.solver1,
+  });
+
+  await USDC.write.mint([deployer.solver2.address], [parseEther("1000000")], {
+    account: deployer.solver2,
+  });
+
+  await USDC.write.approve([pSymm.address], [parseEther("1000000")], {
+    account: deployer.solver1,
+  });
+
+  await USDC.write.approve([pSymm.address], [parseEther("1000000")], {
+    account: deployer.solver2,
+  });
+
+  const solver1CustodyRollupId = keccak256(abi.encodePacked(deployer.solver1.address, deployer.solver1.address, 0));
+  const solver2CustodyRollupId = keccak256(abi.encodePacked(deployer.solver2.address, deployer.solver2.address, 0));
+  await pSymm.write.deposit(USDC.address, parseEther("1000000"), solver1CustodyRollupId);
+  await pSymm.write.deposit(USDC.address, parseEther("1000000"), solver2CustodyRollupId);
+  
 
   // Get current timestamp
   const currentTimestamp = BigInt(await time.latest());
@@ -98,20 +109,12 @@ async function deployFixture() {
   ]);
 
   // Deploy SettleMaker with EditSettlement address and merkle root
-  const settleMaker = await hre.viem.deployContract("SettleMaker", [
+  const settleMakerContract = await hre.viem.deployContract("SettleMaker", [
     editSettlement.address,
     mockSymm.address,
     merkleTree.root,
   ]);
 
-  // Set SettleMaker addresses first
-  await editSettlement.write.setSettleMaker([settleMaker.address], {
-    account: deployer.account,
-  });
-
-  await batchMetadataSettlement.write.setSettleMaker([settleMaker.address], {
-    account: deployer.account,
-  });
 
   // 1. Execute batch metadata edit settlement first
   const batchMetadataProof = merkleTree.getProof([batchMetadataEditId]);
@@ -241,25 +244,7 @@ function shouldDeploySettleMaker() {
   });
 }
 
-async function getSettlementIdFromReceipt(txHash, publicClient, settlement) {
-  const receipt = await publicClient.waitForTransactionReceipt({
-    hash: txHash,
-  });
-  const SETTLEMENT_CREATED_EVENT = keccak256(
-    toHex("SettlementCreated(bytes32,address,address)")
-  );
-  const settlementCreatedEvent = receipt.logs.find(
-    (log) => log.topics[0] === SETTLEMENT_CREATED_EVENT
-  );
-  const decodedLog = decodeEventLog({
-    abi: settlement.abi,
-    eventName: "SettlementCreated",
-    topics: settlementCreatedEvent.topics,
-    data: settlementCreatedEvent.data,
-  });
 
-  return decodedLog.args.settlementId;
-}
 
 module.exports = {
   shouldDeploySettleMaker,

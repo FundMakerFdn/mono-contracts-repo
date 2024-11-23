@@ -44,10 +44,10 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
     function getCurrentState() public view returns (uint8) {
         BatchMetadata memory metadata = _currentBatchMetadata;
         
-        if (block.timestamp > metadata.votingEnd) return VOTING_END;
-        if (block.timestamp > metadata.votingStart) return VOTING;
-        if (block.timestamp > metadata.settlementStart) return SETTLEMENT;
-        return PAUSE;
+        if (block.timestamp > metadata.votingEnd) return 3;
+        if (block.timestamp > metadata.votingStart) return 2;
+        if (block.timestamp > metadata.settlementStart) return 1;
+        return 0;
     }
 
     // Allow edit settlement to update itself
@@ -62,7 +62,7 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
     // Cast vote for a soft fork
     function castVote(bytes32 softForkRoot) external nonReentrant {
         //@ Vlad Maybe I did break something, by replacing enum not sure with number it should be for voting
-        require(getCurrentState() == VOTING, "Invalid state");
+        require(getCurrentState() == 2, "Invalid state");
         require(isValidator(msg.sender), "Not a validator");
         require(!hasVoted[msg.sender][softForkRoot], "Already voted");
 
@@ -100,8 +100,7 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
         bytes32 batchMetadataSettlementId,
         bytes32[] calldata merkleProof
     ) external {
-        //@ Vlad Maybe I did break something, by replacing enum not sure with number it should be for voting
-        require(getCurrentState() == StateEnum.VOTING, "Invalid state");
+        require(getCurrentState() == 2, "Invalid state");
         
         // Verify the batch metadata settlement is included in the soft fork
         bytes32 leaf = batchMetadataSettlementId;
@@ -128,7 +127,7 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
     }
 
     function finalizeBatchWinner() external nonReentrant {
-        require(getCurrentState() == VOTING_END, "Invalid state");
+        require(getCurrentState() == 3, "Invalid state");
         
         // Store winning root
         batchSoftFork[currentBatch] = currentBatchWinner;

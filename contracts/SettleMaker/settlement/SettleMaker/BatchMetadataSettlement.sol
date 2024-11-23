@@ -54,7 +54,7 @@ contract BatchMetadataSettlement is IBatchMetadataSettlement, Settlement {
             votingEnd
         ));
         
-        settlements[settlementId] = SettlementState.Open;
+        settlements[settlementId] = 0;
 
         BatchMetadataParameters memory params = BatchMetadataParameters({
             settlementStart: settlementStart,

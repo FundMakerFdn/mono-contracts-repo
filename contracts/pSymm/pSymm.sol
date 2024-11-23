@@ -6,12 +6,13 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
-import "contracts/pSymm/settlement/pSymmSettlement.sol";
+import "contracts/pSymm/settlement/pSymmSettlement.sol" as pSymmSettlement;
 import "contracts/pSymm/lib/EIP712SignatureChecker.sol"; // Import the library
 import "hardhat/console.sol";
 
 
 contract pSymm is EIP712 {
+
 
     struct CustodyRollup {
         address partyA;
@@ -25,7 +26,15 @@ contract pSymm is EIP712 {
         uint256 nonce;
     }
 
-
+    event CustodyRollupCreated(uint256 indexed custodyRollupId, address indexed partyA, address indexed partyB, address settlementAddress);
+    event TransferToCustodyRollup(bytes32 indexed custodyRollupId, address indexed collateralToken, uint256 amount, address indexed sender);
+    event WithdrawFromCustodyRollup(bytes32 indexed custodyRollupId, address indexed collateralToken, uint256 amount, address indexed receiver);
+    event MAUpdated(bytes32 indexed custodyRollupId, bytes32 MA);
+    event SettlementOpened(bytes32 indexed custodyRollupId);
+    event Deposit(address indexed collateralToken, uint256 amount);
+    event Withdraw(address indexed collateralToken, uint256 amount);
+    event InstantWithdraw(bytes32 indexed custodyRollupId, address indexed instantWithdraw);
+    event SettlementWithdrawEvent(bytes32 indexed custodyRollupId, address indexed collateralToken, uint256 amount, bytes32 indexed custodyRollupIdReceiver);
     mapping(bytes32 => CustodyRollup) private custodyRollups;
     mapping(bytes32 => mapping(address => uint256)) private custodyRollupBalances; // custodyRollupId => token address => balance
     mapping(bytes32 => bool) private signatureClaimed;
@@ -66,7 +75,7 @@ contract pSymm is EIP712 {
     }
 
     // @notice Create a new CustodyRollup with EIP712 signature of counterparty
-    function createCustodyRollup(createCustodyRollupParams memory params) 
+    function createCustodyRollup(EIP712SignatureChecker.createCustodyRollupParams memory params) 
         external 
         checkAndClaimSignatures(params.signatureA, params.signatureB) 
         checkExpiration(params.expiration) 
@@ -81,7 +90,7 @@ contract pSymm is EIP712 {
         emit CustodyRollupCreated(params.custodyRollupId, params.partyA, params.partyB, params.settlementAddress);
     }
 
-    function transferToCustodyRollup(transferToCustodyRollupParams memory params, uint256 _senderCustodyRollupId) 
+    function transferToCustodyRollup(EIP712SignatureChecker.transferToCustodyRollupParams memory params, uint256 _senderCustodyRollupId) 
         external 
         checkAndClaimSignatures(params.signSender, params.signReceiver) 
         checkExpiration(params.expiration) 
@@ -98,7 +107,7 @@ contract pSymm is EIP712 {
     }
 
     // @notice Withdraw from CustodyRollup, all withdraws requires EIP712 signature of counterparty    
-    function transferFromCustodyRollup(transferFromCustodyRollupParams memory params, uint256 _receiverCustodyRollupId) 
+    function transferFromCustodyRollup(EIP712SignatureChecker.transferFromCustodyRollupParams memory params, uint256 _receiverCustodyRollupId) 
         external 
         checkAndClaimSignatures(params.signatureA, params.signatureB) 
         checkExpiration(params.expiration) 
@@ -115,7 +124,7 @@ contract pSymm is EIP712 {
         emit WithdrawFromCustodyRollup(params.custodyRollupId, params.collateralToken, params.amount, receiver);
     }
 
-    function updateMA(updateMAParams memory params) 
+    function updateMA(EIP712SignatureChecker.updateMAParams memory params) 
         external 
         checkAndClaimSignatures(params.signatureA, params.signatureB) 
         checkExpiration(params.expiration) 
@@ -135,7 +144,7 @@ contract pSymm is EIP712 {
         require(msg.sender == custodyRollup.partyA || msg.sender == custodyRollup.partyB, "Invalid Caller");
         custodyRollup.state = 1;
 
-        pSymmSettlement pSymmSettlementContract = pSymmSettlement(custodyRollups[custodyRollupId].settlementAddress);
+        pSymmSettlement.pSymmSettlement pSymmSettlementContract = pSymmSettlement.pSymmSettlement(custodyRollups[custodyRollupId].settlementAddress);
     
         // Call openSettlement with necessary parameters
         pSymmSettlementContract.openSettlement(
@@ -172,7 +181,7 @@ contract pSymm is EIP712 {
 
         _transferCustodyRollupBalance(custodyRollupTarget, custodyRollupIdReceiver, collateralToken, collateralAmount);
 
-        emit Settlement(collateralToken, collateralAmount);
+        emit SettlementWithdrawEvent(custodyRollupTarget, collateralToken, collateralAmount, custodyRollupIdReceiver);
     }
     
     // @notice Withdraw from settlement, only the settlement contract can call this function

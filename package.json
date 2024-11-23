@@ -1,6 +1,6 @@
 {
   "name": "SettleMaker",
-  "version": "1.0.0",
+  "version": "1.0",
   "main": "index.js",
   "repository": "git@gitq:FundMakerFdn/SettleMaker.git",
   "author": "Vladyslav <web.user@ukr.net>, Max OTC maxgctwo@rasa.capital",

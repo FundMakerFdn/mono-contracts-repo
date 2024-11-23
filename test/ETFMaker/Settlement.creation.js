@@ -23,7 +23,7 @@ async function deployFixture() {
   const etfSettlement = await hre.viem.deployContract("ETFSettlement", [
     mockSymm.address,
     "ETF Settlement",
-    "1.0.0",
+    "1.0",
   ]);
 
   await mockSymm.write.mint([partyA.account.address, parseEther("1000")]);

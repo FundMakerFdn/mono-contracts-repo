@@ -9,10 +9,11 @@ interface ISettleMaker {
     // 1 = SETTLEMENT (During settlement submission)
     // 2 = VOTING (During voting period)
     // 3 = VOTING_END (After voting ends)
-    uint8 constant PAUSE = 0;
+    /* uint8 constant PAUSE = 0;
     uint8 constant SETTLEMENT = 1;
     uint8 constant VOTING = 2;
     uint8 constant VOTING_END = 3;
+    */ 
 
     // Batch metadata structure 
     struct BatchMetadata {

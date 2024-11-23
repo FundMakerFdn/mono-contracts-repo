@@ -41,7 +41,7 @@ contract ValidatorSettlement is IValidatorSettlement, Settlement {
             isAdd
         ));
         
-        settlements[settlementId] = SettlementState.Open;
+        settlements[settlementId] = 0;
 
         ValidatorParameters memory params = ValidatorParameters({
             validator: validator,

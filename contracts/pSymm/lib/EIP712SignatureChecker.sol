@@ -96,14 +96,20 @@ library EIP712SignatureChecker {
         );
 
         require(
-            EIP712SignatureChecker.verifySignature(structHash, params.signatureA, params.signatureB, params.partyA, params.partyB),
+            EIP712SignatureChecker.verifySignature(
+                structHash, 
+                abi.encodePacked(params.signatureA), 
+                abi.encodePacked(params.signatureB), 
+                params.partyA, 
+                params.partyB
+            ),
             "Invalid signature"
         );
 
-        
+        return true;
     }
 
-    function verifyTransferToCustodyRollupEIP712(bytes32 custodyRollupId, transferToCustodyRollupParams memory params) internal view returns (bool) {
+    function verifyTransferToCustodyRollupEIP712( transferToCustodyRollupParams memory params) internal view returns (bool) {
         bytes32 structHashSender = keccak256(
             abi.encode(
                 TRANSFER_TO_CUSTODYROLLUP_SENDER_TYPEHASH,
@@ -121,7 +127,13 @@ library EIP712SignatureChecker {
         );
 
         require(
-            EIP712SignatureChecker.verifySignature(structHashSender, params.signatureA, params.signatureB, params.partyA, params.partyB),
+            EIP712SignatureChecker.verifySignature(
+                structHashSender, 
+                abi.encodePacked(params.signatureA), 
+                abi.encodePacked(params.signatureB), 
+                params.partyA, 
+                params.partyB
+            ),
             "Invalid signature"
         );
 
@@ -145,7 +157,13 @@ library EIP712SignatureChecker {
         );
 
         require(
-            EIP712SignatureChecker.verifySignature(structHash, params.signatureA, params.signatureB, params.partyA, params.partyB),
+            EIP712SignatureChecker.verifySignature(
+                structHash, 
+                abi.encodePacked(params.signatureA), 
+                abi.encodePacked(params.signatureB), 
+                params.partyA, 
+                params.partyB
+            ),
             "Invalid signature"
         );
 
@@ -153,7 +171,7 @@ library EIP712SignatureChecker {
     }
 
     function verifyUpdateMAEIP712(updateMAParams memory params) internal view returns (bool) {
-         bytes32 structHash = keccak256(
+        bytes32 structHash = keccak256(
             abi.encode(
                 UPDATE_MA_TYPEHASH,
                 params.partyA,
@@ -167,7 +185,13 @@ library EIP712SignatureChecker {
         );
 
         require(
-            EIP712SignatureChecker.verifySignature(structHash, params.signatureA, params.signatureB, params.partyA, params.partyB),
+            EIP712SignatureChecker.verifySignature(
+                structHash, 
+                abi.encodePacked(params.signatureA), 
+                abi.encodePacked(params.signatureB), 
+                params.partyA, 
+                params.partyB
+            ),
             "Invalid signature"
         );
 
@@ -180,7 +204,7 @@ library EIP712SignatureChecker {
         bytes memory signatureB,
         address expectedSignerA,
         address expectedSignerB
-    ) internal view returns (bool) {
+    ) internal pure returns (bool) {
         require(_verifySignature(structHash, signatureA, expectedSignerA), "Invalid signature");
         require(_verifySignature(structHash, signatureB, expectedSignerB), "Invalid signature");
         return true;
