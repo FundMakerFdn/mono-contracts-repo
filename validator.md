@@ -1,5 +1,10 @@
 # Native settlement Validator
 
+Currently, to test validator setup, the commands below are used:
+
+- `yarn hardhat node` to start a local node
+- `yarn hardhat run nativeValidator/deploy.js --network localhost` to deploy contracts
+
 ## Architecture
 
 - Directory: `nativeValidator/' - stores EVERYTHING native validator-related
@@ -15,9 +20,11 @@
 
 ## Setup
 
+(For now aliases are optional, everything is ran with `yarn hardhat run`)
+
 - `yarn hardhat node`
 - `yarn validator deploy` - deploy contracts, run initial validator
-  - each time propose next batch metadata with timings described in its config json
+  - each time propose next batch metadata with timings described in its config js constant object.
   - castVote on all settlements
   - run finalizeBatchWinner each time, execute native settlements
 

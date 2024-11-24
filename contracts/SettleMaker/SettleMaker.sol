@@ -20,6 +20,7 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
         return _currentBatchMetadata;
     }
     mapping(uint256 => bytes32) public batchSoftFork;
+    mapping(uint256 => bytes32) public batchArweaveHashes;
     mapping(bytes32 => uint256) public votes;
     mapping(address => mapping(bytes32 => bool)) public hasVoted;
     bytes32 public currentBatchWinner;
@@ -97,6 +98,7 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
 
     function submitSoftFork(
         bytes32 softForkRoot,
+        bytes32 arweaveHash,
         bytes32 batchMetadataSettlementId,
         bytes32[] calldata merkleProof
     ) external {
@@ -123,16 +125,20 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
         require(votingStart > settlementStart, "Invalid voting start");
         require(votingEnd > votingStart, "Invalid voting end");
 
-        emit SoftForkSubmitted(softForkRoot, msg.sender);
+        emit SoftForkSubmitted(softForkRoot, arweaveHash, msg.sender);
     }
 
     function finalizeBatchWinner() external nonReentrant {
         require(getCurrentState() == 3, "Invalid state");
         
-        // Store winning root
-        batchSoftFork[currentBatch] = currentBatchWinner;
+        // Store winning root and its arweave hash
+        bytes32 winningRoot = currentBatchWinner;
+        batchSoftFork[currentBatch] = winningRoot;
         
-        emit BatchFinalized(currentBatch, currentBatchWinner);
+        // Get arweave hash from the winning proposal
+        // bytes32 arweaveHash = batchArweaveHashes[currentBatch];
+        
+        emit BatchFinalized(currentBatch, winningRoot);
 
         // Reset state for next batch
         delete currentBatchWinner;

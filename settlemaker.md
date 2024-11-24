@@ -17,6 +17,7 @@ SYMM logic is managed by settlements.
 
 - struct currentBatchMetadata with settlementStart, votingStart, votingEnd, all 0 by default.
 - batchSoftFork = mapping(uint256 batchNumber => bytes32 merkleRoot) - applied soft fork per batchNumber
+- batchArweaveHashes = mapping(uint256 batchNumber => bytes32 arweaveHash) - stores IPFS/Arweave hash containing full merkle tree data
 - votes = mapping(bytes32 softForkRoot => uint256 voteCount)
 - hasVoted = mapping(address validator => mapping(bytes32 softForkRoot => bool))
 - currentBatchWinner = bytes32 softForkRoot. Get vote count from votes[currentBatchWinner]
@@ -89,10 +90,12 @@ Settlement > voting state transition is done by `_verifyUpdateState()` (defined 
 
 ## 5. Voting state:
 
-- Anyone can propose VALID soft forks (check in submitSoftFork):
-- Should include 1 BatchMetadataSettlement
-  - newSettlementStart > current votingEnd
-- To check that, pass soft fork root, merkle proof & id of batch metadata settlement
+- Anyone can propose VALID soft forks by calling submitSoftFork:
+  - Must include 1 BatchMetadataSettlement with newSettlementStart > current votingEnd
+  - Must provide arweaveHash parameter containing full merkle tree data
+  - No validation of arweaveHash - validators verify off-chain
+  - Validators only vote if they've verified the off-chain data matches
+  - To verify BatchMetadataSettlement, pass soft fork root, merkle proof & settlement id
 
 - Validators can call castVote, modifyVote (incentivised by rewards for good votes)
 - on castVote,
@@ -124,7 +127,8 @@ Which would:
 - `require(batchNumber == currentBatch, "Invalid batch number");`
 - `require(getCurrentState() == StateEnum.VOTING_END, "Invalid state");`
 - Update state:
-  - `batchSoftFork[currentBatch] = softForkRoot;`
+  - Store winning merkle root: `batchSoftFork[currentBatch] = softForkRoot;`
+  - Store winning arweave hash: `batchArweaveHashes[currentBatch] = arweaveHash;`
   - `delete currentBatchWinner;`
   - `delete hasVoted;` - for now; for rewards system, keep
   - `currentBatch++;`
