@@ -1,13 +1,13 @@
 const Database = require("better-sqlite3");
 const crypto = require("crypto");
 
-class MockArweave {
+class MockStorage {
   constructor(dbPath = "mock.db") {
     this.db = new Database(dbPath);
 
     // Create table if it doesn't exist
     this.db.exec(`
-      CREATE TABLE IF NOT EXISTS arweave_data (
+      CREATE TABLE IF NOT EXISTS storage_data (
         hash TEXT PRIMARY KEY,
         data TEXT NOT NULL,
         timestamp INTEGER NOT NULL
@@ -16,10 +16,10 @@ class MockArweave {
 
     // Prepare statements
     this.insertStmt = this.db.prepare(
-      "INSERT OR REPLACE INTO arweave_data (hash, data, timestamp) VALUES (?, ?, ?)"
+      "INSERT OR REPLACE INTO storage_data (hash, data, timestamp) VALUES (?, ?, ?)"
     );
     this.getStmt = this.db.prepare(
-      "SELECT data, timestamp FROM arweave_data WHERE hash = ?"
+      "SELECT data, timestamp FROM storage_data WHERE hash = ?"
     );
   }
 
@@ -51,4 +51,4 @@ class MockArweave {
   }
 }
 
-module.exports = MockArweave;
+module.exports = MockStorage;

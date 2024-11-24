@@ -26,7 +26,7 @@ interface ISettleMaker {
     event VoteCast(address indexed validator, bytes32 softForkRoot);
     event BatchFinalized(uint256 indexed batchNumber, bytes32 winningRoot);
     event EditSettlementUpdated(address newEditSettlement);
-    event SoftForkSubmitted(bytes32 indexed softForkRoot, bytes32 arweaveHash, address indexed submitter);
+    event SoftForkSubmitted(bytes32 indexed softForkRoot, bytes32 dataHash, address indexed submitter);
 
     // View functions
     function symmToken() external view returns (address);
@@ -34,7 +34,7 @@ interface ISettleMaker {
     function editSettlementAddress() external view returns (address);
     function currentBatchMetadata() external view returns (BatchMetadata memory);
     function batchSoftFork(uint256 batchNumber) external view returns (bytes32);
-    function batchArweaveHashes(uint256 batchNumber) external view returns (bytes32);
+    function batchDataHashes(uint256 batchNumber) external view returns (bytes32);
     function votes(bytes32 softForkRoot) external view returns (uint256);
     function hasVoted(address validator, bytes32 softForkRoot) external view returns (bool);
     function currentBatchWinner() external view returns (bytes32);

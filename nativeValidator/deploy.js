@@ -4,7 +4,7 @@ const {
   time,
 } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
 const { keccak256, toHex, decodeEventLog, parseEther } = require("viem");
-const MockArweave = require("./storage/mockArweave");
+const MockStorage = require("./storage/mockStorage");
 
 async function getSettlementIdFromReceipt(txHash, publicClient, settlement) {
   const receipt = await publicClient.waitForTransactionReceipt({
@@ -203,8 +203,8 @@ async function main() {
     { account: deployer.account }
   );
 
-  // Store deployment data in mock Arweave
-  const arweave = new MockArweave();
+  // Store deployment data in mock Storage
+  const storage = new MockStorage();
   const deploymentData = {
     timestamp: Date.now(),
     contracts: {
@@ -224,15 +224,17 @@ async function main() {
   };
 
   // Verify deployer is properly registered as validator
-  const isValidator = await settleMaker.read.isValidator([deployer.account.address]);
+  const isValidator = await settleMaker.read.isValidator([
+    deployer.account.address,
+  ]);
   if (!isValidator) {
     throw new Error("Deployer was not properly registered as validator");
   }
 
   console.log("Verified deployer is registered as validator");
 
-  const arweaveHash = arweave.store(deploymentData);
-  arweave.close();
+  const storageHash = storage.store(deploymentData);
+  storage.close();
 
   console.log("\nDeployment successful!");
   console.log("\nDeployed contract addresses:");
@@ -242,7 +244,7 @@ async function main() {
   console.log("- BatchMetadataSettlement:", batchMetadataSettlement.address);
   console.log("- SettleMaker:", settleMaker.address);
   console.log("\nInitial batch metadata ID:", batchMetadataId);
-  console.log("\nDeployment data stored in Arweave with hash:", arweaveHash);
+  console.log("\nDeployment data stored in Storage with hash:", storageHash);
 }
 
 main().catch((error) => {

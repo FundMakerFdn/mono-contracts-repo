@@ -13,7 +13,7 @@ Currently, to test validator setup, the commands below are used:
 - Have a mock Arweave implementation
 - From "Use & test" section we see that the system consists of multiple simulatenously running processes
 
-## Mock Arweave-like storage
+## Mock Hashmap Storage
 
 - Just a wrapper library to SQLite 3 local DB.
 - Stores hash-data relation only.
