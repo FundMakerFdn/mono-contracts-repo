@@ -17,7 +17,7 @@ SYMM logic is managed by settlements.
 
 - struct currentBatchMetadata with settlementStart, votingStart, votingEnd, all 0 by default.
 - batchSoftFork = mapping(uint256 batchNumber => bytes32 merkleRoot) - applied soft fork per batchNumber
-- batchArweaveHashes = mapping(uint256 batchNumber => bytes32 arweaveHash) - stores IPFS/Arweave hash containing full merkle tree data
+- batchDataHashes = mapping(uint256 batchNumber => bytes32 dataHash) - stores IPFS/Data hash containing full merkle tree data
 - votes = mapping(bytes32 softForkRoot => uint256 voteCount)
 - hasVoted = mapping(address validator => mapping(bytes32 softForkRoot => bool))
 - currentBatchWinner = bytes32 softForkRoot. Get vote count from votes[currentBatchWinner]
@@ -91,9 +91,10 @@ Settlement > voting state transition is done by `_verifyUpdateState()` (defined 
 ## 5. Voting state:
 
 - Anyone can propose VALID soft forks by calling submitSoftFork:
+
   - Must include 1 BatchMetadataSettlement with newSettlementStart > current votingEnd
-  - Must provide arweaveHash parameter containing full merkle tree data
-  - No validation of arweaveHash - validators verify off-chain
+  - Must provide dataHash parameter containing full merkle tree data
+  - No validation of dataHash - validators verify off-chain
   - Validators only vote if they've verified the off-chain data matches
   - To verify BatchMetadataSettlement, pass soft fork root, merkle proof & settlement id
 
@@ -128,7 +129,7 @@ Which would:
 - `require(getCurrentState() == StateEnum.VOTING_END, "Invalid state");`
 - Update state:
   - Store winning merkle root: `batchSoftFork[currentBatch] = softForkRoot;`
-  - Store winning arweave hash: `batchArweaveHashes[currentBatch] = arweaveHash;`
+  - Store winning data hash: `batchDataHashes[currentBatch] = dataHash;`
   - `delete currentBatchWinner;`
   - `delete hasVoted;` - for now; for rewards system, keep
   - `currentBatch++;`

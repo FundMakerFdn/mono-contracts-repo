@@ -10,7 +10,7 @@ Currently, to test validator setup, the commands below are used:
 - Directory: `nativeValidator/' - stores EVERYTHING native validator-related
 - Scripts should be aliased through package.json (so we can run `yarn validator deploy` etc)
 - Use publicClient.watchContractEvent to get hold of the state changes
-- Have a mock Arweave implementation
+- Have a mock hashmap storage implementation
 - From "Use & test" section we see that the system consists of multiple simulatenously running processes
 
 ## Mock Hashmap Storage
