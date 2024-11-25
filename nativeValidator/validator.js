@@ -35,8 +35,11 @@ class Validator {
 
     console.log("Starting main validator...");
 
-    // Get current batch
-    this.currentBatch = await this.contracts.settleMaker.read.currentBatch();
+    // Get and store current batch
+    this.currentBatch = Number(
+      await this.contracts.settleMaker.read.currentBatch()
+    );
+    console.log(`Starting with batch ${this.currentBatch}`);
 
     // Set up polling
     await this.setupPolling();
@@ -46,29 +49,49 @@ class Validator {
   }
 
   async setupPolling() {
-    // Poll every 500ms
+    // Poll every 1s
     this.pollInterval = setInterval(async () => {
       await this.checkStateAndAct();
-    }, 500);
+    }, 1000);
   }
 
   async checkStateAndAct() {
-    // Get and log current batch metadata
+    // Get current batch and state
+    const newBatch = Number(
+      await this.contracts.settleMaker.read.currentBatch()
+    );
+
+    // Reset flags when batch changes
+    if (newBatch !== this.currentBatch) {
+      console.log(`New batch cycle: ${this.currentBatch} -> ${newBatch}`);
+      this.currentBatch = newBatch;
+      this.hasVoted = false;
+      this.hasActedInState = false;
+      this.pendingSettlementId = null;
+      this.lastState = null;
+    }
+
     const state = Number(
       await this.contracts.settleMaker.read.getCurrentState()
     );
-    console.log(`Current state: ${state}`);
 
-    // Only act if state changed or we haven't acted in this state yet
-    if (state === this.lastState && this.hasActedInState) {
+    // Reset hasActedInState when state changes
+    if (state !== this.lastState) {
+      this.hasActedInState = false;
+      this.lastState = state;
+    }
+
+    // Only act if we haven't acted in this state yet
+    if (this.hasActedInState) {
       return;
     }
 
-    console.log(`Current state: ${state}`);
-    this.lastState = state;
-    this.hasActedInState = false;
+    console.log(`Acting in state: ${state} (Batch ${this.currentBatch})`);
 
     switch (state) {
+      case 0:
+        console.log("Doing nothing");
+        break;
       case 1: // SETTLEMENT
         await this.handleSettlementState();
         break;
@@ -84,7 +107,7 @@ class Validator {
   }
 
   async handleSettlementState() {
-    // 1. Propose next batch metadata
+    // Calculate timestamps for next batch
     const currentTimestamp = BigInt(await time.latest());
     const settlementStart =
       currentTimestamp + BigInt(this.config.settlementDelay);
@@ -92,6 +115,7 @@ class Validator {
       settlementStart + BigInt(this.config.settlementDuration);
     const votingEnd = votingStart + BigInt(this.config.votingDuration);
 
+    // Create new batch metadata settlement
     const tx =
       await this.contracts.batchMetadata.write.createBatchMetadataSettlement(
         [settlementStart, votingStart, votingEnd],
@@ -102,9 +126,9 @@ class Validator {
       tx,
       this.contracts.batchMetadata
     );
-
-    // Store settlement ID for later use in voting state
     this.pendingSettlementId = settlementId;
+
+    console.log(`Created new batch metadata settlement: ${settlementId}`);
   }
 
   async handleVotingState() {
@@ -156,55 +180,38 @@ class Validator {
   }
 
   async handleVotingEndState() {
-    // Call finalize if not already finalized
-    const currentBatchFromContract =
-      await this.contracts.settleMaker.read.currentBatch();
-    if (currentBatchFromContract === this.currentBatch) {
-      await this.contracts.settleMaker.write.finalizeBatchWinner({
-        account: this.walletClient.account,
-      });
-      console.log("Finalized batch winner");
+    await this.contracts.settleMaker.write.finalizeBatchWinner({
+      account: this.walletClient.account,
+    });
 
-      // Get previous batch number
-      const batch = Number(currentBatchFromContract);
-      console.log("Batch:", batch);
+    const batch = this.currentBatch;
+    console.log(`Finalized batch ${batch}`);
 
-      // Get winning root from previous batch
-      const winningRoot = await this.contracts.settleMaker.read.batchSoftFork([
-        BigInt(batch),
-      ]);
-      console.log("Previous batch winning root:", winningRoot);
+    // Get and execute winning settlement
+    const winningRoot = await this.contracts.settleMaker.read.batchSoftFork([
+      BigInt(batch),
+    ]);
+    const dataHash = await this.contracts.settleMaker.read.softForkDataHashes([
+      winningRoot,
+    ]);
 
-      // Get data hash for that batch
-      const dataHash = await this.contracts.settleMaker.read.softForkDataHashes(
-        [winningRoot]
-      );
-      console.log("Previous batch data hash:", dataHash);
-
-      // Retrieve storage data using hash
-      const storageData = this.storage.get(dataHash.slice(2)); // Remove '0x' prefix
-      if (!storageData) {
-        console.error("Could not find storage data for hash:", dataHash);
-        return;
-      }
-      console.log("Retrieved storage data:", storageData);
-
-      // Get batch metadata settlement ID
-      const batchMetadataId = storageData.data.batchMetadataSettlementId;
-
-      // Execute the batch metadata settlement
-      const merkleTree = StandardMerkleTree.of(
-        [[batchMetadataId]],
-        ["bytes32"]
-      );
-      const proof = merkleTree.getProof([batchMetadataId]);
-
-      await this.contracts.batchMetadata.write.executeSettlement(
-        [BigInt(batch), batchMetadataId, proof],
-        { account: this.walletClient.account }
-      );
-      console.log("Executed batch metadata settlement");
+    const storageData = this.storage.get(dataHash.slice(2));
+    if (!storageData) {
+      console.error("Could not find storage data for hash:", dataHash);
+      return;
     }
+
+    const batchMetadataId = storageData.data.batchMetadataSettlementId;
+    const merkleTree = StandardMerkleTree.of([[batchMetadataId]], ["bytes32"]);
+    const proof = merkleTree.getProof([batchMetadataId]);
+
+    await this.contracts.batchMetadata.write.executeSettlement(
+      [BigInt(batch), batchMetadataId, proof],
+      { account: this.walletClient.account }
+    );
+
+    console.log(`Executed batch metadata settlement for batch ${batch}`);
+    console.log("Ready for next cycle");
   }
 
   async getSettlementIdFromReceipt(txHash, settlement) {

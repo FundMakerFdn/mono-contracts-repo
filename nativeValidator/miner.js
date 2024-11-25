@@ -6,6 +6,7 @@ let miningInterval;
 async function mineBlock() {
   try {
     await hre.network.provider.send("evm_mine");
+    console.log("Mined 1 block");
   } catch (error) {
     console.error("Mining error:", error);
     stopMining();
@@ -23,14 +24,14 @@ function stopMining() {
 function startMining() {
   console.log("Starting block mining...");
   console.log(`Mining interval: ${config.mineInterval} seconds`);
-  
+
   mineBlock(); // Mine first block immediately
   miningInterval = setInterval(mineBlock, config.mineInterval * 1000);
 }
 
 // Handle graceful shutdown
-process.on('SIGINT', () => {
-  console.log('\nStopping miner...');
+process.on("SIGINT", () => {
+  console.log("\nStopping miner...");
   stopMining();
   process.exit();
 });
