@@ -169,6 +169,7 @@ async function main() {
     merkleTree.root,
   ]);
   console.log("SettleMaker deployed to:", settleMaker.address);
+  console.log("First soft fork root:", merkleTree.root);
 
   // Set SettleMaker addresses
   console.log("Setting SettleMaker addresses...");

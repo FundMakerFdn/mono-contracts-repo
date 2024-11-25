@@ -21,6 +21,7 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
     }
     mapping(uint256 => bytes32) public batchSoftFork;
     mapping(uint256 => bytes32) public batchDataHashes;
+    mapping(bytes32 => bytes32) public softForkDataHashes;
     mapping(bytes32 => uint256) public votes;
     mapping(address => mapping(bytes32 => bool)) public hasVoted;
     bytes32 public currentBatchWinner;
@@ -111,6 +112,9 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
             "Invalid merkle proof"
         );
 
+        // Store the data hash for this soft fork
+        softForkDataHashes[softForkRoot] = dataHash;
+
         // Get batch metadata parameters and verify timestamps
         address batchMetadataSettlement = IEditSettlement(editSettlementAddress)
             .batchMetadataSettlementAddress();
@@ -135,8 +139,8 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
         bytes32 winningRoot = currentBatchWinner;
         batchSoftFork[currentBatch] = winningRoot;
         
-        // Get data hash from the winning proposal
-        // bytes32 dataHash = batchDataHashes[currentBatch];
+        // Store winning data hash
+        batchDataHashes[currentBatch] = softForkDataHashes[winningRoot];
         
         emit BatchFinalized(currentBatch, winningRoot);
 

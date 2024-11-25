@@ -20,7 +20,7 @@ class Validator {
     this.config = config;
     this.isMainValidator = isMainValidator;
     this.storage = new MockStorage();
-    this.currentBatch = 0n;
+    this.currentBatch = 0;
     this.hasVoted = false;
     this.lastState = null;
     this.hasActedInState = false;
@@ -126,7 +126,7 @@ class Validator {
           merkleRoot: merkleTree.root,
           settlements: [this.pendingSettlementId],
           batch: Number(this.currentBatch),
-          batchMetadataSettlementId: this.pendingSettlementId
+          batchMetadataSettlementId: this.pendingSettlementId,
         });
 
       // Submit soft fork
@@ -164,6 +164,46 @@ class Validator {
         account: this.walletClient.account,
       });
       console.log("Finalized batch winner");
+
+      // Get previous batch number
+      const batch = Number(currentBatchFromContract);
+      console.log("Batch:", batch);
+
+      // Get winning root from previous batch
+      const winningRoot = await this.contracts.settleMaker.read.batchSoftFork([
+        BigInt(batch),
+      ]);
+      console.log("Previous batch winning root:", winningRoot);
+
+      // Get data hash for that batch
+      const dataHash = await this.contracts.settleMaker.read.softForkDataHashes(
+        [winningRoot]
+      );
+      console.log("Previous batch data hash:", dataHash);
+
+      // Retrieve storage data using hash
+      const storageData = this.storage.get(dataHash.slice(2)); // Remove '0x' prefix
+      if (!storageData) {
+        console.error("Could not find storage data for hash:", dataHash);
+        return;
+      }
+      console.log("Retrieved storage data:", storageData);
+
+      // Get batch metadata settlement ID
+      const batchMetadataId = storageData.data.batchMetadataSettlementId;
+
+      // Execute the batch metadata settlement
+      const merkleTree = StandardMerkleTree.of(
+        [[batchMetadataId]],
+        ["bytes32"]
+      );
+      const proof = merkleTree.getProof([batchMetadataId]);
+
+      await this.contracts.batchMetadata.write.executeSettlement(
+        [BigInt(batch), batchMetadataId, proof],
+        { account: this.walletClient.account }
+      );
+      console.log("Executed batch metadata settlement");
     }
   }
 
