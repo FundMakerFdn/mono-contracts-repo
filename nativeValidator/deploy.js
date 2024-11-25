@@ -10,21 +10,32 @@ async function getSettlementIdFromReceipt(txHash, publicClient, settlement) {
   const receipt = await publicClient.waitForTransactionReceipt({
     hash: txHash,
   });
-  const SETTLEMENT_CREATED_EVENT = keccak256(
-    toHex("SettlementCreated(bytes32,address,address)")
-  );
-  const settlementCreatedEvent = receipt.logs.find(
-    (log) => log.topics[0] === SETTLEMENT_CREATED_EVENT
-  );
 
-  const decodedLog = decodeEventLog({
-    abi: settlement.abi,
-    eventName: "SettlementCreated",
-    topics: settlementCreatedEvent.topics,
-    data: settlementCreatedEvent.data,
+  // Find the SettlementCreated event log
+  const log = receipt.logs.find((log) => {
+    try {
+      const event = decodeEventLog({
+        abi: settlement.abi,
+        data: log.data,
+        topics: log.topics,
+      });
+      return event.eventName === "SettlementCreated";
+    } catch {
+      return false;
+    }
   });
 
-  return decodedLog.args.settlementId;
+  if (!log) {
+    throw new Error("Settlement creation event not found");
+  }
+
+  const event = decodeEventLog({
+    abi: settlement.abi,
+    data: log.data,
+    topics: log.topics,
+  });
+
+  return event.args.settlementId;
 }
 
 async function main() {
@@ -61,9 +72,10 @@ async function main() {
 
   // Get current timestamp and calculate batch timing
   const currentTimestamp = BigInt(await time.latest());
-  const settlementStart = currentTimestamp;
-  const votingStart = settlementStart + BigInt(3 * 24 * 60 * 60); // 3 days
-  const votingEnd = votingStart + BigInt(2 * 24 * 60 * 60); // 2 days
+  const config = require("./config");
+  const settlementStart = currentTimestamp + BigInt(config.settlementDelay);
+  const votingStart = settlementStart + BigInt(config.settlementDuration);
+  const votingEnd = votingStart + BigInt(config.votingDuration);
 
   console.log("Creating initial batch metadata settlement...");
   const createTx =
@@ -235,6 +247,32 @@ async function main() {
 
   const storageHash = storage.store(deploymentData);
   storage.close();
+
+  // Initialize and start validator
+  const Validator = require("./validator");
+  const validator = new Validator(
+    publicClient,
+    deployer, // walletClient
+    {
+      settleMaker,
+      batchMetadata: batchMetadataSettlement,
+      validatorSettlement,
+      editSettlement,
+    },
+    config,
+    true // isMainValidator = true for deployer
+  );
+
+  console.log("\nStarting validator...");
+  await validator.start();
+
+  // Note: The validator will continue running until manually stopped
+  // You may want to add process handling to gracefully stop the validator
+  process.on("SIGINT", () => {
+    console.log("\nStopping validator...");
+    validator.stop();
+    process.exit();
+  });
 
   console.log("\nDeployment successful!");
   console.log("\nDeployed contract addresses:");

@@ -105,7 +105,7 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
         require(getCurrentState() == 2, "Invalid state");
         
         // Verify the batch metadata settlement is included in the soft fork
-        bytes32 leaf = batchMetadataSettlementId;
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(batchMetadataSettlementId))));
         require(
             MerkleProof.verify(merkleProof, softForkRoot, leaf),
             "Invalid merkle proof"

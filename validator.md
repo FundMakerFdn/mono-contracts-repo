@@ -25,7 +25,7 @@ Currently, to test validator setup, the commands below are used:
 - `yarn hardhat node`
 - `yarn validator deploy` - deploy contracts, run initial validator
   - each time propose next batch metadata with timings described in its config js constant object.
-  - castVote on all settlements
+  - castVote on all softForks
   - run finalizeBatchWinner each time, execute native settlements
 
 ## Use & test

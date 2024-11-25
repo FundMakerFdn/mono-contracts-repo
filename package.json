@@ -19,7 +19,8 @@
     "@nomicfoundation/hardhat-viem": "^2.0.5",
     "@openzeppelin/contracts": "^5.1.0",
     "@openzeppelin/merkle-tree": "^1.0.7",
-    "better-sqlite3": "^11.5.0"
+    "better-sqlite3": "^11.5.0",
+    "viem": "^2.21.42"
   },
   "scripts": {
     "deploy": "node nativeValidator/deploy.js"
