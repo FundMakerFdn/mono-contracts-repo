@@ -1,7 +1,7 @@
-import { shouldBehaveLikeLib } from './lib/index.js';
+const { shouldGetPrice } = require('./lib/index.js');
 
-describe("SettleMaker Unit Tests", function () {
-  describe("Library Tests", function () {
-    shouldBehaveLikeLib();
+describe("pSymm Validator Unit Tests", function () {
+  describe("Mock Price Tests", function () {
+    shouldGetPrice();
   });
 });

@@ -36,6 +36,7 @@ contract pSymm is EIP712 {
     event Withdraw(address indexed collateralToken, uint256 amount);
     event InstantWithdraw(bytes32 indexed custodyRollupId, address indexed instantWithdraw);
     event SettlementWithdrawEvent(bytes32 indexed custodyRollupId, address indexed collateralToken, uint256 amount, bytes32 indexed custodyRollupIdReceiver);
+
     mapping(bytes32 => CustodyRollup) private custodyRollups;
     mapping(bytes32 => mapping(address => uint256)) private custodyRollupBalances; // custodyRollupId => token address => balance
     mapping(bytes32 => bool) private signatureClaimed;
@@ -75,6 +76,18 @@ contract pSymm is EIP712 {
         custodyRollupBalances[toCustodyRollupId][collateralToken] += collateralAmount;
     }
 
+    /**
+     * @dev Derives the isA flag by examining the first hexadecimal digit of the nonce.
+     *      If the first digit is 0, isA is true; if it's 1, isA is false.
+     * @param nonce The nonce from which to derive the isA flag.
+     * @return isA The derived boolean value.
+     */
+    function getIsA(uint256 nonce) internal pure returns (bool isA) {
+        uint8 firstNibble = uint8((nonce >> 252) & 0xF); // Extract first nibble
+        require(firstNibble == 0 || firstNibble == 1, "Invalid nonce first nibble");
+        return firstNibble == 0;
+    }
+
     // @notice Create a new CustodyRollup with EIP712 signature of counterparty
     function createCustodyRollup(EIP712SignatureChecker.createCustodyRollupParams memory params) 
         external 
@@ -107,31 +120,41 @@ contract pSymm is EIP712 {
         checkExpiration(params.expiration) 
         checkCustodialRollupOwner(params.partyA, params.partyB, params.custodyRollupId)
     {
+        // Derive isA directly from nonce
+        bool isA = getIsA(params.nonce);
+
         require(EIP712SignatureChecker.verifyTransferToCustodyRollupEIP712(params), "Invalid signature");
-        address sender = params.isA ? params.partyA : params.partyB;
+        address sender = isA ? params.partyA : params.partyB;
         bytes32 custodyRollupId = keccak256(abi.encodePacked(params.partyA, params.partyB, params.custodyRollupId));
         bytes32 senderCustodyRollupId = keccak256(abi.encodePacked(sender, sender, _senderCustodyRollupId));
 
         _transferCustodyRollupBalance(senderCustodyRollupId, custodyRollupId, params.collateralToken, params.collateralAmount);
 
-        emit TransferToCustodyRollup(custodyRollupId, params.collateralToken, params.collateralAmount, params.isA ? params.partyA : params.partyB);
+        emit TransferToCustodyRollup(custodyRollupId, params.collateralToken, params.collateralAmount, isA ? params.partyA : params.partyB);
     }
 
-    // @notice Withdraw from CustodyRollup, all withdraws requires EIP712 signature of counterparty    
+    // @notice Withdraw from CustodyRollup, all withdraws requires EIP712 signature of counterparty
+    // TODO if isManaged, open a dispute with merkle root
     function transferFromCustodyRollup(EIP712SignatureChecker.transferFromCustodyRollupParams memory params, bytes32 _receiverCustodyRollupId) 
         external 
         checkAndClaimSignatures(params.signatureA, params.signatureB) 
         checkExpiration(params.expiration) 
         checkCustodialRollupOwner(params.partyA, params.partyB, params.custodyRollupId)
     {
+        bool isA = getIsA(params.nonce);
+
         require(EIP712SignatureChecker.verifyTransferFromCustodyRollupEIP712(params), "Invalid signature");
         bytes32 fromCustodyRollupId = keccak256(abi.encodePacked(params.partyA, params.partyB, params.custodyRollupId));
-        address receiver = params.isA ? params.partyB : params.partyA;
+        address receiver = isA ? params.partyB : params.partyA;
 
+        require(custodyRollups[fromCustodyRollupId].isManaged == false, "Custodial rollup is not managed");
         _transferCustodyRollupBalance(fromCustodyRollupId, _receiverCustodyRollupId, params.collateralToken, params.collateralAmount);
+        
 
         emit WithdrawFromCustodyRollup(_receiverCustodyRollupId, params.collateralToken, params.collateralAmount, receiver);
     }
+
+
 
     function updateMA(EIP712SignatureChecker.updateMAParams memory params) 
         external 

@@ -137,7 +137,7 @@ function shouldCreateSettlement() {
     assert.equal(
       etfSettlementParams.priceMint,
       etfParams.priceMint,
-      "Incorrect mint price"
+      "Incorrect priceMint"
     );
     assert.equal(
       etfSettlementParams.mintTime,

@@ -14,7 +14,7 @@ class SeededRandom {
     }
 }
 
-export class PriceGenerator {
+class PriceGenerator {
     constructor() {
         this.seedMap = new Map();
         this.basePrice = 100;
@@ -80,8 +80,10 @@ export class PriceGenerator {
             const { open } = this.getPrice(assetName, currentTimestamp);
 
             if (previousPrice !== null) {
-                if ((isCrossUpTick && previousPrice <= tickPrice && open > tickPrice) ||
-                    (!isCrossUpTick && previousPrice >= tickPrice && open < tickPrice)) {
+                if (
+                    (isCrossUpTick && previousPrice <= tickPrice && open > tickPrice) ||
+                    (!isCrossUpTick && previousPrice >= tickPrice && open < tickPrice)
+                ) {
                     return currentTimestamp;
                 }
             }
@@ -92,3 +94,5 @@ export class PriceGenerator {
         return 0;
     }
 }
+
+module.exports = { PriceGenerator };

@@ -283,7 +283,7 @@ async function main() {
   console.log("- BatchMetadataSettlement:", batchMetadataSettlement.address);
   console.log("- SettleMaker:", settleMaker.address);
   console.log("\nInitial batch metadata ID:", batchMetadataId);
-  console.log("\nDeployment data stored in Storage with hash:", storageHash);
+  console.log("\nDeployment data   in Storage with hash:", storageHash);
 }
 
 main().catch((error) => {

@@ -1,7 +1,7 @@
-import { shouldGetPrice } from './getPrice.test.js';
+const { shouldGetPrice } = require('./getPrice.test.js');
 
-export function shouldBehaveLikeLib() {
-    describe("Mock Price Library Tests", function () {
-        shouldGetPrice();
-    });
-}
+describe("Mock Price Library Tests", function () {
+    shouldGetPrice();
+});
+
+module.exports = { shouldGetPrice };

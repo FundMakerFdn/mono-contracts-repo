@@ -44,6 +44,11 @@ async function deployFixture() {
     ["Batch Metadata Settlement", "1.0"]
   );
 
+  // Deploy pSymmSettlement contract
+  const pSymmSettlement = await hre.viem.deployContract("pSymmSettlement", [
+    // Constructor arguments if any
+  ]);
+
   // Get current timestamp
   const currentTimestamp = BigInt(await time.latest());
 
@@ -127,7 +132,7 @@ async function deployFixture() {
     [validatorWhitelistId]
   ]);
 
-  // Deploy SettleMaker with EditSettlement address and merkle root
+  // Deploy SettleMaker with EditSettlement address, mockSymm address, and merkle root
   const settleMaker = await hre.viem.deployContract("SettleMaker", [
     editSettlement.address,
     mockSymm.address,
@@ -140,6 +145,12 @@ async function deployFixture() {
   });
 
   await batchMetadataSettlement.write.setSettleMaker([settleMaker.address], {
+    account: deployer.account,
+  });
+
+  // Set pSymmSettlement address in SettleMaker
+  // Assuming setpSymmSettlement is the correct function to link pSymmSettlement contract with SettleMaker
+  await settleMaker.write.setpSymmSettlement([pSymmSettlement.address], {
     account: deployer.account,
   });
 

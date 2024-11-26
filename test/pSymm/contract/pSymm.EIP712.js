@@ -1,84 +1,217 @@
 const { ethers } = require("ethers");
-const { keccak256, defaultAbiCoder, toUtf8Bytes, solidityPack } = ethers.utils;
 
-// Define the EIP-712 domain
-const domain = {
-  name: "pSymm",
-  version: "1",
-  chainId: 1, // Replace with your chain ID
-  verifyingContract: "0xYourContractAddress", // Replace with your contract address
-};
+/**
+ * EIP712Helper
+ * A helper class to create EIP712 structured data for different initiation types.
+ */
+class EIP712Helper {
+  /**
+   * Constructor to initialize the EIP712 domain.
+   * @param {string} contractAddress - The address of the smart contract.
+   * @param {string} name - The user-readable name of the signing domain.
+   * @param {string} version - The current major version of the signing domain.
+   * @param {number} chainId - The chain ID of the network.
+   */
+  constructor(contractAddress, name, version, chainId) {
+    this.domain = {
+      name: name,
+      version: version,
+      chainId: chainId,
+      verifyingContract: contractAddress,
+    };
+  }
 
-// Define the types for the EIP-712 message
-const types = {
-  createCustodyRollupParams: [
-    { name: "partyA", type: "address" },
-    { name: "partyB", type: "address" },
-    { name: "custodyRollupId", type: "uint256" },
-    { name: "settlementAddress", type: "address" },
-    { name: "MA", type: "bytes32" },
-    { name: "isManaged", type: "bool" },
-    { name: "expiration", type: "uint256" },
-    { name: "timestamp", type: "uint256" },
-    { name: "nonce", type: "uint256" },
-  ],
-  // Add other types as needed
-};
+  /**
+   * Generate the EIP712 domain separator.
+   * @returns {Object} The domain separator.
+   */
+  getDomain() {
+    return this.domain;
+  }
 
-// Function to generate EIP-712 signature
-async function generateEIP712Signature(wallet, params, typeName) {
-  const domainSeparator = keccak256(
-    defaultAbiCoder.encode(
-      ["bytes32", "bytes32", "bytes32", "uint256", "address"],
-      [
-        keccak256(toUtf8Bytes("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)")),
-        keccak256(toUtf8Bytes(domain.name)),
-        keccak256(toUtf8Bytes(domain.version)),
-        domain.chainId,
-        domain.verifyingContract,
-      ]
-    )
-  );
+  /**
+   * Create EIP712 data for Create Custody Rollup.
+   * @param {Object} params - Parameters for createCustodyRollupParams.
+   * @returns {Object} The EIP712 structured data.
+   */
+  createCustodyRollup(params) {
+    const types = {
+      createCustodyRollupParams: [
+        { name: "partyA", type: "address" },
+        { name: "partyB", type: "address" },
+        { name: "custodyRollupId", type: "uint256" },
+        { name: "settlementAddress", type: "address" },
+        { name: "MA", type: "bytes32" },
+        { name: "isManaged", type: "bool" },
+        { name: "expiration", type: "uint256" },
+        { name: "timestamp", type: "uint256" },
+        { name: "nonce", type: "uint256" },
+      ],
+    };
 
-  const structHash = keccak256(
-    defaultAbiCoder.encode(
-      types[typeName].map((t) => t.type),
-      types[typeName].map((t) => params[t.name])
-    )
-  );
+    const value = {
+      partyA: params.partyA,
+      partyB: params.partyB,
+      custodyRollupId: params.custodyRollupId,
+      settlementAddress: params.settlementAddress,
+      MA: params.MA,
+      isManaged: params.isManaged,
+      expiration: params.expiration,
+      timestamp: params.timestamp,
+      nonce: params.nonce,
+    };
 
-  const digest = keccak256(
-    solidityPack(
-      ["string", "bytes32", "bytes32"],
-      ["\x19\x01", domainSeparator, structHash]
-    )
-  );
+    return {
+      types,
+      domain: this.getDomain(),
+      primaryType: "createCustodyRollupParams",
+      message: value,
+    };
+  }
 
-  return await wallet.signMessage(ethers.utils.arrayify(digest));
+  /**
+   * Create EIP712 data for Transfer To Custody Rollup.
+   * @param {Object} params - Parameters for transferToCustodyRollupParams.
+   * @returns {Object} The EIP712 structured data.
+   */
+  transferToCustodyRollup(params) {
+    const types = {
+      transferToCustodyRollupParams: [
+        { name: "partyA", type: "address" },
+        { name: "partyB", type: "address" },
+        { name: "custodyRollupId", type: "uint256" },
+        { name: "collateralAmount", type: "uint256" },
+        { name: "collateralToken", type: "address" },
+        { name: "expiration", type: "uint256" },
+        { name: "timestamp", type: "uint256" },
+        { name: "nonce", type: "uint256" },
+      ],
+    };
+
+    const value = {
+      partyA: params.partyA,
+      partyB: params.partyB,
+      custodyRollupId: params.custodyRollupId,
+      collateralAmount: params.collateralAmount,
+      collateralToken: params.collateralToken,
+      expiration: params.expiration,
+      timestamp: params.timestamp,
+      nonce: params.nonce,
+    };
+
+    return {
+      types,
+      domain: this.getDomain(),
+      primaryType: "transferToCustodyRollupParams",
+      message: value,
+    };
+  }
+
+  /**
+   * Create EIP712 data for Transfer From Custody Rollup.
+   * @param {Object} params - Parameters for transferFromCustodyRollupParams.
+   * @returns {Object} The EIP712 structured data.
+   */
+  transferFromCustodyRollup(params) {
+    const types = {
+      transferFromCustodyRollupParams: [
+        { name: "partyA", type: "address" },
+        { name: "partyB", type: "address" },
+        { name: "custodyRollupId", type: "uint256" },
+        { name: "collateralAmount", type: "uint256" },
+        { name: "collateralToken", type: "address" },
+        { name: "expiration", type: "uint256" },
+        { name: "timestamp", type: "uint256" },
+        { name: "nonce", type: "uint256" },
+      ],
+    };
+
+    const value = {
+      partyA: params.partyA,
+      partyB: params.partyB,
+      custodyRollupId: params.custodyRollupId,
+      collateralAmount: params.collateralAmount,
+      collateralToken: params.collateralToken,
+      expiration: params.expiration,
+      timestamp: params.timestamp,
+      nonce: params.nonce,
+    };
+
+    return {
+      types,
+      domain: this.getDomain(),
+      primaryType: "transferFromCustodyRollupParams",
+      message: value,
+    };
+  }
+
+  /**
+   * Create EIP712 data for Update MA.
+   * @param {Object} params - Parameters for updateMAParams.
+   * @returns {Object} The EIP712 structured data.
+   */
+  updateMA(params) {
+    const types = {
+      updateMAParams: [
+        { name: "partyA", type: "address" },
+        { name: "partyB", type: "address" },
+        { name: "custodyRollupId", type: "uint256" },
+        { name: "MA", type: "bytes32" },
+        { name: "expiration", type: "uint256" },
+        { name: "timestamp", type: "uint256" },
+        { name: "nonce", type: "uint256" },
+      ],
+    };
+
+    const value = {
+      partyA: params.partyA,
+      partyB: params.partyB,
+      custodyRollupId: params.custodyRollupId,
+      MA: params.MA,
+      expiration: params.expiration,
+      timestamp: params.timestamp,
+      nonce: params.nonce,
+    };
+
+    return {
+      types,
+      domain: this.getDomain(),
+      primaryType: "updateMAParams",
+      message: value,
+    };
+  }
+
+  /**
+   * Sign the EIP712 data with a given wallet.
+   * @param {Object} eip712Data - The EIP712 structured data.
+   * @param {ethers.Wallet} signer - The wallet to sign the data.
+   * @returns {Promise<string>} The signature.
+   */
+  async sign(eip712Data, signer) {
+    return await signer._signTypedData(
+      eip712Data.domain,
+      eip712Data.types,
+      eip712Data.message
+    );
+  }
+
+  /**
+   * Verify the EIP712 signature.
+   * @param {Object} eip712Data - The EIP712 structured data.
+   * @param {string} signature - The signature to verify.
+   * @param {string} expectedSigner - The expected signer's address.
+   * @returns {boolean} True if the signature is valid.
+   */
+  verify(eip712Data, signature, expectedSigner) {
+    const recoveredAddress = ethers.utils.verifyTypedData(
+      eip712Data.domain,
+      eip712Data.types,
+      eip712Data.message,
+      signature
+    );
+    return recoveredAddress.toLowerCase() === expectedSigner.toLowerCase();
+  }
 }
 
-// Example usage
-async function main() {
-  const walletA = new ethers.Wallet("0xYourPrivateKeyA"); // Replace with private key
-  const walletB = new ethers.Wallet("0xYourPrivateKeyB"); // Replace with private key
+module.exports = EIP712Helper;
 
-  const params = {
-    partyA: walletA.address,
-    partyB: walletB.address,
-    custodyRollupId: 1,
-    settlementAddress: "0xSettlementAddress", // Replace with actual address
-    MA: keccak256(toUtf8Bytes("SomeData")),
-    isManaged: true,
-    expiration: Math.floor(Date.now() / 1000) + 3600,
-    timestamp: Math.floor(Date.now() / 1000),
-    nonce: 0,
-  };
-
-  const signatureA = await generateEIP712Signature(walletA, params, "createCustodyRollupParams");
-  const signatureB = await generateEIP712Signature(walletB, params, "createCustodyRollupParams");
-
-  console.log("Signature A:", signatureA);
-  console.log("Signature B:", signatureB);
-}
-
-main().catch(console.error);

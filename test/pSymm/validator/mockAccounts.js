@@ -9,4 +9,4 @@ const account = {
     }
 }
 
-export default account;
+module.exports = account;

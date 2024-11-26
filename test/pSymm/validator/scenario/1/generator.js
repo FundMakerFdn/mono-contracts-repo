@@ -1,6 +1,6 @@
 // Basic deposit, open, close, withdraw scenario
 
-// init microCustodyRollup
+// init custodyRollup
 // A deposit 1000 USDC
 // B deposit 1000 USDC
 // A send rfq/swap/open
