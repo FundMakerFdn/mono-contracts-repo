@@ -233,4 +233,21 @@ contract pSymm is EIP712 {
 
         emit InstantWithdraw(custodyRollupTarget, instantWithdraw);
     }
+
+    // Read functions
+    function getCustodyRollup(bytes32 custodyRollupId) external view returns (CustodyRollup memory) {
+        return custodyRollups[custodyRollupId];
+    }
+
+    function getCustodyRollupBalance(bytes32 custodyRollupId, address collateralToken) external view returns (uint256) {
+        return custodyRollupBalances[custodyRollupId][collateralToken];
+    }
+
+    function getSignatureClaimed(bytes32 signature) external view returns (bool) {
+        return signatureClaimed[signature];
+    }
+
+    function getRollupBytes32(address a, address b, uint256 id) pure external returns (bytes32) {
+        return keccak256(abi.encodePacked(a, b, id));
+    }
 }

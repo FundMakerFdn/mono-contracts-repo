@@ -1,7 +1,6 @@
 const assert = require('assert');
 const { PriceGenerator } = require('../../../../validator/pSymm/lib/getPrice.cjs');
 
-module.exports = { shouldGetPrice };
 
 function shouldGetPrice() {
   describe('PriceGenerator', function() {
@@ -45,3 +44,5 @@ function shouldGetPrice() {
     });
   });
 }
+
+module.exports = { shouldGetPrice };

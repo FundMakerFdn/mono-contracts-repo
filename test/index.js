@@ -1,12 +1,14 @@
-const { shouldDeploySettleMaker } = require("./SettleMaker/SettleMaker.deployment");
-const { shouldDeployPSymm } = require("./pSymm/contract/pSymm.deployment");
+//const { shouldDeploySettleMaker } = require("./SettleMaker/SettleMaker.deployment");
+const { shouldBehaveLikepSymm } = require("./pSymm/contract/index.js");
+const { pSymmValidator } = require("./pSymm/validator/index.js");
+const { shouldBehaveLikeSettleMaker } = require("./SettleMaker/index.js");
 
-describe("Deployment Tests", function () {
-  describe("SettleMaker Deployment Tests", shouldDeploySettleMaker);
-  describe("pSymm Deployment Tests", shouldDeployPSymm);
-});
 
-module.exports = function () {
-  describe("SettleMaker Deployment Tests", shouldDeploySettleMaker);
-  describe("pSymm Deployment Tests", shouldDeployPSymm);
-};
+async function main() {
+
+  await pSymmValidator();
+  await shouldBehaveLikepSymm();
+  await shouldBehaveLikeSettleMaker();
+}
+
+main();

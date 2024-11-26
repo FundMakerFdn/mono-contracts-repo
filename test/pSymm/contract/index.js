@@ -1,9 +1,9 @@
-const { shouldDeploypSymm } = require('./pSymm.deployment');
+const { shouldDeployPSymm } = require('./pSymm.deployment');
+const { shouldDepositAndWithdrawCollateral } = require('./pSymm.collateral');
 
-function shouldBehaveLikepSymm() {
-  describe("Deployment", async function() {
-    shouldDeploypSymm();
-  });
+async function shouldBehaveLikepSymm() {
+  await shouldDeployPSymm();
+  await shouldDepositAndWithdrawCollateral();
 }
 
 module.exports = {

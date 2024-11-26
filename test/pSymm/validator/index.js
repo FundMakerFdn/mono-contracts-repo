@@ -1,7 +1,9 @@
-const { shouldGetPrice } = require('./lib/index.js');
+const { shouldGetPrice } = require('./lib/getPrice.test.js');
 
-describe("pSymm Validator Unit Tests", function () {
-  describe("Mock Price Tests", function () {
-    shouldGetPrice();
-  });
-});
+async function pSymmValidator() {
+    await shouldGetPrice();
+}
+
+module.exports = {
+    pSymmValidator
+};

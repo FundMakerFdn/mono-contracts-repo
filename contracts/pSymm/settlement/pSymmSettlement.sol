@@ -186,5 +186,10 @@ contract pSymmSettlement is Settlement {
         emit InstantWithdrawExecuted(settlementId, data.custodyRollupId, data.pSymmAddress, msg.sender, replacedParty, instantWithdrawFee);
     }
 
-    
+
+    // read functions
+    function getSettlementData(bytes32 settlementId) external view returns (pSymmSettlementData memory) {
+        return pSymmSettlementDatas[settlementId];
+    }
+
 }
