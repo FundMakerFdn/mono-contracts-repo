@@ -38,7 +38,7 @@ contract pSymm is EIP712 {
     event SettlementWithdrawEvent(bytes32 indexed custodyRollupId, address indexed collateralToken, uint256 amount, bytes32 indexed custodyRollupIdReceiver);
 
     mapping(bytes32 => CustodyRollup) private custodyRollups;
-    mapping(bytes32 => mapping(address => uint256)) private custodyRollupBalances; // custodyRollupId => token address => balance
+    mapping(bytes32 => mapping(address => uint256)) public custodyRollupBalances; // custodyRollupId => token address => balance
     mapping(bytes32 => bool) private signatureClaimed;
     
 
@@ -114,23 +114,42 @@ contract pSymm is EIP712 {
         emit CustodyRollupCreated(params.custodyRollupId, params.partyA, params.partyB, params.settlementAddress);
     }
 
+    function _handleTransferToCustodyRollup(
+        address partyA,
+        address partyB,
+        uint256 custodyRollupId,
+        address collateralToken,
+        uint256 collateralAmount,
+        bool isA,
+        uint256 _senderCustodyRollupId
+    ) internal {
+        address sender = isA ? partyA : partyB;
+        bytes32 custodyRollupId_ = keccak256(abi.encodePacked(partyA, partyB, custodyRollupId));
+        bytes32 senderCustodyRollupId = keccak256(abi.encodePacked(sender, sender, _senderCustodyRollupId));
+
+        _transferCustodyRollupBalance(senderCustodyRollupId, custodyRollupId_, collateralToken, collateralAmount);
+
+        emit TransferToCustodyRollup(custodyRollupId_, collateralToken, collateralAmount, sender);
+    }
+
     function transferToCustodyRollup(EIP712SignatureChecker.transferToCustodyRollupParams memory params, uint256 _senderCustodyRollupId) 
         external 
         checkAndClaimSignatures(params.signatureA, params.signatureB) 
         checkExpiration(params.expiration) 
         checkCustodialRollupOwner(params.partyA, params.partyB, params.custodyRollupId)
     {
-        // Derive isA directly from nonce
         bool isA = getIsA(params.nonce);
-
         require(EIP712SignatureChecker.verifyTransferToCustodyRollupEIP712(params), "Invalid signature");
-        address sender = isA ? params.partyA : params.partyB;
-        bytes32 custodyRollupId = keccak256(abi.encodePacked(params.partyA, params.partyB, params.custodyRollupId));
-        bytes32 senderCustodyRollupId = keccak256(abi.encodePacked(sender, sender, _senderCustodyRollupId));
-
-        _transferCustodyRollupBalance(senderCustodyRollupId, custodyRollupId, params.collateralToken, params.collateralAmount);
-
-        emit TransferToCustodyRollup(custodyRollupId, params.collateralToken, params.collateralAmount, isA ? params.partyA : params.partyB);
+        
+        _handleTransferToCustodyRollup(
+            params.partyA,
+            params.partyB,
+            params.custodyRollupId,
+            params.collateralToken,
+            params.collateralAmount,
+            isA,
+            _senderCustodyRollupId
+        );
     }
 
     // @notice Withdraw from CustodyRollup, all withdraws requires EIP712 signature of counterparty

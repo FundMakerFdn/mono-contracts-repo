@@ -44,11 +44,6 @@ async function deployFixture() {
     ["Batch Metadata Settlement", "1.0"]
   );
 
-  // Deploy pSymmSettlement contract
-  const pSymmSettlement = await hre.viem.deployContract("pSymmSettlement", [
-    // Constructor arguments if any
-  ]);
-
   // Get current timestamp
   const currentTimestamp = BigInt(await time.latest());
 
@@ -97,16 +92,17 @@ async function deployFixture() {
 
   // Add validator whitelist settlement for deployer
   console.log("Creating validator whitelist settlement...");
-  const validatorWhitelistTx = await validatorSettlement.write.createValidatorSettlement(
-    [
-      deployer.account.address, // validator address
-      parseEther("1000"), // required SYMM amount
-      true, // isAdd = true to add validator
-    ],
-    {
-      account: deployer.account,
-    }
-  );
+  const validatorWhitelistTx =
+    await validatorSettlement.write.createValidatorSettlement(
+      [
+        deployer.account.address, // validator address
+        parseEther("1000"), // required SYMM amount
+        true, // isAdd = true to add validator
+      ],
+      {
+        account: deployer.account,
+      }
+    );
 
   const validatorWhitelistId = await getSettlementIdFromReceipt(
     validatorWhitelistTx,
@@ -120,16 +116,19 @@ async function deployFixture() {
   });
 
   // Approve SYMM tokens for validator settlement
-  await mockSymm.write.approve([validatorSettlement.address, parseEther("1000")], {
-    account: deployer.account,
-  });
+  await mockSymm.write.approve(
+    [validatorSettlement.address, parseEther("1000")],
+    {
+      account: deployer.account,
+    }
+  );
 
   // Create merkle tree with all initial settlements
   const merkleTree = createInitialMerkleTree([
     [validatorEditId],
     [batchMetadataEditId],
     [batchMetadataId],
-    [validatorWhitelistId]
+    [validatorWhitelistId],
   ]);
 
   // Deploy SettleMaker with EditSettlement address, mockSymm address, and merkle root
@@ -148,11 +147,12 @@ async function deployFixture() {
     account: deployer.account,
   });
 
-  // Set pSymmSettlement address in SettleMaker
-  // Assuming setpSymmSettlement is the correct function to link pSymmSettlement contract with SettleMaker
-  await settleMaker.write.setpSymmSettlement([pSymmSettlement.address], {
-    account: deployer.account,
-  });
+  // Deploy pSymmSettlement contract
+  const pSymmSettlement = await hre.viem.deployContract("pSymmSettlement", [
+    settleMaker.address,
+    "pSymm Settlement",
+    "1.0",
+  ]);
 
   // 1. Execute batch metadata edit settlement first
   const batchMetadataProof = merkleTree.getProof([batchMetadataEditId]);
@@ -175,12 +175,12 @@ async function deployFixture() {
     { account: deployer.account }
   );
 
-
   return {
     mockSymm,
     editSettlement,
     validatorSettlement,
     batchMetadataSettlement,
+    pSymmSettlement,
     settleMaker,
     deployer,
     validator1,

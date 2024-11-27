@@ -10,7 +10,7 @@ const {
   toHex,
   decodeEventLog,
 } = require("viem");
-const { getSettlementIdFromReceipt } = require("../../SettleMaker/SettleMaker.deployment");
+const { getSettlementIdFromReceipt, deployFixture: deployFixtureSettleMaker } = require("../../SettleMaker/SettleMaker.deployment");
 const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
 const hre = require("hardhat");
 
@@ -20,158 +20,24 @@ function createInitialMerkleTree(leaves) {
 }
 
 async function deployFixture() {
+  // Get base deployment from SettleMaker
+  const baseDeployment = await deployFixtureSettleMaker();
+  
   const [deployer, partyA, partyB] = await hre.viem.getWalletClients();
   const publicClient = await hre.viem.getPublicClient();
 
-  // Deploy mock SYMM token first
-  const mockSymm = await hre.viem.deployContract("MockSymm");
+  // Deploy mockUSDC
   const mockUSDC = await hre.viem.deployContract("MockToken", ["MockUSDC", "mUSDC"]);
-
-  // Deploy EditSettlement first without SettleMaker
-  const editSettlement = await hre.viem.deployContract("EditSettlement", [
-    "Edit Settlement",
-    "1.0",
-  ]);
-
-  const validatorSettlement = await hre.viem.deployContract(
-    "ValidatorSettlement",
-    ["Validator Settlement", "1.0"]
-  );
-
-  const batchMetadataSettlement = await hre.viem.deployContract(
-    "BatchMetadataSettlement",
-    ["Batch Metadata Settlement", "1.0"]
-  );
-
-  // Get current timestamp
-  const currentTimestamp = BigInt(await time.latest());
-
-  // Create batch metadata settlement
-  const createTx = await batchMetadataSettlement.write.createBatchMetadataSettlement(
-    [
-      0n, // settlement start
-      currentTimestamp + BigInt(5 * 24 * 60 * 60), // voting start: now + 5 days
-      currentTimestamp + BigInt(7 * 24 * 60 * 60), // voting end: now + 7 days
-    ],
-    {
-      account: deployer.account,
-    }
-  );
-
-  const batchMetadataId = await getSettlementIdFromReceipt(
-    createTx,
-    publicClient,
-    batchMetadataSettlement
-  );
-
-  // Create edit settlements for validator and batch metadata
-  const validatorEditTx = await editSettlement.write.createEditSettlement(
-    [validatorSettlement.address, 0n], // 0n = VALIDATOR type
-    {
-      account: deployer.account,
-    }
-  );
-  const validatorEditId = await getSettlementIdFromReceipt(
-    validatorEditTx,
-    publicClient,
-    editSettlement
-  );
-
-  const batchMetadataEditTx = await editSettlement.write.createEditSettlement(
-    [batchMetadataSettlement.address, 1n], // 1n = BATCH_METADATA type
-    {
-      account: deployer.account,
-    }
-  );
-  const batchMetadataEditId = await getSettlementIdFromReceipt(
-    batchMetadataEditTx,
-    publicClient,
-    editSettlement
-  );
-
-  // Add validator whitelist settlement for deployer
-  const validatorWhitelistTx = await validatorSettlement.write.createValidatorSettlement(
-    [
-      deployer.account.address, // validator address
-      parseEther("1000"), // required SYMM amount
-      true, // isAdd = true to add validator
-    ],
-    {
-      account: deployer.account,
-    }
-  );
-
-  const validatorWhitelistId = await getSettlementIdFromReceipt(
-    validatorWhitelistTx,
-    publicClient,
-    validatorSettlement
-  );
-
-  // Mint SYMM tokens to deployer for staking
-  await mockSymm.write.mint([deployer.account.address, parseEther("1000")], {
-    account: deployer.account,
-  });
-
-  // Approve SYMM tokens for validator settlement
-  await mockSymm.write.approve([validatorSettlement.address, parseEther("1000")], {
-    account: deployer.account,
-  });
-
-  // Create merkle tree with all initial settlements
-  const merkleTree = createInitialMerkleTree([
-    [validatorEditId],
-    [batchMetadataEditId],
-    [batchMetadataId],
-    [validatorWhitelistId],
-  ]);
-
-  // Deploy SettleMaker with EditSettlement address and merkle root
-  const settleMaker = await hre.viem.deployContract("SettleMaker", [
-    editSettlement.address,
-    mockSymm.address,
-    merkleTree.root,
-  ]);
-
-  // Set SettleMaker addresses in settlements
-  await editSettlement.write.setSettleMaker([settleMaker.address], {
-    account: deployer.account,
-  });
-
-  await batchMetadataSettlement.write.setSettleMaker([settleMaker.address], {
-    account: deployer.account,
-  });
-
-  // Execute batch metadata edit settlement first
-  const batchMetadataProof = merkleTree.getProof([batchMetadataEditId]);
-  await editSettlement.write.executeSettlement(
-    [0n, batchMetadataEditId, batchMetadataProof],
-    { account: deployer.account }
-  );
-
-  // Execute validator edit settlement second
-  const validatorProof = merkleTree.getProof([validatorEditId]);
-  await editSettlement.write.executeSettlement(
-    [0n, validatorEditId, validatorProof],
-    { account: deployer.account }
-  );
-
-  // Execute the batch metadata settlement last
-  const proof = merkleTree.getProof([batchMetadataId]);
-  await batchMetadataSettlement.write.executeSettlement(
-    [0n, batchMetadataId, proof],
-    { account: deployer.account }
-  );
-
 
   // Deploy pSymm contract
   const pSymm = await hre.viem.deployContract("pSymm");
 
-  // Deploy pSymmSettlement contract with SettleMaker address, name, and version
+  // Deploy pSymmSettlement contract
   const pSymmSettlement = await hre.viem.deployContract("pSymmSettlement", [
-    settleMaker.address,
+    baseDeployment.settleMaker.address,
     "pSymmSettlement",
     "1.0",
-  ]);  
+  ]);
 
   // Mint mockUSDC tokens to partyA and partyB for depositing
   await mockUSDC.write.mint([partyA.account.address, parseEther("1000")], {
@@ -197,22 +63,13 @@ async function deployFixture() {
     account: partyB.account,
   });
 
-
-
   return {
-    mockSymm,
+    ...baseDeployment,
     mockUSDC,
-    editSettlement,
-    validatorSettlement,
-    batchMetadataSettlement,
-    settleMaker,
     pSymm,
     pSymmSettlement,
-    deployer,
     partyA,
-    partyB,
-    publicClient,
-    merkleTree
+    partyB
   };
 }
 

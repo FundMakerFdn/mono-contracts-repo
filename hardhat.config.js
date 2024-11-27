@@ -1,15 +1,17 @@
 require("@nomicfoundation/hardhat-viem");
 require("@nomicfoundation/hardhat-ignition-viem");
-const {
-  TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS,
-} = require("hardhat/builtin-tasks/task-names");
 
-subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS).setAction(
-  async (_, __, runSuper) => {
-    const paths = await runSuper();
-    return paths.filter((p) => !p.includes("/pSymm/"));
-  }
-);
+// To exclude files from compilation for debug purposes:
+// const {
+//   TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS,
+// } = require("hardhat/builtin-tasks/task-names");
+
+// subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS).setAction(
+//   async (_, __, runSuper) => {
+//     const paths = await runSuper();
+//     return paths.filter((p) => !p.includes("/pSymm/"));
+//   }
+// );
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
