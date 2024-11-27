@@ -33,7 +33,7 @@ library EIP712SignatureChecker {
         uint256 timestamp;
         uint256 nonce;
     }
-
+    
     struct transferFromCustodyRollupParams {
         bytes32 signatureA;
         bytes32 signatureB;
