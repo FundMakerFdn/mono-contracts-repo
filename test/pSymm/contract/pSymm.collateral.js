@@ -20,13 +20,14 @@ async function custodyRollupId(pSymm, partyA, partyB, id) {
 
 async function shouldDepositAndWithdrawCollateral() {
   it("should allow depositing and withdrawing collateral", async function () {
-    const { pSymm, pSymmSettlement, mockUSDC, deployer, partyA } =
+    const { pSymm, pSymmSettlement, mockUSDC, deployer, partyA, partyB } =
       await loadFixture(deployFixture);
 
-    await mockUSDC.write.mint([partyA.account.address, parseEther("1000")], {
-      account: deployer.account,
-    });
-    await mockUSDC.write.approve([pSymm.address, parseEther("100")], {
+    // minting is done in deployFixture
+    // await mockUSDC.write.mint([partyA.account.address, parseEther("1000")], {
+    //   account: deployer.account,
+    // });
+    await mockUSDC.write.approve([pSymm.address, parseEther("1000")], {
       account: partyA.account,
     });
     const collateralToken = mockUSDC.address; // Assuming pSymm is the collateral token
@@ -38,7 +39,7 @@ async function shouldDepositAndWithdrawCollateral() {
     ]);
     assert.equal(
       initialERC20Balance.toString(),
-      parseEther("1000").toString(),
+      collateralAmount.toString(),
       "Initial ERC20 balance incorrect"
     );
 
@@ -76,7 +77,12 @@ async function shouldDepositAndWithdrawCollateral() {
     );
 
     const balance = await pSymm.read.custodyRollupBalances([
-      custodyRollupId(pSymm, partyA.account.address, partyA.account.address, 1),
+      await custodyRollupId(
+        pSymm,
+        partyA.account.address,
+        partyA.account.address,
+        1
+      ),
       collateralToken,
     ]);
     assert.equal(
@@ -101,7 +107,12 @@ async function shouldDepositAndWithdrawCollateral() {
     });
 
     const updatedBalance = await pSymm.read.custodyRollupBalances([
-      custodyRollupId(pSymm, partyA.account.address, partyA.account.address, 1),
+      await custodyRollupId(
+        pSymm,
+        partyA.account.address,
+        partyA.account.address,
+        1
+      ),
       collateralToken,
     ]);
     assert.equal(

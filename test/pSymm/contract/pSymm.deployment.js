@@ -10,7 +10,10 @@ const {
   toHex,
   decodeEventLog,
 } = require("viem");
-const { getSettlementIdFromReceipt, deployFixture: deployFixtureSettleMaker } = require("../../SettleMaker/SettleMaker.deployment");
+const {
+  getSettlementIdFromReceipt,
+  deployFixture: deployFixtureSettleMaker,
+} = require("../../SettleMaker/SettleMaker.deployment");
 const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
 const hre = require("hardhat");
 
@@ -22,12 +25,15 @@ function createInitialMerkleTree(leaves) {
 async function deployFixture() {
   // Get base deployment from SettleMaker
   const baseDeployment = await deployFixtureSettleMaker();
-  
+
   const [deployer, partyA, partyB] = await hre.viem.getWalletClients();
   const publicClient = await hre.viem.getPublicClient();
 
   // Deploy mockUSDC
-  const mockUSDC = await hre.viem.deployContract("MockToken", ["MockUSDC", "mUSDC"]);
+  const mockUSDC = await hre.viem.deployContract("MockToken", [
+    "MockUSDC",
+    "mUSDC",
+  ]);
 
   // Deploy pSymm contract
   const pSymm = await hre.viem.deployContract("pSymm");
@@ -47,21 +53,21 @@ async function deployFixture() {
     account: deployer.account,
   });
 
-  // Ensure mockUSDC is approved for pSymm before depositing
-  await mockUSDC.write.approve([pSymm.address, parseEther("1000")], {
-    account: partyA.account,
-  });
-  await mockUSDC.write.approve([pSymm.address, parseEther("1000")], {
-    account: partyB.account,
-  });
+  // // Ensure mockUSDC is approved for pSymm before depositing
+  // await mockUSDC.write.approve([pSymm.address, parseEther("1000")], {
+  //   account: partyA.account,
+  // });
+  // await mockUSDC.write.approve([pSymm.address, parseEther("1000")], {
+  //   account: partyB.account,
+  // });
 
-  // Now proceed with the deposit to pSymm
-  await pSymm.write.deposit([mockUSDC.address, parseEther("1000"), 1], {
-    account: partyA.account,
-  });
-  await pSymm.write.deposit([mockUSDC.address, parseEther("1000"), 1], {
-    account: partyB.account,
-  });
+  // // Now proceed with the deposit to pSymm
+  // await pSymm.write.deposit([mockUSDC.address, parseEther("1000"), 1], {
+  //   account: partyA.account,
+  // });
+  // await pSymm.write.deposit([mockUSDC.address, parseEther("1000"), 1], {
+  //   account: partyB.account,
+  // });
 
   return {
     ...baseDeployment,
@@ -69,15 +75,14 @@ async function deployFixture() {
     pSymm,
     pSymmSettlement,
     partyA,
-    partyB
+    partyB,
   };
 }
 
-
-
 function shouldDeployPSymm() {
   it("should deploy pSymm and pSymmSettlement with correct initial state", async function () {
-    const { pSymm, pSymmSettlement, settleMaker, deployer } = await deployFixture();
+    const { pSymm, pSymmSettlement, settleMaker, deployer } =
+      await deployFixture();
 
     // Verify pSymm deployment
     const pSymmAddress = pSymm.address;
@@ -85,7 +90,10 @@ function shouldDeployPSymm() {
 
     // Verify pSymmSettlement deployment
     const pSymmSettlementAddress = pSymmSettlement.address;
-    assert.ok(pSymmSettlementAddress, "pSymmSettlement contract was not deployed");
+    assert.ok(
+      pSymmSettlementAddress,
+      "pSymmSettlement contract was not deployed"
+    );
 
     // Check SettleMaker configuration in pSymmSettlement
     const settleMakerAddress = await pSymmSettlement.read.settleMaker();
@@ -94,13 +102,8 @@ function shouldDeployPSymm() {
       getAddress(settleMaker.address),
       "Incorrect SettleMaker address in pSymmSettlement"
     );
-
   });
-
-  
 }
-
- 
 
 module.exports = {
   shouldDeployPSymm,
