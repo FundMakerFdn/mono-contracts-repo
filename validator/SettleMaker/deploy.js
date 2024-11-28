@@ -252,10 +252,10 @@ async function main() {
   storage.close();
 
   // Initialize and start validator
-  const Validator = require("./validator");
-  const validator = new Validator(
+  const DeploymentValidator = require("./DeploymentValidator");
+  const validator = new DeploymentValidator(
     publicClient,
-    deployer, // walletClient
+    deployer,
     {
       settleMaker,
       batchMetadata: batchMetadataSettlement,
@@ -263,7 +263,7 @@ async function main() {
       editSettlement,
     },
     config,
-    true // isMainValidator = true for deployer
+    true
   );
 
   console.log("\nStarting validator...");
@@ -285,7 +285,7 @@ async function main() {
   console.log("- BatchMetadataSettlement:", batchMetadataSettlement.address);
   console.log("- SettleMaker:", settleMaker.address);
   console.log("\nInitial batch metadata ID:", batchMetadataId);
-  console.log("\nDeployment data   in Storage with hash:", storageHash);
+  console.log("\nDeployment data in Storage with hash:", storageHash);
 }
 
 main().catch((error) => {
