@@ -1,5 +1,5 @@
 const hre = require("hardhat");
-const config = require("./config");
+const config = require("#root/validator/config.js");
 
 let miningInterval;
 

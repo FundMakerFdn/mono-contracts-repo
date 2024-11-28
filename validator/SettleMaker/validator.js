@@ -110,10 +110,10 @@ class Validator {
     // Calculate timestamps for next batch
     const currentTimestamp = BigInt(await time.latest());
     const settlementStart =
-      currentTimestamp + BigInt(this.config.settlementDelay);
+      currentTimestamp + BigInt(this.config.settleMaker.settlementDelay);
     const votingStart =
-      settlementStart + BigInt(this.config.settlementDuration);
-    const votingEnd = votingStart + BigInt(this.config.votingDuration);
+      settlementStart + BigInt(this.config.settleMaker.settlementDuration);
+    const votingEnd = votingStart + BigInt(this.config.settleMaker.votingDuration);
 
     // Create new batch metadata settlement
     const tx =

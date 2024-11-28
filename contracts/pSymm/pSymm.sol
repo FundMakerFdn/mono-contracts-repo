@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import "contracts/pSymm/settlement/pSymmSettlement.sol" as pSymmSettlement;
-import "contracts/pSymm/lib/EIP712SignatureChecker.sol"; // Import the library
+import "contracts/pSymm/EIP712SignatureChecker.sol"; // Import the library
 import "hardhat/console.sol";
 
 using SafeERC20 for IERC20;

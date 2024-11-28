@@ -72,10 +72,12 @@ async function main() {
 
   // Get current timestamp and calculate batch timing
   const currentTimestamp = BigInt(await time.latest());
-  const config = require("./config");
-  const settlementStart = currentTimestamp + BigInt(config.settlementDelay);
-  const votingStart = settlementStart + BigInt(config.settlementDuration);
-  const votingEnd = votingStart + BigInt(config.votingDuration);
+  const config = require("#root/validator/config.js");
+  const settlementStart =
+    currentTimestamp + BigInt(config.settleMaker.settlementDelay);
+  const votingStart =
+    settlementStart + BigInt(config.settleMaker.settlementDuration);
+  const votingEnd = votingStart + BigInt(config.settleMaker.votingDuration);
 
   console.log("Creating initial batch metadata settlement...");
   const createTx =
