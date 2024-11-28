@@ -1,11 +1,17 @@
 const { shouldDeployPSymm } = require('./pSymm.deployment');
 const { shouldDepositAndWithdrawCollateral } = require('./pSymm.collateral');
-const { testCustodyRollupId } = require('./utils/custodyRollupId.test');
+const { shouldInitAndTransferRollup } = require('./pSymm.custodyRollup');
+const { shouldOpenSettlement } = require('./pSymm.settlement');
+const { shouldExecuteEarlyAgreement } = require('./pSymm.settlement.earlyAgreement');
+const { shouldExecuteInstantWithdraw } = require('./pSymm.settlement.instantWithdraw');
 
 async function pSymmContractTest() {
   await shouldDeployPSymm();
   await shouldDepositAndWithdrawCollateral();
-  await testCustodyRollupId();
+  await shouldInitAndTransferRollup();
+  await shouldOpenSettlement();
+  await shouldExecuteEarlyAgreement();
+  await shouldExecuteInstantWithdraw();
 }
 
 module.exports = {

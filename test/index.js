@@ -4,9 +4,9 @@ const { pSymmValidatorTest } = require("./pSymm/validator/index.js");
 const { shouldBehaveLikeSettleMaker } = require("./SettleMaker/index.js");
 
 async function main() {
-  //await pSymmValidatorTest();
-  //await pSymmContractTest();
-  //await shouldBehaveLikeSettleMaker();
+  await pSymmValidatorTest();
+  await pSymmContractTest();
+  await shouldBehaveLikeSettleMaker();
 }
 
 main();

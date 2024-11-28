@@ -3,53 +3,9 @@ const { privateKeyToAccount } = require('viem/accounts');
 const fs = require('fs');
 const path = require('path');
 const mockAccount = require('./mockAccount.json');
-const { getRollupBytes32 } = require('../../../contract/utils/custodyRollupId.js');
+const { getRollupBytes32 } = require('../../../test/pSymm/contract/pSymm.collateral.js');
+const { signCreateCustodyRollupParams, signTransferToCustodyRollupParams, signTransferFromCustodyRollupParams } = require('../../../test/pSymm/contract/pSymm.EIP712.js');
 
-// EIP-712 Domain and Types
-const EIP712_DOMAIN = {
-    name: 'CustodyRollup',
-    version: '1',
-    chainId: 1, // Replace with your chain ID
-    verifyingContract: '0xYourContractAddress' // Replace with your contract address
-};
-
-const EIP712_TYPES = {
-    TransferToCustodyRollupParams: [
-        { name: 'partyA', type: 'address' },
-        { name: 'partyB', type: 'address' },
-        { name: 'custodyRollupId', type: 'uint256' },
-        { name: 'collateralAmount', type: 'uint256' },
-        { name: 'collateralToken', type: 'address' },
-        { name: 'expiration', type: 'uint256' },
-        { name: 'timestamp', type: 'uint256' },
-        { name: 'nonce', type: 'uint256' }
-    ],
-    CreateCustodyRollupParams: [
-        { name: 'signatureA', type: 'bytes32' },
-        { name: 'signatureB', type: 'bytes32' },
-        { name: 'partyA', type: 'address' },
-        { name: 'partyB', type: 'address' },
-        { name: 'custodyRollupId', type: 'uint256' },
-        { name: 'settlementAddress', type: 'address' },
-        { name: 'MA', type: 'bytes32' },
-        { name: 'isManaged', type: 'bool' },
-        { name: 'expiration', type: 'uint256' },
-        { name: 'timestamp', type: 'uint256' },
-        { name: 'nonce', type: 'uint256' }
-    ],
-    TransferFromCustodyRollupParams: [
-        { name: 'signatureA', type: 'bytes32' },
-        { name: 'signatureB', type: 'bytes32' },
-        { name: 'partyA', type: 'address' },
-        { name: 'partyB', type: 'address' },
-        { name: 'custodyRollupId', type: 'uint256' },
-        { name: 'collateralAmount', type: 'uint256' },
-        { name: 'collateralToken', type: 'address' },
-        { name: 'expiration', type: 'uint256' },
-        { name: 'timestamp', type: 'uint256' },
-        { name: 'nonce', type: 'uint256' }
-    ]
-};
 
 class CustodyRollupTree {
     constructor(addressA, addressB, custodyRollupId) {
@@ -86,25 +42,26 @@ class CustodyRollupTree {
     newTx(type) {
         const tx = { type, params: {}, eip712Type: null };
         this.transactions.push(tx);
-        return {
+
+        const chainable = {
             param: (key, value) => {
                 tx.params[key] = value;
-                return this;
+                return chainable;
             },
             eip712: (type) => {
                 if (!EIP712_TYPES[type]) {
                     throw new Error(`EIP-712 type ${type} is not defined`);
                 }
                 tx.eip712Type = type;
-                return this;
+                return chainable;
             },
             nonce: (nonce) => {
                 tx.params.nonce = nonce;
-                return this;
+                return chainable;
             },
             verify: () => {
                 // Implement verification logic here
-                return this;
+                return chainable;
             },
             sign: (address, useEIP712 = false) => {
                 const account = privateKeyToAccount(mockAccount.find(acc => acc.address === address).privateKey);
@@ -121,22 +78,24 @@ class CustodyRollupTree {
                 }
                 tx.signatures = tx.signatures || [];
                 tx.signatures.push(signature);
-                return this;
+                return chainable;
             },
             build: () => {
                 if (!tx.params.nonce) {
                     tx.params.nonce = this.isA ? `0xA${this.transactions.length}` : `0xB${this.transactions.length}`;
                 }
-                return this;
+                return chainable;
             },
             send: () => {
                 const filePath = this.isA ? path.join(__dirname, `./custodyRollupId/${this.addressB}/${this.custodyRollupId}.json`) : path.join(__dirname, `./custodyRollupId/${this.addressA}/${this.custodyRollupId}.json`);
                 const jsonData = JSON.parse(fs.readFileSync(filePath));
                 jsonData.push(tx);
                 fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2));
-                return this;
+                return chainable;
             }
         };
+
+        return chainable;
     }
 
     receipt() {
@@ -160,16 +119,27 @@ class CustodyRollupTree {
     }
 }
 
-// Example usage
-const addressA = mockAccount[0].address;
-const addressB = mockAccount[1].address;
-const privateKeyA = mockAccount[0].privateKey;
-const privateKeyB = mockAccount[1].privateKey;
+function resetCustodyRollupIdFolder() {
+    const directoryPath = path.join(__dirname, './custodyRollupId');
+    fs.readdir(directoryPath, (err, files) => {
+        if (err) throw new Error('Unable to scan directory: ' + err);
+        files.forEach(file => {
+            const filePath = path.join(directoryPath, file);
+            fs.rmdir(filePath, { recursive: true }, (err) => {
+                if (err) throw new Error('Unable to remove directory: ' + err);
+            });
+        });
+    });
+}
+
+resetCustodyRollupIdFolder();
+const addressA = mockAccount[0].publicKey;
+const addressB = mockAccount[1].publicKey;
 const custodyRollupId = getRollupBytes32(addressA, addressB, 1);
 const rollupA = new CustodyRollupTree(addressA, addressB, custodyRollupId);
 const rollupB = new CustodyRollupTree(addressB, addressA, custodyRollupId);
-rollupA.auth(true, privateKeyToAccount(privateKeyA));
-rollupB.auth(false, privateKeyToAccount(privateKeyB));
+rollupA.auth(true, privateKeyToAccount(mockAccount[0].privateKey));
+rollupB.auth(false, privateKeyToAccount(mockAccount[1].privateKey));
 
 rollupA.newTx("rfa/swap/open")
     .param("ISIN", "BTC")

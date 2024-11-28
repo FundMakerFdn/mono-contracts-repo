@@ -24,7 +24,7 @@ contract pSymm is EIP712 {
         bool isManaged;
         uint8 state; // 0: open, 1: inSettlement
         uint256 timestamp;
-        uint256 nonce;
+        bytes32 nonce;
     }
 
     event CustodyRollupCreated(uint256 indexed custodyRollupId, address indexed partyA, address indexed partyB, address settlementAddress);
@@ -82,10 +82,10 @@ contract pSymm is EIP712 {
      * @param nonce The nonce from which to derive the isA flag.
      * @return isA The derived boolean value.
      */
-    function getIsA(uint256 nonce) internal pure returns (bool isA) {
-        uint8 firstNibble = uint8((nonce >> 252) & 0xF); // Extract first nibble
-        require(firstNibble == 0 || firstNibble == 1, "Invalid nonce first nibble");
-        return firstNibble == 0;
+    function _getIsA(bytes32 nonce) internal pure returns (bool isA) {
+        uint8 firstNibble = uint8(nonce[0] >> 4); // Extract first nibble
+        require(firstNibble == 0xA || firstNibble == 0xB, "Invalid nonce first nibble");
+        return firstNibble == 0xA;
     }
 
     // @notice Create a new CustodyRollup with EIP712 signature of counterparty
@@ -138,7 +138,7 @@ contract pSymm is EIP712 {
         checkExpiration(params.expiration) 
         checkCustodialRollupOwner(params.partyA, params.partyB, params.custodyRollupId)
     {
-        bool isA = getIsA(params.nonce);
+        bool isA = _getIsA(params.nonce);
         require(EIP712SignatureChecker.verifyTransferToCustodyRollupEIP712(params), "Invalid signature");
         
         _handleTransferToCustodyRollup(
@@ -160,7 +160,7 @@ contract pSymm is EIP712 {
         checkExpiration(params.expiration) 
         checkCustodialRollupOwner(params.partyA, params.partyB, params.custodyRollupId)
     {
-        bool isA = getIsA(params.nonce);
+        bool isA = _getIsA(params.nonce);
 
         require(EIP712SignatureChecker.verifyTransferFromCustodyRollupEIP712(params), "Invalid signature");
         bytes32 fromCustodyRollupId = keccak256(abi.encodePacked(params.partyA, params.partyB, params.custodyRollupId));

@@ -33,7 +33,7 @@ contract pSymmSettlement is Settlement {
         keccak256("EarlyAgreement(bytes32 settlementId,uint256 collateralAmount,address collateralToken,bytes32 custodyRollupId,uint256 expiration)");
     
     bytes32 private constant INSTANT_WITHDRAW_TYPEHASH = 
-        keccak256("InstantWithdraw(bytes32 settlementId,address replacedParty,bool isA,uint256 instantWithdrawFee,address tokenAddress)");
+        keccak256("InstantWithdraw(bytes32 settlementId,address replacedParty,bool isA,uint256 instantWithdrawFee,address instantWithdrawToken)");
 
     bytes32 private constant NONCE_TYPEHASH = 
         keccak256("Nonce(bytes32 settlementId,bytes32 nonce)");
@@ -152,8 +152,11 @@ contract pSymmSettlement is Settlement {
     ) public virtual override( Settlement) {
         super.executeSettlement(batchNumber, settlementId, merkleProof);
 
-        //pSymmSettlementData storage data = pSymmSettlementDatas[settlementId];
-
+        // @Vlad
+        /*
+        for each token in the settlement, if 50/50 distribution, 2 settlement happens in the merkle
+        collateralToken, collateralAmount, custodyRollupTarget, custodyRollupReceiver
+        */
         
         emit SettlementExecuted(settlementId);
     }
@@ -162,6 +165,7 @@ contract pSymmSettlement is Settlement {
         bytes32 settlementId,
         address replacedParty,
         uint256 instantWithdrawFee,
+        address instantWithdrawToken,
         bool isA,
         bytes memory signature
     ) external virtual {
@@ -174,11 +178,14 @@ contract pSymmSettlement is Settlement {
             replacedParty,
             isA,
             instantWithdrawFee,
+            instantWithdrawToken,
             data.pSymmAddress
         ));
         bytes32 hash = _hashTypedDataV4(structHash);
         require(EIP712SignatureChecker._verifySignature(hash, signature, replacedParty), "Invalid signature");
 
+        
+        IERC20(instantWithdrawToken).safeTransferFrom(msg.sender, replacedParty, instantWithdrawFee);
 
         pSymm.pSymm pSymmInstance = pSymm.pSymm(data.pSymmAddress);
         pSymmInstance.settlementWithdraw(data.custodyRollupId, msg.sender, replacedParty, isA);

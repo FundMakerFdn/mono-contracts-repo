@@ -18,7 +18,7 @@ library EIP712SignatureChecker {
         bool isManaged;
         uint256 expiration;
         uint256 timestamp;
-        uint256 nonce;
+        bytes32 nonce;
     }
 
     struct transferToCustodyRollupParams {
@@ -31,7 +31,7 @@ library EIP712SignatureChecker {
         address collateralToken;
         uint256 expiration;
         uint256 timestamp;
-        uint256 nonce;
+        bytes32 nonce;
     }
     
     struct transferFromCustodyRollupParams {
@@ -44,7 +44,7 @@ library EIP712SignatureChecker {
         address collateralToken;
         uint256 expiration;
         uint256 timestamp;
-        uint256 nonce;
+        bytes32 nonce;
     }
 
     struct updateMAParams {
@@ -56,23 +56,23 @@ library EIP712SignatureChecker {
         bytes32 MA;
         uint256 expiration;
         uint256 timestamp;
-        uint256 nonce;
+        bytes32 nonce;
     }
 
     bytes32 private constant CREATE_CUSTODYROLLUP_TYPEHASH = keccak256(
-        "createCustodyRollupParams(address partyA,address partyB,uint256 custodyRollupId,address settlementAddress,bytes32 MA,bool isManaged,uint256 expiration,uint256 timestamp,uint256 nonce)"
+        "createCustodyRollupParams(address partyA,address partyB,uint256 custodyRollupId,address settlementAddress,bytes32 MA,bool isManaged,uint256 expiration,uint256 timestamp,bytes32 nonce)"
     );
 
     bytes32 private constant TRANSFER_TO_CUSTODYROLLUP_TYPEHASH = keccak256(
-        "transferToCustodyRollupParams(address partyA,address partyB,uint256 custodyRollupId,uint256 collateralAmount,address collateralToken,uint256 expiration,uint256 timestamp,uint256 nonce)"
+        "transferToCustodyRollupParams(address partyA,address partyB,uint256 custodyRollupId,uint256 collateralAmount,address collateralToken,uint256 expiration,uint256 timestamp,bytes32 nonce)"
     );
 
     bytes32 private constant TRANSFER_FROM_CUSTODYROLLUP_TYPEHASH = keccak256(
-        "transferFromCustodyRollupParams(address partyA,address partyB,uint256 custodyRollupId,uint256 collateralAmount,address collateralToken,uint256 expiration,uint256 timestamp,uint256 nonce)"
+        "transferFromCustodyRollupParams(address partyA,address partyB,uint256 custodyRollupId,uint256 collateralAmount,address collateralToken,uint256 expiration,uint256 timestamp,bytes32 nonce)"
     );
 
     bytes32 private constant UPDATE_MA_TYPEHASH = keccak256(
-        "updateMAParams(address partyA,address partyB,uint256 custodyRollupId,bytes32 MA,uint256 expiration,uint256 timestamp,uint256 nonce)"
+        "updateMAParams(address partyA,address partyB,uint256 custodyRollupId,bytes32 MA,uint256 expiration,uint256 timestamp,bytes32 nonce)"
     );
 
     function verifyCreateCustodyRollupEIP712(createCustodyRollupParams memory params) internal pure returns (bool) {
@@ -87,7 +87,7 @@ library EIP712SignatureChecker {
                 params.isManaged,
                 params.expiration,
                 params.timestamp,
-                params.nonce
+                keccak256(abi.encodePacked(params.nonce))
             )
         );
 
@@ -116,7 +116,7 @@ library EIP712SignatureChecker {
                 params.collateralToken,
                 params.expiration,
                 params.timestamp,
-                params.nonce
+                keccak256(abi.encodePacked(params.nonce))
             )
         );
 
@@ -145,7 +145,7 @@ library EIP712SignatureChecker {
                 params.collateralToken,
                 params.expiration,
                 params.timestamp,
-                params.nonce
+                keccak256(abi.encodePacked(params.nonce))
             )
         );
 
@@ -173,7 +173,7 @@ library EIP712SignatureChecker {
                 params.MA,
                 params.expiration,
                 params.timestamp,
-                params.nonce
+                keccak256(abi.encodePacked(params.nonce))
             )
         );
 

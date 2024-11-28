@@ -9,6 +9,7 @@ const {
   keccak256,
   toHex,
   decodeEventLog,
+  encodePacked
 } = require("viem");
 const { deployFixture } = require("./pSymm.deployment");
 const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
@@ -18,7 +19,30 @@ async function custodyRollupId(pSymm, partyA, partyB, id) {
   return await pSymm.read.getRollupBytes32([partyA, partyB, id]);
 }
 
+
+/**
+ * Simulates the getRollupBytes32 Solidity function off-chain using viem.
+ * @param {string} a - The first Ethereum address.
+ * @param {string} b - The second Ethereum address.
+ * @param {number|string|BigInt} id - The ID to be included in the hash.
+ * @returns {string} The resulting bytes32 hash as a string.
+ */
+function getRollupBytes32(a, b, id) {
+    // Convert id to BigInt if it's not already
+    const idBigInt = BigInt(id);
+    // Compute the keccak256 hash of the concatenated inputs
+    const hash = keccak256(encodePacked(['address', 'address', 'uint256'], [a, b, idBigInt]));
+
+    return hash;
+}
+
+// Export the function
+module.exports = { getRollupBytes32 };
+
+
 async function shouldDepositAndWithdrawCollateral() {
+  // check getRollupBytes32 and custodyRollupId are the same
+  
   it("should allow depositing and withdrawing collateral", async function () {
     const { pSymm, pSymmSettlement, mockUSDC, deployer, partyA, partyB } =
       await loadFixture(deployFixture);
@@ -54,27 +78,12 @@ async function shouldDepositAndWithdrawCollateral() {
       ),
       collateralToken,
     ]);
-    console.log(`Balance before deposit: ${preDepositBalance.toString()}`);
-    console.log(
-      await custodyRollupId(
-        pSymm,
-        partyA.account.address,
-        partyA.account.address,
-        1
-      )
-    );
+ 
+  
 
     await pSymm.write.deposit([collateralToken, collateralAmount, 1], {
       account: partyA.account,
     });
-    console.log(
-      await custodyRollupId(
-        pSymm,
-        partyA.account.address,
-        partyA.account.address,
-        1
-      )
-    );
 
     const balance = await pSymm.read.custodyRollupBalances([
       await custodyRollupId(
@@ -132,11 +141,31 @@ async function shouldDepositAndWithdrawCollateral() {
     );
   });
 
-  it("should definitely fail", async function () {
-    assert.fail("Forced failure");
+  it("should verify getRollupBytes32 and custodyRollupId produce the same result", async function () {
+    const { pSymm, partyA } = await loadFixture(deployFixture);
+
+    const expectedRollupId = getRollupBytes32(
+      partyA.account.address,
+      partyA.account.address,
+      1
+    );
+    const actualRollupId = await custodyRollupId(
+      pSymm,
+      partyA.account.address,
+      partyA.account.address,
+      1
+    );
+
+    assert.equal(
+      actualRollupId,
+      expectedRollupId,
+      "getRollupBytes32 and custodyRollupId do not match"
+    );
   });
+
 }
 
 module.exports = {
   shouldDepositAndWithdrawCollateral,
+  getRollupBytes32,
 };
