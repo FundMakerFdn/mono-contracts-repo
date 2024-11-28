@@ -25,6 +25,7 @@ class Validator {
     this.lastState = null;
     this.hasActedInState = false;
     this.pendingSettlementId = null;
+    this.shouldStop = false;
   }
 
   async start() {
@@ -49,10 +50,68 @@ class Validator {
   }
 
   async setupPolling() {
-    // Poll every 1s
-    this.pollInterval = setInterval(async () => {
-      await this.checkStateAndAct();
-    }, 1000);
+    await this.pollNextState();
+  }
+
+  async pollNextState() {
+    if (this.shouldStop) return;
+
+    try {
+      const state = Number(
+        await this.contracts.settleMaker.read.getCurrentState()
+      );
+      const metadata =
+        await this.contracts.settleMaker.read.currentBatchMetadata();
+
+      if (state === 3) {
+        // VOTING_END
+        // Poll every second until state changes
+        console.log("Waiting 1 second for voting end state check...");
+        setTimeout(async () => {
+          if (this.shouldStop) return;
+          const newState = Number(
+            await this.contracts.settleMaker.read.getCurrentState()
+          );
+          if (newState !== state) await this.checkStateAndAct();
+          await this.pollNextState(); // Keep polling
+        }, 1000);
+        return;
+      }
+
+      // Calculate next state timestamp based on current state
+      let nextStateTime;
+      switch (state) {
+        case 0: // PAUSE -> SETTLEMENT
+          nextStateTime = Number(metadata.settlementStart);
+          break;
+        case 1: // SETTLEMENT -> VOTING
+          nextStateTime = Number(metadata.votingStart);
+          break;
+        case 2: // VOTING -> VOTING_END
+          nextStateTime = Number(metadata.votingEnd);
+          break;
+        default:
+          // VOTING_END is handled above
+          throw new Error(`Invalid state: ${state}`);
+      }
+
+      debugger;
+      const now = Math.floor(await time.latest());
+      const waitTime = Math.max(0, (nextStateTime - now) * 1000 + 1000); // Add 1 second buffer
+
+      console.log(`Waiting ${waitTime}ms until next state...`);
+      setTimeout(async () => {
+        if (this.shouldStop) return;
+        await this.checkStateAndAct();
+        await this.pollNextState(); // Set up next wait
+      }, waitTime);
+    } catch (error) {
+      if (!this.shouldStop) {
+        console.error("Error in pollNextState:", error);
+        console.log("Error occurred, retrying in 1 second...");
+        setTimeout(() => this.pollNextState(), 1000);
+      }
+    }
   }
 
   async checkStateAndAct() {
@@ -113,7 +172,8 @@ class Validator {
       currentTimestamp + BigInt(this.config.settleMaker.settlementDelay);
     const votingStart =
       settlementStart + BigInt(this.config.settleMaker.settlementDuration);
-    const votingEnd = votingStart + BigInt(this.config.settleMaker.votingDuration);
+    const votingEnd =
+      votingStart + BigInt(this.config.settleMaker.votingDuration);
 
     // Create new batch metadata settlement
     const tx =
@@ -241,10 +301,7 @@ class Validator {
   }
 
   stop() {
-    if (this.pollInterval) {
-      clearInterval(this.pollInterval);
-    }
-    // Cleanup storage
+    this.shouldStop = true;
     this.storage.close();
   }
 }
