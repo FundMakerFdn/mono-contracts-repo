@@ -170,6 +170,36 @@ class BaseValidator {
     this.shouldStop = true;
     this.storage.close();
   }
+
+  async getSettlementIdFromReceipt(txHash, settlement) {
+    const receipt = await this.publicClient.waitForTransactionReceipt({
+      hash: txHash,
+    });
+    const log = receipt.logs.find((log) => {
+      try {
+        const event = decodeEventLog({
+          abi: settlement.abi,
+          data: log.data,
+          topics: log.topics,
+        });
+        return event.eventName === "SettlementCreated";
+      } catch {
+        return false;
+      }
+    });
+
+    if (!log) {
+      throw new Error("Settlement creation event not found");
+    }
+
+    const event = decodeEventLog({
+      abi: settlement.abi,
+      data: log.data,
+      topics: log.topics,
+    });
+
+    return event.args.settlementId;
+  }
 }
 
 module.exports = BaseValidator;

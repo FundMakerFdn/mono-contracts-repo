@@ -29,7 +29,7 @@ class DeploymentValidator extends BaseValidator {
         { account: this.walletClient.account }
       );
 
-    const settlementId = await this.getSettlementIdFromReceipt(
+    const settlementId = await super.getSettlementIdFromReceipt(
       tx,
       this.contracts.batchMetadata
     );
@@ -112,35 +112,6 @@ class DeploymentValidator extends BaseValidator {
     console.log("Ready for next cycle");
   }
 
-  async getSettlementIdFromReceipt(txHash, settlement) {
-    const receipt = await this.publicClient.waitForTransactionReceipt({
-      hash: txHash,
-    });
-    const log = receipt.logs.find((log) => {
-      try {
-        const event = decodeEventLog({
-          abi: settlement.abi,
-          data: log.data,
-          topics: log.topics,
-        });
-        return event.eventName === "SettlementCreated";
-      } catch {
-        return false;
-      }
-    });
-
-    if (!log) {
-      throw new Error("Settlement creation event not found");
-    }
-
-    const event = decodeEventLog({
-      abi: settlement.abi,
-      data: log.data,
-      topics: log.topics,
-    });
-
-    return event.args.settlementId;
-  }
 }
 
 module.exports = DeploymentValidator;

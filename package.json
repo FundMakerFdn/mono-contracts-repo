@@ -21,6 +21,7 @@
   },
   "scripts": {
     "deploy": "hardhat run --network localhost validator/SettleMaker/deploy.js",
+    "validator": "hardhat validator --network localhost",
     "miner": "hardhat run --network localhost validator/miner.js",
     "test": "node validator/pSymm/lib/custodyRollupTreeBuilder.js"
   },

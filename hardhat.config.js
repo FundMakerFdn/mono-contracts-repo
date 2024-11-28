@@ -1,6 +1,19 @@
 require("@nomicfoundation/hardhat-viem");
 require("@nomicfoundation/hardhat-ignition-viem");
 
+task("validator", "Run the validator")
+  .addParam("walletId", "The wallet ID to use")
+  .addParam("dataHash", "The contracts data hash")
+  .setAction(async (taskArgs, hre) => {
+    // Force localhost network
+    if (hre.network.name !== "localhost") {
+      console.error("This task must be run on localhost network");
+      process.exit(1);
+    }
+    const validatorTask = require("./validator/SettleMaker/validator.task.js");
+    await validatorTask(taskArgs, hre);
+  });
+
 // To exclude files from compilation for debug purposes:
 // const {
 //   TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS,
