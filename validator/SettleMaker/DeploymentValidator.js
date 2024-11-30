@@ -4,6 +4,7 @@ const {
   time,
 } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
 const { decodeEventLog } = require("viem");
+const fs = require('fs');
 
 class DeploymentValidator extends BaseValidator {
   constructor(publicClient, walletClient, contracts, config) {
@@ -54,6 +55,19 @@ class DeploymentValidator extends BaseValidator {
     this.newBatchMetadataId = null;
     this.hasVoted = false;
     console.log("Reset batch state");
+  }
+
+  async stop() {
+    // Call parent stop first
+    super.stop();
+
+    // Remove temp file
+    try {
+      fs.unlinkSync(this.config.contractsTempFile);
+      console.log("Removed temporary contracts file");
+    } catch (err) {
+      console.error("Error removing temp file:", err);
+    }
   }
 
   async subscribeToValidatorEvents() {

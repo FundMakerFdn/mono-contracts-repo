@@ -5,5 +5,6 @@ module.exports = {
     settlementDelay: 31, // should be > duration(settlement + voting) / i.e. far enough
     settlementDuration: 10,
     votingDuration: 10,
-  }
+  },
+  contractsTempFile: "contracts.tmp.txt"
 };

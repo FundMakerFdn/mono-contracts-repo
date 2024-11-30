@@ -277,6 +277,28 @@ async function main() {
     process.exit();
   });
 
+  // Write deployment data to temp file
+  const fs = require('fs');
+  const tempData = {
+    dataHash: storageHash,
+    timestamp: Date.now()
+  };
+  fs.writeFileSync(config.contractsTempFile, JSON.stringify(tempData, null, 2));
+
+  // Add cleanup on SIGINT
+  process.on("SIGINT", () => {
+    console.log("\nStopping validator...");
+    validator.stop();
+    // Remove temp file
+    try {
+      fs.unlinkSync(config.contractsTempFile);
+      console.log("Removed temporary contracts file");
+    } catch (err) {
+      console.error("Error removing temp file:", err);
+    }
+    process.exit();
+  });
+
   console.log("\nDeployment successful!");
   console.log("\nDeployed contract addresses:");
   console.log("- MockSymm:", mockSymm.address);

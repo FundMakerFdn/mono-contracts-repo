@@ -3,7 +3,6 @@ require("@nomicfoundation/hardhat-ignition-viem");
 
 task("validator", "Run the validator")
   .addParam("walletId", "The wallet ID to use")
-  .addParam("dataHash", "The contracts data hash")
   .setAction(async (taskArgs, hre) => {
     // Force localhost network
     if (hre.network.name !== "localhost") {

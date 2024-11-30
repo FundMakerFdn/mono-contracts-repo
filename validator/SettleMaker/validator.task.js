@@ -1,8 +1,22 @@
 const { parseEther } = require("viem");
 const MockStorage = require("./storage/mockStorage");
+const config = require("#root/validator/config.js");
+const fs = require("fs");
 
 async function validatorTask(taskArgs, hre) {
-  const { walletId, dataHash } = taskArgs;
+  const { walletId } = taskArgs;
+
+  // Read deployment data from temp file
+  let dataHash;
+  try {
+    const tempData = JSON.parse(fs.readFileSync(config.contractsTempFile));
+    dataHash = tempData.dataHash;
+    console.log("Read contracts data from temporary file");
+  } catch (err) {
+    console.error("Could not read temporary contracts file:", err);
+    console.error("Make sure the deployer is running");
+    process.exit(1);
+  }
 
   // Get deployment data from storage
   const storage = new MockStorage();
@@ -61,9 +75,6 @@ async function validatorTask(taskArgs, hre) {
     [contracts.validatorSettlement.address, parseEther("1000")],
     { account: walletClient.account }
   );
-
-  // Load config
-  const config = require("../config.js");
 
   // Initialize validator
   const Validator = require("./Validator.js");
