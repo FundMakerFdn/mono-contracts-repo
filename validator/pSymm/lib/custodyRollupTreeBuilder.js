@@ -36,11 +36,12 @@ class CustodyRollupTree {
     auth(isA, viemAccount) {
         this.isA = isA;
         this.viemAccount = viemAccount;
+        this.authenticatedAddress = viemAccount.address;
         return this;
     }
 
     newTx(type) {
-        const tx = { type, params: {}, eip712Type: null };
+        const tx = { params: {type}, eip712Type: null };
         this.transactions.push(tx);
 
         const chainable = {
@@ -49,9 +50,6 @@ class CustodyRollupTree {
                 return chainable;
             },
             eip712: (type) => {
-                if (!EIP712_TYPES[type]) {
-                    throw new Error(`EIP-712 type ${type} is not defined`);
-                }
                 tx.eip712Type = type;
                 return chainable;
             },
@@ -63,83 +61,173 @@ class CustodyRollupTree {
                 // Implement verification logic here
                 return chainable;
             },
-            sign: (address, useEIP712 = false) => {
-                const account = privateKeyToAccount(mockAccount.find(acc => acc.address === address).privateKey);
-                let signature;
-                if (useEIP712 && tx.eip712Type) {
-                    signature = signTypedData({
-                        domain: EIP712_DOMAIN,
-                        types: EIP712_TYPES[tx.eip712Type],
-                        value: tx.params,
-                        privateKey: account.privateKey
-                    });
-                } else {
-                    signature = account.signMessage({ message: JSON.stringify(tx.params) });
-                }
-                tx.signatures = tx.signatures || [];
-                tx.signatures.push(signature);
-                return chainable;
-            },
             build: () => {
-                if (!tx.params.nonce) {
-                    tx.params.nonce = this.isA ? `0xA${this.transactions.length}` : `0xB${this.transactions.length}`;
-                }
-                return chainable;
-            },
-            send: () => {
-                const filePath = this.isA ? path.join(__dirname, `./custodyRollupId/${this.addressB}/${this.custodyRollupId}.json`) : path.join(__dirname, `./custodyRollupId/${this.addressA}/${this.custodyRollupId}.json`);
+                const filePath = (this.authenticatedAddress.toLowerCase() === this.addressA.toLowerCase()) ? 
+                    path.join(__dirname, `./custodyRollupId/${this.addressA}/${this.custodyRollupId}.json`) : 
+                    path.join(__dirname, `./custodyRollupId/${this.addressB}/${this.custodyRollupId}.json`);
+                
                 const jsonData = JSON.parse(fs.readFileSync(filePath));
                 jsonData.push(tx);
                 fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2));
                 return chainable;
-            }
+            },
         };
 
         return chainable;
     }
 
-    receipt() {
-        const filePath = this.isA ? path.join(__dirname, `./custodyRollupId/${this.addressA}/${this.custodyRollupId}.json`) : path.join(__dirname, `./custodyRollupId/${this.addressB}/${this.custodyRollupId}.json`);
-        const jsonData = JSON.parse(fs.readFileSync(filePath));
-        const lastTx = jsonData[jsonData.length - 1];
+    receipt(send = false) {
+        const ownFilePath = this.isA ? path.join(__dirname, `./custodyRollupId/${this.addressA}/${this.custodyRollupId}.json`) : path.join(__dirname, `./custodyRollupId/${this.addressB}/${this.custodyRollupId}.json`);
+        const counterpartyFilePath = this.isA ? path.join(__dirname, `./custodyRollupId/${this.addressB}/${this.custodyRollupId}.json`) : path.join(__dirname, `./custodyRollupId/${this.addressA}/${this.custodyRollupId}.json`);
+        
+        const ownJsonData = JSON.parse(fs.readFileSync(ownFilePath));
+        const counterpartyJsonData = JSON.parse(fs.readFileSync(counterpartyFilePath));
+
+        const lastTx = ownJsonData[ownJsonData.length - 1];
 
         if (!lastTx) {
             throw new Error("No transaction to sign");
         }
 
+        if (!lastTx.params.nonce) {
+            lastTx.params.nonce = this.isA ? `0xA${ownJsonData.length}` : `0xB${ownJsonData.length}`;
+        }
+
         const address = this.isA ? this.addressA : this.addressB;
-        const account = privateKeyToAccount(mockAccount.find(acc => acc.address === address).privateKey);
+
+        if (this.viemAccount.publicKey.toLowerCase() !== address.toLowerCase()) {
+            throw new Error(`Authenticated account does not match the transaction address`);
+        }
+
+        const account = privateKeyToAccount(this.viemAccount.privateKey);
         const signature = account.signMessage({ message: JSON.stringify(lastTx.params) });
 
+        // Initialize signatures array if not present
         lastTx.signatures = lastTx.signatures || [];
-        lastTx.signatures.push(signature);
+        lastTx.receipt = lastTx.receipt || [];
 
-        fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2));
-        return this;
+        // Store signature in the correct position
+        console.log("Signature:", signature);
+
+        if (this.isA) {
+            lastTx.signatures[0] = signature.signature;
+            lastTx.receipt[0] = signature.signature;
+        } else {
+            lastTx.signatures[1] = signature.signature;
+            lastTx.receipt[1] = signature.signature;
+        }
+
+        fs.writeFileSync(ownFilePath, JSON.stringify(ownJsonData, null, 2));
+
+        const chainable = {
+            send: () => {
+                if (send) {
+                    const counterpartyTx = counterpartyJsonData.find(tx => tx.params.nonce === lastTx.params.nonce);
+                    if (counterpartyTx) {
+                        counterpartyTx.signatures = counterpartyTx.signatures || [];
+                        if (this.isA) {
+                            counterpartyTx.signatures[0] = signature.signature;
+                        } else {
+                            counterpartyTx.signatures[1] = signature.signature;
+                        }
+                        fs.writeFileSync(counterpartyFilePath, JSON.stringify(counterpartyJsonData, null, 2));
+                    }
+                }
+                return this; // Return the instance for further chaining if needed
+            }
+        };
+
+        return chainable;
     }
 }
 
+
+async function sendTransaction(isA, publicKeyA, publicKeyB, privateKey, custodyRollupId) {
+    const basePath = path.join(__dirname, './custodyRollupId');
+    const senderDirectory = isA ? publicKeyA : publicKeyB;
+    const receiverDirectory = isA ? publicKeyB : publicKeyA;
+    const senderFilePath = path.join(basePath, senderDirectory, `${custodyRollupId}.json`);
+    const receiverFilePath = path.join(basePath, receiverDirectory, `${custodyRollupId}.json`);
+
+    const transactions = JSON.parse(fs.readFileSync(senderFilePath));
+
+    const lastUnsignedTx = transactions.reduce((lastTx, currentTx) => {
+        if (!currentTx.signed && currentTx.params.nonce) {
+            const currentNonceValue = parseInt(currentTx.params.nonce.slice(3), 10); // Extract the numeric part of the nonce
+            const lastNonceValue = lastTx ? parseInt(lastTx.params.nonce.slice(3), 10) : -1;
+            if (!lastTx || currentNonceValue > lastNonceValue) {
+                return currentTx;
+            }
+        }
+        return lastTx;
+    }, null);
+
+    if (!lastUnsignedTx) {
+        throw new Error("No unsigned transactions found.");
+    }
+
+    let signature;
+    if (lastUnsignedTx.eip712Type) {
+        const pSymmAddress = '0x680471Fd71f207f8643B76Ba0414eE4D952484C7'; // <-- Replace this with your actual contract address
+        switch (lastUnsignedTx.eip712Type) {
+            case 'CreateCustodyRollupParams':
+                signature = await signCreateCustodyRollupParams(lastUnsignedTx.params, privateKey, pSymmAddress);
+                break;
+            case 'TransferToCustodyRollupParams':
+                signature = await signTransferToCustodyRollupParams(lastUnsignedTx.params, privateKey, pSymmAddress);
+                break;
+            case 'TransferFromCustodyRollupParams':
+                signature = await signTransferFromCustodyRollupParams(lastUnsignedTx.params, privateKey, pSymmAddress);
+                break;
+            default:
+                throw new Error(`Unsupported EIP712 type: ${lastUnsignedTx.eip712Type}`);
+        }
+    } else {
+        signature = await signMessage({ message: JSON.stringify(lastUnsignedTx.params), privateKey: privateKey });
+    }
+
+    lastUnsignedTx.signatures = lastUnsignedTx.signatures || [null, null]; // Initialize with two elements
+    const signatureIndex = isA ? 0 : 1;
+    lastUnsignedTx.signatures[signatureIndex] = signature;
+
+    fs.writeFileSync(senderFilePath, JSON.stringify(transactions, null, 2));
+
+    // Simulate sending the transaction by copying it to the receiver's file
+    let receiverTransactions = [];
+    if (fs.existsSync(receiverFilePath)) {
+        receiverTransactions = JSON.parse(fs.readFileSync(receiverFilePath));
+    }
+    receiverTransactions.push(lastUnsignedTx);
+    fs.writeFileSync(receiverFilePath, JSON.stringify(receiverTransactions, null, 2));
+
+    console.log(`Transaction sent and signed: ${lastUnsignedTx.params.nonce}`);
+
+    
+}
+
+
+
 function resetCustodyRollupIdFolder() {
     const directoryPath = path.join(__dirname, './custodyRollupId');
-    fs.readdir(directoryPath, (err, files) => {
-        if (err) throw new Error('Unable to scan directory: ' + err);
-        files.forEach(file => {
+    if (fs.existsSync(directoryPath)) {
+        fs.readdirSync(directoryPath).forEach(file => {
             const filePath = path.join(directoryPath, file);
-            fs.rmdir(filePath, { recursive: true }, (err) => {
-                if (err) throw new Error('Unable to remove directory: ' + err);
-            });
+            fs.rmSync(filePath, { recursive: true });
         });
-    });
+    }
 }
 
 resetCustodyRollupIdFolder();
 const addressA = mockAccount[0].publicKey;
 const addressB = mockAccount[1].publicKey;
+const pkA = mockAccount[0].privateKey;
+const pkB = mockAccount[1].privateKey;
 const custodyRollupId = getRollupBytes32(addressA, addressB, 1);
+
 const rollupA = new CustodyRollupTree(addressA, addressB, custodyRollupId);
 const rollupB = new CustodyRollupTree(addressB, addressA, custodyRollupId);
-rollupA.auth(true, privateKeyToAccount(mockAccount[0].privateKey));
-rollupB.auth(false, privateKeyToAccount(mockAccount[1].privateKey));
+rollupA.auth(true, privateKeyToAccount(pkA));
+rollupB.auth(false, privateKeyToAccount(pkB));
 
 rollupA.newTx("rfa/swap/open")
     .param("ISIN", "BTC")
@@ -163,80 +251,41 @@ rollupA.newTx("rfa/swap/open")
     .param("oracleType", "mock")
     .param("expiration", Date.now() + 1000000)
     .param("timestamp", Date.now())
-    .sign()
-    .build()
-    .send();
+    .param("nonce", `0xA0`)
+    .build();
 
-rollupB.receipt().send();
+(async () => {
+    await sendTransaction(true, addressA, addressB, pkA, custodyRollupId);
+})();
 
 // Create a new transaction with specific parameters
 rollupB.newTx("rfqFill/swap/open")
     .param("amount", "1000000000000000000")
     .param("price", "1000000000000000000")
     .param("rfqNonce", "0xA0")
+    .param("expiration", Date.now() + 1000000 )
     .param("timestamp", Date.now())
-    .sign(addressB)
-    .build()
-    .send();
+    .param("nonce", `0xB1`)
+    .build();
 
-rollupA.receipt().send();
+(async () => {
+    await sendTransaction(false, addressB, addressA, pkB, custodyRollupId);
+})();
 
 rollupA.newTx("custodyRollup/deposit/erc20")
     .eip712("TransferToCustodyRollupParams")
     .param("partyA", addressA)
     .param("partyB", addressB)
-    .param("custodyRollupId", custodyRollupId)
+    .param("custodyRollupId", 1)
     .param("collateralAmount", "10")
     .param("collateralToken", "0xB234567890123456789012345678901234567890")
     .param("expiration", Date.now() + 1000000)
     .param("timestamp", Date.now())
-    .sign(addressA, true)
-    .build()
-    .send();
+    .param("nonce", `0xA2`)
+    .build();
 
-
-
-
-
-
-/* // solidity eip712 struct for deposit/erc20 eip712
-     struct createCustodyRollupParams {
-        bytes32 signatureA;
-        bytes32 signatureB;
-        address partyA;
-        address partyB;
-        uint256 custodyRollupId;
-        address settlementAddress;
-        bytes32 MA;
-        bool isManaged;
-        uint256 expiration;
-        uint256 timestamp;
-        uint256 nonce;
-    }
-
-    struct transferToCustodyRollupParams {
-        bytes32 signatureA;
-        bytes32 signatureB;
-        address partyA;
-        address partyB;
-        uint256 custodyRollupId;
-        uint256 collateralAmount;
-        address collateralToken;
-        uint256 expiration;
-        uint256 timestamp;
-        uint256 nonce;
-    }
+(async () => {
+    await sendTransaction(true, addressA, addressB, pkA, custodyRollupId);
+})();
     
-    struct transferFromCustodyRollupParams {
-        bytes32 signatureA;
-        bytes32 signatureB;
-        address partyA;
-        address partyB;
-        uint256 custodyRollupId;
-        uint256 collateralAmount;
-        address collateralToken;
-        uint256 expiration;
-        uint256 timestamp;
-        uint256 nonce;
-    }
-*/
+

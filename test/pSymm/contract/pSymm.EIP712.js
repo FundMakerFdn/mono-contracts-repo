@@ -49,6 +49,29 @@ async function signCreateCustodyRollupParams(params, privateKey, pSymmAddress) {
 }
 
 async function signTransferToCustodyRollupParams(params, privateKey, pSymmAddress) {
+    console.log("Params being signed:", params);
+
+    // More robust validation
+    if (!params) {
+        throw new Error("Params object is undefined");
+    }
+
+    // Convert custodyRollupId to a number if it's a hex string
+    const custodyRollupId = params.custodyRollupId.startsWith('0x') 
+        ? BigInt(params.custodyRollupId).toString() 
+        : params.custodyRollupId;
+
+    const value = {
+        partyA: params.partyA,
+        partyB: params.partyB,
+        custodyRollupId: custodyRollupId,
+        collateralAmount: BigInt(params.collateralAmount),
+        collateralToken: params.collateralToken,
+        expiration: BigInt(params.expiration),
+        timestamp: BigInt(params.timestamp),
+        nonce: params.nonce
+    };
+
     const domain = await getDomain(pSymmAddress);
 
     const types = {
@@ -67,7 +90,8 @@ async function signTransferToCustodyRollupParams(params, privateKey, pSymmAddres
     return await signTypedData({
         domain,
         types,
-        value: params,
+        primaryType: 'transferToCustodyRollupParams',
+        value,
         privateKey
     });
 }
