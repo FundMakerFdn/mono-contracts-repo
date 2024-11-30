@@ -1,3 +1,4 @@
+const { parseEther } = require("viem");
 const MockStorage = require("./storage/mockStorage");
 
 async function validatorTask(taskArgs, hre) {
@@ -16,6 +17,7 @@ async function validatorTask(taskArgs, hre) {
   const publicClient = await hre.viem.getPublicClient();
   const walletClients = await hre.viem.getWalletClients();
   const walletClient = walletClients[walletId];
+  const deployer = walletClients[0]; // Get deployer wallet (first account)
 
   if (!walletClient) {
     console.error("Invalid wallet ID");
@@ -46,6 +48,20 @@ async function validatorTask(taskArgs, hre) {
     ),
   };
 
+  // Mint SYMM tokens to validator account
+  console.log("Minting SYMM tokens to validator account...");
+  await contracts.mockSymm.write.mint(
+    [walletClient.account.address, parseEther("1000")],
+    { account: deployer.account }
+  );
+
+  // Approve SYMM tokens for validator settlement
+  console.log("Approving SYMM tokens for validator settlement...");
+  await contracts.mockSymm.write.approve(
+    [contracts.validatorSettlement.address, parseEther("1000")],
+    { account: walletClient.account }
+  );
+
   // Load config
   const config = require("../config.js");
 
@@ -55,18 +71,19 @@ async function validatorTask(taskArgs, hre) {
     publicClient,
     walletClient,
     contracts,
-    config,
-    false // Not a main validator
+    config
   );
 
-  console.log("\nStarting validator...");
   await validator.start();
 
-  // Handle graceful shutdown
-  process.on("SIGINT", () => {
-    console.log("\nStopping validator...");
-    validator.stop();
-    process.exit();
+  // Create a promise that never resolves to keep the process running
+  return new Promise((resolve) => {
+    // Handle graceful shutdown
+    process.on("SIGINT", () => {
+      console.log("\nStopping validator...");
+      validator.stop();
+      resolve(); // Now resolve the promise to allow the process to exit
+    });
   });
 }
 

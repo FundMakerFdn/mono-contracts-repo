@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
-import "contracts/pSymm/EIP712SignatureChecker.sol";
+import "contracts/pSymm/lib/EIP712SignatureChecker.sol";
 import "contracts/pSymm/pSymm.sol" as pSymm;
 
 contract pSymmSettlement is Settlement {

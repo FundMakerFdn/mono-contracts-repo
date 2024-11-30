@@ -1,4 +1,5 @@
 *.db
+/offchain
 
 # Aider data
 .aider.*
@@ -25,4 +26,3 @@ yarn.lock
 
 package-lock.json
 
-/offchain

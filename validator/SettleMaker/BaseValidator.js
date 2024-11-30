@@ -1,21 +1,16 @@
 const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
 const MockStorage = require("./storage/mockStorage");
-const { time } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
+const {
+  time,
+} = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
 const { decodeEventLog, toHex, keccak256 } = require("viem");
 
 class BaseValidator {
-  constructor(
-    publicClient,
-    walletClient,
-    contracts,
-    config,
-    isMainValidator = false
-  ) {
+  constructor(publicClient, walletClient, contracts, config) {
     this.publicClient = publicClient;
     this.walletClient = walletClient;
     this.contracts = contracts;
     this.config = config;
-    this.isMainValidator = isMainValidator;
     this.storage = new MockStorage();
     this.currentBatch = 0;
     this.hasVoted = false;
@@ -23,16 +18,10 @@ class BaseValidator {
     this.hasActedInState = false;
     this.pendingSettlementId = null;
     this.shouldStop = false;
+    this.unwatchFunctions = [];
   }
 
   async start() {
-    if (!this.isMainValidator) {
-      console.log("Not a main validator, exiting...");
-      return;
-    }
-
-    console.log("Starting main validator...");
-
     this.currentBatch = Number(
       await this.contracts.settleMaker.read.currentBatch()
     );
@@ -168,7 +157,44 @@ class BaseValidator {
 
   stop() {
     this.shouldStop = true;
+    // Unsubscribe from all events
+    if (this.unwatchFunctions) {
+      this.unwatchFunctions.forEach((unwatch) => unwatch());
+    }
     this.storage.close();
+  }
+
+  async subscribeToEvents(contractName, eventName, callback) {
+    if (!this.contracts[contractName]) {
+      throw new Error(`Contract ${contractName} not found`);
+    }
+
+    const unwatch = await this.publicClient.watchContractEvent({
+      address: this.contracts[contractName].address,
+      abi: this.contracts[contractName].abi,
+      eventName: eventName,
+      onLogs: (logs) => {
+        logs.forEach((log) => {
+          try {
+            const event = decodeEventLog({
+              abi: this.contracts[contractName].abi,
+              data: log.data,
+              topics: log.topics,
+            });
+            callback(event, log);
+          } catch (error) {
+            console.error(`Error processing ${eventName} event:`, error);
+          }
+        });
+      },
+      pollingInterval: 1000, // 1 second in milliseconds
+    });
+
+    this.unwatchFunctions.push(unwatch);
+    console.log(
+      `Subscribed to ${eventName} events on ${contractName} (polling every 1s)`
+    );
+    return unwatch;
   }
 
   async getSettlementIdFromReceipt(txHash, settlement) {
