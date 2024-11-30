@@ -13,6 +13,14 @@ task("validator", "Run the validator")
     await validatorTask(taskArgs, hre);
   });
 
+task("addSymm", "Mint SYMM tokens to a wallet")
+  .addParam("walletId", "The wallet ID to receive SYMM")
+  .addOptionalParam("amount", "Amount of SYMM to mint in ether units", "1000")
+  .setAction(async (taskArgs, hre) => {
+    const addSymmTask = require("./validator/SettleMaker/addSymm.task.js");
+    await addSymmTask(taskArgs, hre);
+  });
+
 // To exclude files from compilation for debug purposes:
 // const {
 //   TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS,

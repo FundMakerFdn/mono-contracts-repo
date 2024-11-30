@@ -114,10 +114,19 @@ class Validator extends BaseValidator {
       const merkleTree = StandardMerkleTree.of(settlements, ["bytes32"]);
       const proof = merkleTree.getProof([this.pendingWhitelistId]);
 
-      await this.contracts.validatorSettlement.write.executeSettlement(
-        [BigInt(batch), this.pendingWhitelistId, proof],
-        { account: this.walletClient.account }
-      );
+      try {
+        await this.contracts.validatorSettlement.write.executeSettlement(
+          [BigInt(batch), this.pendingWhitelistId, proof],
+          { account: this.walletClient.account }
+        );
+      } catch (error) {
+        console.error(
+          "Failed to executeSettlement on validator contract - do I have enough SYMM?"
+        );
+        // console.error("Error details:", error);
+        this.pendingWhitelistId = null;
+        return;
+      }
 
       // Verify whitelisting was successful
       this.isWhitelisted = await this.contracts.settleMaker.read.isValidator([

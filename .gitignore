@@ -1,6 +1,8 @@
 *.db
 /offchain
 
+*.tmp.txt
+
 # Aider data
 .aider.*
 

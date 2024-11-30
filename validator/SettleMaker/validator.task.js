@@ -62,13 +62,6 @@ async function validatorTask(taskArgs, hre) {
     ),
   };
 
-  // Mint SYMM tokens to validator account
-  console.log("Minting SYMM tokens to validator account...");
-  await contracts.mockSymm.write.mint(
-    [walletClient.account.address, parseEther("1000")],
-    { account: deployer.account }
-  );
-
   // Approve SYMM tokens for validator settlement
   console.log("Approving SYMM tokens for validator settlement...");
   await contracts.mockSymm.write.approve(
