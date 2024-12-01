@@ -239,7 +239,7 @@ async function main() {
   };
 
   // Verify deployer is properly registered as validator
-  const isValidator = await settleMaker.read.isValidator([
+  const isValidator = await settleMaker.read.verifyValidator([
     deployer.account.address,
   ]);
   if (!isValidator) {
@@ -278,10 +278,10 @@ async function main() {
   });
 
   // Write deployment data to temp file
-  const fs = require('fs');
+  const fs = require("fs");
   const tempData = {
     dataHash: storageHash,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   };
   fs.writeFileSync(config.contractsTempFile, JSON.stringify(tempData, null, 2));
 

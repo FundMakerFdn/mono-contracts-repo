@@ -13,7 +13,7 @@ class Validator extends BaseValidator {
 
   async start() {
     // Check if already whitelisted
-    this.isWhitelisted = await this.contracts.settleMaker.read.isValidator([
+    this.isWhitelisted = await this.contracts.settleMaker.read.verifyValidator([
       this.walletClient.account.address,
     ]);
 
@@ -129,9 +129,10 @@ class Validator extends BaseValidator {
       }
 
       // Verify whitelisting was successful
-      this.isWhitelisted = await this.contracts.settleMaker.read.isValidator([
-        this.walletClient.account.address,
-      ]);
+      this.isWhitelisted =
+        await this.contracts.settleMaker.read.verifyValidator([
+          this.walletClient.account.address,
+        ]);
 
       if (this.isWhitelisted) {
         console.log("Successfully whitelisted as validator");

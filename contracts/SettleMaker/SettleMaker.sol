@@ -8,6 +8,7 @@ import "./interface/ISettleMaker.sol";
 import "./interface/IEditSettlement.sol";
 import "./interface/IValidatorSettlement.sol";
 import "./interface/IBatchMetadataSettlement.sol";
+import "./interface/IUnresolvedListSettlement.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract SettleMaker is ISettleMaker, ReentrancyGuard {
@@ -64,7 +65,7 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
     // Cast vote for a soft fork
     function castVote(bytes32 softForkRoot) public nonReentrant {
         require(getCurrentState() == 2, "Invalid state");
-        require(isValidator(msg.sender), "Not a validator");
+        require(verifyValidator(msg.sender), "Not a validator");
         require(!hasVoted[msg.sender][softForkRoot], "Already voted");
 
         hasVoted[msg.sender][softForkRoot] = true;
@@ -157,11 +158,23 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
     }
 
     // Helper to check if address is validator
-    function isValidator(address account) public view returns (bool) {
+    function verifyValidator(address account) public view returns (bool) {
         // Get validator settlement from edit settlement and verify
         address validatorSettlement = IEditSettlement(editSettlementAddress)
             .validatorSettlementAddress();
         return IValidatorSettlement(validatorSettlement).verifyValidator(account);
+    }
+
+    function getCurrentUnresolvedRoot() external view returns (bytes32) {
+        address unresolvedListSettlement = IEditSettlement(editSettlementAddress)
+            .unresolvedListSettlementAddress();
+        return IUnresolvedListSettlement(unresolvedListSettlement).currentUnresolvedRoot();
+    }
+
+    function getCurrentUnresolvedDataHash() external view returns (bytes32) {
+        address unresolvedListSettlement = IEditSettlement(editSettlementAddress)
+            .unresolvedListSettlementAddress();
+        return IUnresolvedListSettlement(unresolvedListSettlement).currentDataHash();
     }
 }
 

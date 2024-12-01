@@ -2,7 +2,7 @@ require("@nomicfoundation/hardhat-viem");
 require("@nomicfoundation/hardhat-ignition-viem");
 
 task("validator", "Run the validator")
-  .addParam("walletId", "The wallet ID to use")
+  .addPositionalParam("walletId", "The wallet ID to use")
   .setAction(async (taskArgs, hre) => {
     // Force localhost network
     if (hre.network.name !== "localhost") {
@@ -10,15 +10,15 @@ task("validator", "Run the validator")
       process.exit(1);
     }
     const validatorTask = require("./validator/SettleMaker/validator.task.js");
-    await validatorTask(taskArgs, hre);
+    await validatorTask([taskArgs.walletId], hre);
   });
 
 task("addSymm", "Mint SYMM tokens to a wallet")
-  .addParam("walletId", "The wallet ID to receive SYMM")
-  .addOptionalParam("amount", "Amount of SYMM to mint in ether units", "1000")
+  .addPositionalParam("walletId", "The wallet ID to receive SYMM")
+  .addOptionalPositionalParam("amount", "Amount of SYMM to mint in ether units", "1000")
   .setAction(async (taskArgs, hre) => {
     const addSymmTask = require("./validator/SettleMaker/addSymm.task.js");
-    await addSymmTask(taskArgs, hre);
+    await addSymmTask([taskArgs.walletId, taskArgs.amount], hre);
   });
 
 // To exclude files from compilation for debug purposes:

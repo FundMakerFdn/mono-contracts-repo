@@ -3,8 +3,7 @@ const MockStorage = require("./storage/mockStorage");
 const config = require("#root/validator/config.js");
 const fs = require("fs");
 
-async function addSymmTask(taskArgs, hre) {
-  const { walletId, amount = "1000" } = taskArgs;
+async function addSymmTask([walletId, amount = "1000"], hre) {
 
   // Read deployment data from temp file
   let dataHash;

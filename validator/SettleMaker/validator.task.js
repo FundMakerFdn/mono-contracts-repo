@@ -3,8 +3,7 @@ const MockStorage = require("./storage/mockStorage");
 const config = require("#root/validator/config.js");
 const fs = require("fs");
 
-async function validatorTask(taskArgs, hre) {
-  const { walletId } = taskArgs;
+async function validatorTask([walletId], hre) {
 
   // Read deployment data from temp file
   let dataHash;
