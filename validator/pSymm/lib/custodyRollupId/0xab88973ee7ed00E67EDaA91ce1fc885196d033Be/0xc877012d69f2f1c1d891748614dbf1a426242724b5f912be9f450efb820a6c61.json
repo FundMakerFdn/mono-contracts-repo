@@ -5,8 +5,8 @@
       "amount": "1000000000000000000",
       "price": "1000000000000000000",
       "rfqNonce": "0xA0",
-      "expiration": 1732851273686,
-      "timestamp": 1732850273686,
+      "expiration": 1733032502028,
+      "timestamp": 1733031502028,
       "nonce": "0xB1"
     },
     "eip712Type": null
@@ -33,13 +33,13 @@
       "cancelGracePeriod": 30000,
       "minContractAmount": 10,
       "oracleType": "mock",
-      "expiration": 1732851273684,
-      "timestamp": 1732850273684,
+      "expiration": 1733032502021,
+      "timestamp": 1733031502021,
       "nonce": "0xA0"
     },
     "eip712Type": null,
     "signatures": [
-      "0x246440a23c9a02d2566be313c95ec7ef3b2075f4fda53d6353d6573697dd9783345cc240deabe41971e04c3dcb69dd0653ce96152e44a09dd793322dd02588bc1b",
+      "0x705fa02f7bc9e7f225338569a7334d5d3a5767a0c87227f98668acf5e92b37ac530da29579adec78c30564da5b8ee1f4e38209a50d5423e28939b5f745da907c1b",
       null
     ]
   },
@@ -65,45 +65,14 @@
       "cancelGracePeriod": 30000,
       "minContractAmount": 10,
       "oracleType": "mock",
-      "expiration": 1732851273684,
-      "timestamp": 1732850273684,
+      "expiration": 1733032502021,
+      "timestamp": 1733031502021,
       "nonce": "0xA0"
     },
     "eip712Type": null,
     "signatures": [
       null,
-      "0x83e2aab82eba8b0b0451b3247058c733602e728564344f51e0c600adac4537887cf961df5e50932f5dc02f867b60a7822950c1d4fa3e15149c125e0a265afce71c"
-    ]
-  },
-  {
-    "type": "rfa/swap/open",
-    "params": {
-      "ISIN": "BTC",
-      "amount": "1000000000000000000",
-      "price": "1000000000000000000",
-      "side": "buy",
-      "fundingRate": 1,
-      "IM_A": "1000000000000000000",
-      "IM_B": "1000000000000000000",
-      "MM_A": "1000000000000000000",
-      "MM_B": "1000000000000000000",
-      "CVA_A": "1000000000000000000",
-      "CVA_B": "1000000000000000000",
-      "MC_A": "1000000000000000000",
-      "MC_B": "1000000000000000000",
-      "contractExpiry": 1723232323232,
-      "pricePrecision": 3,
-      "fundingRatePrecision": 3,
-      "cancelGracePeriod": 30000,
-      "minContractAmount": 10,
-      "oracleType": "mock",
-      "expiration": 1732945685350,
-      "timestamp": 1732944685351,
-      "nonce": "0xA1"
-    },
-    "eip712Type": null,
-    "signatures": [
-      {}
+      "0x86c90be6e821243cf9928ad72ab55576058ca1b498770125063719256fc19ab15b844f64183255408b567df0dbd65a49f1853b8b0cec2e869e59f61e2c0cd10a1c"
     ]
   }
 ]

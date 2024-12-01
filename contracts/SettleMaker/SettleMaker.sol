@@ -62,8 +62,7 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
     }
 
     // Cast vote for a soft fork
-    function castVote(bytes32 softForkRoot) external nonReentrant {
-        //@ Vlad Maybe I did break something, by replacing enum not sure with number it should be for voting
+    function castVote(bytes32 softForkRoot) public nonReentrant {
         require(getCurrentState() == 2, "Invalid state");
         require(isValidator(msg.sender), "Not a validator");
         require(!hasVoted[msg.sender][softForkRoot], "Already voted");
@@ -105,6 +104,12 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
     ) external {
         require(getCurrentState() == 2, "Invalid state");
         
+        // Check if soft fork already exists, vote if yes
+        if (softForkDataHashes[softForkRoot] != bytes32(0)) {
+			castVote(softForkRoot);
+			return;
+		}
+
         // Verify the batch metadata settlement is included in the soft fork
         bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(batchMetadataSettlementId))));
         require(
@@ -128,6 +133,8 @@ contract SettleMaker is ISettleMaker, ReentrancyGuard {
         require(settlementStart > currentMetadata.votingEnd, "Invalid settlement start");
         require(votingStart > settlementStart, "Invalid voting start");
         require(votingEnd > votingStart, "Invalid voting end");
+
+		castVote(softForkRoot);
 
         emit SoftForkSubmitted(softForkRoot, dataHash, msg.sender);
     }

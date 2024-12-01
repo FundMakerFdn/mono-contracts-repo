@@ -4,7 +4,7 @@ const {
   time,
 } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
 const { decodeEventLog } = require("viem");
-const fs = require('fs');
+const fs = require("fs");
 
 class DeploymentValidator extends BaseValidator {
   constructor(publicClient, walletClient, contracts, config) {
@@ -156,22 +156,64 @@ class DeploymentValidator extends BaseValidator {
         batch: Number(this.currentBatch),
       });
 
-    // Submit soft fork and vote in one clear flow
-    await this.contracts.settleMaker.write.submitSoftFork(
+    // Submit soft fork and wait for VoteCast event
+    const tx = await this.contracts.settleMaker.write.submitSoftFork(
       [this.newMerkleTree.root, storageHash, this.newBatchMetadataId, proof],
       { account: this.walletClient.account }
     );
 
-    console.log(`Submitted soft fork with root: ${this.newMerkleTree.root}`);
-    console.log("Batch metadata settlement:", this.newBatchMetadataId);
-    console.log("All settlements:", this.getCurrentSettlements());
+    // Verify vote was cast
+    if (await this.verifyVoteCast(tx, this.newMerkleTree.root)) {
+      console.log(`Submitted soft fork with root: ${this.newMerkleTree.root}`);
+      console.log("Batch metadata settlement:", this.newBatchMetadataId);
+      console.log("All settlements:", this.getCurrentSettlements());
 
-    await this.contracts.settleMaker.write.castVote([this.newMerkleTree.root], {
-      account: this.walletClient.account,
+      this.hasVoted = true;
+      console.log(`Vote confirmed for root: ${this.newMerkleTree.root}`);
+    } else {
+      console.error("Failed to verify vote cast");
+    }
+  }
+
+  async verifyVoteCast(txHash, expectedRoot) {
+    // Wait for receipt and verify VoteCast event
+    const receipt = await this.publicClient.waitForTransactionReceipt({
+      hash: txHash,
     });
 
-    this.hasVoted = true;
-    console.log(`Voted for root: ${this.newMerkleTree.root}`);
+    // Find VoteCast event in logs
+    const voteCastLog = receipt.logs.find((log) => {
+      try {
+        const event = decodeEventLog({
+          abi: this.contracts.settleMaker.abi,
+          data: log.data,
+          topics: log.topics,
+        });
+        return event.eventName === "VoteCast";
+      } catch {
+        return false;
+      }
+    });
+
+    if (!voteCastLog) {
+      console.error("VoteCast event not found in transaction receipt");
+      return false;
+    }
+
+    // Decode VoteCast event to verify details
+    const voteCastEvent = decodeEventLog({
+      abi: this.contracts.settleMaker.abi,
+      data: voteCastLog.data,
+      topics: voteCastLog.topics,
+    });
+
+    // Verify the vote was cast for our merkle root
+    if (voteCastEvent.args.softForkRoot !== expectedRoot) {
+      console.error("VoteCast event has incorrect softForkRoot");
+      return false;
+    }
+
+    return true;
   }
 
   async handleVotingEndState() {
