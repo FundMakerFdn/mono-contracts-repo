@@ -7,4 +7,5 @@ import "./ISettlement.sol";
 interface IEditSettlement is ISettlement {
     function validatorSettlementAddress() external view returns (address);
     function batchMetadataSettlementAddress() external view returns (address);
+    function unresolvedListSettlementAddress() external view returns (address);
 }

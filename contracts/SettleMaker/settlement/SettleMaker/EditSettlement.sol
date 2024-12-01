@@ -10,6 +10,7 @@ contract EditSettlement is IEditSettlement, Settlement {
     // Core settlement addresses
     address public validatorSettlementAddress;
     address public batchMetadataSettlementAddress;
+    address public unresolvedListSettlementAddress;
     address private immutable deployer;
 
 
@@ -81,14 +82,19 @@ contract EditSettlement is IEditSettlement, Settlement {
 
         // Update appropriate address based on settlement type
         if (params.settlementType == 0) {
-            validatorSettlementAddress = params.newSettlementAddress;
-        } else if (params.settlementType == 1) {
-            batchMetadataSettlementAddress = params.newSettlementAddress;
-        } else if (params.settlementType == 2) {
-            // Special case - update SettleMaker's editSettlementAddress
+            // EDIT_SETTLEMENT type (0) - Special case to update SettleMaker's editSettlementAddress
             if (params.newSettlementAddress != address(this)) {
                 ISettleMaker(settleMaker).setEditSettlement(params.newSettlementAddress);
             }
+        } else if (params.settlementType == 1) {
+            // VALIDATOR type (1)
+            validatorSettlementAddress = params.newSettlementAddress;
+        } else if (params.settlementType == 2) {
+            // BATCH_METADATA type (2)
+            batchMetadataSettlementAddress = params.newSettlementAddress;
+        } else if (params.settlementType == 3) {
+            // UNRESOLVED_LIST type (3)
+            unresolvedListSettlementAddress = params.newSettlementAddress;
         }
     }
 

@@ -130,7 +130,7 @@ async function main() {
   // Create edit settlements for validator and batch metadata
   console.log("Creating edit settlements...");
   const validatorEditTx = await editSettlement.write.createEditSettlement(
-    [validatorSettlement.address, 0n], // 0n = VALIDATOR type
+    [validatorSettlement.address, 1n], // 1n = VALIDATOR type
     {
       account: deployer.account,
     }
@@ -142,7 +142,7 @@ async function main() {
   );
 
   const batchMetadataEditTx = await editSettlement.write.createEditSettlement(
-    [batchMetadataSettlement.address, 1n], // 1n = BATCH_METADATA type
+    [batchMetadataSettlement.address, 2n], // 2n = BATCH_METADATA type
     {
       account: deployer.account,
     }
