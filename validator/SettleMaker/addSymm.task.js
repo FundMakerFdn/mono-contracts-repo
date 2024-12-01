@@ -39,7 +39,7 @@ async function addSymmTask([walletId, amount = "1000"], hre) {
   // Get MockSymm contract instance
   const mockSymm = await hre.viem.getContractAt(
     "MockSymm",
-    deploymentData.data.contracts.mockSymm
+    deploymentData.data.contracts.MockSymm
   );
 
   // Mint SYMM tokens to specified wallet

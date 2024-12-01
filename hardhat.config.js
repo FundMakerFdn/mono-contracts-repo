@@ -13,6 +13,25 @@ task("validator", "Run the validator")
     await validatorTask([taskArgs.walletId], hre);
   });
 
+task("read", "Read a contract function")
+  .addPositionalParam("contractName", "The name of the contract")
+  .addPositionalParam("functionName", "The name of the function to read") 
+  .addVariadicPositionalParam("args", "Function arguments", [])
+  .setAction(async (taskArgs, hre) => {
+    const readTask = require("./validator/SettleMaker/read.task.js");
+    await readTask([taskArgs.contractName, taskArgs.functionName, ...taskArgs.args], hre);
+  });
+
+task("write", "Write to a contract function")
+  .addPositionalParam("walletId", "The wallet ID to use")
+  .addPositionalParam("contractName", "The name of the contract")
+  .addPositionalParam("functionName", "The name of the function to write")
+  .addVariadicPositionalParam("args", "Function arguments", [])
+  .setAction(async (taskArgs, hre) => {
+    const writeTask = require("./validator/SettleMaker/write.task.js");
+    await writeTask([taskArgs.walletId, taskArgs.contractName, taskArgs.functionName, ...taskArgs.args], hre);
+  });
+
 task("addSymm", "Mint SYMM tokens to a wallet")
   .addPositionalParam("walletId", "The wallet ID to receive SYMM")
   .addOptionalPositionalParam("amount", "Amount of SYMM to mint in ether units", "1000")

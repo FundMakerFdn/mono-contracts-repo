@@ -41,23 +41,23 @@ async function validatorTask([walletId], hre) {
   const contracts = {
     settleMaker: await hre.viem.getContractAt(
       "SettleMaker",
-      deploymentData.data.contracts.settleMaker
+      deploymentData.data.contracts.SettleMaker
     ),
     validatorSettlement: await hre.viem.getContractAt(
       "ValidatorSettlement",
-      deploymentData.data.contracts.validatorSettlement
+      deploymentData.data.contracts.ValidatorSettlement
     ),
     batchMetadata: await hre.viem.getContractAt(
       "BatchMetadataSettlement",
-      deploymentData.data.contracts.batchMetadataSettlement
+      deploymentData.data.contracts.BatchMetadataSettlement
     ),
     editSettlement: await hre.viem.getContractAt(
       "EditSettlement",
-      deploymentData.data.contracts.editSettlement
+      deploymentData.data.contracts.EditSettlement
     ),
     mockSymm: await hre.viem.getContractAt(
       "MockSymm",
-      deploymentData.data.contracts.mockSymm
+      deploymentData.data.contracts.MockSymm
     ),
   };
 

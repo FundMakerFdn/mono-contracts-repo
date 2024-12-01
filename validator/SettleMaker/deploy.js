@@ -223,11 +223,11 @@ async function main() {
   const deploymentData = {
     timestamp: Date.now(),
     contracts: {
-      mockSymm: mockSymm.address,
-      editSettlement: editSettlement.address,
-      validatorSettlement: validatorSettlement.address,
-      batchMetadataSettlement: batchMetadataSettlement.address,
-      settleMaker: settleMaker.address,
+      MockSymm: mockSymm.address,
+      EditSettlement: editSettlement.address,
+      ValidatorSettlement: validatorSettlement.address,
+      BatchMetadataSettlement: batchMetadataSettlement.address,
+      SettleMaker: settleMaker.address,
     },
     settlements: {
       batchMetadataId,

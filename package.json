@@ -24,7 +24,9 @@
     "validator": "hardhat validator --network localhost",
     "miner": "hardhat run --network localhost validator/miner.js",
     "test": "node validator/pSymm/lib/custodyRollupTreeBuilder.js",
-    "addSymm": "hardhat addSymm --network localhost"
+    "addSymm": "hardhat addSymm --network localhost",
+    "read": "hardhat read --network localhost",
+    "write": "hardhat write --network localhost"
   },
   "imports": {
     "#root/*": "./*"
