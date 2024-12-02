@@ -3,7 +3,7 @@ const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
 const {
   time,
 } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
-const { decodeEventLog } = require("viem");
+const { decodeEventLog, getAddress } = require("viem");
 const fs = require("fs");
 
 class DeploymentValidator extends BaseValidator {
@@ -128,9 +128,45 @@ class DeploymentValidator extends BaseValidator {
   }
 
   async evaluateSettlement(settlementContract, settlementId) {
-    console.log(`Evaluating settlement ${settlementId} from contract ${settlementContract}`);
-    // For now, always return true as specified
-    return true;
+    // Only do additional checks for validator settlements
+    if (
+      getAddress(settlementContract) !==
+      getAddress(this.contracts.validatorSettlement.address)
+    ) {
+      return true;
+    }
+
+    try {
+      // Get validator parameters for this settlement
+      const params =
+        await this.contracts.validatorSettlement.read.getValidatorParameters([
+          settlementId,
+        ]);
+
+      // Check if this is an add validator settlement (not a removal)
+      if (!params.isAdd) {
+        return true; // No balance check needed for removals
+      }
+
+      // Get validator's SYMM balance
+      const balance = await this.contracts.mockSymm.read.balanceOf([
+        params.validator,
+      ]);
+
+      // Check if validator has enough SYMM
+      if (balance < params.requiredSymmAmount) {
+        console.log(
+          `Validator ${params.validator} has insufficient SYMM balance`
+        );
+        console.log(`Required: ${params.requiredSymmAmount}, Has: ${balance}`);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error evaluating validator settlement:", error);
+      return false;
+    }
   }
 
   async handleVotingState() {

@@ -261,6 +261,7 @@ async function main() {
       batchMetadata: batchMetadataSettlement,
       validatorSettlement,
       editSettlement,
+      mockSymm,
     },
     config,
     true

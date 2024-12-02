@@ -150,11 +150,8 @@ class BaseValidator {
     console.log("Base: Collecting settlements in SETTLEMENT state");
   }
 
-
-  // Base evaluation that subclasses should override
   async evaluateSettlement(settlementContract, settlementId) {
-    console.log(`Base evaluation for settlement ${settlementId} from contract ${settlementContract}`);
-    return true; // Default implementation accepts all settlements
+    return true;
   }
 
   async handleVotingState() {
@@ -185,7 +182,7 @@ class BaseValidator {
           settlementSet.delete(settlementId);
         }
       }
-      
+
       // Remove contract entry if no settlements remain
       if (settlementSet.size === 0) {
         this.settlementsByContract.delete(contractAddress);
