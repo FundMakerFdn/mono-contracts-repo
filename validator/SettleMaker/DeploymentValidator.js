@@ -37,7 +37,9 @@ class DeploymentValidator extends BaseValidator {
       this.settlementsByContract.set(settlementContract, new Set());
     }
     this.settlementsByContract.get(settlementContract).add(settlementId);
-    console.log(`Added settlement ${settlementId} from contract ${settlementContract}`);
+    console.log(
+      `Added settlement ${settlementId} from contract ${settlementContract}`
+    );
   }
 
   resetBatchState() {
@@ -125,8 +127,8 @@ class DeploymentValidator extends BaseValidator {
     await super.handleSettlementState();
   }
 
-  async evaluateSettlement(settlementId) {
-    console.log(`Evaluating settlement ${settlementId}`);
+  async evaluateSettlement(settlementContract, settlementId) {
+    console.log(`Evaluating settlement ${settlementId} from contract ${settlementContract}`);
     // For now, always return true as specified
     return true;
   }
@@ -136,7 +138,7 @@ class DeploymentValidator extends BaseValidator {
 
     // First evaluate all settlements
     await super.handleVotingState();
-    
+
     // Only proceed if we still have valid settlements after evaluation
     if (this.settlementsByContract.size === 0) {
       console.log("No valid settlements after evaluation");
@@ -261,7 +263,10 @@ class DeploymentValidator extends BaseValidator {
 
     // Execute batch metadata settlement
     // Reconstruct merkle tree from stored data to get proof
-    const merkleTree = StandardMerkleTree.of(storageData.data.otherSettlements, ["bytes32"]);
+    const merkleTree = StandardMerkleTree.of(
+      storageData.data.otherSettlements,
+      ["bytes32"]
+    );
     const proof = merkleTree.getProof([this.newBatchMetadataId]);
 
     await this.contracts.batchMetadata.write.executeSettlement(

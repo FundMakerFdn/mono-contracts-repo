@@ -19,8 +19,6 @@ class BaseValidator {
     this.pendingSettlementId = null;
     this.shouldStop = false;
     this.unwatchFunctions = [];
-    this.settlementQueue = [];
-    this.isProcessingQueue = false;
     this.evaluationTimeout = 5 * 60 * 1000; // in ms
     this.settlementsByContract = new Map(); // Map<address, Set<string>>
   }
@@ -152,67 +150,47 @@ class BaseValidator {
     console.log("Base: Collecting settlements in SETTLEMENT state");
   }
 
-  async processSettlementQueue() {
-    if (this.isProcessingQueue || this.settlementQueue.length === 0) return;
-
-    this.isProcessingQueue = true;
-    const settlementId = this.settlementQueue.shift();
-
-    try {
-      const result = await Promise.race([
-        this.evaluateSettlement(settlementId),
-        new Promise((_, reject) =>
-          setTimeout(
-            () => reject(new Error("Evaluation timeout")),
-            this.evaluationTimeout
-          )
-        ),
-      ]);
-
-      if (!result) {
-        console.log(`Settlement ${settlementId} evaluation REJECT`);
-        // Remove from all contract sets
-        for (const set of this.settlementsByContract.values()) {
-          set.delete(settlementId);
-        }
-      } else {
-        console.log(`Settlement ${settlementId} evaluation APPROVE`);
-      }
-    } catch (error) {
-      console.log(`Settlement ${settlementId} rejected: ${error.message}`);
-      // Remove from all contract sets
-      for (const set of this.settlementsByContract.values()) {
-        set.delete(settlementId);
-      }
-    }
-
-    this.isProcessingQueue = false;
-    await this.processSettlementQueue();
-  }
 
   // Base evaluation that subclasses should override
-  async evaluateSettlement(settlementId) {
-    console.log(`Base evaluation for settlement ${settlementId}`);
+  async evaluateSettlement(settlementContract, settlementId) {
+    console.log(`Base evaluation for settlement ${settlementId} from contract ${settlementContract}`);
     return true; // Default implementation accepts all settlements
   }
 
   async handleVotingState() {
     console.log("Evaluating collected settlements...");
-    
-    // Get all settlement IDs from the contract sets
-    const settlementIds = [];
-    for (const [, settlementSet] of this.settlementsByContract) {
+
+    // Process settlements directly from the contract map
+    for (const [contractAddress, settlementSet] of this.settlementsByContract) {
       for (const settlementId of settlementSet) {
-        settlementIds.push(settlementId);
+        try {
+          const result = await Promise.race([
+            this.evaluateSettlement(contractAddress, settlementId),
+            new Promise((_, reject) =>
+              setTimeout(
+                () => reject(new Error("Evaluation timeout")),
+                this.evaluationTimeout
+              )
+            ),
+          ]);
+
+          if (!result) {
+            console.log(`Settlement ${settlementId} evaluation REJECT`);
+            settlementSet.delete(settlementId);
+          } else {
+            console.log(`Settlement ${settlementId} evaluation APPROVE`);
+          }
+        } catch (error) {
+          console.log(`Settlement ${settlementId} rejected: ${error.message}`);
+          settlementSet.delete(settlementId);
+        }
+      }
+      
+      // Remove contract entry if no settlements remain
+      if (settlementSet.size === 0) {
+        this.settlementsByContract.delete(contractAddress);
       }
     }
-
-    // Add settlements to queue for evaluation
-    for (const settlementId of settlementIds) {
-      this.settlementQueue.push(settlementId);
-    }
-    
-    await this.processSettlementQueue();
   }
 
   async handleVotingEndState() {
