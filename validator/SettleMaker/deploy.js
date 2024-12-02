@@ -258,7 +258,7 @@ async function main() {
     deployer,
     {
       settleMaker,
-      batchMetadata: batchMetadataSettlement,
+      batchMetadataSettlement,
       validatorSettlement,
       editSettlement,
       mockSymm,

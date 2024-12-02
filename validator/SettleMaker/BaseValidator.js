@@ -23,12 +23,49 @@ class BaseValidator {
     this.settlementsByContract = new Map(); // Map<address, Set<string>>
   }
 
+  async subscribeToSettlementEvents() {
+    // Subscribe to SettlementCreated events for all settlement contracts
+    for (const [name, contract] of Object.entries(this.contracts)) {
+      if (name === 'settleMaker' || name === 'mockSymm') continue;
+      
+      await this.subscribeToEvents(
+        name,
+        "SettlementCreated", 
+        async (event, log) => {
+          const settlementId = event.args.settlementId;
+          const settlementContract = contract.address;
+
+          // Only add settlements during settlement period (state 1)
+          const currentState = Number(
+            await this.contracts.settleMaker.read.getCurrentState()
+          );
+          if (currentState !== 1) {
+            console.log(
+              `Cannot add settlement ${settlementId} - not in settlement period`
+            );
+            return;
+          }
+
+          // Get or create Set for this contract
+          if (!this.settlementsByContract.has(settlementContract)) {
+            this.settlementsByContract.set(settlementContract, new Set());
+          }
+          this.settlementsByContract.get(settlementContract).add(settlementId);
+          console.log(
+            `Added settlement ${settlementId} from contract ${settlementContract}`
+          );
+        }
+      );
+    }
+  }
+
   async start() {
     this.currentBatch = Number(
       await this.contracts.settleMaker.read.currentBatch()
     );
     console.log(`Starting with batch ${this.currentBatch}`);
 
+    await this.subscribeToSettlementEvents();
     await this.setupPolling();
     await this.checkStateAndAct();
   }
@@ -188,6 +225,17 @@ class BaseValidator {
         this.settlementsByContract.delete(contractAddress);
       }
     }
+  }
+
+  async addSettlementToMap(settlementId, contractAddress) {
+    // Get or create Set for this contract
+    if (!this.settlementsByContract.has(contractAddress)) {
+      this.settlementsByContract.set(contractAddress, new Set());
+    }
+    this.settlementsByContract.get(contractAddress).add(settlementId);
+    console.log(
+      `Added settlement ${settlementId} from contract ${contractAddress}`
+    );
   }
 
   async handleVotingEndState() {

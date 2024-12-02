@@ -13,33 +13,8 @@ class DeploymentValidator extends BaseValidator {
   }
 
   async start() {
-    // Set up event subscriptions before calling parent start
-    await this.subscribeToValidatorEvents();
-
     // Call parent start method
     await super.start();
-  }
-
-  async addSettlement(settlementId, settlementContract) {
-    // Only add settlements during settlement period (state 1)
-    const currentState = Number(
-      await this.contracts.settleMaker.read.getCurrentState()
-    );
-    if (currentState !== 1) {
-      console.log(
-        `Cannot add settlement ${settlementId} - not in settlement period`
-      );
-      return;
-    }
-
-    // Get or create Set for this contract
-    if (!this.settlementsByContract.has(settlementContract)) {
-      this.settlementsByContract.set(settlementContract, new Set());
-    }
-    this.settlementsByContract.get(settlementContract).add(settlementId);
-    console.log(
-      `Added settlement ${settlementId} from contract ${settlementContract}`
-    );
   }
 
   resetBatchState() {
@@ -62,41 +37,6 @@ class DeploymentValidator extends BaseValidator {
     }
   }
 
-  async subscribeToValidatorEvents() {
-    await this.subscribeToEvents(
-      "validatorSettlement",
-      "SettlementCreated",
-      async (event, log) => {
-        const settlementId = event.args.settlementId;
-
-        // Get validator parameters for this settlement
-        const params =
-          await this.contracts.validatorSettlement.read.getValidatorParameters([
-            settlementId,
-          ]);
-
-        console.log("New validator settlement created:", {
-          settlementId: settlementId,
-          creator: event.args.creator,
-          settlementContract: event.args.settlementContract,
-          params,
-        });
-
-        // Queue settlement to be added during settlement period
-        const currentState = Number(
-          await this.contracts.settleMaker.read.getCurrentState()
-        );
-        if (currentState === 1) {
-          await this.addSettlement(settlementId, event.args.settlementContract);
-        } else {
-          console.log(
-            `Settlement ${settlementId} created outside settlement period - will not be added`
-          );
-        }
-      }
-    );
-  }
-
   async handleSettlementState() {
     const currentTimestamp = BigInt(await time.latest());
     const settlementStart =
@@ -107,19 +47,19 @@ class DeploymentValidator extends BaseValidator {
       votingStart + BigInt(this.config.settleMaker.votingDuration);
 
     const tx =
-      await this.contracts.batchMetadata.write.createBatchMetadataSettlement(
+      await this.contracts.batchMetadataSettlement.write.createBatchMetadataSettlement(
         [settlementStart, votingStart, votingEnd],
         { account: this.walletClient.account }
       );
 
     const settlementId = await super.getSettlementIdFromReceipt(
       tx,
-      this.contracts.batchMetadata
+      this.contracts.batchMetadataSettlement
     );
 
-    // Store batch metadata ID and add to merkle tree
+    // Store batch metadata ID and add to map
     this.newBatchMetadataId = settlementId;
-    await this.addSettlement(settlementId);
+    await this.addSettlementToMap(settlementId, this.contracts.batchMetadataSettlement.address);
 
     console.log(`Created new batch metadata settlement: ${settlementId}`);
 
@@ -305,7 +245,7 @@ class DeploymentValidator extends BaseValidator {
     );
     const proof = merkleTree.getProof([this.newBatchMetadataId]);
 
-    await this.contracts.batchMetadata.write.executeSettlement(
+    await this.contracts.batchMetadataSettlement.write.executeSettlement(
       [BigInt(batch), this.newBatchMetadataId, proof],
       { account: this.walletClient.account }
     );

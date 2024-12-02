@@ -4,7 +4,6 @@ const config = require("#root/validator/config.js");
 const fs = require("fs");
 
 async function validatorTask([walletId], hre) {
-
   // Read deployment data from temp file
   let dataHash;
   try {
@@ -47,7 +46,7 @@ async function validatorTask([walletId], hre) {
       "ValidatorSettlement",
       deploymentData.data.contracts.ValidatorSettlement
     ),
-    batchMetadata: await hre.viem.getContractAt(
+    batchMetadataSettlement: await hre.viem.getContractAt(
       "BatchMetadataSettlement",
       deploymentData.data.contracts.BatchMetadataSettlement
     ),
