@@ -130,11 +130,29 @@ class DeploymentValidator extends BaseValidator {
     await this.addSettlement(settlementId);
 
     console.log(`Created new batch metadata settlement: ${settlementId}`);
+
+    // Process any settlements in queue
+    await super.handleSettlementState();
+  }
+
+  async evaluateSettlement(settlementId) {
+    console.log(`Evaluating settlement ${settlementId}`);
+    // For now, always return true as specified
+    return true;
   }
 
   async handleVotingState() {
     if (this.hasVoted || !this.newMerkleTree || !this.newBatchMetadataId)
       return;
+
+    // First evaluate all settlements
+    await super.handleVotingState();
+    
+    // Only proceed if we still have valid settlements after evaluation
+    if (!this.newMerkleTree) {
+      console.log("No valid settlements after evaluation");
+      return;
+    }
 
     // Verify merkle proof for batch metadata settlement
     const proof = this.newMerkleTree.getProof([this.newBatchMetadataId]);

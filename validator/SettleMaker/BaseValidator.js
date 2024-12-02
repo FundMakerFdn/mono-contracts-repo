@@ -19,6 +19,9 @@ class BaseValidator {
     this.pendingSettlementId = null;
     this.shouldStop = false;
     this.unwatchFunctions = [];
+    this.settlementQueue = [];
+    this.isProcessingQueue = false;
+    this.evaluationTimeout = 5 * 60 * 1000; // in ms
   }
 
   async start() {
@@ -144,11 +147,74 @@ class BaseValidator {
   }
 
   async handleSettlementState() {
-    console.log("Base: Doing nothing in SETTLEMENT state");
+    // Just collect settlements during settlement state
+    console.log("Base: Collecting settlements in SETTLEMENT state");
+  }
+
+  async processSettlementQueue() {
+    if (this.isProcessingQueue || this.settlementQueue.length === 0) return;
+
+    this.isProcessingQueue = true;
+    const settlementId = this.settlementQueue.shift();
+
+    try {
+      const result = await Promise.race([
+        this.evaluateSettlement(settlementId),
+        new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error("Evaluation timeout")),
+            this.evaluationTimeout
+          )
+        ),
+      ]);
+
+      if (result) {
+        console.log(`Settlement ${settlementId} evaluation APPROVE`);
+      } else {
+        console.log(`Settlement ${settlementId} evaluation REJECT`);
+        // Remove from merkle tree if failed
+        const newEntries = Array.from(this.newMerkleTree.entries()).filter(
+          ([, value]) => value[0] !== settlementId
+        );
+        if (newEntries.length > 0) {
+          this.newMerkleTree = StandardMerkleTree.of(newEntries, ["bytes32"]);
+        } else {
+          this.newMerkleTree = null;
+        }
+      }
+    } catch (error) {
+      console.log(`Settlement ${settlementId} rejected: ${error.message}`);
+      // Remove from merkle tree on timeout
+      const newEntries = Array.from(this.newMerkleTree.entries()).filter(
+        ([, value]) => value[0] !== settlementId
+      );
+      if (newEntries.length > 0) {
+        this.newMerkleTree = StandardMerkleTree.of(newEntries, ["bytes32"]);
+      } else {
+        this.newMerkleTree = null;
+      }
+    }
+
+    this.isProcessingQueue = false;
+    // Process next in queue
+    await this.processSettlementQueue();
+  }
+
+  // Base evaluation that subclasses should override
+  async evaluateSettlement(settlementId) {
+    console.log(`Base evaluation for settlement ${settlementId}`);
+    return true; // Default implementation accepts all settlements
   }
 
   async handleVotingState() {
-    console.log("Base: Doing nothing in VOTING state");
+    if (this.newMerkleTree) {
+      console.log("Evaluating collected settlements...");
+      const entries = Array.from(this.newMerkleTree.entries());
+      for (const [, value] of entries) {
+        this.settlementQueue.push(value[0]); // value[0] contains the settlement ID
+      }
+      await this.processSettlementQueue();
+    }
   }
 
   async handleVotingEndState() {
