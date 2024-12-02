@@ -9,9 +9,6 @@ const fs = require("fs");
 class DeploymentValidator extends BaseValidator {
   constructor(publicClient, walletClient, contracts, config) {
     super(publicClient, walletClient, contracts, config);
-
-    // Single source of truth for new settlements
-    this.newMerkleTree = null;
     this.newBatchMetadataId = null;
   }
 
@@ -23,7 +20,7 @@ class DeploymentValidator extends BaseValidator {
     await super.start();
   }
 
-  async addSettlement(settlementId) {
+  async addSettlement(settlementId, settlementContract) {
     // Only add settlements during settlement period (state 1)
     const currentState = Number(
       await this.contracts.settleMaker.read.getCurrentState()
@@ -35,23 +32,16 @@ class DeploymentValidator extends BaseValidator {
       return;
     }
 
-    const entries = [];
-    if (this.newMerkleTree) {
-      for (const [, value] of this.newMerkleTree.entries()) {
-        entries.push(value);
-      }
+    // Get or create Set for this contract
+    if (!this.settlementsByContract.has(settlementContract)) {
+      this.settlementsByContract.set(settlementContract, new Set());
     }
-    entries.push([settlementId]);
-    this.newMerkleTree = StandardMerkleTree.of(entries, ["bytes32"]);
-    console.log(`Added settlement ${settlementId} to merkle tree`);
-  }
-
-  getCurrentSettlements() {
-    return Array.from(this.newMerkleTree.entries()).map((e) => e[1]);
+    this.settlementsByContract.get(settlementContract).add(settlementId);
+    console.log(`Added settlement ${settlementId} from contract ${settlementContract}`);
   }
 
   resetBatchState() {
-    this.newMerkleTree = null;
+    this.settlementsByContract.clear();
     this.newBatchMetadataId = null;
     this.hasVoted = false;
     console.log("Reset batch state");
@@ -95,7 +85,7 @@ class DeploymentValidator extends BaseValidator {
           await this.contracts.settleMaker.read.getCurrentState()
         );
         if (currentState === 1) {
-          await this.addSettlement(settlementId);
+          await this.addSettlement(settlementId, event.args.settlementContract);
         } else {
           console.log(
             `Settlement ${settlementId} created outside settlement period - will not be added`
@@ -142,21 +132,35 @@ class DeploymentValidator extends BaseValidator {
   }
 
   async handleVotingState() {
-    if (this.hasVoted || !this.newMerkleTree || !this.newBatchMetadataId)
-      return;
+    if (this.hasVoted || !this.newBatchMetadataId) return;
 
     // First evaluate all settlements
     await super.handleVotingState();
     
     // Only proceed if we still have valid settlements after evaluation
-    if (!this.newMerkleTree) {
+    if (this.settlementsByContract.size === 0) {
       console.log("No valid settlements after evaluation");
       return;
     }
 
+    // Construct merkle tree from all valid settlements
+    const entries = [];
+    for (const [, settlementSet] of this.settlementsByContract) {
+      for (const settlementId of settlementSet) {
+        entries.push([settlementId]);
+      }
+    }
+
+    if (entries.length === 0) {
+      console.log("No settlements to include in merkle tree");
+      return;
+    }
+
+    const merkleTree = StandardMerkleTree.of(entries, ["bytes32"]);
+
     // Verify merkle proof for batch metadata settlement
-    const proof = this.newMerkleTree.getProof([this.newBatchMetadataId]);
-    const isValid = this.newMerkleTree.verify([this.newBatchMetadataId], proof);
+    const proof = merkleTree.getProof([this.newBatchMetadataId]);
+    const isValid = merkleTree.verify([this.newBatchMetadataId], proof);
     if (!isValid) {
       console.error(
         `Invalid merkle proof for batch metadata settlement ${this.newBatchMetadataId}`
@@ -168,26 +172,26 @@ class DeploymentValidator extends BaseValidator {
       "0x" +
       this.storage.store({
         timestamp: Date.now(),
-        merkleRoot: this.newMerkleTree.root,
+        merkleRoot: merkleTree.root,
         batchMetadataSettlement: this.newBatchMetadataId,
-        otherSettlements: this.getCurrentSettlements(),
+        otherSettlements: Array.from(entries),
         batch: Number(this.currentBatch),
       });
 
     // Submit soft fork and wait for VoteCast event
     const tx = await this.contracts.settleMaker.write.submitSoftFork(
-      [this.newMerkleTree.root, storageHash, this.newBatchMetadataId, proof],
+      [merkleTree.root, storageHash, this.newBatchMetadataId, proof],
       { account: this.walletClient.account }
     );
 
     // Verify vote was cast
-    if (await this.verifyVoteCast(tx, this.newMerkleTree.root)) {
-      console.log(`Submitted soft fork with root: ${this.newMerkleTree.root}`);
+    if (await this.verifyVoteCast(tx, merkleTree.root)) {
+      console.log(`Submitted soft fork with root: ${merkleTree.root}`);
       console.log("Batch metadata settlement:", this.newBatchMetadataId);
-      console.log("All settlements:", this.getCurrentSettlements());
+      console.log("All settlements:", entries);
 
       this.hasVoted = true;
-      console.log(`Vote confirmed for root: ${this.newMerkleTree.root}`);
+      console.log(`Vote confirmed for root: ${merkleTree.root}`);
     } else {
       console.error("Failed to verify vote cast");
     }
@@ -255,8 +259,10 @@ class DeploymentValidator extends BaseValidator {
       return;
     }
 
-    // Only execute batch metadata settlement
-    const proof = this.newMerkleTree.getProof([this.newBatchMetadataId]);
+    // Execute batch metadata settlement
+    // Reconstruct merkle tree from stored data to get proof
+    const merkleTree = StandardMerkleTree.of(storageData.data.otherSettlements, ["bytes32"]);
+    const proof = merkleTree.getProof([this.newBatchMetadataId]);
 
     await this.contracts.batchMetadata.write.executeSettlement(
       [BigInt(batch), this.newBatchMetadataId, proof],

@@ -22,6 +22,7 @@ class BaseValidator {
     this.settlementQueue = [];
     this.isProcessingQueue = false;
     this.evaluationTimeout = 5 * 60 * 1000; // in ms
+    this.settlementsByContract = new Map(); // Map<address, Set<string>>
   }
 
   async start() {
@@ -168,35 +169,24 @@ class BaseValidator {
         ),
       ]);
 
-      if (result) {
-        console.log(`Settlement ${settlementId} evaluation APPROVE`);
-      } else {
+      if (!result) {
         console.log(`Settlement ${settlementId} evaluation REJECT`);
-        // Remove from merkle tree if failed
-        const newEntries = Array.from(this.newMerkleTree.entries()).filter(
-          ([, value]) => value[0] !== settlementId
-        );
-        if (newEntries.length > 0) {
-          this.newMerkleTree = StandardMerkleTree.of(newEntries, ["bytes32"]);
-        } else {
-          this.newMerkleTree = null;
+        // Remove from all contract sets
+        for (const set of this.settlementsByContract.values()) {
+          set.delete(settlementId);
         }
+      } else {
+        console.log(`Settlement ${settlementId} evaluation APPROVE`);
       }
     } catch (error) {
       console.log(`Settlement ${settlementId} rejected: ${error.message}`);
-      // Remove from merkle tree on timeout
-      const newEntries = Array.from(this.newMerkleTree.entries()).filter(
-        ([, value]) => value[0] !== settlementId
-      );
-      if (newEntries.length > 0) {
-        this.newMerkleTree = StandardMerkleTree.of(newEntries, ["bytes32"]);
-      } else {
-        this.newMerkleTree = null;
+      // Remove from all contract sets
+      for (const set of this.settlementsByContract.values()) {
+        set.delete(settlementId);
       }
     }
 
     this.isProcessingQueue = false;
-    // Process next in queue
     await this.processSettlementQueue();
   }
 
@@ -207,14 +197,22 @@ class BaseValidator {
   }
 
   async handleVotingState() {
-    if (this.newMerkleTree) {
-      console.log("Evaluating collected settlements...");
-      const entries = Array.from(this.newMerkleTree.entries());
-      for (const [, value] of entries) {
-        this.settlementQueue.push(value[0]); // value[0] contains the settlement ID
+    console.log("Evaluating collected settlements...");
+    
+    // Get all settlement IDs from the contract sets
+    const settlementIds = [];
+    for (const [, settlementSet] of this.settlementsByContract) {
+      for (const settlementId of settlementSet) {
+        settlementIds.push(settlementId);
       }
-      await this.processSettlementQueue();
     }
+
+    // Add settlements to queue for evaluation
+    for (const settlementId of settlementIds) {
+      this.settlementQueue.push(settlementId);
+    }
+    
+    await this.processSettlementQueue();
   }
 
   async handleVotingEndState() {
