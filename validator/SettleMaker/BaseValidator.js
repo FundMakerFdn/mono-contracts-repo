@@ -21,6 +21,7 @@ class BaseValidator {
     this.unwatchFunctions = [];
     this.evaluationTimeout = 5 * 60 * 1000; // in ms
     this.settlementsByContract = new Map(); // Map<address, Set<string>>
+    this.shouldListenSettlements = false;
   }
 
   async subscribeToSettlementEvents() {
@@ -32,6 +33,12 @@ class BaseValidator {
         name,
         "SettlementCreated", 
         async (event, log) => {
+          // Only collect settlements if we've witnessed the settlement state start
+          if (!this.shouldListenSettlements) {
+            console.log("Ignoring settlement - waiting to witness settlement state start");
+            return;
+          }
+
           const settlementId = event.args.settlementId;
           const settlementContract = contract.address;
 
@@ -142,6 +149,7 @@ class BaseValidator {
       this.hasActedInState = false;
       this.pendingSettlementId = null;
       this.lastState = null;
+      this.shouldListenSettlements = false; // Reset on new batch
     }
 
     const state = Number(
@@ -151,6 +159,12 @@ class BaseValidator {
     if (state !== this.lastState) {
       this.hasActedInState = false;
       this.lastState = state;
+      
+      // Set shouldListenSettlements when we see state transition to SETTLEMENT (1)
+      if (state === 1) {
+        this.shouldListenSettlements = true;
+        console.log("Witnessed start of settlement state - will begin collecting settlements");
+      }
     }
 
     if (this.hasActedInState) {

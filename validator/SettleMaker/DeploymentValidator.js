@@ -59,7 +59,7 @@ class DeploymentValidator extends BaseValidator {
 
     // Store batch metadata ID and add to map
     this.newBatchMetadataId = settlementId;
-    await this.addSettlementToMap(settlementId, this.contracts.batchMetadataSettlement.address);
+    // await this.addSettlementToMap(settlementId, this.contracts.batchMetadataSettlement.address);
 
     console.log(`Created new batch metadata settlement: ${settlementId}`);
 
