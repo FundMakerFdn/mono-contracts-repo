@@ -12,6 +12,27 @@ class DeploymentValidator extends BaseValidator {
     this.newBatchMetadataId = null;
   }
 
+  async calculateAlignedTimestamps() {
+    const currentTimestamp = BigInt(await time.latest());
+    
+    // Get next 15-second aligned timestamp after current time + settlement delay
+    const baseTime = currentTimestamp + BigInt(this.config.settleMaker.settlementDelay);
+    const secondsIntoMinute = baseTime % 60n;
+    const blockNumber = secondsIntoMinute / 15n;
+    const nextBlockNumber = blockNumber + 1n;
+    const alignedSettlementStart = baseTime + (nextBlockNumber * 15n - secondsIntoMinute);
+    
+    // Calculate other timestamps based on aligned settlement start
+    const alignedVotingStart = alignedSettlementStart + BigInt(this.config.settleMaker.settlementDuration);
+    const alignedVotingEnd = alignedVotingStart + BigInt(this.config.settleMaker.votingDuration);
+
+    return {
+      settlementStart: alignedSettlementStart,
+      votingStart: alignedVotingStart, 
+      votingEnd: alignedVotingEnd
+    };
+  }
+
   async start() {
     // Call parent start method
     await super.start();
@@ -38,19 +59,12 @@ class DeploymentValidator extends BaseValidator {
   }
 
   async handleSettlementState() {
-    const currentTimestamp = BigInt(await time.latest());
-    const settlementStart =
-      currentTimestamp + BigInt(this.config.settleMaker.settlementDelay);
-    const votingStart =
-      settlementStart + BigInt(this.config.settleMaker.settlementDuration);
-    const votingEnd =
-      votingStart + BigInt(this.config.settleMaker.votingDuration);
+    const timestamps = await this.calculateAlignedTimestamps();
 
-    const tx =
-      await this.contracts.batchMetadataSettlement.write.createBatchMetadataSettlement(
-        [settlementStart, votingStart, votingEnd],
-        { account: this.walletClient.account }
-      );
+    const tx = await this.contracts.batchMetadataSettlement.write.createBatchMetadataSettlement(
+      [timestamps.settlementStart, timestamps.votingStart, timestamps.votingEnd],
+      { account: this.walletClient.account }
+    );
 
     const settlementId = await super.getSettlementIdFromReceipt(
       tx,
@@ -59,9 +73,12 @@ class DeploymentValidator extends BaseValidator {
 
     // Store batch metadata ID and add to map
     this.newBatchMetadataId = settlementId;
-    // await this.addSettlementToMap(settlementId, this.contracts.batchMetadataSettlement.address);
 
     console.log(`Created new batch metadata settlement: ${settlementId}`);
+    console.log('Timestamps:');
+    console.log(`- Settlement start: ${timestamps.settlementStart} (${new Date(Number(timestamps.settlementStart) * 1000).toISOString()})`);
+    console.log(`- Voting start: ${timestamps.votingStart} (${new Date(Number(timestamps.votingStart) * 1000).toISOString()})`);
+    console.log(`- Voting end: ${timestamps.votingEnd} (${new Date(Number(timestamps.votingEnd) * 1000).toISOString()})`);
 
     // Process any settlements in queue
     await super.handleSettlementState();

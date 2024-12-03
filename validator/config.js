@@ -6,5 +6,5 @@ module.exports = {
     settlementDuration: 10,
     votingDuration: 10,
   },
-  contractsTempFile: "contracts.tmp.txt"
+  contractsTempFile: "contracts.tmp.txt",
 };
