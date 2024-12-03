@@ -44,7 +44,9 @@ class Validator extends BaseValidator {
   async handleSettlementState() {
     if (!this.isWhitelisted && !this.pendingWhitelistId) {
       await this.submitWhitelistSettlement();
+      return;
     }
+    super.handleSettlementState();
   }
 
   async submitWhitelistSettlement() {

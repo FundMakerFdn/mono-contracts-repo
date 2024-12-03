@@ -9,28 +9,6 @@ const fs = require("fs");
 class DeploymentValidator extends BaseValidator {
   constructor(publicClient, walletClient, contracts, config) {
     super(publicClient, walletClient, contracts, config);
-    this.newBatchMetadataId = null;
-  }
-
-  async calculateAlignedTimestamps() {
-    const currentTimestamp = BigInt(await time.latest());
-    
-    // Get next 15-second aligned timestamp after current time + settlement delay
-    const baseTime = currentTimestamp + BigInt(this.config.settleMaker.settlementDelay);
-    const secondsIntoMinute = baseTime % 60n;
-    const blockNumber = secondsIntoMinute / 15n;
-    const nextBlockNumber = blockNumber + 1n;
-    const alignedSettlementStart = baseTime + (nextBlockNumber * 15n - secondsIntoMinute);
-    
-    // Calculate other timestamps based on aligned settlement start
-    const alignedVotingStart = alignedSettlementStart + BigInt(this.config.settleMaker.settlementDuration);
-    const alignedVotingEnd = alignedVotingStart + BigInt(this.config.settleMaker.votingDuration);
-
-    return {
-      settlementStart: alignedSettlementStart,
-      votingStart: alignedVotingStart, 
-      votingEnd: alignedVotingEnd
-    };
   }
 
   async start() {
@@ -56,32 +34,6 @@ class DeploymentValidator extends BaseValidator {
     } catch (err) {
       console.error("Error removing temp file:", err);
     }
-  }
-
-  async handleSettlementState() {
-    const timestamps = await this.calculateAlignedTimestamps();
-
-    const tx = await this.contracts.batchMetadataSettlement.write.createBatchMetadataSettlement(
-      [timestamps.settlementStart, timestamps.votingStart, timestamps.votingEnd],
-      { account: this.walletClient.account }
-    );
-
-    const settlementId = await super.getSettlementIdFromReceipt(
-      tx,
-      this.contracts.batchMetadataSettlement
-    );
-
-    // Store batch metadata ID and add to map
-    this.newBatchMetadataId = settlementId;
-
-    console.log(`Created new batch metadata settlement: ${settlementId}`);
-    console.log('Timestamps:');
-    console.log(`- Settlement start: ${timestamps.settlementStart} (${new Date(Number(timestamps.settlementStart) * 1000).toISOString()})`);
-    console.log(`- Voting start: ${timestamps.votingStart} (${new Date(Number(timestamps.votingStart) * 1000).toISOString()})`);
-    console.log(`- Voting end: ${timestamps.votingEnd} (${new Date(Number(timestamps.votingEnd) * 1000).toISOString()})`);
-
-    // Process any settlements in queue
-    await super.handleSettlementState();
   }
 
   async evaluateSettlement(settlementContract, settlementId) {
@@ -124,113 +76,6 @@ class DeploymentValidator extends BaseValidator {
       console.error("Error evaluating validator settlement:", error);
       return false;
     }
-  }
-
-  async handleVotingState() {
-    if (this.hasVoted || !this.newBatchMetadataId) return;
-
-    // First evaluate all settlements
-    await super.handleVotingState();
-
-    // Only proceed if we still have valid settlements after evaluation
-    if (this.settlementsByContract.size === 0) {
-      console.log("No valid settlements after evaluation");
-      return;
-    }
-
-    // Construct merkle tree from all valid settlements
-    const entries = [];
-    for (const [, settlementSet] of this.settlementsByContract) {
-      for (const settlementId of settlementSet) {
-        entries.push([settlementId]);
-      }
-    }
-
-    if (entries.length === 0) {
-      console.log("No settlements to include in merkle tree");
-      return;
-    }
-
-    const merkleTree = StandardMerkleTree.of(entries, ["bytes32"]);
-
-    // Verify merkle proof for batch metadata settlement
-    const proof = merkleTree.getProof([this.newBatchMetadataId]);
-    const isValid = merkleTree.verify([this.newBatchMetadataId], proof);
-    if (!isValid) {
-      console.error(
-        `Invalid merkle proof for batch metadata settlement ${this.newBatchMetadataId}`
-      );
-      return;
-    }
-
-    const storageHash =
-      "0x" +
-      this.storage.store({
-        timestamp: Date.now(),
-        merkleRoot: merkleTree.root,
-        batchMetadataSettlement: this.newBatchMetadataId,
-        otherSettlements: Array.from(entries),
-        batch: Number(this.currentBatch),
-      });
-
-    // Submit soft fork and wait for VoteCast event
-    const tx = await this.contracts.settleMaker.write.submitSoftFork(
-      [merkleTree.root, storageHash, this.newBatchMetadataId, proof],
-      { account: this.walletClient.account }
-    );
-
-    // Verify vote was cast
-    if (await this.verifyVoteCast(tx, merkleTree.root)) {
-      console.log(`Submitted soft fork with root: ${merkleTree.root}`);
-      console.log("Batch metadata settlement:", this.newBatchMetadataId);
-      console.log("All settlements:", entries);
-
-      this.hasVoted = true;
-      console.log(`Vote confirmed for root: ${merkleTree.root}`);
-    } else {
-      console.error("Failed to verify vote cast");
-    }
-  }
-
-  async verifyVoteCast(txHash, expectedRoot) {
-    // Wait for receipt and verify VoteCast event
-    const receipt = await this.publicClient.waitForTransactionReceipt({
-      hash: txHash,
-    });
-
-    // Find VoteCast event in logs
-    const voteCastLog = receipt.logs.find((log) => {
-      try {
-        const event = decodeEventLog({
-          abi: this.contracts.settleMaker.abi,
-          data: log.data,
-          topics: log.topics,
-        });
-        return event.eventName === "VoteCast";
-      } catch {
-        return false;
-      }
-    });
-
-    if (!voteCastLog) {
-      console.error("VoteCast event not found in transaction receipt");
-      return false;
-    }
-
-    // Decode VoteCast event to verify details
-    const voteCastEvent = decodeEventLog({
-      abi: this.contracts.settleMaker.abi,
-      data: voteCastLog.data,
-      topics: voteCastLog.topics,
-    });
-
-    // Verify the vote was cast for our merkle root
-    if (voteCastEvent.args.softForkRoot !== expectedRoot) {
-      console.error("VoteCast event has incorrect softForkRoot");
-      return false;
-    }
-
-    return true;
   }
 
   async handleVotingEndState() {
