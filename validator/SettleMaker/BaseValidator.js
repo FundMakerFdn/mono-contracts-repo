@@ -239,6 +239,7 @@ class BaseValidator {
   }
 
   async handleSettlementState() {
+    this.settlementsByContract.clear();
     const timestamps = await this.calculateAlignedTimestamps();
 
     const timestampArray = [

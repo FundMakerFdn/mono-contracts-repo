@@ -49,6 +49,10 @@ class Validator extends BaseValidator {
     super.handleSettlementState();
   }
 
+  async handleVotingState() {
+    if (this.isWhitelisted) super.handleVotingState();
+  }
+
   async submitWhitelistSettlement() {
     // Check if we're in settlement period
     const currentState = Number(
