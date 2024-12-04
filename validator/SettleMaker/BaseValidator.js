@@ -3,7 +3,13 @@ const MockStorage = require("./storage/mockStorage");
 const {
   time,
 } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
-const { decodeEventLog, toHex, keccak256 } = require("viem");
+const {
+  decodeEventLog,
+  toHex,
+  keccak256,
+  encodeAbiParameters,
+  getAddress,
+} = require("viem");
 
 class BaseValidator {
   constructor(publicClient, walletClient, contracts, config) {
@@ -23,20 +29,27 @@ class BaseValidator {
     this.settlementsByContract = new Map(); // Map<address, Set<string>>
     this.shouldListenSettlements = false;
     this.newBatchMetadataId = null;
+    this.excludeEventsContracts = [
+      "settleMaker",
+      "mockSymm",
+      "batchMetadataSettlement", // each validator generates its own
+    ];
   }
 
   async subscribeToSettlementEvents() {
     // Subscribe to SettlementCreated events for all settlement contracts
     for (const [name, contract] of Object.entries(this.contracts)) {
-      if (name === 'settleMaker' || name === 'mockSymm') continue;
-      
+      if (this.excludeEventsContracts.includes(name)) continue;
+
       await this.subscribeToEvents(
         name,
-        "SettlementCreated", 
+        "SettlementCreated",
         async (event, log) => {
           // Only collect settlements if we've witnessed the settlement state start
           if (!this.shouldListenSettlements) {
-            console.log("Ignoring settlement - waiting to witness settlement state start");
+            console.log(
+              "Ignoring settlement - waiting to witness settlement state start"
+            );
             return;
           }
 
@@ -160,11 +173,13 @@ class BaseValidator {
     if (state !== this.lastState) {
       this.hasActedInState = false;
       this.lastState = state;
-      
+
       // Set shouldListenSettlements when we see state transition to SETTLEMENT (1)
       if (state === 1) {
         this.shouldListenSettlements = true;
-        console.log("Witnessed start of settlement state - will begin collecting settlements");
+        console.log(
+          "Witnessed start of settlement state - will begin collecting settlements"
+        );
       }
     }
 
@@ -199,46 +214,76 @@ class BaseValidator {
 
   async calculateAlignedTimestamps() {
     const currentTimestamp = BigInt(await time.latest());
-    
+
     // Get next 15-second aligned timestamp after current time + settlement delay
-    const baseTime = currentTimestamp + BigInt(this.config.settleMaker.settlementDelay);
+    const baseTime =
+      currentTimestamp + BigInt(this.config.settleMaker.settlementDelay);
     const secondsIntoMinute = baseTime % 60n;
     const blockNumber = secondsIntoMinute / 15n;
     const nextBlockNumber = blockNumber + 1n;
-    const alignedSettlementStart = baseTime + (nextBlockNumber * 15n - secondsIntoMinute);
-    
+    const alignedSettlementStart =
+      baseTime + (nextBlockNumber * 15n - secondsIntoMinute);
+
     // Calculate other timestamps based on aligned settlement start
-    const alignedVotingStart = alignedSettlementStart + BigInt(this.config.settleMaker.settlementDuration);
-    const alignedVotingEnd = alignedVotingStart + BigInt(this.config.settleMaker.votingDuration);
+    const alignedVotingStart =
+      alignedSettlementStart +
+      BigInt(this.config.settleMaker.settlementDuration);
+    const alignedVotingEnd =
+      alignedVotingStart + BigInt(this.config.settleMaker.votingDuration);
 
     return {
       settlementStart: alignedSettlementStart,
-      votingStart: alignedVotingStart, 
-      votingEnd: alignedVotingEnd
+      votingStart: alignedVotingStart,
+      votingEnd: alignedVotingEnd,
     };
   }
 
   async handleSettlementState() {
     const timestamps = await this.calculateAlignedTimestamps();
 
-    const tx = await this.contracts.batchMetadataSettlement.write.createBatchMetadataSettlement(
-      [timestamps.settlementStart, timestamps.votingStart, timestamps.votingEnd],
-      { account: this.walletClient.account }
-    );
+    const timestampArray = [
+      timestamps.settlementStart,
+      timestamps.votingStart,
+      timestamps.votingEnd,
+    ];
+    const tx =
+      await this.contracts.batchMetadataSettlement.write.createBatchMetadataSettlement(
+        timestampArray,
+        { account: this.walletClient.account }
+      );
 
-    const settlementId = await this.getSettlementIdFromReceipt(
-      tx,
-      this.contracts.batchMetadataSettlement
+    const settlementId = keccak256(
+      encodeAbiParameters(
+        [{ type: "uint256" }, { type: "uint256" }, { type: "uint256" }],
+        timestampArray
+      )
     );
-
+    console.log(settlementId);
     // Store batch metadata ID and add to map
     this.newBatchMetadataId = settlementId;
 
+    await this.addSettlementToMap(
+      settlementId,
+      this.contracts.batchMetadataSettlement.address
+    );
+
     console.log(`Created new batch metadata settlement: ${settlementId}`);
-    console.log('Timestamps:');
-    console.log(`- Settlement start: ${timestamps.settlementStart} (${new Date(Number(timestamps.settlementStart) * 1000).toISOString()})`);
-    console.log(`- Voting start: ${timestamps.votingStart} (${new Date(Number(timestamps.votingStart) * 1000).toISOString()})`);
-    console.log(`- Voting end: ${timestamps.votingEnd} (${new Date(Number(timestamps.votingEnd) * 1000).toISOString()})`);
+    console.log("Timestamps:");
+    console.log(
+      `- Settlement start: ${timestamps.settlementStart} (${new Date(
+        Number(timestamps.settlementStart) * 1000
+      ).toISOString()})`
+    );
+    console.log(
+      `- Voting start: ${timestamps.votingStart} (${new Date(
+        Number(timestamps.votingStart) * 1000
+      ).toISOString()})`
+    );
+    console.log(
+      `- Voting end: ${timestamps.votingEnd} (${new Date(
+        Number(timestamps.votingEnd) * 1000
+      ).toISOString()})`
+    );
   }
 
   async evaluateSettlement(settlementContract, settlementId) {
@@ -394,8 +439,58 @@ class BaseValidator {
     );
   }
 
+  async evaluateSettlement(settlementContract, settlementId) {
+    // Only do additional checks for validator settlements
+    if (
+      getAddress(settlementContract) !==
+      getAddress(this.contracts.validatorSettlement.address)
+    ) {
+      return true;
+    }
+
+    try {
+      // Get validator parameters for this settlement
+      const params =
+        await this.contracts.validatorSettlement.read.getValidatorParameters([
+          settlementId,
+        ]);
+
+      // Check if this is an add validator settlement (not a removal)
+      if (!params.isAdd) {
+        return true; // No balance check needed for removals
+      }
+
+      // Get validator's SYMM balance
+      const balance = await this.contracts.mockSymm.read.balanceOf([
+        params.validator,
+      ]);
+
+      // Check if validator has enough SYMM
+      if (balance < params.requiredSymmAmount) {
+        console.log(
+          `Validator ${params.validator} has insufficient SYMM balance`
+        );
+        console.log(`Required: ${params.requiredSymmAmount}, Has: ${balance}`);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error evaluating validator settlement:", error);
+      return false;
+    }
+  }
+
   async handleVotingEndState() {
-    console.log("Base: Doing nothing in VOTING_END state");
+    console.log("Base: Doing nothing in VOTING_END state, resetting cycle");
+    this.resetBatchState();
+  }
+
+  resetBatchState() {
+    this.settlementsByContract.clear();
+    this.newBatchMetadataId = null;
+    this.hasVoted = false;
+    console.log("Reset batch state");
   }
 
   stop() {

@@ -45,14 +45,24 @@ contract BatchMetadataSettlement is IBatchMetadataSettlement, Settlement {
         uint256 votingEnd
     ) external returns (bytes32) {
         require(votingEnd > votingStart, "Invalid voting end");
-        require(votingStart > settlementStart, "Invalid voting start");
+        require(
+			votingStart > settlementStart &&
+			votingStart > block.timestamp,
+		"Invalid voting start");
         //require(settlementStart > block.timestamp, "Invalid settlement start");
 
-        bytes32 settlementId = _createSettlementId(abi.encode(
+        bytes32 settlementId = keccak256(abi.encode(
             settlementStart,
             votingStart,
             votingEnd
         ));
+
+		// For BatchMetadataSettlement, validators should calculate settlementId manually instead of
+		// listening to the settlement creation event, since the same batch metadata may already exist
+		if (batchMetadataParameters[settlementId].votingEnd != 0) return settlementId;
+
+		// Timestamps are already included
+        // bytes32 settlementId = _createSettlementId(abi.encode(
         
         settlements[settlementId] = 0;
 
@@ -63,7 +73,7 @@ contract BatchMetadataSettlement is IBatchMetadataSettlement, Settlement {
         });
 
         batchMetadataParameters[settlementId] = params;
-        
+
         emit SettlementCreated(settlementId, msg.sender, address(this));
         
         return settlementId;
