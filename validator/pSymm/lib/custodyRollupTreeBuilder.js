@@ -4,23 +4,23 @@ const fs = require('fs');
 const path = require('path');
 const mockAccount = require('./mockAccount.json');
 const { getRollupBytes32 } = require('../../../test/pSymm/contract/pSymm.collateral.js');
-const { signCreateCustodyRollupParams, signTransferToCustodyRollupParams, signTransferFromCustodyRollupParams } = require('../../../test/pSymm/contract/pSymm.EIP712.js');
+const { signCreateCustodyParams, signTransferToCustodyParams, signTransferFromCustodyParams } = require('../../../test/pSymm/contract/pSymm.EIP712.js');
 
 
-class CustodyRollupTree {
-    constructor(addressA, addressB, custodyRollupId) {
+class custodyTree {
+    constructor(addressA, addressB, custodyId) {
         this.addressA = addressA;
         this.addressB = addressB;
-        this.custodyRollupId = custodyRollupId;
+        this.custodyId = custodyId;
         this.transactions = [];
         this.loadOrCreateJson();
     }
 
     loadOrCreateJson() {
-        const dirA = path.join(__dirname, `./custodyRollupId/${this.addressA}`);
-        const dirB = path.join(__dirname, `./custodyRollupId/${this.addressB}`);
-        const filePathA = path.join(dirA, `${this.custodyRollupId}.json`);
-        const filePathB = path.join(dirB, `${this.custodyRollupId}.json`);
+        const dirA = path.join(__dirname, `./custodyId/${this.addressA}`);
+        const dirB = path.join(__dirname, `./custodyId/${this.addressB}`);
+        const filePathA = path.join(dirA, `${this.custodyId}.json`);
+        const filePathB = path.join(dirB, `${this.custodyId}.json`);
 
         if (!fs.existsSync(filePathA) || !fs.existsSync(filePathB)) {
             fs.mkdirSync(dirA, { recursive: true });
@@ -63,8 +63,8 @@ class CustodyRollupTree {
             },
             build: () => {
                 const filePath = (this.authenticatedAddress.toLowerCase() === this.addressA.toLowerCase()) ? 
-                    path.join(__dirname, `./custodyRollupId/${this.addressA}/${this.custodyRollupId}.json`) : 
-                    path.join(__dirname, `./custodyRollupId/${this.addressB}/${this.custodyRollupId}.json`);
+                    path.join(__dirname, `./custodyId/${this.addressA}/${this.custodyId}.json`) : 
+                    path.join(__dirname, `./custodyId/${this.addressB}/${this.custodyId}.json`);
                 
                 const jsonData = JSON.parse(fs.readFileSync(filePath));
                 jsonData.push(tx);
@@ -77,8 +77,8 @@ class CustodyRollupTree {
     }
 
     receipt(send = false) {
-        const ownFilePath = this.isA ? path.join(__dirname, `./custodyRollupId/${this.addressA}/${this.custodyRollupId}.json`) : path.join(__dirname, `./custodyRollupId/${this.addressB}/${this.custodyRollupId}.json`);
-        const counterpartyFilePath = this.isA ? path.join(__dirname, `./custodyRollupId/${this.addressB}/${this.custodyRollupId}.json`) : path.join(__dirname, `./custodyRollupId/${this.addressA}/${this.custodyRollupId}.json`);
+        const ownFilePath = this.isA ? path.join(__dirname, `./custodyId/${this.addressA}/${this.custodyId}.json`) : path.join(__dirname, `./custodyId/${this.addressB}/${this.custodyId}.json`);
+        const counterpartyFilePath = this.isA ? path.join(__dirname, `./custodyId/${this.addressB}/${this.custodyId}.json`) : path.join(__dirname, `./custodyId/${this.addressA}/${this.custodyId}.json`);
         
         const ownJsonData = JSON.parse(fs.readFileSync(ownFilePath));
         const counterpartyJsonData = JSON.parse(fs.readFileSync(counterpartyFilePath));
@@ -142,12 +142,12 @@ class CustodyRollupTree {
 }
 
 
-async function sendTransaction(isA, publicKeyA, publicKeyB, privateKey, custodyRollupId) {
-    const basePath = path.join(__dirname, './custodyRollupId');
+async function sendTransaction(isA, publicKeyA, publicKeyB, privateKey, custodyId) {
+    const basePath = path.join(__dirname, './custodyId');
     const senderDirectory = isA ? publicKeyA : publicKeyB;
     const receiverDirectory = isA ? publicKeyB : publicKeyA;
-    const senderFilePath = path.join(basePath, senderDirectory, `${custodyRollupId}.json`);
-    const receiverFilePath = path.join(basePath, receiverDirectory, `${custodyRollupId}.json`);
+    const senderFilePath = path.join(basePath, senderDirectory, `${custodyId}.json`);
+    const receiverFilePath = path.join(basePath, receiverDirectory, `${custodyId}.json`);
 
     const transactions = JSON.parse(fs.readFileSync(senderFilePath));
 
@@ -170,14 +170,14 @@ async function sendTransaction(isA, publicKeyA, publicKeyB, privateKey, custodyR
     if (lastUnsignedTx.eip712Type) {
         const pSymmAddress = '0x680471Fd71f207f8643B76Ba0414eE4D952484C7'; // <-- Replace this with your actual contract address
         switch (lastUnsignedTx.eip712Type) {
-            case 'CreateCustodyRollupParams':
-                signature = await signCreateCustodyRollupParams(lastUnsignedTx.params, privateKey, pSymmAddress);
+            case 'CreateCustodyParams':
+                signature = await signCreateCustodyParams(lastUnsignedTx.params, privateKey, pSymmAddress, custodyId);
                 break;
-            case 'TransferToCustodyRollupParams':
-                signature = await signTransferToCustodyRollupParams(lastUnsignedTx.params, privateKey, pSymmAddress);
+            case 'TransferToCustodyParams':
+                signature = await signTransferToCustodyParams(lastUnsignedTx.params, privateKey, pSymmAddress, custodyId);
                 break;
-            case 'TransferFromCustodyRollupParams':
-                signature = await signTransferFromCustodyRollupParams(lastUnsignedTx.params, privateKey, pSymmAddress);
+            case 'TransferFromCustodyParams':
+                signature = await signTransferFromCustodyParams(lastUnsignedTx.params, privateKey, pSymmAddress, custodyId);
                 break;
             default:
                 throw new Error(`Unsupported EIP712 type: ${lastUnsignedTx.eip712Type}`);
@@ -207,8 +207,8 @@ async function sendTransaction(isA, publicKeyA, publicKeyB, privateKey, custodyR
 
 
 
-function resetCustodyRollupIdFolder() {
-    const directoryPath = path.join(__dirname, './custodyRollupId');
+function resetCustodyIdFolder() {
+    const directoryPath = path.join(__dirname, './custodyId');
     if (fs.existsSync(directoryPath)) {
         fs.readdirSync(directoryPath).forEach(file => {
             const filePath = path.join(directoryPath, file);
@@ -217,75 +217,9 @@ function resetCustodyRollupIdFolder() {
     }
 }
 
-resetCustodyRollupIdFolder();
-const addressA = mockAccount[0].publicKey;
-const addressB = mockAccount[1].publicKey;
-const pkA = mockAccount[0].privateKey;
-const pkB = mockAccount[1].privateKey;
-const custodyRollupId = getRollupBytes32(addressA, addressB, 1);
 
-const rollupA = new CustodyRollupTree(addressA, addressB, custodyRollupId);
-const rollupB = new CustodyRollupTree(addressB, addressA, custodyRollupId);
-rollupA.auth(true, privateKeyToAccount(pkA));
-rollupB.auth(false, privateKeyToAccount(pkB));
-
-rollupA.newTx("rfa/swap/open")
-    .param("ISIN", "BTC")
-    .param("amount", "1000000000000000000")
-    .param("price", "1000000000000000000")
-    .param("side", "buy")
-    .param("fundingRate", 1)
-    .param("IM_A", "1000000000000000000")
-    .param("IM_B", "1000000000000000000")
-    .param("MM_A", "1000000000000000000")
-    .param("MM_B", "1000000000000000000")
-    .param("CVA_A", "1000000000000000000")
-    .param("CVA_B", "1000000000000000000")
-    .param("MC_A", "1000000000000000000")
-    .param("MC_B", "1000000000000000000")
-    .param("contractExpiry", 1723232323232)
-    .param("pricePrecision", 3)
-    .param("fundingRatePrecision", 3)
-    .param("cancelGracePeriod", 30000)
-    .param("minContractAmount", 10)
-    .param("oracleType", "mock")
-    .param("expiration", Date.now() + 1000000)
-    .param("timestamp", Date.now())
-    .param("nonce", `0xA0`)
-    .build();
-
-(async () => {
-    await sendTransaction(true, addressA, addressB, pkA, custodyRollupId);
-})();
-
-// Create a new transaction with specific parameters
-rollupB.newTx("rfqFill/swap/open")
-    .param("amount", "1000000000000000000")
-    .param("price", "1000000000000000000")
-    .param("rfqNonce", "0xA0")
-    .param("expiration", Date.now() + 1000000 )
-    .param("timestamp", Date.now())
-    .param("nonce", `0xB1`)
-    .build();
-
-(async () => {
-    await sendTransaction(false, addressB, addressA, pkB, custodyRollupId);
-})();
-
-rollupA.newTx("custodyRollup/deposit/erc20")
-    .eip712("TransferToCustodyRollupParams")
-    .param("partyA", addressA)
-    .param("partyB", addressB)
-    .param("custodyRollupId", 1)
-    .param("collateralAmount", "10")
-    .param("collateralToken", "0xB234567890123456789012345678901234567890")
-    .param("expiration", Date.now() + 1000000)
-    .param("timestamp", Date.now())
-    .param("nonce", `0xA2`)
-    .build();
-
-(async () => {
-    await sendTransaction(true, addressA, addressB, pkA, custodyRollupId);
-})();
-    
-
+module.exports{
+    resetCustodyIdFolder,
+    sendTransaction,
+    custodyTree,
+}

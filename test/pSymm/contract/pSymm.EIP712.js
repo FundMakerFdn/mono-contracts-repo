@@ -9,14 +9,14 @@ const hre = require("hardhat");
 async function getDomain(pSymmAddress) {
     const chainId = 31337;
     return {
-        name: 'CustodyRollup',
+        name: 'Custody',
         version: '1.0',
         chainId: chainId,
         verifyingContract: pSymmAddress
     };
 }
 
-async function signCreateCustodyRollupParams(params, privateKey, pSymmAddress) {
+async function signCreateCustodyParams(params, privateKey, pSymmAddress, custodyId) {
     const domain = await getDomain(pSymmAddress);
 
     const types = {
@@ -26,10 +26,10 @@ async function signCreateCustodyRollupParams(params, privateKey, pSymmAddress) {
             { name: 'chainId', type: 'uint256' },
             { name: 'verifyingContract', type: 'address' }
         ],
-        createCustodyRollupParams: [
+        createCustodyParams: [
             { name: 'partyA', type: 'address' },
             { name: 'partyB', type: 'address' },
-            { name: 'custodyRollupId', type: 'uint256' },
+            { name: 'custodyId', type: 'uint256' },
             { name: 'settlementAddress', type: 'address' },
             { name: 'MA', type: 'bytes32' },
             { name: 'isManaged', type: 'bool' },
@@ -42,29 +42,19 @@ async function signCreateCustodyRollupParams(params, privateKey, pSymmAddress) {
     return await signTypedData({
         domain,
         types,
-        primaryType: 'createCustodyRollupParams',
+        primaryType: 'createCustodyParams',
         value: params,
         privateKey
     });
 }
 
-async function signTransferToCustodyRollupParams(params, privateKey, pSymmAddress) {
+async function signTransferToCustodyParams(params, privateKey, pSymmAddress, custodyId) {
     console.log("Params being signed:", params);
-
-    // More robust validation
-    if (!params) {
-        throw new Error("Params object is undefined");
-    }
-
-    // Convert custodyRollupId to a number if it's a hex string
-    const custodyRollupId = params.custodyRollupId.startsWith('0x') 
-        ? BigInt(params.custodyRollupId).toString() 
-        : params.custodyRollupId;
 
     const value = {
         partyA: params.partyA,
         partyB: params.partyB,
-        custodyRollupId: custodyRollupId,
+        custodyId: custodyId,
         collateralAmount: BigInt(params.collateralAmount),
         collateralToken: params.collateralToken,
         expiration: BigInt(params.expiration),
@@ -75,35 +65,35 @@ async function signTransferToCustodyRollupParams(params, privateKey, pSymmAddres
     const domain = await getDomain(pSymmAddress);
 
     const types = {
-        transferToCustodyRollupParams: [
+        transferToCustodyParams: [
             { name: 'partyA', type: 'address' },
             { name: 'partyB', type: 'address' },
-            { name: 'custodyRollupId', type: 'uint256' },
+            { name: 'custodyId', type: 'uint256' },
             { name: 'collateralAmount', type: 'uint256' },
             { name: 'collateralToken', type: 'address' },
             { name: 'expiration', type: 'uint256' },
             { name: 'timestamp', type: 'uint256' },
-            { name: 'nonce', type: 'bytes32' }
+            { name: 'nonce', type: 'bytes32' }  
         ]
     };
 
     return await signTypedData({
         domain,
         types,
-        primaryType: 'transferToCustodyRollupParams',
+        primaryType: 'transferToCustodyParams',
         value,
         privateKey
     });
 }
 
-async function signTransferFromCustodyRollupParams(params, privateKey, pSymmAddress) {
+async function signTransferFromCustodyParams(params, privateKey, pSymmAddress, custodyId) {
     const domain = await getDomain(pSymmAddress);
 
     const types = {
-        transferFromCustodyRollupParams: [
+        transferFromCustodyParams: [
             { name: 'partyA', type: 'address' },
             { name: 'partyB', type: 'address' },
-            { name: 'custodyRollupId', type: 'uint256' },
+            { name: 'custodyId', type: 'uint256' },
             { name: 'collateralAmount', type: 'uint256' },
             { name: 'collateralToken', type: 'address' },
             { name: 'expiration', type: 'uint256' },
@@ -121,7 +111,7 @@ async function signTransferFromCustodyRollupParams(params, privateKey, pSymmAddr
 }
 
 module.exports = {
-    signCreateCustodyRollupParams,
-    signTransferToCustodyRollupParams,
-    signTransferFromCustodyRollupParams
+    signCreateCustodyParams,
+    signTransferToCustodyParams,
+    signTransferFromCustodyParams
 };

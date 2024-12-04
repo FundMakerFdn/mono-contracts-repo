@@ -21,8 +21,8 @@ async function signEarlyAgreementParams(params, privateKey, pSymmSettlementAddre
     const types = {
         EarlyAgreement: [
             { name: 'settlementId', type: 'bytes32' },
-            { name: 'custodyRollupTarget', type: 'bytes32' },
-            { name: 'custodyRollupReceiver', type: 'bytes32' },
+            { name: 'custodyTarget', type: 'bytes32' },
+            { name: 'custodyReceiver', type: 'bytes32' },
             { name: 'collateralToken', type: 'address' },
             { name: 'collateralAmount', type: 'uint256' },
             { name: 'expiration', type: 'uint256' },
@@ -46,12 +46,12 @@ async function shouldExecuteEarlyAgreement() {
         const { pSymmSettlement, pSymm, partyA, partyB, mockUSDC } = await loadFixture(deployFixture);
 
         // Assume a settlement has been opened
-        const custodyRollupId = keccak256(encodePacked(['address', 'address', 'uint256'], [partyA.account.address, partyB.account.address, 1]));
+        const custodyId = keccak256(encodePacked(['address', 'address', 'uint256'], [partyA.account.address, partyB.account.address, 1]));
         const merkleRoot = keccak256(encodePacked(['string'], ["merkleRoot"]));
         const settlementId = await pSymmSettlement.write.openSettlement([
             partyA.account.address,
             partyB.account.address,
-            custodyRollupId,
+            custodyId,
             merkleRoot,
             true
         ], {
@@ -60,8 +60,8 @@ async function shouldExecuteEarlyAgreement() {
 
         const params = {
             settlementId,
-            custodyRollupTarget: custodyRollupId,
-            custodyRollupReceiver: custodyRollupId, // Assuming same for simplicity
+            custodyTarget: custodyId,
+            custodyReceiver: custodyId, // Assuming same for simplicity
             collateralToken: mockUSDC.address,
             collateralAmount: parseEther("100"),
             expiration: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
@@ -76,8 +76,8 @@ async function shouldExecuteEarlyAgreement() {
 
         await pSymmSettlement.write.executeEarlyAgreement([
             params.settlementId,
-            params.custodyRollupTarget,
-            params.custodyRollupReceiver,
+            params.custodyTarget,
+            params.custodyReceiver,
             params.collateralToken,
             params.collateralAmount,
             params.expiration,

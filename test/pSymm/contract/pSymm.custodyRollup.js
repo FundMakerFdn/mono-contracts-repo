@@ -5,7 +5,7 @@ const { getRollupBytes32 } = require("./pSymm.collateral");
 const { signTypedData } = require('viem/accounts');
 const { privateKeyToAccount } = require('viem/accounts');
 const hre = require("hardhat");
-const { signCreateCustodyRollupParams, signTransferToCustodyRollupParams, signTransferFromCustodyRollupParams } = require('./pSymm.EIP712');
+const { signCreateCustodyParams, signTransferToCustodyParams, signTransferFromCustodyParams } = require('./pSymm.EIP712');
 
          
 async function shouldInitAndTransferRollup() {
@@ -15,7 +15,7 @@ async function shouldInitAndTransferRollup() {
         const params = {
             partyA: partyA.account.address,
             partyB: partyB.account.address,
-            custodyRollupId: 1,
+            custodyId: 1,
             settlementAddress: "0x0000000000000000000000000000000000000000", // Mock settlement address
             MA: "0x0000000000000000000000000000000000000000000000000000000000000000", // Mock MA as bytes32
             isManaged: false,
@@ -24,19 +24,19 @@ async function shouldInitAndTransferRollup() {
             nonce: "0xA000000000000000000000000000000000000000000000000000000000000000" // Mock nonce starting with 0xA
         };
 
-        const signatureA = await signCreateCustodyRollupParams(params, partyA.privateKey, pSymm.address);
-        const signatureB = await signCreateCustodyRollupParams(params, partyB.privateKey, pSymm.address);
+        const signatureA = await signCreateCustodyParams(params, partyA.privateKey, pSymm.address);
+        const signatureB = await signCreateCustodyParams(params, partyB.privateKey, pSymm.address);
 
         params.signatureA = signatureA;
         params.signatureB = signatureB;
 
-        await pSymm.createCustodyRollup(params);
+        await pSymm.CreateCustody(params);
 
-        const custodyRollupId = getRollupBytes32(params.partyA, params.partyB, params.custodyRollupId);
-        const custodyRollup = await pSymm.getCustodyRollup(custodyRollupId);
+        const custodyId = getRollupBytes32(params.partyA, params.partyB, params.custodyId);
+        const custody = await pSymm.getCustody(custodyId);
 
-        assert.equal(custodyRollup.partyA, params.partyA, "Custody rollup partyA mismatch");
-        assert.equal(custodyRollup.partyB, params.partyB, "Custody rollup partyB mismatch");
+        assert.equal(custody.partyA, params.partyA, "Custody rollup partyA mismatch");
+        assert.equal(custody.partyB, params.partyB, "Custody rollup partyB mismatch");
     });
 
     it("should transfer to a custody rollup with EIP-712 signature", async function () {
@@ -45,7 +45,7 @@ async function shouldInitAndTransferRollup() {
         const params = {
             partyA: partyA.account.address,
             partyB: partyB.account.address,
-            custodyRollupId: 1,
+            custodyId: 1,
             collateralAmount: parseEther("100"),
             collateralToken: mockUSDC.address,
             expiration: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
@@ -53,16 +53,16 @@ async function shouldInitAndTransferRollup() {
             nonce: "0xA100000000000000000000000000000000000000000000000000000000000000" // Mock nonce starting with 0xA1
         };
 
-        const signatureA = await signTransferToCustodyRollupParams(params, partyA.privateKey, pSymm.address);
-        const signatureB = await signTransferToCustodyRollupParams(params, partyB.privateKey, pSymm.address);
+        const signatureA = await signTransferToCustodyParams(params, partyA.privateKey, pSymm.address);
+        const signatureB = await signTransferToCustodyParams(params, partyB.privateKey, pSymm.address);
 
         params.signatureA = signatureA;
         params.signatureB = signatureB;
 
-        await pSymm.transferToCustodyRollup(params, 1);
+        await pSymm.transferToCustody(params, 1);
 
-        const custodyRollupId = getRollupBytes32(params.partyA, params.partyB, params.custodyRollupId);
-        const balance = await pSymm.getCustodyRollupBalance(custodyRollupId, params.collateralToken);
+        const custodyId = getRollupBytes32(params.partyA, params.partyB, params.custodyId);
+        const balance = await pSymm.getCustodyBalance(custodyId, params.collateralToken);
 
         assert.equal(balance.toString(), params.collateralAmount.toString(), "Transfer to custody rollup failed");
     });
@@ -73,7 +73,7 @@ async function shouldInitAndTransferRollup() {
         const params = {
             partyA: partyA.account.address,
             partyB: partyB.account.address,
-            custodyRollupId: 1,
+            custodyId: 1,
             collateralAmount: parseEther("100"),
             collateralToken: mockUSDC.address,
             expiration: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
@@ -81,17 +81,17 @@ async function shouldInitAndTransferRollup() {
             nonce: "0xA200000000000000000000000000000000000000000000000000000000000000" // Mock nonce starting with 0xA2
         };
 
-        const signatureA = await signTransferFromCustodyRollupParams(params, partyA.privateKey, pSymm.address);
-        const signatureB = await signTransferFromCustodyRollupParams(params, partyB.privateKey, pSymm.address);
+        const signatureA = await signTransferFromCustodyParams(params, partyA.privateKey, pSymm.address);
+        const signatureB = await signTransferFromCustodyParams(params, partyB.privateKey, pSymm.address);
 
         params.signatureA = signatureA;
         params.signatureB = signatureB;
 
-        const receiverCustodyRollupId = getRollupBytes32(partyB.account.address, partyB.account.address, 2);
+        const receiverCustodyId = getRollupBytes32(partyB.account.address, partyB.account.address, 2);
 
-        await pSymm.transferFromCustodyRollup(params, receiverCustodyRollupId);
+        await pSymm.transferFromCustody(params, receiverCustodyId);
 
-        const balance = await pSymm.getCustodyRollupBalance(receiverCustodyRollupId, params.collateralToken);
+        const balance = await pSymm.getCustodyBalance(receiverCustodyId, params.collateralToken);
 
         assert.equal(balance.toString(), params.collateralAmount.toString(), "Transfer from custody rollup failed");
     });

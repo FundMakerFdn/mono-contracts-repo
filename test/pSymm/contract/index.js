@@ -1,6 +1,6 @@
 const { shouldDeployPSymm } = require('./pSymm.deployment');
 const { shouldDepositAndWithdrawCollateral } = require('./pSymm.collateral');
-const { shouldInitAndTransferRollup } = require('./pSymm.custodyRollup');
+const { shouldInitAndTransferRollup } = require('./pSymm.custody');
 const { shouldOpenSettlement } = require('./pSymm.settlement');
 const { shouldExecuteEarlyAgreement } = require('./pSymm.settlement.earlyAgreement');
 const { shouldExecuteInstantWithdraw } = require('./pSymm.settlement.instantWithdraw');

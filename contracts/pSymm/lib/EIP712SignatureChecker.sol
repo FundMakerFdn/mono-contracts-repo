@@ -7,12 +7,12 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 library EIP712SignatureChecker {
     using ECDSA for bytes32;
 
-    struct createCustodyRollupParams {
+    struct createCustodyParams {
         bytes32 signatureA;
         bytes32 signatureB;
         address partyA;
         address partyB;
-        uint256 custodyRollupId;
+        uint256 custodyId;
         address settlementAddress;
         bytes32 MA;
         bool isManaged;
@@ -21,27 +21,15 @@ library EIP712SignatureChecker {
         bytes32 nonce;
     }
 
-    struct transferToCustodyRollupParams {
+    struct transferToCustodyParams {
         bytes32 signatureA;
         bytes32 signatureB;
         address partyA;
         address partyB;
-        uint256 custodyRollupId;
+        uint256 custodyId;
         uint256 collateralAmount;
         address collateralToken;
-        uint256 expiration;
-        uint256 timestamp;
-        bytes32 nonce;
-    }
-    
-    struct transferFromCustodyRollupParams {
-        bytes32 signatureA;
-        bytes32 signatureB;
-        address partyA;
-        address partyB;
-        uint256 custodyRollupId;
-        uint256 collateralAmount;
-        address collateralToken;
+        bytes32 senderCustodyId
         uint256 expiration;
         uint256 timestamp;
         bytes32 nonce;
@@ -52,36 +40,32 @@ library EIP712SignatureChecker {
         bytes32 signatureB;
         address partyA;
         address partyB;
-        uint256 custodyRollupId;
+        uint256 custodyId;
         bytes32 MA;
         uint256 expiration;
         uint256 timestamp;
         bytes32 nonce;
     }
 
-    bytes32 private constant CREATE_CUSTODYROLLUP_TYPEHASH = keccak256(
-        "createCustodyRollupParams(address partyA,address partyB,uint256 custodyRollupId,address settlementAddress,bytes32 MA,bool isManaged,uint256 expiration,uint256 timestamp,bytes32 nonce)"
+    bytes32 private constant CREATE_CUSTODY_TYPEHASH = keccak256(
+        "createCustodyParams(address partyA,address partyB,uint256 custodyId,address settlementAddress,bytes32 MA,bool isManaged,uint256 expiration,uint256 timestamp,bytes32 nonce)"
     );
 
-    bytes32 private constant TRANSFER_TO_CUSTODYROLLUP_TYPEHASH = keccak256(
-        "transferToCustodyRollupParams(address partyA,address partyB,uint256 custodyRollupId,uint256 collateralAmount,address collateralToken,uint256 expiration,uint256 timestamp,bytes32 nonce)"
-    );
-
-    bytes32 private constant TRANSFER_FROM_CUSTODYROLLUP_TYPEHASH = keccak256(
-        "transferFromCustodyRollupParams(address partyA,address partyB,uint256 custodyRollupId,uint256 collateralAmount,address collateralToken,uint256 expiration,uint256 timestamp,bytes32 nonce)"
+    bytes32 private constant TRANSFER_TO_CUSTODY_TYPEHASH = keccak256(
+        "transferToCustodyParams(address partyA,address partyB,uint256 custodyId,uint256 collateralAmount,address collateralToken,uint256 expiration,uint256 timestamp,bytes32 nonce)"
     );
 
     bytes32 private constant UPDATE_MA_TYPEHASH = keccak256(
-        "updateMAParams(address partyA,address partyB,uint256 custodyRollupId,bytes32 MA,uint256 expiration,uint256 timestamp,bytes32 nonce)"
+        "updateMAParams(address partyA,address partyB,uint256 custodyId,bytes32 MA,uint256 expiration,uint256 timestamp,bytes32 nonce)"
     );
 
-    function verifyCreateCustodyRollupEIP712(createCustodyRollupParams memory params) internal pure returns (bool) {
+    function verifyCreateCustodyEIP712(createCustodyParams memory params) internal pure returns (bool) {
         bytes32 structHash = keccak256(
             abi.encode(
-                CREATE_CUSTODYROLLUP_TYPEHASH,
+                CREATE_CUSTODY_TYPEHASH,
                 params.partyA,
                 params.partyB,
-                params.custodyRollupId,
+                params.custodyId,
                 params.settlementAddress,   
                 params.MA,
                 params.isManaged,
@@ -105,13 +89,13 @@ library EIP712SignatureChecker {
         return true;
     }
 
-    function verifyTransferToCustodyRollupEIP712(transferToCustodyRollupParams memory params) internal pure returns (bool) {
+    function verifyTransferToCustodyEIP712(transferToCustodyParams memory params) internal pure returns (bool) {
         bytes32 structHashSender = keccak256(
             abi.encode(
-                TRANSFER_TO_CUSTODYROLLUP_TYPEHASH,
+                TRANSFER_TO_CUSTODY_TYPEHASH,
                 params.partyA,
                 params.partyB,
-                params.custodyRollupId,
+                params.custodyId,
                 params.collateralAmount,
                 params.collateralToken,
                 params.expiration,
@@ -134,42 +118,13 @@ library EIP712SignatureChecker {
         return true;
     }
 
-    function verifyTransferFromCustodyRollupEIP712(transferFromCustodyRollupParams memory params) internal pure returns (bool) {
-        bytes32 structHash = keccak256(
-            abi.encode(
-                TRANSFER_FROM_CUSTODYROLLUP_TYPEHASH,
-                params.partyA,
-                params.partyB,
-                params.custodyRollupId,
-                params.collateralAmount,
-                params.collateralToken,
-                params.expiration,
-                params.timestamp,
-                keccak256(abi.encodePacked(params.nonce))
-            )
-        );
-
-        require(
-            verifySignature(
-                structHash, 
-                abi.encodePacked(params.signatureA), 
-                abi.encodePacked(params.signatureB), 
-                params.partyA, 
-                params.partyB
-            ),
-            "Invalid signature"
-        );
-
-        return true;
-    }
-
     function verifyUpdateMAEIP712(updateMAParams memory params) internal pure returns (bool) {
         bytes32 structHash = keccak256(
             abi.encode(
                 UPDATE_MA_TYPEHASH,
                 params.partyA,
                 params.partyB,
-                params.custodyRollupId,
+                params.custodyId,
                 params.MA,
                 params.expiration,
                 params.timestamp,

@@ -16,13 +16,13 @@ async function shouldOpenSettlement() {
   it("should open a settlement", async function () {
     const { pSymmSettlement, partyA, partyB } = await loadFixture(deployFixture);
 
-    const custodyRollupId = keccak256(encodePacked(['address', 'address', 'uint256'], [partyA.account.address, partyB.account.address, 1]));
+    const custodyId = keccak256(encodePacked(['address', 'address', 'uint256'], [partyA.account.address, partyB.account.address, 1]));
     const merkleRoot = keccak256(encodePacked(['string'], ["merkleRoot"]));
 
     const tx = await pSymmSettlement.write.openSettlement([
       partyA.account.address,
       partyB.account.address,
-      custodyRollupId,
+      custodyId,
       merkleRoot,
       true
     ], {
@@ -31,7 +31,7 @@ async function shouldOpenSettlement() {
 
     const settlementId = keccak256(encodePacked(
       ['bytes32', 'bytes32', 'bool', 'address', 'uint256', 'uint256'],
-      [custodyRollupId, merkleRoot, true, partyA.account.address, tx.blockNumber, tx.blockNumber]
+      [custodyId, merkleRoot, true, partyA.account.address, tx.blockNumber, tx.blockNumber]
     ));
 
     const settlementData = await pSymmSettlement.read.getSettlementData([settlementId]);
@@ -47,8 +47,8 @@ async function shouldOpenSettlement() {
       "Party B address mismatch"
     );
     assert.equal(
-      settlementData.custodyRollupId,
-      custodyRollupId,
+      settlementData.custodyId,
+      custodyId,
       "Custody Rollup ID mismatch"
     );
     assert.equal(

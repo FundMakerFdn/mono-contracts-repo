@@ -1,4 +1,4 @@
-pSymm wrapper, contain multiple custodyRollup control with uint256 increment
+pSymm wrapper, contain multiple custody control with uint256 increment
 Psymm modification needed; Not only EIP712, or ETFMaker pre-check EIP712
 For withdraw/burn, just an ETF settlement app using settlemaker
 SMA into MA to allow solver to farm yeild to pay funding

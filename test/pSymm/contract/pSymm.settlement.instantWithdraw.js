@@ -44,12 +44,12 @@ async function shouldExecuteInstantWithdraw() {
         const { pSymmSettlement, pSymm, partyA, partyB, mockUSDC } = await loadFixture(deployFixture);
 
         // Assume a settlement has been opened
-        const custodyRollupId = keccak256(encodePacked(['address', 'address', 'uint256'], [partyA.account.address, partyB.account.address, 1]));
+        const custodyId = keccak256(encodePacked(['address', 'address', 'uint256'], [partyA.account.address, partyB.account.address, 1]));
         const merkleRoot = keccak256(encodePacked(['string'], ["merkleRoot"]));
         const settlementId = await pSymmSettlement.write.openSettlement([
             partyA.account.address,
             partyB.account.address,
-            custodyRollupId,
+            custodyId,
             merkleRoot,
             true
         ], {

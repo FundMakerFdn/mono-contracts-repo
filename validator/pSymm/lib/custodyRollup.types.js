@@ -36,11 +36,11 @@
  */
 
 /**
- * @typedef {Object} CustodyRollupInitVanillaParams
+ * @typedef {Object} custodyInitVanillaParams
  * @property {string} type
  * @property {string} partyA
  * @property {string} partyB
- * @property {string} custodyRollupId
+ * @property {string} custodyId
  * @property {string} settlementAddress
  * @property {string} MA
  * @property {string} isManaged
@@ -50,11 +50,11 @@
  */
 
 /**
- * @typedef {Object} CustodyRollupDepositErc20Params
+ * @typedef {Object} custodyDepositErc20Params
  * @property {string} type
  * @property {string} partyA
  * @property {string} partyB
- * @property {string} custodyRollupId
+ * @property {string} custodyId
  * @property {string} collateralAmount
  * @property {string} collateralToken
  * @property {string} expiration
@@ -95,11 +95,11 @@
  */
 
 /**
- * @typedef {Object} CustodyRollupWithdrawErc20Params
+ * @typedef {Object} custodyWithdrawErc20Params
  * @property {string} type
  * @property {string} partyA
  * @property {string} partyB
- * @property {string} custodyRollupId
+ * @property {string} custodyId
  * @property {string} collateralAmount
  * @property {string} collateralToken
  * @property {string} expiration
@@ -110,7 +110,7 @@
 /**
  * @typedef {Object} JsonObject
  * @property {string[]} signatures
- * @property {RfqSwapOpenParams|RfqFillSwapOpenParams|CustodyRollupInitVanillaParams|CustodyRollupDepositErc20Params|QuoteSwapOpenParams|QuoteFillSwapOpenParams|MarginCallSwapOpenParams|CustodyRollupWithdrawErc20Params} params
+ * @property {RfqSwapOpenParams|RfqFillSwapOpenParams|CustodyInitVanillaParams|CustodyDepositErc20Params|QuoteSwapOpenParams|QuoteFillSwapOpenParams|MarginCallSwapOpenParams|CustodyWithdrawErc20Params} params
  */
 
 /**

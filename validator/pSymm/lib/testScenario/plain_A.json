@@ -37,7 +37,7 @@
             "0x1234567890123456789012345678901234567890"
         ],
         "params": {
-            "type": "custodyRollup/init/vanilla",
+            "type": "custody/init/vanilla",
             "expiration": "1723232323232",
             "accountId": "1",
             "partyA": "0x1234567890123456789012345678901234567890",
@@ -52,7 +52,7 @@
             "0x1234567890123456789012345678901234567890"
         ],
         "params": {
-            "type": "custodyRollup/deposit/erc20",
+            "type": "custody/deposit/erc20",
             "expiration": "1723232323232",
             "accountId": "1",
             "partyA": "0x1234567890123456789012345678901234567890",
@@ -69,7 +69,7 @@
             "0x1234567890123456789012345678901234567890"
         ],
         "params": {
-            "type": "custodyRollup/deposit/erc20",
+            "type": "custody/deposit/erc20",
             "amount": "10",
             "address": "0x1234567890123456789012345678901234567890",
             "nonce": "0x14",

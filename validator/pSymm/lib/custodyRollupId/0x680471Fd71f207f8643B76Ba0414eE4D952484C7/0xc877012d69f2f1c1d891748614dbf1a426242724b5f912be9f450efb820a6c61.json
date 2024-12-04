@@ -21,14 +21,14 @@
       "cancelGracePeriod": 30000,
       "minContractAmount": 10,
       "oracleType": "mock",
-      "expiration": 1733032502021,
-      "timestamp": 1733031502021,
+      "expiration": 1732992338626,
+      "timestamp": 1732991338626,
       "nonce": "0xA0"
     },
     "eip712Type": null,
     "signatures": [
       null,
-      "0x86c90be6e821243cf9928ad72ab55576058ca1b498770125063719256fc19ab15b844f64183255408b567df0dbd65a49f1853b8b0cec2e869e59f61e2c0cd10a1c"
+      "0x0d53f108019733a428a1da87c292c061569dab4bcdd17191f19b26a58d1aaa5a11a80188268811caf09fa273b00cb4f390a0ff249b1ec2e922a1335c28ed75781b"
     ]
   }
 ]

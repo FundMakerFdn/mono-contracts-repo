@@ -50,10 +50,10 @@
             "0xB234567890123456789012345678901234567890"
         ],
         "params": {
-            "type": "custodyRollup/init/vanilla",
+            "type": "custody/init/vanilla",
             "partyA": "0xB234567890123456789012345678901234567890",
             "partyB": "0xB234567890123456789012345678901234567890",
-            "custodyRollupId": "1",
+            "custodyId": "1",
             "settlementAddress": "0xB234567890123456789012345678901234567890",
             "MA": "0xB234567890123456789012345678901234567890",
             "isManaged": "true",
@@ -68,11 +68,11 @@
             "0xB234567890123456789012345678901234567890"
         ],
         "params": {
-            "type": "custodyRollup/deposit/erc20",
+            "type": "custody/deposit/erc20",
             "isEIP712": "true",
             "partyA": "0xB234567890123456789012345678901234567890",
             "partyB": "0xB234567890123456789012345678901234567890",
-            "custodyRollupId": "1",
+            "custodyId": "1",
             "collateralAmount": "10",
             "collateralToken": "0xB234567890123456789012345678901234567890",
             "expiration": "1723232323232",
@@ -86,10 +86,10 @@
             "0xB234567890123456789012345678901234567890"
         ],
         "params": {
-            "type": "custodyRollup/deposit/erc20",
+            "type": "custody/deposit/erc20",
             "partyA": "0xB234567890123456789012345678901234567890",
             "partyB": "0xB234567890123456789012345678901234567890",
-            "custodyRollupId": "1",
+            "custodyId": "1",
             "collateralAmount": "10",
             "collateralToken": "0xB234567890123456789012345678901234567890",
             "expiration": "1723232323232",
@@ -147,10 +147,10 @@
             "0xB234567890123456789012345678901234567890"
         ],
         "params": {
-            "type": "custodyRollup/withdraw/erc20",
+            "type": "custody/withdraw/erc20",
             "partyA": "0xB234567890123456789012345678901234567890",
             "partyB": "0xB234567890123456789012345678901234567890",
-            "custodyRollupId": "1",
+            "custodyId": "1",
             "collateralAmount": "10",
             "collateralToken": "0xB234567890123456789012345678901234567890",
             "expiration": "1723232323232",
@@ -164,10 +164,10 @@
             "0xB234567890123456789012345678901234567890"
         ],
         "params": {
-            "type": "custodyRollup/withdraw/erc20",
+            "type": "custody/withdraw/erc20",
             "partyA": "0xB234567890123456789012345678901234567890",
             "partyB": "0xB234567890123456789012345678901234567890",
-            "custodyRollupId": "1",
+            "custodyId": "1",
             "collateralAmount": "10",
             "collateralToken": "0xB234567890123456789012345678901234567890",
             "expiration": "1723232323232",

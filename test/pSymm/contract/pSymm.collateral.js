@@ -15,7 +15,7 @@ const { deployFixture } = require("./pSymm.deployment");
 const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
 const hre = require("hardhat");
 
-async function custodyRollupId(pSymm, partyA, partyB, id) {
+async function custodyId(pSymm, partyA, partyB, id) {
   return await pSymm.read.getRollupBytes32([partyA, partyB, id]);
 }
 
@@ -41,7 +41,7 @@ module.exports = { getRollupBytes32 };
 
 
 async function shouldDepositAndWithdrawCollateral() {
-  // check getRollupBytes32 and custodyRollupId are the same
+  // check getRollupBytes32 and custodyId are the same
   
   it("should allow depositing and withdrawing collateral", async function () {
     const { pSymm, pSymmSettlement, mockUSDC, deployer, partyA, partyB } =
@@ -69,8 +69,8 @@ async function shouldDepositAndWithdrawCollateral() {
 
     // Deposit collateral
     // Print pSymm rollup balances before deposit
-    const preDepositBalance = await pSymm.read.custodyRollupBalances([
-      await custodyRollupId(
+    const preDepositBalance = await pSymm.read.custodyBalances([
+      await custodyId(
         pSymm,
         partyA.account.address,
         partyA.account.address,
@@ -85,8 +85,8 @@ async function shouldDepositAndWithdrawCollateral() {
       account: partyA.account,
     });
 
-    const balance = await pSymm.read.custodyRollupBalances([
-      await custodyRollupId(
+    const balance = await pSymm.read.custodyBalances([
+      await custodyId(
         pSymm,
         partyA.account.address,
         partyA.account.address,
@@ -115,8 +115,8 @@ async function shouldDepositAndWithdrawCollateral() {
       account: partyA.account,
     });
 
-    const updatedBalance = await pSymm.read.custodyRollupBalances([
-      await custodyRollupId(
+    const updatedBalance = await pSymm.read.custodyBalances([
+      await custodyId(
         pSymm,
         partyA.account.address,
         partyA.account.address,
@@ -141,7 +141,7 @@ async function shouldDepositAndWithdrawCollateral() {
     );
   });
 
-  it("should verify getRollupBytes32 and custodyRollupId produce the same result", async function () {
+  it("should verify getRollupBytes32 and custodyId produce the same result", async function () {
     const { pSymm, partyA } = await loadFixture(deployFixture);
 
     const expectedRollupId = getRollupBytes32(
@@ -149,7 +149,7 @@ async function shouldDepositAndWithdrawCollateral() {
       partyA.account.address,
       1
     );
-    const actualRollupId = await custodyRollupId(
+    const actualRollupId = await custodyId(
       pSymm,
       partyA.account.address,
       partyA.account.address,
@@ -159,7 +159,7 @@ async function shouldDepositAndWithdrawCollateral() {
     assert.equal(
       actualRollupId,
       expectedRollupId,
-      "getRollupBytes32 and custodyRollupId do not match"
+      "getRollupBytes32 and custodyId do not match"
     );
   });
 

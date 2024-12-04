@@ -18,7 +18,7 @@ contract pSymmSettlement is Settlement {
     struct pSymmSettlementData {
         address partyA;
         address partyB;
-        bytes32 custodyRollupId;
+        bytes32 custodyId;
         bytes32 merkleRootA;
         uint256 submittedAtA;
         bytes32 merkleRootB;
@@ -30,7 +30,7 @@ contract pSymmSettlement is Settlement {
     }
 
     bytes32 private constant EARLY_AGREEMENT_TYPEHASH = 
-        keccak256("EarlyAgreement(bytes32 settlementId,uint256 collateralAmount,address collateralToken,bytes32 custodyRollupId,uint256 expiration)");
+        keccak256("EarlyAgreement(bytes32 settlementId,uint256 collateralAmount,address collateralToken,bytes32 custodyId,uint256 expiration)");
     
     bytes32 private constant INSTANT_WITHDRAW_TYPEHASH = 
         keccak256("InstantWithdraw(bytes32 settlementId,address replacedParty,bool isA,uint256 instantWithdrawFee,address instantWithdrawToken)");
@@ -38,9 +38,9 @@ contract pSymmSettlement is Settlement {
     bytes32 private constant NONCE_TYPEHASH = 
         keccak256("Nonce(bytes32 settlementId,bytes32 nonce)");
 
-    event EarlyAgreementExecuted(bytes32 indexed settlementId, uint256 collateralAmount, address collateralToken, bytes32 custodyRollupId);
-    event InstantWithdrawExecuted(bytes32 indexed settlementId, bytes32 custodyRollupId, address pSymmAddress, address partyA, address replacedParty, uint256 instantWithdrawFee);
-    event CollateralSettlementCreated(bytes32 indexed settlementId, address partyA, bytes32 merkleRoot, bytes32 custodyRollupId, bool isA);
+    event EarlyAgreementExecuted(bytes32 indexed settlementId, uint256 collateralAmount, address collateralToken, bytes32 custodyId);
+    event InstantWithdrawExecuted(bytes32 indexed settlementId, bytes32 custodyId, address pSymmAddress, address partyA, address replacedParty, uint256 instantWithdrawFee);
+    event CollateralSettlementCreated(bytes32 indexed settlementId, address partyA, bytes32 merkleRoot, bytes32 custodyId, bool isA);
 
     mapping(bytes32 => pSymmSettlementData) private pSymmSettlementDatas;
 
@@ -53,12 +53,12 @@ contract pSymmSettlement is Settlement {
     function openSettlement(
         address partyA,
         address partyB,
-        bytes32 custodyRollupId,
+        bytes32 custodyId,
         bytes32 merkleRoot,
         bool isA
     ) external returns (bytes32) {
         bytes32 settlementId = keccak256(abi.encode(
-            custodyRollupId,
+            custodyId,
             merkleRoot,
             isA,
             msg.sender,
@@ -78,18 +78,18 @@ contract pSymmSettlement is Settlement {
         }
 
         settlementData.pSymmAddress = msg.sender;
-        settlementData.custodyRollupId = custodyRollupId;
+        settlementData.custodyId = custodyId;
         settlementData.partyA = partyA;
         settlementData.partyB = partyB;
 
-        emit CollateralSettlementCreated(settlementId, msg.sender, merkleRoot, custodyRollupId, isA);
+        emit CollateralSettlementCreated(settlementId, msg.sender, merkleRoot, custodyId, isA);
         return settlementId;
     }
 
     function executeEarlyAgreement(
         bytes32 settlementId,
-        bytes32 custodyRollupTarget,
-        bytes32 custodyRollupReceiver,
+        bytes32 custodyTarget,
+        bytes32 custodyReceiver,
         address collateralToken,
         uint256 collateralAmount,
         uint256 expiration,
@@ -121,8 +121,8 @@ contract pSymmSettlement is Settlement {
         bytes32 structHash = keccak256(abi.encode(
             EARLY_AGREEMENT_TYPEHASH,
             settlementId,
-            custodyRollupTarget,
-            custodyRollupReceiver,
+            custodyTarget,
+            custodyReceiver,
             collateralToken,
             collateralAmount,
             expiration,
@@ -139,9 +139,9 @@ contract pSymmSettlement is Settlement {
         require(expiration > block.timestamp, "Early agreement expired");
 
         pSymm.pSymm pSymmInstance = pSymm.pSymm(data.pSymmAddress);
-        pSymmInstance.settlementWithdraw(collateralToken, collateralAmount, custodyRollupTarget, custodyRollupReceiver);
+        pSymmInstance.settlementWithdraw(collateralToken, collateralAmount, custodyTarget, custodyReceiver);
         
-        emit EarlyAgreementExecuted(settlementId, collateralAmount, collateralToken, data.custodyRollupId);
+        emit EarlyAgreementExecuted(settlementId, collateralAmount, collateralToken, data.custodyId);
     }
 
     // @Vlad not sure about this integration
@@ -155,7 +155,7 @@ contract pSymmSettlement is Settlement {
         // @Vlad
         /*
         for each token in the settlement, if 50/50 distribution, 2 settlement happens in the merkle
-        collateralToken, collateralAmount, custodyRollupTarget, custodyRollupReceiver
+        collateralToken, collateralAmount, custodyTarget, custodyReceiver
         */
         
         emit SettlementExecuted(settlementId);
@@ -188,9 +188,9 @@ contract pSymmSettlement is Settlement {
         IERC20(instantWithdrawToken).safeTransferFrom(msg.sender, replacedParty, instantWithdrawFee);
 
         pSymm.pSymm pSymmInstance = pSymm.pSymm(data.pSymmAddress);
-        pSymmInstance.settlementWithdraw(data.custodyRollupId, msg.sender, replacedParty, isA);
+        pSymmInstance.settlementWithdraw(data.custodyId, msg.sender, replacedParty, isA);
         data.state = 2;
-        emit InstantWithdrawExecuted(settlementId, data.custodyRollupId, data.pSymmAddress, msg.sender, replacedParty, instantWithdrawFee);
+        emit InstantWithdrawExecuted(settlementId, data.custodyId, data.pSymmAddress, msg.sender, replacedParty, instantWithdrawFee);
     }
 
 
