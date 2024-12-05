@@ -1,0 +1,166 @@
+[
+  {
+    "params": {
+      "type": "rfq/swap/open",
+      "header": {
+        "version": "1.0",
+        "chainId": "3447",
+        "verifyingContract": "0x680471Fd71f207f8643B76Ba0414eE4D952484C7",
+        "partyA": "0x680471Fd71f207f8643B76Ba0414eE4D952484C7",
+        "partyB": "0xab88973ee7ed00E67EDaA91ce1fc885196d033Be",
+        "custodyId": 1
+      },
+      "ISIN": "BTC",
+      "amount": "100",
+      "price": "10",
+      "side": "buy",
+      "fundingRate": "1",
+      "IM_A": "0.075",
+      "IM_B": "0.075",
+      "MM_A": "0.025",
+      "MM_B": "0.025",
+      "CVA_A": "0.01",
+      "CVA_B": "0.01",
+      "MC_A": "0.05",
+      "MC_B": "0.05",
+      "contractExpiry": 1748987261390,
+      "pricePrecision": 3,
+      "fundingRatePrecision": 3,
+      "cancelGracePeriod": 30000,
+      "minContractAmount": 1,
+      "oracleType": "mock",
+      "expiration": 1733435271390,
+      "timestamp": 1733435261390,
+      "nonce": "0xA0"
+    },
+    "eip712Type": null,
+    "signatures": [
+      null,
+      null
+    ]
+  },
+  {
+    "params": {
+      "type": "rfqFill/swap/open",
+      "header": {
+        "version": "1.0",
+        "chainId": "3447",
+        "verifyingContract": "0x680471Fd71f207f8643B76Ba0414eE4D952484C7",
+        "partyA": "0x680471Fd71f207f8643B76Ba0414eE4D952484C7",
+        "partyB": "0xab88973ee7ed00E67EDaA91ce1fc885196d033Be",
+        "custodyId": 1
+      },
+      "amount": "100",
+      "price": "10",
+      "rfqNonce": "0xA0",
+      "expiration": 1733435271404,
+      "timestamp": 1733435261404,
+      "nonce": "0xB1"
+    },
+    "eip712Type": null,
+    "signatures": [
+      "0xc47fef5d51eb13125a103ff5f1e101a6835cef78a14d0c1eeb14ce9a7c534bb860f9ebc7b48c2fd845d483aa80fbd38fc5bbe25a3bca26ed514daf5387977c6a1c",
+      null
+    ]
+  },
+  {
+    "params": {
+      "type": "rfq/swap/open",
+      "header": {
+        "version": "1.0",
+        "chainId": "3447",
+        "verifyingContract": "0x680471Fd71f207f8643B76Ba0414eE4D952484C7",
+        "partyA": "0x680471Fd71f207f8643B76Ba0414eE4D952484C7",
+        "partyB": "0xab88973ee7ed00E67EDaA91ce1fc885196d033Be",
+        "custodyId": 1
+      },
+      "ISIN": "BTC",
+      "amount": "100",
+      "price": "10",
+      "side": "buy",
+      "fundingRate": "1",
+      "IM_A": "0.075",
+      "IM_B": "0.075",
+      "MM_A": "0.025",
+      "MM_B": "0.025",
+      "CVA_A": "0.01",
+      "CVA_B": "0.01",
+      "MC_A": "0.05",
+      "MC_B": "0.05",
+      "contractExpiry": 1748987261411,
+      "pricePrecision": 3,
+      "fundingRatePrecision": 3,
+      "cancelGracePeriod": 30000,
+      "minContractAmount": 1,
+      "oracleType": "mock",
+      "expiration": 1733435271411,
+      "timestamp": 1733435261411,
+      "nonce": "0xA0"
+    },
+    "eip712Type": null
+  },
+  {
+    "params": {
+      "type": "custody/deposit/erc20",
+      "header": {
+        "version": "1.0",
+        "chainId": "3447",
+        "verifyingContract": "0x680471Fd71f207f8643B76Ba0414eE4D952484C7",
+        "partyA": "0x680471Fd71f207f8643B76Ba0414eE4D952484C7",
+        "partyB": "0xab88973ee7ed00E67EDaA91ce1fc885196d033Be",
+        "custodyId": 1
+      },
+      "partyA": "0x680471Fd71f207f8643B76Ba0414eE4D952484C7",
+      "partyB": "0xab88973ee7ed00E67EDaA91ce1fc885196d033Be",
+      "custodyId": 1,
+      "collateralAmount": "100",
+      "collateralToken": "0xB234567890123456789012345678901234567890",
+      "expiration": 1733435321411,
+      "timestamp": 1733435261411,
+      "nonce": "0xA2"
+    },
+    "eip712Type": "TransferToCustodyParams"
+  },
+  {
+    "params": {
+      "type": "custody/deposit/erc20",
+      "header": {
+        "version": "1.0",
+        "chainId": "3447",
+        "verifyingContract": "0x680471Fd71f207f8643B76Ba0414eE4D952484C7",
+        "partyA": "0x680471Fd71f207f8643B76Ba0414eE4D952484C7",
+        "partyB": "0xab88973ee7ed00E67EDaA91ce1fc885196d033Be",
+        "custodyId": 1
+      },
+      "collateralAmount": "100",
+      "collateralToken": "0xB234567890123456789012345678901234567890",
+      "expiration": 1733435321412,
+      "timestamp": 1733435261412,
+      "nonce": "0xA2"
+    },
+    "eip712Type": "TransferToCustodyParams"
+  },
+  {
+    "params": {
+      "type": "custody/initialize/billateral",
+      "header": {
+        "version": "1.0",
+        "chainId": "3447",
+        "verifyingContract": "0x680471Fd71f207f8643B76Ba0414eE4D952484C7",
+        "partyA": "0x680471Fd71f207f8643B76Ba0414eE4D952484C7",
+        "partyB": "0xab88973ee7ed00E67EDaA91ce1fc885196d033Be",
+        "custodyId": 1
+      },
+      "partyA": "0x680471Fd71f207f8643B76Ba0414eE4D952484C7",
+      "partyB": "0xab88973ee7ed00E67EDaA91ce1fc885196d033Be",
+      "custodyId": 1,
+      "settlementAddress": "0x1234567890123456789012345678901234567890",
+      "MA": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "isManaged": false,
+      "expiration": 1733435321412,
+      "timestamp": 1733435261412,
+      "nonce": "0xA2"
+    },
+    "eip712Type": "CreateCustodyParams"
+  }
+]
