@@ -29,7 +29,7 @@ library EIP712SignatureChecker {
         uint256 custodyId;
         uint256 collateralAmount;
         address collateralToken;
-        bytes32 senderCustodyId
+        bytes32 senderCustodyId;
         uint256 expiration;
         uint256 timestamp;
         bytes32 nonce;

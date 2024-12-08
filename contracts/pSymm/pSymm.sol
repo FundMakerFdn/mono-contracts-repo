@@ -22,7 +22,7 @@ contract pSymm is EIP712 {
         address settlementAddress;
         bytes32 MA;
         bool isManaged;
-        uint8 type; // 0: personal, 1: billateral, 2: settlement
+        uint8 custodyType; // 0: personal, 1: billateral, 2: settlement
         uint256 timestamp;
         bytes32 nonce;
     }
@@ -37,7 +37,7 @@ contract pSymm is EIP712 {
     event InstantWithdraw(bytes32 indexed custodyId, address indexed instantWithdraw);
     event SettlementWithdrawEvent(bytes32 indexed custodyId, address indexed collateralToken, uint256 amount, bytes32 indexed custodyIdReceiver);
 
-    mapping(bytes32 => custody) private custodys;
+    mapping(bytes32 => Custody) private custodys;
     mapping(bytes32 => mapping(address => uint256)) public custodyBalances; // custodyId => token address => balance
     mapping(bytes32 => bool) private signatureClaimed;
     
@@ -58,7 +58,7 @@ contract pSymm is EIP712 {
 
     modifier checkCustodyOwner(address partyA, address partyB, uint256 _custodyId) {
         bytes32 custodyId = keccak256(abi.encodePacked(partyA, partyB, _custodyId));
-        require(custodys[custodyId].type == 0, "Custody already closed"); // @flow to delete ?
+        require(custodys[custodyId].custodyType == 0, "Custody already closed"); // @flow to delete ?
         require(partyA != partyB, "Party A and Party B cannot be the same"); // @flow to delete
         require(custodys[custodyId].partyA == partyA && custodys[custodyId].partyB == partyB, "Invalid custodial rollup owner");
         _;
@@ -93,13 +93,13 @@ contract pSymm is EIP712 {
         external 
         checkAndClaimSignatures(params.signatureA, params.signatureB) 
         checkExpiration(params.expiration) 
-        checkCustodialRollupOwner(params.partyA, params.partyB, params.custodyId)
+        checkCustodyOwner(params.partyA, params.partyB, params.custodyId)
     {
         require(EIP712SignatureChecker.verifyCreateCustodyEIP712(params), "Invalid signature");
 
         bytes32 custodyId = keccak256(abi.encodePacked(params.partyA, params.partyB, params.custodyId));
 
-        custodys[custodyId] = custody(
+        custodys[custodyId] = Custody(
             params.partyA, 
             params.partyB, 
             params.custodyId, 
@@ -111,7 +111,7 @@ contract pSymm is EIP712 {
             params.nonce
         );
 
-        emit custodyCreated(params.custodyId, params.partyA, params.partyB, params.settlementAddress);
+        emit CustodyCreated(params.custodyId, params.partyA, params.partyB, params.settlementAddress);
     }
 
     function _handleTransferToCustody(
@@ -139,7 +139,7 @@ contract pSymm is EIP712 {
         external 
         checkAndClaimSignatures(params.signatureA, params.signatureB) 
         checkExpiration(params.expiration) 
-        checkCustodialRollupOwner(params.partyA, params.partyB, params.custodyId)
+        checkCustodyOwner(params.partyA, params.partyB, params.custodyId)
     {
         bool isA = _getIsA(params.nonce);
         require(EIP712SignatureChecker.verifyTransferToCustodyEIP712(params), "Invalid signature");
@@ -166,7 +166,7 @@ contract pSymm is EIP712 {
         external 
         checkAndClaimSignatures(params.signatureA, params.signatureB) 
         checkExpiration(params.expiration) 
-        checkCustodialRollupOwner(params.partyA, params.partyB, params.custodyId)
+        checkCustodyOwner(params.partyA, params.partyB, params.custodyId)
     {
         bytes32 custodyId = keccak256(abi.encodePacked(params.partyA, params.partyB, params.custodyId));
         require(EIP712SignatureChecker.verifyUpdateMAEIP712(params), "Invalid signature");
@@ -178,10 +178,10 @@ contract pSymm is EIP712 {
 
     // @notice Open a settlement by calling the openSettlement function in pSymmSettlement contract
     function openSettlement(bytes32 custodyId, bytes32 merkleRoot, bool isA) external {
-        custody storage custody = custodys[custodyId];
-        require(custody.type == 1, "Settlement already open");
+        Custody storage custody = custodys[custodyId];
+        require(custody.custodyType == 1, "Settlement already open");
         require(msg.sender == custody.partyA || msg.sender == custody.partyB, "Invalid Caller");
-        custody.type = 2;
+        custody.custodyType = 2;
 
         pSymmSettlement.pSymmSettlement pSymmSettlementContract = pSymmSettlement.pSymmSettlement(custodys[custodyId].settlementAddress);
     
@@ -216,7 +216,7 @@ contract pSymm is EIP712 {
 
     // @notice Withdraw from settlement, only the settlement contract can call this function
     function settlementWithdraw(address collateralToken, uint256 collateralAmount, bytes32 custodyTarget, bytes32 custodyIdReceiver) external {
-        require(custodys[custodyTarget].type == 2, "Settlement not in settlement type");
+        require(custodys[custodyTarget].custodyType == 2, "Settlement not in settlement type");
         require(msg.sender == custodys[custodyTarget].settlementAddress, "Invalid Caller");
 
         _transferCustodyBalance(custodyTarget, custodyIdReceiver, collateralToken, collateralAmount);
@@ -227,7 +227,7 @@ contract pSymm is EIP712 {
     // @notice Instant withdraw from settlement, only the settlement contract can call this function
     function settlementWithdraw(bytes32 custodyTarget, address instantWithdraw, address replacedParty, bool isA) external {
 
-        require(custodys[custodyTarget].type == 2, "Settlement not in settlement type");
+        require(custodys[custodyTarget].custodyType == 2, "Settlement not in settlement type");
         require(msg.sender == custodys[custodyTarget].settlementAddress, "Invalid Caller");
         if (isA) {
             require(replacedParty == custodys[custodyTarget].partyA, "Invalid replaced party"); 
@@ -241,7 +241,7 @@ contract pSymm is EIP712 {
     }
 
     // Read functions
-    function getCustody(bytes32 custodyId) external view returns (custody memory) {
+    function getCustody(bytes32 custodyId) external view returns (Custody memory) {
         return custodys[custodyId];
     }
 
