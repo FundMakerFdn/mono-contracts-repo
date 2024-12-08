@@ -44,10 +44,12 @@ contract pSymm is EIP712 {
 
     constructor() EIP712("pSymm", "1.0") {}
 
-    modifier checkAndClaimSignatures(bytes32 signatureA, bytes32 signatureB) {
-        require(signatureClaimed[signatureA] == false && signatureClaimed[signatureB] == false, "Signature already claimed");
-        signatureClaimed[signatureA] = true;
-        signatureClaimed[signatureB] = true;
+    modifier checkAndClaimSignatures(bytes memory signatureA, bytes memory signatureB) {
+        bytes32 hashA = keccak256(signatureA);
+        bytes32 hashB = keccak256(signatureB);
+        require(signatureClaimed[hashA] == false && signatureClaimed[hashB] == false, "Signature already claimed");
+        signatureClaimed[hashA] = true;
+        signatureClaimed[hashB] = true;
         _;
     }
 
@@ -135,7 +137,7 @@ contract pSymm is EIP712 {
 
     // @notice Withdraw from custody, all withdraws requires EIP712 signature of counterparty
     // TODO if isManaged, open a dispute with merkle root
-    function transferToCustody(EIP712SignatureChecker.transferToCustodyParams memory params, uint256 _senderCustodyId) 
+    function transferToCustody(EIP712SignatureChecker.transferToCustodyParams calldata params, uint256 _senderCustodyId) 
         external 
         checkAndClaimSignatures(params.signatureA, params.signatureB) 
         checkExpiration(params.expiration) 
@@ -144,13 +146,6 @@ contract pSymm is EIP712 {
         bool isA = _getIsA(params.nonce);
         require(EIP712SignatureChecker.verifyTransferToCustodyEIP712(params), "Invalid signature");
         
-        //bytes32 FromCustodyId = keccak256(abi.encodePacked(params.partyA, params.partyB, params.custodyId));
-        //address receiver = isA ? params.partyB : params.partyA;
-        //address receiver = isA ? params.partyB : params.partyA;
-
-        //require(custodys[FromCustodyId].isManaged == false, "Custodial rollup is not managed");
-        //_transferCustodyBalance(FromCustodyId, _receiverCustodyId, params.collateralToken, params.collateralAmount);
-
         _handleTransferToCustody(
             params.partyA,
             params.partyB,

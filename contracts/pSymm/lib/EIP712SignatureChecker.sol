@@ -8,8 +8,8 @@ library EIP712SignatureChecker {
     using ECDSA for bytes32;
 
     struct createCustodyParams {
-        bytes32 signatureA;
-        bytes32 signatureB;
+        bytes signatureA;
+        bytes signatureB;
         address partyA;
         address partyB;
         uint256 custodyId;
@@ -22,8 +22,8 @@ library EIP712SignatureChecker {
     }
 
     struct transferToCustodyParams {
-        bytes32 signatureA;
-        bytes32 signatureB;
+        bytes signatureA;
+        bytes signatureB;
         address partyA;
         address partyB;
         uint256 custodyId;
@@ -36,8 +36,8 @@ library EIP712SignatureChecker {
     }
 
     struct updateMAParams {
-        bytes32 signatureA;
-        bytes32 signatureB;
+        bytes signatureA;
+        bytes signatureB;
         address partyA;
         address partyB;
         uint256 custodyId;
