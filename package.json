@@ -6,18 +6,21 @@
   "author": "Vladyslav <web.user@ukr.net>, Max OTC maxgctwo@rasa.capital",
   "license": "MIT",
   "dependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
     "@nomicfoundation/hardhat-ignition": "^0.15.7",
     "@nomicfoundation/hardhat-ignition-viem": "^0.15.7",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.12",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
     "@nomicfoundation/hardhat-verify": "^2.0.1",
     "@nomicfoundation/hardhat-viem": "^2.0.5",
     "@openzeppelin/contracts": "^5.1.0",
     "@openzeppelin/merkle-tree": "^1.0.7",
     "better-sqlite3": "^11.5.0",
     "hardhat": "^2.22.16",
-    "viem": "^2.21.51"
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "viem": "^2.21.51",
+    "ws": "^8.18.0"
   },
   "scripts": {
     "deploy": "hardhat run --network localhost validator/SettleMaker/deploy.js",

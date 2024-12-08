@@ -3,7 +3,7 @@ const MockStorage = require("../SettleMaker/storage/mockStorage");
 const config = require("../config.js");
 const CustodyRollupTreeBuilder = require("./lib/custodyRollupTreeBuilder");
 
-const WALLET_ID = 2;
+const WALLET_ID = 3;
 const CUSTODY_ID = 1;
 const COLLATERAL_AMOUNT = "10";
 

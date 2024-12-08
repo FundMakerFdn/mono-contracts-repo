@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
+import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
@@ -163,7 +164,14 @@ library EIP712SignatureChecker {
         bytes memory signature,
         address expectedSigner
     ) internal pure returns (bool) {
+        console.log("Verifying signature:");
+        console.log("Hash:", uint256(hash));
+        console.log("Expected signer:", expectedSigner);
+        console.log("Signature length:", signature.length);
+        
         address recoveredSigner = ECDSA.recover(hash, signature);
+        console.log("Recovered signer:", recoveredSigner);
+        
         return recoveredSigner == expectedSigner;
     }
 }

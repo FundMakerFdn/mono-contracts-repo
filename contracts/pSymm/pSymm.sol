@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
+import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import "contracts/pSymm/settlement/pSymmSettlement.sol" as pSymmSettlement;
 import "contracts/pSymm/lib/EIP712SignatureChecker.sol"; // Import the library
 import "hardhat/console.sol";
@@ -94,12 +94,26 @@ contract pSymm is EIP712 {
     function CreateCustody(EIP712SignatureChecker.createCustodyParams memory params) 
         external 
         checkAndClaimSignatures(params.signatureA, params.signatureB) 
-        checkExpiration(params.expiration) 
-        checkCustodyOwner(params.partyA, params.partyB, params.custodyId)
+        checkExpiration(params.expiration)
+        //checkCustodyOwner(params.partyA, params.partyB, params.custodyId)
     {
+        console.log("CreateCustody called with:");
+        console.log("partyA:", params.partyA);
+        console.log("partyB:", params.partyB);
+        console.log("custodyId:", params.custodyId);
+        console.log("signatureA length:", bytes(params.signatureA).length);
+        console.log("signatureB length:", bytes(params.signatureB).length);
+        
+        bytes32 domainSeparator = _domainSeparatorV4();
+        console.log("Domain separator:", uint256(domainSeparator));
+        
         require(EIP712SignatureChecker.verifyCreateCustodyEIP712(params), "Invalid signature");
 
         bytes32 custodyId = keccak256(abi.encodePacked(params.partyA, params.partyB, params.custodyId));
+        
+        // Add check to prevent duplicate custody creation
+        require(custodys[custodyId].partyA == address(0), "Custody already exists");
+        require(params.partyA != params.partyB, "Party A and Party B cannot be the same");
 
         custodys[custodyId] = Custody(
             params.partyA, 
