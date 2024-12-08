@@ -5,24 +5,13 @@ const fs = require("fs");
 
 async function addSymmTask([walletId, amount = "1000"], hre) {
 
-  // Read deployment data from temp file
-  let dataHash;
+  // Use the static helper method
+  let deploymentData;
   try {
-    const tempData = JSON.parse(fs.readFileSync(config.contractsTempFile));
-    dataHash = tempData.dataHash;
-    console.log("Read contracts data from temporary file");
+    deploymentData = await MockStorage.getDeploymentData(config.contractsTempFile);
   } catch (err) {
-    console.error("Could not read temporary contracts file:", err);
+    console.error(err.message);
     console.error("Make sure the deployer is running");
-    process.exit(1);
-  }
-
-  // Get deployment data from storage
-  const storage = new MockStorage();
-  const deploymentData = storage.get(dataHash);
-
-  if (!deploymentData) {
-    console.error("Could not find deployment data for hash:", dataHash);
     process.exit(1);
   }
 
@@ -52,7 +41,6 @@ async function addSymmTask([walletId, amount = "1000"], hre) {
   const balance = await mockSymm.read.balanceOf([walletClient.account.address]);
   console.log(`New balance: ${balance} wei`);
 
-  storage.close();
   console.log("SYMM tokens minted successfully!");
 }
 

@@ -44,7 +44,12 @@ async function main() {
 
   console.log("Deploying contracts with account:", deployer.account.address);
 
-  // Deploy mock SYMM token first
+  // Deploy pSymm contracts first
+  console.log("Deploying pSymm contracts...");
+  const pSymm = await hre.viem.deployContract("pSymm");
+  console.log("pSymm deployed to:", pSymm.address);
+
+  // Deploy mock SYMM token next
   const mockSymm = await hre.viem.deployContract("MockSymm");
   console.log("MockSymm deployed to:", mockSymm.address);
 
@@ -173,6 +178,14 @@ async function main() {
   console.log("SettleMaker deployed to:", settleMaker.address);
   console.log("First soft fork root:", merkleTree.root);
 
+  // Deploy pSymm Settlement contract
+  const pSymmSettlement = await hre.viem.deployContract("pSymmSettlement", [
+    settleMaker.address,  // _settleMaker address
+    "pSymm Settlement",   // name 
+    "1.0"                // version
+  ]);
+  console.log("pSymmSettlement deployed to:", pSymmSettlement.address);
+
   // Set SettleMaker addresses
   console.log("Setting SettleMaker addresses...");
   await editSettlement.write.setSettleMaker([settleMaker.address], {
@@ -228,6 +241,8 @@ async function main() {
       ValidatorSettlement: validatorSettlement.address,
       BatchMetadataSettlement: batchMetadataSettlement.address,
       SettleMaker: settleMaker.address,
+      pSymm: pSymm.address,
+      pSymmSettlement: pSymmSettlement.address
     },
     settlements: {
       batchMetadataId,
@@ -262,6 +277,7 @@ async function main() {
       validatorSettlement,
       editSettlement,
       mockSymm,
+      pSymmSettlement
     },
     config,
     true
@@ -307,6 +323,8 @@ async function main() {
   console.log("- ValidatorSettlement:", validatorSettlement.address);
   console.log("- BatchMetadataSettlement:", batchMetadataSettlement.address);
   console.log("- SettleMaker:", settleMaker.address);
+  console.log("- pSymm:", pSymm.address);
+  console.log("- pSymmSettlement:", pSymmSettlement.address);
   console.log("\nInitial batch metadata ID:", batchMetadataId);
   console.log("\nDeployment data in Storage with hash:", storageHash);
 }

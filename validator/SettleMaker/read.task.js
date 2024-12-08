@@ -3,25 +3,15 @@ const config = require("#root/validator/config.js");
 const fs = require("fs");
 
 async function readTask([contractName, functionName, ...args], hre) {
-  // Read deployment data from temp file
-  let dataHash;
+  // Use the static helper method
+  let deploymentData;
   try {
-    const tempData = JSON.parse(fs.readFileSync(config.contractsTempFile));
-    dataHash = tempData.dataHash;
-    console.log("Read contracts data from temporary file");
+    deploymentData = await MockStorage.getDeploymentData(
+      config.contractsTempFile
+    );
   } catch (err) {
-    console.error("Could not read temporary contracts file:", err);
+    console.error(err.message);
     console.error("Make sure the deployer is running");
-    process.exit(1);
-  }
-
-  // Get deployment data from storage
-  const storage = new MockStorage();
-  const deploymentData = storage.get(dataHash);
-
-  if (!deploymentData || !deploymentData.data) {
-    console.error("Could not find deployment data for hash:", dataHash);
-    storage.close();
     process.exit(1);
   }
 
@@ -33,7 +23,6 @@ async function readTask([contractName, functionName, ...args], hre) {
       "Available contracts:",
       Object.keys(deploymentData.data.contracts)
     );
-    storage.close();
     process.exit(1);
   }
 
@@ -46,7 +35,6 @@ async function readTask([contractName, functionName, ...args], hre) {
         `Read function ${functionName} not found in contract ${contractName}`
       );
       console.log("Available read functions:", Object.keys(contract.read));
-      storage.close();
       process.exit(1);
     }
 
@@ -69,12 +57,10 @@ async function readTask([contractName, functionName, ...args], hre) {
     const result = await contract.read[functionName]([].concat(convertedArgs));
     console.log("Result:", result);
 
-    storage.close();
     return result;
   } catch (error) {
     console.error("Error reading function:", error);
     console.error("Error details:", error.message);
-    storage.close();
     process.exit(1);
   }
 }

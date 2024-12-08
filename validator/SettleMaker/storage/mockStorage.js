@@ -1,7 +1,31 @@
 const Database = require("better-sqlite3");
 const crypto = require("crypto");
+const fs = require("fs");
 
 class MockStorage {
+  static async getDeploymentData(configPath) {
+    try {
+      // Read deployment data from temp file
+      const tempData = JSON.parse(fs.readFileSync(configPath));
+      const dataHash = tempData.dataHash;
+      
+      // Create temporary storage instance to fetch data
+      const storage = new MockStorage();
+      const deploymentData = storage.get(dataHash);
+      storage.close();
+      
+      if (!deploymentData || !deploymentData.data) {
+        throw new Error("Could not find deployment data for hash: " + dataHash);
+      }
+      
+      return {
+        dataHash,
+        data: deploymentData.data
+      };
+    } catch (err) {
+      throw new Error(`Error getting deployment data: ${err.message}`);
+    }
+  }
   constructor(dbPath = "mock.db") {
     this.db = new Database(dbPath);
 
