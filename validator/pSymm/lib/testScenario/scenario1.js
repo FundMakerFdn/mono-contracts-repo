@@ -59,7 +59,7 @@ async function main() {
     .param("oracleType", "mock")
     .param("expiration", Date.now() + 1000 * 10) // 10 seconds
     .param("timestamp", Date.now())
-    .param("nonce", `0xA0`) // @flow, automatic nonce set at send and receipt
+    .param("nonce", "0xA000000000000000000000000000000000000000000000000000000000000000") // @flow, automatic nonce set at send and receipt
     .build();
 
   await sendTransaction(true, addressA, addressB, pkA, custodyBytes32);
@@ -121,7 +121,7 @@ async function main() {
     .param("collateralToken", collateralAddress)
     .param("expiration", Date.now() + 1000 * 60)
     .param("timestamp", Date.now())
-    .param("nonce", `0xA2`)
+    .param("nonce", "0xA200000000000000000000000000000000000000000000000000000000000000")
     .build();
 
   // 3 ho no, I dont have collateral on rollup
@@ -133,7 +133,7 @@ async function main() {
     .param("collateralToken", collateralAddress)
     .param("expiration", Date.now() + 1000 * 60)
     .param("timestamp", Date.now())
-    .param("nonce", `0xA2`)
+    .param("nonce", "0xA200000000000000000000000000000000000000000000000000000000000000")
     .build();
   ``;
 
