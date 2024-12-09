@@ -47,6 +47,10 @@ async function main() {
   await partyA.closeCustody("5", partyBAddress);
   await partyA.withdraw("5");
 
+  // Print final tree state
+  console.log("\nFinal Custody Rollup Tree State:");
+  console.log(JSON.stringify(partyA.treeBuilder.getTree(), null, 2));
+
   partyA.stop();
 }
 
