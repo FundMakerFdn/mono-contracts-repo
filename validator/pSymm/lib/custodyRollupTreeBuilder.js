@@ -16,6 +16,10 @@ class CustodyRollupTreeBuilder {
   static UPDATE_MA_TYPEHASH = keccak256(
     "updateMAParams(address partyA,address partyB,uint256 custodyId,bytes32 MA,uint256 expiration,uint256 timestamp,bytes32 nonce)"
   );
+
+  static WITHDRAW_CUSTODY_TYPEHASH = keccak256(
+    "withdrawCustodyParams(address partyA,address partyB,uint256 custodyId,uint256 collateralAmount,address collateralToken,uint256 expiration,uint256 timestamp,bytes32 nonce)"
+  );
   async addMessage(params, signature = null) {
     let structHash;
 
@@ -51,6 +55,36 @@ class CustodyRollupTreeBuilder {
         )
       );
       console.log("structHash", structHash);
+    } else if (params.type === "custody/withdraw/erc20") {
+      structHash = keccak256(
+        encodeAbiParameters(
+          [
+            { type: "bytes32" }, // typehash
+            { type: "address" }, // partyA
+            { type: "address" }, // partyB
+            { type: "uint256" }, // custodyId
+            { type: "uint256" }, // collateralAmount
+            { type: "address" }, // collateralToken
+            { type: "uint256" }, // expiration
+            { type: "uint256" }, // timestamp
+            { type: "bytes32" }, // nonce
+          ],
+          [
+            CustodyRollupTreeBuilder.WITHDRAW_CUSTODY_TYPEHASH,
+            params.partyA,
+            params.partyB,
+            BigInt(params.custodyId),
+            parseEther(params.collateralAmount),
+            params.collateralToken,
+            BigInt(params.expiration),
+            BigInt(params.timestamp),
+            keccak256(
+              encodeAbiParameters([{ type: "bytes32" }], [params.nonce])
+            ),
+          ]
+        )
+      );
+      console.log("structHash withdraw", structHash);
     } else if (params.type === "custody/deposit/erc20") {
       structHash = keccak256(
         encodeAbiParameters(
