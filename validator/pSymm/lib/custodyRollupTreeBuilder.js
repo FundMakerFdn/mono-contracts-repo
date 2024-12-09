@@ -1,4 +1,4 @@
-const { encodeAbiParameters, keccak256 } = require("viem");
+const { encodeAbiParameters, keccak256, parseEther } = require("viem");
 
 class CustodyRollupTreeBuilder {
   constructor() {
@@ -52,41 +52,35 @@ class CustodyRollupTreeBuilder {
       );
       console.log("structHash", structHash);
     } else if (params.type === "custody/deposit/erc20") {
-      // Encode parameters for transfer to custody
-      const encodedParams = encodeAbiParameters(
-        [
-          { type: "address" }, // partyA
-          { type: "address" }, // partyB
-          { type: "uint256" }, // custodyId
-          { type: "uint256" }, // collateralAmount
-          { type: "address" }, // collateralToken
-          { type: "bytes32" }, // senderCustodyId
-          { type: "uint256" }, // expiration
-          { type: "uint256" }, // timestamp
-          { type: "bytes32" }, // nonce
-        ],
-        [
-          params.partyA,
-          params.partyB,
-          BigInt(params.custodyId),
-          BigInt(params.collateralAmount),
-          params.collateralToken,
-          params.senderCustodyId,
-          BigInt(params.expiration),
-          BigInt(params.timestamp),
-          params.nonce,
-        ]
-      );
-
       structHash = keccak256(
         encodeAbiParameters(
           [
             { type: "bytes32" }, // typehash
-            { type: "bytes" }, // encoded params
+            { type: "address" }, // partyA
+            { type: "address" }, // partyB
+            { type: "uint256" }, // custodyId
+            { type: "uint256" }, // collateralAmount
+            { type: "address" }, // collateralToken
+            { type: "uint256" }, // expiration
+            { type: "uint256" }, // timestamp
+            { type: "bytes32" }, // nonce
           ],
-          [CustodyRollupTreeBuilder.TRANSFER_TO_CUSTODY_TYPEHASH, encodedParams]
+          [
+            CustodyRollupTreeBuilder.TRANSFER_TO_CUSTODY_TYPEHASH,
+            params.partyA,
+            params.partyB,
+            BigInt(params.custodyId),
+            parseEther(params.collateralAmount),
+            params.collateralToken,
+            BigInt(params.expiration),
+            BigInt(params.timestamp),
+            keccak256(
+              encodeAbiParameters([{ type: "bytes32" }], [params.nonce])
+            ),
+          ]
         )
       );
+      console.log("structHash transfer", structHash);
     }
 
     const message = {

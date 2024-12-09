@@ -270,6 +270,8 @@ class PSymmParty {
       custodyId: this.custodyId,
       collateralAmount: amount,
       collateralToken: this.mockSymm.address,
+      senderCustodyId:
+        "0x0000000000000000000000000000000000000000000000000000000000000000",
       expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
       timestamp: Math.floor(Date.now() / 1000).toString(),
       nonce:
