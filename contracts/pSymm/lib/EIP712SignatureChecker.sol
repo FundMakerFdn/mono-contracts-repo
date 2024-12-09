@@ -75,6 +75,8 @@ library EIP712SignatureChecker {
                 keccak256(abi.encodePacked(params.nonce))
             )
         );
+		console.log("struct hash");
+		console.logBytes32(structHash);
 
         require(
             verifySignature(

@@ -186,26 +186,23 @@ class PSymmParty {
 
     // Create custody init message
     const initMessage = {
+      type: "custody/init/vanilla",
       partyA: this.address,
       partyB: counterpartyAddress,
-      custodyId: "1",
+      custodyId: 1,
       settlementAddress: this.pSymm.address,
       MA: "0x0000000000000000000000000000000000000000000000000000000000000000",
       isManaged: false,
-      expiration: expiration.toString(),
-      timestamp: timestamp.toString(),
-      nonce: "0xA000000000000000000000000000000000000000000000000000000000000000"
+      expiration,
+      timestamp,
+      nonce:
+        "0xA000000000000000000000000000000000000000000000000000000000000000",
     };
 
-    // Let the tree builder handle the EIP-712 message hash
+    // Get message hash and sign it directly
     const messageHash = await this.treeBuilder.addMessage(initMessage);
-
-    // Get typed signature using the tree builder's domain and types
-    const signature = await this.walletClient.signTypedData({
-      domain: this.treeBuilder.getDomain(),
-      types: this.treeBuilder.getTypes(),
-      primaryType: "createCustodyParams",
-      message: initMessage,
+    const signature = await this.walletClient.signMessage({
+      message: messageHash,
     });
 
     // Add our signature to the tree

@@ -1,127 +1,100 @@
-const { encodeAbiParameters, keccak256, toHex } = require("viem");
-
-/**
- * @typedef {import('./custodyRollup.types').RfqSwapOpenParams} RfqSwapOpenParams
- * @typedef {import('./custodyRollup.types').RfqFillSwapOpenParams} RfqFillSwapOpenParams
- * @typedef {import('./custodyRollup.types').custodyInitVanillaParams} CustodyInitVanillaParams
- * @typedef {import('./custodyRollup.types').custodyDepositErc20Params} CustodyDepositErc20Params
- * @typedef {import('./custodyRollup.types').QuoteSwapOpenParams} QuoteSwapOpenParams
- * @typedef {import('./custodyRollup.types').QuoteFillSwapOpenParams} QuoteFillSwapOpenParams
- * @typedef {import('./custodyRollup.types').MarginCallSwapOpenParams} MarginCallSwapOpenParams
- * @typedef {import('./custodyRollup.types').custodyWithdrawErc20Params} CustodyWithdrawErc20Params
- */
+const { encodeAbiParameters, keccak256 } = require("viem");
 
 class CustodyRollupTreeBuilder {
-  constructor(domain) {
+  constructor() {
     this.messages = [];
-    this.EIP712_DOMAIN = domain;
   }
 
-  // Helper to create the type data for EIP712 signing
-  _createTypeData(message) {
-    const types = {
-      // Common fields across all types
-      Common: [
-        { name: "type", type: "string" },
-        { name: "timestamp", type: "string" },
-        { name: "nonce", type: "string" },
-      ],
-      // Specific types based on message type
-      "custody/init/vanilla": [
-        { name: "partyA", type: "address" },
-        { name: "partyB", type: "address" },
-        { name: "custodyId", type: "bytes32" },
-        { name: "settlementAddress", type: "address" },
-        { name: "MA", type: "address" },
-        { name: "isManaged", type: "string" },
-        { name: "expiration", type: "string" },
-      ],
-      "custody/deposit/erc20": [
-        { name: "partyA", type: "address" },
-        { name: "partyB", type: "address" },
-        { name: "custodyId", type: "string" },
-        { name: "collateralAmount", type: "string" },
-        { name: "collateralToken", type: "address" },
-        { name: "expiration", type: "string" },
-      ],
-      "rfq/swap/open": [
-        { name: "ISIN", type: "string" },
-        { name: "amount", type: "string" },
-        { name: "price", type: "string" },
-        { name: "side", type: "string" },
-        { name: "fundingRate", type: "string" },
-        { name: "IM_A", type: "string" },
-        { name: "IM_B", type: "string" },
-        { name: "MM_A", type: "string" },
-        { name: "MM_B", type: "string" },
-        { name: "CVA_A", type: "string" },
-        { name: "CVA_B", type: "string" },
-        { name: "MC_A", type: "string" },
-        { name: "MC_B", type: "string" },
-        { name: "contractExpiry", type: "string" },
-        { name: "pricePrecision", type: "string" },
-        { name: "fundingRatePrecision", type: "string" },
-        { name: "cancelGracePeriod", type: "string" },
-        { name: "minContractAmount", type: "string" },
-        { name: "oracleType", type: "string" },
-        { name: "expiration", type: "string" },
-      ],
-      "rfqFill/swap/open": [
-        { name: "amount", type: "string" },
-        { name: "price", type: "string" },
-        { name: "rfqNonce", type: "string" },
-      ],
-      "quote/swap/open": [
-        { name: "assetName", type: "string" },
-        { name: "amount", type: "string" },
-        { name: "price", type: "string" },
-        { name: "side", type: "string" },
-        { name: "rfqFillNonce", type: "string" },
-      ],
-      "quoteFill/swap/open": [
-        { name: "assetName", type: "string" },
-        { name: "amount", type: "string" },
-        { name: "price", type: "string" },
-        { name: "side", type: "string" },
-        { name: "quoteNonce", type: "string" },
-      ],
-      "marginCall/swap/open": [{ name: "quoteNonce", type: "string" }],
-    };
+  static CREATE_CUSTODY_TYPEHASH = keccak256(
+    "createCustodyParams(address partyA,address partyB,uint256 custodyId,address settlementAddress,bytes32 MA,bool isManaged,uint256 expiration,uint256 timestamp,bytes32 nonce)"
+  );
 
-    return {
-      domain: this.EIP712_DOMAIN,
-      types,
-      primaryType: message.type,
-      message,
-    };
-  }
+  static TRANSFER_TO_CUSTODY_TYPEHASH = keccak256(
+    "transferToCustodyParams(address partyA,address partyB,uint256 custodyId,uint256 collateralAmount,address collateralToken,uint256 expiration,uint256 timestamp,bytes32 nonce)"
+  );
 
-  // Add a new message to the tree
-  /**
-   * @param {RfqSwapOpenParams|RfqFillSwapOpenParams|CustodyInitVanillaParams|CustodyDepositErc20Params|QuoteSwapOpenParams|QuoteFillSwapOpenParams|MarginCallSwapOpenParams|CustodyWithdrawErc20Params} params
-   * @param {string|null} signature
-   * @returns {Promise<string>} messageHash
-   */
+  static UPDATE_MA_TYPEHASH = keccak256(
+    "updateMAParams(address partyA,address partyB,uint256 custodyId,bytes32 MA,uint256 expiration,uint256 timestamp,bytes32 nonce)"
+  );
   async addMessage(params, signature = null) {
+    let structHash;
+
+    if (params.type === "custody/init/vanilla") {
+      structHash = keccak256(
+        encodeAbiParameters(
+          [
+            { type: "bytes32" }, // typehash
+            { type: "address" }, // partyA
+            { type: "address" }, // partyB
+            { type: "uint256" }, // custodyId
+            { type: "address" }, // settlementAddress
+            { type: "bytes32" }, // MA
+            { type: "bool" }, // isManaged
+            { type: "uint256" }, // expiration
+            { type: "uint256" }, // timestamp
+            { type: "bytes32" }, // nonce
+          ],
+          [
+            CustodyRollupTreeBuilder.CREATE_CUSTODY_TYPEHASH,
+            params.partyA,
+            params.partyB,
+            BigInt(params.custodyId),
+            params.settlementAddress,
+            params.MA,
+            params.isManaged,
+            BigInt(params.expiration),
+            BigInt(params.timestamp),
+            keccak256(
+              encodeAbiParameters([{ type: "bytes32" }], [params.nonce])
+            ),
+          ]
+        )
+      );
+      console.log("structHash", structHash);
+    } else if (params.type === "custody/deposit/erc20") {
+      // Encode parameters for transfer to custody
+      const encodedParams = encodeAbiParameters(
+        [
+          { type: "address" }, // partyA
+          { type: "address" }, // partyB
+          { type: "uint256" }, // custodyId
+          { type: "uint256" }, // collateralAmount
+          { type: "address" }, // collateralToken
+          { type: "uint256" }, // expiration
+          { type: "uint256" }, // timestamp
+          { type: "bytes32" }, // nonce
+        ],
+        [
+          params.partyA,
+          params.partyB,
+          BigInt(params.custodyId),
+          BigInt(params.collateralAmount),
+          params.collateralToken,
+          BigInt(params.expiration),
+          BigInt(params.timestamp),
+          params.nonce,
+        ]
+      );
+
+      structHash = keccak256(
+        encodeAbiParameters(
+          [
+            { type: "bytes32" }, // typehash
+            { type: "bytes" }, // encoded params
+          ],
+          [CustodyRollupTreeBuilder.TRANSFER_TO_CUSTODY_TYPEHASH, encodedParams]
+        )
+      );
+    }
+
     const message = {
       signatures: signature ? [signature] : [],
       params,
+      messageHash: structHash,
     };
 
-    // Generate hash for the message
-    const typeData = this._createTypeData(params);
-    // Convert any BigInts to strings before stringification
-    const stringifiedTypeData = JSON.parse(JSON.stringify(typeData, (_, value) =>
-      typeof value === 'bigint' ? value.toString() : value
-    ));
-    
-    const messageHash = keccak256(
-      encodeAbiParameters([{ type: "bytes" }], [JSON.stringify(stringifiedTypeData)])
-    );
-
-    message.messageHash = messageHash;
     this.messages.push(message);
-    return messageHash;
+    return structHash;
   }
 
   // Add a counterparty signature to a message
@@ -175,17 +148,18 @@ class CustodyRollupTreeBuilder {
 
   getTypes() {
     return {
-      createCustodyParams: [
+      Message: [
+        { name: "type", type: "string" },
         { name: "partyA", type: "address" },
         { name: "partyB", type: "address" },
-        { name: "custodyId", type: "uint256" },
+        { name: "custodyId", type: "string" },
         { name: "settlementAddress", type: "address" },
         { name: "MA", type: "bytes32" },
-        { name: "isManaged", type: "bool" },
-        { name: "expiration", type: "uint256" },
-        { name: "timestamp", type: "uint256" },
-        { name: "nonce", type: "bytes32" }
-      ]
+        { name: "isManaged", type: "string" },
+        { name: "expiration", type: "string" },
+        { name: "timestamp", type: "string" },
+        { name: "nonce", type: "bytes32" },
+      ],
     };
   }
 }
