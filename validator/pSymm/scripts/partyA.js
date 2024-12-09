@@ -24,6 +24,7 @@ async function main() {
     walletClient,
     pSymm,
     mockSymm,
+    // custodyId: process.env.CUSTODY_ID || Math.floor(Math.random() * (2**20)) + 1,
   });
 
   await partyA.start();
@@ -34,15 +35,15 @@ async function main() {
   // Execute flow
   await partyA.deposit("10");
   await partyA.initiateCustodyFlow(partyBAddress);
-  
+
   // Wait for counterparty signatures
-  await new Promise(resolve => setTimeout(resolve, 2000));
-  
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+
   await partyA.transferToCustody("5", partyBAddress);
-  
+
   // Wait for custody operations
-  await new Promise(resolve => setTimeout(resolve, 2000));
-  
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+
   await partyA.closeCustody("5", partyBAddress);
   await partyA.withdraw("5");
 

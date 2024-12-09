@@ -4,7 +4,7 @@ const config = require("../config.js");
 const CustodyRollupTreeBuilder = require("./lib/custodyRollupTreeBuilder");
 
 const WALLET_ID = 3;
-const CUSTODY_ID = 1;
+const CUSTODY_ID = process.env.CUSTODY_ID || Math.floor(Math.random() * (2**20)) + 1;
 const COLLATERAL_AMOUNT = "10";
 
 async function main() {

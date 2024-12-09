@@ -11,6 +11,8 @@ class PSymmParty {
     this.walletClient = config.walletClient;
     this.pSymm = config.pSymm;
     this.mockSymm = config.mockSymm;
+    this.custodyId =
+      config.custodyId || Math.floor(Math.random() * 2 ** 20) + 1;
 
     this.treeBuilder = new CustodyRollupTreeBuilder({
       name: "pSymm",
@@ -58,6 +60,11 @@ class PSymmParty {
     CustodyId: ${message.payload.custodyId}
   `);
 
+        // For PartyB, use the custodyId from the incoming message
+        if (message.payload.params.type === "custody/init/vanilla") {
+          this.custodyId = message.payload.params.custodyId;
+        }
+
         try {
           const messageHash = await this.treeBuilder.addMessage(
             message.payload.params
@@ -65,7 +72,7 @@ class PSymmParty {
           console.log(`Added message to tree with hash: ${messageHash}`);
 
           const signature = await this.walletClient.signMessage({
-            message: messageHash,
+            message: { raw: messageHash },
           });
           console.log("Generated signature for message");
 
@@ -134,11 +141,7 @@ class PSymmParty {
 
     console.log("Executing deposit transaction...");
     await this.pSymm.write.deposit(
-      [
-        this.mockSymm.address,
-        parseEther(amount),
-        1, // custodyId
-      ],
+      [this.mockSymm.address, parseEther(amount), this.custodyId],
       {
         account: this.walletClient.account,
       }
@@ -159,7 +162,7 @@ class PSymmParty {
     console.log(`Generated message hash: ${messageHash}`);
 
     const signature = await this.walletClient.signMessage({
-      message: messageHash,
+      message: { raw: messageHash },
     });
     console.log("Generated signature for transfer");
 
@@ -189,7 +192,7 @@ class PSymmParty {
       type: "custody/init/vanilla",
       partyA: this.address,
       partyB: counterpartyAddress,
-      custodyId: 1,
+      custodyId: this.custodyId,
       settlementAddress: this.pSymm.address,
       MA: "0x0000000000000000000000000000000000000000000000000000000000000000",
       isManaged: false,
@@ -202,7 +205,7 @@ class PSymmParty {
     // Get message hash and sign it directly
     const messageHash = await this.treeBuilder.addMessage(initMessage);
     const signature = await this.walletClient.signMessage({
-      message: messageHash,
+      message: { raw: messageHash },
     });
 
     // Add our signature to the tree
@@ -212,7 +215,7 @@ class PSymmParty {
     this.client.emit("tree.propose", {
       type: "tree.propose",
       payload: {
-        custodyId: "1",
+        custodyId: this.custodyId,
         messageHash,
         signature,
         params: initMessage,
@@ -240,7 +243,7 @@ class PSymmParty {
           signatureB: counterpartySignature,
           partyA: this.address,
           partyB: counterpartyAddress,
-          custodyId: 1,
+          custodyId: this.custodyId,
           settlementAddress: this.pSymm.address,
           MA: "0x0000000000000000000000000000000000000000000000000000000000000000",
           isManaged: false,
@@ -264,7 +267,7 @@ class PSymmParty {
       type: "custody/deposit/erc20",
       partyA: this.address,
       partyB: counterpartyAddress,
-      custodyId: "1",
+      custodyId: this.custodyId,
       collateralAmount: amount,
       collateralToken: this.mockSymm.address,
       expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
@@ -276,7 +279,7 @@ class PSymmParty {
     // Add message to tree and get initial signature
     const messageHash = await this.treeBuilder.addMessage(transferMessage);
     const signature = await this.walletClient.signMessage({
-      message: messageHash,
+      message: { raw: messageHash },
     });
     this.treeBuilder.addSignature(messageHash, signature);
 
@@ -284,7 +287,7 @@ class PSymmParty {
     this.client.emit("tree.propose", {
       type: "tree.propose",
       payload: {
-        custodyId: "1",
+        custodyId: this.custodyId,
         messageHash,
         signature,
         params: transferMessage,
@@ -320,7 +323,7 @@ class PSymmParty {
           signatureB: formattedSignatureB,
           partyA: this.address,
           partyB: counterpartyAddress,
-          custodyId: 1,
+          custodyId: this.custodyId,
           collateralAmount: parseEther(amount),
           collateralToken: this.mockSymm.address,
           senderCustodyId: "0x" + "0".repeat(64), // Add missing field
@@ -328,7 +331,7 @@ class PSymmParty {
           timestamp: Math.floor(Date.now() / 1000),
           nonce: transferMessage.nonce,
         },
-        1, // senderCustodyId
+        this.custodyId, // senderCustodyId
       ],
       {
         account: this.walletClient.account,
@@ -343,7 +346,7 @@ class PSymmParty {
       type: "custody/withdraw/erc20",
       partyA: this.address,
       partyB: counterpartyAddress,
-      custodyId: "1",
+      custodyId: this.custodyId,
       collateralAmount: amount,
       collateralToken: this.mockSymm.address,
       expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
@@ -354,14 +357,14 @@ class PSymmParty {
 
     const messageHash = await this.treeBuilder.addMessage(closeMessage);
     const signature = await this.walletClient.signMessage({
-      message: messageHash,
+      message: { raw: messageHash },
     });
     this.treeBuilder.addSignature(messageHash, signature);
 
     this.client.emit("tree.propose", {
       type: "tree.propose",
       payload: {
-        custodyId: "1",
+        custodyId: this.custodyId,
         messageHash,
         signature,
         params: closeMessage,
@@ -377,7 +380,7 @@ class PSymmParty {
       [
         this.mockSymm.address,
         parseEther(amount),
-        1, // custodyId
+        this.custodyId, // custodyId
       ],
       {
         account: this.walletClient.account,

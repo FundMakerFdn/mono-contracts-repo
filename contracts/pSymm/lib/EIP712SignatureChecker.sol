@@ -171,7 +171,10 @@ library EIP712SignatureChecker {
         console.log("Expected signer:", expectedSigner);
         console.log("Signature length:", signature.length);
         
-        address recoveredSigner = ECDSA.recover(hash, signature);
+        // Add EIP-191 prefix to match Viem's behavior
+        bytes32 prefixedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
+        
+        address recoveredSigner = ECDSA.recover(prefixedHash, signature);
         console.log("Recovered signer:", recoveredSigner);
         
         return recoveredSigner == expectedSigner;

@@ -28,12 +28,12 @@ async function main() {
 
   await partyB.start();
 
-  // Get PartyA's address  
+  // Get PartyA's address
   const partyAAddress = (await hre.viem.getWalletClients())[0].account.address;
 
   // Execute flow
   await partyB.deposit("10");
-  
+
   // PartyB waits for and responds to PartyA's messages
   // The socket handlers will automatically sign and respond
 

@@ -60,6 +60,7 @@ class CustodyRollupTreeBuilder {
           { type: "uint256" }, // custodyId
           { type: "uint256" }, // collateralAmount
           { type: "address" }, // collateralToken
+          { type: "bytes32" }, // senderCustodyId
           { type: "uint256" }, // expiration
           { type: "uint256" }, // timestamp
           { type: "bytes32" }, // nonce
@@ -70,6 +71,7 @@ class CustodyRollupTreeBuilder {
           BigInt(params.custodyId),
           BigInt(params.collateralAmount),
           params.collateralToken,
+          params.senderCustodyId,
           BigInt(params.expiration),
           BigInt(params.timestamp),
           params.nonce,
