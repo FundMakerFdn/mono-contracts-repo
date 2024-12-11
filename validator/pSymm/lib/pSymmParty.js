@@ -14,6 +14,9 @@ class PSymmParty {
     this.custodyId =
       config.custodyId || Math.floor(Math.random() * 2 ** 20) + 1;
 
+    // Add nonce counter starting at 0
+    this.nonceCounter = 0;
+
     this.treeBuilder = new CustodyRollupTreeBuilder({
       name: "pSymm",
       version: "1.0",
@@ -181,6 +184,21 @@ class PSymmParty {
     console.log("Sent tree.propose to counterparty");
   }
 
+  // Helper method to generate and increment nonce
+  generateNonce(isPartyA) {
+    // Convert counter to hex, pad to 60 chars (30 bytes)
+    const counterHex = this.nonceCounter.toString(16).padStart(62, "0");
+
+    // Prefix with A0 for PartyA or B0 for PartyB
+    const prefix = isPartyA ? "a0" : "b0";
+
+    // Increment counter for next use
+    this.nonceCounter++;
+
+    // Return full 32 byte nonce
+    return "0x" + prefix + counterHex;
+  }
+
   async initiateCustodyFlow(counterpartyAddress) {
     console.log("\nInitiating custody flow...");
 
@@ -198,8 +216,7 @@ class PSymmParty {
       isManaged: false,
       expiration,
       timestamp,
-      nonce:
-        "0xA000000000000000000000000000000000000000000000000000000000000000",
+      nonce: this.generateNonce(true), // We are PartyA
     };
 
     // Get message hash and sign it directly
@@ -279,8 +296,7 @@ class PSymmParty {
         "0x0000000000000000000000000000000000000000000000000000000000000000",
       expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
       timestamp: Math.floor(Date.now() / 1000).toString(),
-      nonce:
-        "0xA100000000000000000000000000000000000000000000000000000000000000",
+      nonce: this.generateNonce(true), // We are PartyA
     };
 
     // Add message to tree and get initial signature

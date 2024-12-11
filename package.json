@@ -29,7 +29,9 @@
     "test": "node validator/pSymm/lib/custodyRollupTreeBuilder.js",
     "addSymm": "hardhat addSymm --network localhost",
     "read": "hardhat read --network localhost",
-    "write": "hardhat write --network localhost"
+    "write": "hardhat write --network localhost",
+    "pSymmA": "hardhat run --network localhost validator/pSymm/scripts/partyA.js",
+    "pSymmB": "hardhat run --network localhost validator/pSymm/scripts/partyB.js"
   },
   "imports": {
     "#root/*": "./*"

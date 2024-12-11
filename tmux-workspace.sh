@@ -17,6 +17,9 @@ tmux split-window -h -t $SESSION_NAME:0
 # Split the leftmost pane horizontally
 tmux split-window -v -t $SESSION_NAME:0.0
 
+# Split the rightmost pane horizontally
+tmux split-window -v -t $SESSION_NAME:0.3
+
 
 tmux resize-pane -t $SESSION_NAME:0.0 -x 10
 tmux resize-pane -t $SESSION_NAME:0.2 -x 25
