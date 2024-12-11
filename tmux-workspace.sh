@@ -35,8 +35,8 @@ tmux send-keys -t $SESSION_NAME:0.1 "sleep 5; yarn miner" C-m
 # Center vertical pane
 tmux send-keys -t $SESSION_NAME:0.2 "sleep 7; yarn deploy" C-m
 
-# # Right vertical pane
-# tmux send-keys -t $SESSION_NAME:0.3 "echo 'Pane 4: Right'; sleep 999999" C-m
+# Right pane (top)
+tmux send-keys -t $SESSION_NAME:0.3 "yarn addSymm 0; yarn addSymm 1" C-l
 
 # Attach to the session
 tmux attach -t $SESSION_NAME
