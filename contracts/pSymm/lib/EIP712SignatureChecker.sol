@@ -22,7 +22,8 @@ library EIP712SignatureChecker {
         bytes32 nonce;
     }
 
-    struct transferToCustodyParams {
+    struct transferCustodyParams {
+		bool isAdd;
         bytes signatureA;
         bytes signatureB;
         address partyA;
@@ -30,7 +31,6 @@ library EIP712SignatureChecker {
         uint256 custodyId;
         uint256 collateralAmount;
         address collateralToken;
-        bytes32 senderCustodyId;
         uint256 expiration;
         uint256 timestamp;
         bytes32 nonce;
@@ -52,8 +52,8 @@ library EIP712SignatureChecker {
         "createCustodyParams(address partyA,address partyB,uint256 custodyId,address settlementAddress,bytes32 MA,bool isManaged,uint256 expiration,uint256 timestamp,bytes32 nonce)"
     );
 
-    bytes32 private constant TRANSFER_TO_CUSTODY_TYPEHASH = keccak256(
-        "transferToCustodyParams(address partyA,address partyB,uint256 custodyId,uint256 collateralAmount,address collateralToken,uint256 expiration,uint256 timestamp,bytes32 nonce)"
+    bytes32 private constant TRANSFER_CUSTODY_TYPEHASH = keccak256(
+        "transferCustodyParams(bool isAdd,address partyA,address partyB,uint256 custodyId,uint256 collateralAmount,address collateralToken,uint256 expiration,uint256 timestamp,bytes32 nonce)"
     );
 
     bytes32 private constant UPDATE_MA_TYPEHASH = keccak256(
@@ -92,10 +92,11 @@ library EIP712SignatureChecker {
         return true;
     }
 
-    function verifyTransferToCustodyEIP712(transferToCustodyParams memory params) internal pure returns (bool) {
+    function verifyTransferCustodyEIP712(transferCustodyParams memory params) internal pure returns (bool) {
         bytes32 structHashSender = keccak256(
             abi.encode(
-                TRANSFER_TO_CUSTODY_TYPEHASH,
+                TRANSFER_CUSTODY_TYPEHASH,
+				params.isAdd,
                 params.partyA,
                 params.partyB,
                 params.custodyId,

@@ -260,11 +260,16 @@ class PSymmParty {
     console.log("Custody created on-chain");
   }
 
-  async transferToCustody(amount, counterpartyAddress) {
-    console.log("\nInitiating transfer to custody...");
+  async transferCustody(isAdd, amount, counterpartyAddress) {
+    const transferType = isAdd
+      ? "custody/deposit/erc20"
+      : "custody/withdraw/erc20";
+
+    console.log("\nInitiating transfer:", transferType);
 
     const transferMessage = {
-      type: "custody/deposit/erc20",
+      isAdd: isAdd,
+      type: transferType,
       partyA: this.address,
       partyB: counterpartyAddress,
       custodyId: this.custodyId,
@@ -318,9 +323,10 @@ class PSymmParty {
       : `0x${counterpartySignature}`;
 
     // Now we have both signatures, execute the transfer
-    await this.pSymm.write.transferToCustody(
+    await this.pSymm.write.transferCustody(
       [
         {
+          isAdd: isAdd,
           signatureA: formattedSignatureA,
           signatureB: formattedSignatureB,
           partyA: this.address,
@@ -339,39 +345,6 @@ class PSymmParty {
         account: this.walletClient.account,
       }
     );
-  }
-
-  async closeCustody(amount, counterpartyAddress) {
-    console.log("\nInitiating custody closure...");
-
-    const closeMessage = {
-      type: "custody/withdraw/erc20",
-      partyA: this.address,
-      partyB: counterpartyAddress,
-      custodyId: this.custodyId,
-      collateralAmount: amount,
-      collateralToken: this.mockSymm.address,
-      expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
-      timestamp: Math.floor(Date.now() / 1000).toString(),
-      nonce:
-        "0xA200000000000000000000000000000000000000000000000000000000000000",
-    };
-
-    const messageHash = await this.treeBuilder.addMessage(closeMessage);
-    const signature = await this.walletClient.signMessage({
-      message: { raw: messageHash },
-    });
-    this.treeBuilder.addSignature(messageHash, signature);
-
-    this.client.emit("tree.propose", {
-      type: "tree.propose",
-      payload: {
-        custodyId: this.custodyId,
-        messageHash,
-        signature,
-        params: closeMessage,
-      },
-    });
   }
 
   async withdraw(amount) {

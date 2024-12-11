@@ -130,43 +130,51 @@ contract pSymm is EIP712 {
         emit CustodyCreated(params.custodyId, params.partyA, params.partyB, params.settlementAddress);
     }
 
-    function _handleTransferToCustody(
+    function _handleTransferCustody(
         address partyA,
         address partyB,
         uint256 custodyId,
         address collateralToken,
         uint256 collateralAmount,
         bool isA,
+        bool isAdd,
         uint256 _senderCustodyId
     ) internal {
         address sender = isA ? partyA : partyB;
         bytes32 custodyId_ = keccak256(abi.encodePacked(partyA, partyB, custodyId));
         bytes32 senderCustodyId = keccak256(abi.encodePacked(sender, sender, _senderCustodyId));
 
-        _transferCustodyBalance(senderCustodyId, custodyId_, collateralToken, collateralAmount);
-
-        emit TransferToCustody(custodyId_, collateralToken, collateralAmount, sender);
+        if (isAdd) {
+            // Handle deposit
+            _transferCustodyBalance(senderCustodyId, custodyId_, collateralToken, collateralAmount);
+            emit TransferToCustody(custodyId_, collateralToken, collateralAmount, sender);
+        } else {
+            // Handle withdrawal
+            _transferCustodyBalance(custodyId_, senderCustodyId, collateralToken, collateralAmount);
+            emit WithdrawFromCustody(custodyId_, collateralToken, collateralAmount, sender);
+        }
     }
 
 
     // @notice Withdraw from custody, all withdraws requires EIP712 signature of counterparty
     // TODO if isManaged, open a dispute with merkle root
-    function transferToCustody(EIP712SignatureChecker.transferToCustodyParams calldata params, uint256 _senderCustodyId) 
+    function transferCustody(EIP712SignatureChecker.transferCustodyParams calldata params, uint256 _senderCustodyId) 
         external 
         checkAndClaimSignatures(params.signatureA, params.signatureB) 
         checkExpiration(params.expiration) 
         checkCustodyOwner(params.partyA, params.partyB, params.custodyId)
     {
         bool isA = _getIsA(params.nonce);
-        require(EIP712SignatureChecker.verifyTransferToCustodyEIP712(params), "Invalid signature");
+        require(EIP712SignatureChecker.verifyTransferCustodyEIP712(params), "Invalid signature");
         
-        _handleTransferToCustody(
+        _handleTransferCustody(
             params.partyA,
             params.partyB,
             params.custodyId,
             params.collateralToken,
             params.collateralAmount,
             isA,
+            params.isAdd,
             _senderCustodyId
         );
     }

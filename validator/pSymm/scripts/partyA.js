@@ -39,12 +39,12 @@ async function main() {
   // Wait for counterparty signatures
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
-  await partyA.transferToCustody("5", partyBAddress);
+  await partyA.transferCustody(true, "5", partyBAddress);
 
   // Wait for custody operations
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
-  await partyA.closeCustody("5", partyBAddress);
+  await partyA.transferCustody(false, "5", partyBAddress);
   await partyA.withdraw("5");
 
   // Print final tree state
