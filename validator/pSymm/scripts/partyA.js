@@ -45,7 +45,7 @@ async function main() {
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
   await partyA.transferCustody(false, "5", partyBAddress);
-  await partyA.withdraw("5");
+  await partyA.withdraw("10");
 
   // Print final tree state
   console.log("\nFinal Custody Rollup Tree State:");
