@@ -74,6 +74,12 @@ class PSymmParty {
         console.log(JSON.stringify(this.treeBuilder.getTree(), null, 2));
         console.log("\nMerkle Root:");
         console.log(this.treeBuilder.getMerkleRoot());
+        
+        // Reset state after disconnect
+        this.treeBuilder.clear();
+        this.nonceCounter = 0;
+        this.custodyId = undefined;
+        console.log("State reset after disconnect");
       });
     });
   }
