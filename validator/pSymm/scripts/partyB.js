@@ -20,27 +20,40 @@ async function main() {
   const partyB = new PSymmParty({
     address: walletClient.account.address,
     port: 3002,
-    counterpartyUrl: "http://127.0.0.1:3001",
     walletClient,
     pSymm,
     mockSymm,
   });
 
   await partyB.start();
+  console.log("Waiting for PartyA to connect...");
 
   // Get PartyA's address
   const partyAAddress = (await hre.viem.getWalletClients())[0].account.address;
 
-  // Execute flow
+  // Execute flow - only respond to partyA's actions
   await partyB.deposit("10");
 
-  // PartyB waits for and responds to PartyA's messages
-  // The socket handlers will automatically sign and respond
+  // Wait for custody initialization from partyA
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+
+  // Mirror partyA's transfer actions without initiating new flows
+  // await partyB.transferCustody(true, "5", partyAAddress);
+
+  // await new Promise((resolve) => setTimeout(resolve, 2000));
+
+  // await partyB.transferCustody(false, "5", partyAAddress);
+
+  // Print final tree state
+  // console.log("\nFinal Custody Rollup Tree State:");
+  // console.log(JSON.stringify(partyB.treeBuilder.getTree(), null, 2));
 
   // Keep running until interrupted
   await new Promise((resolve) => {
-    process.on("SIGINT", () => {
+    process.on("SIGINT", async () => {
       partyB.stop();
+      console.log("Withdrawing deposit...");
+      await partyB.withdraw("10");
       resolve();
     });
   });

@@ -7,7 +7,6 @@ class PSymmParty {
   constructor(config) {
     this.address = config.address;
     this.port = config.port;
-    this.counterpartyUrl = config.counterpartyUrl;
     this.walletClient = config.walletClient;
     this.pSymm = config.pSymm;
     this.mockSymm = config.mockSymm;
@@ -32,6 +31,7 @@ class PSymmParty {
     });
 
     this.client = null;
+    this.isPartyA = false;
     this.setupServer();
   }
 
@@ -43,58 +43,104 @@ class PSymmParty {
 
       this.server.listen(this.port);
       console.log(`Server listening on port ${this.port}`);
-
-      this.client = io(this.counterpartyUrl);
-      this.setupClient();
     } catch (err) {
       console.error(`Failed to start server on port ${this.port}:`, err);
       throw err;
     }
   }
 
+  async connectToCounterparty(counterpartyUrl) {
+    console.log(`Connecting to counterparty at ${counterpartyUrl}`);
+    this.client = io(counterpartyUrl);
+    this.isPartyA = true;
+    
+    return new Promise((resolve, reject) => {
+      this.client.on('connect', () => {
+        console.log('Connected as PartyA');
+        this.setupPartyAClient();
+        resolve();
+      });
+      this.client.on('connect_error', (error) => {
+        reject(error);
+      });
+    });
+  }
+
   setupServer() {
     this.server.on("connection", (socket) => {
-      console.log("Client connected");
+      console.log("Received connection, acting as PartyB");
+      this.setupPartyBSocket(socket);
+      
+      socket.on('disconnect', () => {
+        console.log("\nPartyA disconnected. Final Custody Rollup Tree State:");
+        console.log(JSON.stringify(this.treeBuilder.getTree(), null, 2));
+      });
+    });
+  }
 
-      socket.on("tree.propose", async (message) => {
-        console.log(`\nReceived tree.propose action:
+  setupPartyBSocket(socket) {
+    socket.on("tree.propose", async (message) => {
+      console.log(`\nReceived tree.propose action as PartyB:
     Type: ${message.payload.params.type}
     From: ${message.payload.params.partyA}
     CustodyId: ${message.payload.custodyId}
   `);
 
-        // For PartyB, use the custodyId from the incoming message
-        if (message.payload.params.type === "custody/init/vanilla") {
-          this.custodyId = message.payload.params.custodyId;
-        }
+      // For PartyB, use the custodyId from the incoming message
+      if (message.payload.params.type === "custody/init/vanilla") {
+        this.custodyId = message.payload.params.custodyId;
+      }
 
-        try {
-          const messageHash = await this.treeBuilder.addMessage(
-            message.payload.params
-          );
-          console.log(`Added message to tree with hash: ${messageHash}`);
+      try {
+        const messageHash = await this.treeBuilder.addMessage(
+          message.payload.params
+        );
+        console.log(`Added message to tree with hash: ${messageHash}`);
 
-          const signature = await this.walletClient.signMessage({
-            message: { raw: messageHash },
-          });
-          console.log("Generated signature for message");
+        const signature = await this.walletClient.signMessage({
+          message: { raw: messageHash },
+        });
+        console.log("Generated signature for message");
 
-          socket.emit("tree.sign", {
-            custodyId: message.payload.custodyId,
-            messageHash,
-            signature,
-          });
-          console.log("Sent tree.sign response");
-        } catch (err) {
-          console.error("Failed to process tree.propose:", err);
-          socket.emit("tree.reject", {
-            custodyId: message.payload.custodyId,
-            messageHash: message.payload.messageHash,
-            reason: err.message,
-          });
-          console.log("Sent tree.reject response");
-        }
-      });
+        socket.emit("tree.sign", {
+          custodyId: message.payload.custodyId,
+          messageHash,
+          signature,
+        });
+        console.log("Sent tree.sign response");
+      } catch (err) {
+        console.error("Failed to process tree.propose:", err);
+        socket.emit("tree.reject", {
+          custodyId: message.payload.custodyId,
+          messageHash: message.payload.messageHash,
+          reason: err.message,
+        });
+        console.log("Sent tree.reject response");
+      }
+    });
+  }
+
+  setupPartyAClient() {
+    this.client.on("tree.sign", async (message) => {
+      console.log(`\nPartyA received tree.sign response:
+    CustodyId: ${message.custodyId}
+    MessageHash: ${message.messageHash}
+  `);
+
+      this.treeBuilder.addSignature(message.messageHash, message.signature);
+      console.log("Added counterparty signature to tree");
+
+      const isFullySigned = this.treeBuilder.isMessageFullySigned(
+        message.messageHash
+      );
+      console.log(`Message is ${isFullySigned ? "fully" : "not fully"} signed`);
+    });
+
+    this.client.on("tree.reject", (message) => {
+      console.error(`\nTree action rejected for custody ${message.custodyId}:
+    Reason: ${message.reason}
+    MessageHash: ${message.messageHash}
+  `);
     });
   }
 

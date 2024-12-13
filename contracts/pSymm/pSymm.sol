@@ -62,6 +62,8 @@ contract pSymm is EIP712 {
         bytes32 custodyId = keccak256(abi.encodePacked(partyA, partyB, _custodyId));
         require(custodys[custodyId].custodyType == 0, "Custody already closed"); // @flow to delete ?
         require(partyA != partyB, "Party A and Party B cannot be the same"); // @flow to delete
+		console.log("Custody check owner debug, id", _custodyId);
+		console.log("Party A, B:", address(custodys[custodyId].partyA), address(custodys[custodyId].partyB));
         require(custodys[custodyId].partyA == partyA && custodys[custodyId].partyB == partyB, "Invalid custodial rollup owner");
         _;
     }

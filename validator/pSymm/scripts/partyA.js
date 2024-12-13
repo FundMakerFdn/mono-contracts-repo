@@ -20,14 +20,13 @@ async function main() {
   const partyA = new PSymmParty({
     address: walletClient.account.address,
     port: 3001,
-    counterpartyUrl: "http://127.0.0.1:3002",
     walletClient,
     pSymm,
     mockSymm,
-    // custodyId: process.env.CUSTODY_ID || Math.floor(Math.random() * (2**20)) + 1,
   });
 
   await partyA.start();
+  await partyA.connectToCounterparty("http://127.0.0.1:3002");
 
   // Get PartyB's address
   const partyBAddress = (await hre.viem.getWalletClients())[1].account.address;
