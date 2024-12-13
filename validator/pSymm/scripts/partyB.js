@@ -29,7 +29,7 @@ async function main() {
   console.log("Waiting for PartyA to connect...");
 
   // Get PartyA's address
-  const partyAAddress = (await hre.viem.getWalletClients())[0].account.address;
+  // const partyAAddress = (await hre.viem.getWalletClients())[0].account.address;
 
   // Execute flow - only respond to partyA's actions
   await partyB.deposit("10");

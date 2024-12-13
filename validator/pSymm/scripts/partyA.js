@@ -33,17 +33,33 @@ async function main() {
 
   // Execute flow
   await partyA.deposit("10");
-  await partyA.initiateCustodyFlow(partyBAddress);
+
+  // Generate bilateral custody ID
+  const bilateralCustodyId = Math.floor(Math.random() * 2 ** 20) + 1;
+
+  await partyA.initiateCustodyFlow(partyBAddress, bilateralCustodyId);
 
   // Wait for counterparty signatures
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
-  await partyA.transferCustody(true, "5", partyBAddress);
+  await partyA.transferCustody(
+    true,
+    "5",
+    partyBAddress,
+    bilateralCustodyId,
+    true
+  );
 
   // Wait for custody operations
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
-  await partyA.transferCustody(false, "5", partyBAddress);
+  await partyA.transferCustody(
+    false,
+    "5",
+    partyBAddress,
+    bilateralCustodyId,
+    true
+  );
   await partyA.withdraw("10");
 
   // Print final tree state

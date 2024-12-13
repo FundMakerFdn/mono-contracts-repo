@@ -10,8 +10,7 @@ class PSymmParty {
     this.walletClient = config.walletClient;
     this.pSymm = config.pSymm;
     this.mockSymm = config.mockSymm;
-    this.custodyId =
-      config.custodyId || Math.floor(Math.random() * 2 ** 20) + 1;
+    this.personalCustodyId = 1; // Default personal custody ID
 
     // Add nonce counter starting at 0
     this.nonceCounter = 0;
@@ -31,7 +30,6 @@ class PSymmParty {
     });
 
     this.client = null;
-    this.isPartyA = false;
     this.setupServer();
   }
 
@@ -52,15 +50,14 @@ class PSymmParty {
   async connectToCounterparty(counterpartyUrl) {
     console.log(`Connecting to counterparty at ${counterpartyUrl}`);
     this.client = io(counterpartyUrl);
-    this.isPartyA = true;
-    
+
     return new Promise((resolve, reject) => {
-      this.client.on('connect', () => {
-        console.log('Connected as PartyA');
+      this.client.on("connect", () => {
+        console.log("Connected as PartyA");
         this.setupPartyAClient();
         resolve();
       });
-      this.client.on('connect_error', (error) => {
+      this.client.on("connect_error", (error) => {
         reject(error);
       });
     });
@@ -70,8 +67,8 @@ class PSymmParty {
     this.server.on("connection", (socket) => {
       console.log("Received connection, acting as PartyB");
       this.setupPartyBSocket(socket);
-      
-      socket.on('disconnect', () => {
+
+      socket.on("disconnect", () => {
         console.log("\nPartyA disconnected. Final Custody Rollup Tree State:");
         console.log(JSON.stringify(this.treeBuilder.getTree(), null, 2));
       });
@@ -144,40 +141,10 @@ class PSymmParty {
     });
   }
 
-  setupClient() {
-    this.client.on("connect", () => {
-      console.log(`\nConnected to counterparty at ${this.counterpartyUrl}`);
-    });
-
-    this.client.on("disconnect", () => {
-      console.log("\nDisconnected from counterparty");
-    });
-
-    this.client.on("tree.sign", async (message) => {
-      console.log(`\nReceived tree.sign response:
-    CustodyId: ${message.custodyId}
-    MessageHash: ${message.messageHash}
-  `);
-
-      this.treeBuilder.addSignature(message.messageHash, message.signature);
-      console.log("Added counterparty signature to tree");
-
-      const isFullySigned = this.treeBuilder.isMessageFullySigned(
-        message.messageHash
-      );
-      console.log(`Message is ${isFullySigned ? "fully" : "not fully"} signed`);
-    });
-
-    this.client.on("tree.reject", (message) => {
-      console.error(`\nTree action rejected for custody ${message.custodyId}:
-    Reason: ${message.reason}
-    MessageHash: ${message.messageHash}
-  `);
-    });
-  }
-
   async deposit(amount) {
-    console.log(`\nInitiating deposit of ${amount} tokens...`);
+    console.log(
+      `\nInitiating deposit of ${amount} tokens to personal custody ${this.personalCustodyId}...`
+    );
 
     console.log("Approving token transfer...");
     await this.mockSymm.write.approve(
@@ -190,7 +157,7 @@ class PSymmParty {
 
     console.log("Executing deposit transaction...");
     await this.pSymm.write.deposit(
-      [this.mockSymm.address, parseEther(amount), this.custodyId],
+      [this.mockSymm.address, parseEther(amount), this.personalCustodyId],
       {
         account: this.walletClient.account,
       }
@@ -245,8 +212,9 @@ class PSymmParty {
     return "0x" + prefix + counterHex;
   }
 
-  async initiateCustodyFlow(counterpartyAddress) {
+  async initiateCustodyFlow(counterpartyAddress, custodyId) {
     console.log("\nInitiating custody flow...");
+    this.custodyId = custodyId;
 
     const timestamp = Math.floor(Date.now() / 1000);
     const expiration = timestamp + 3600;
@@ -256,7 +224,7 @@ class PSymmParty {
       type: "custody/init/vanilla",
       partyA: this.address,
       partyB: counterpartyAddress,
-      custodyId: this.custodyId,
+      custodyId: custodyId,
       settlementAddress: this.pSymm.address,
       MA: "0x0000000000000000000000000000000000000000000000000000000000000000",
       isManaged: false,
@@ -323,7 +291,7 @@ class PSymmParty {
     console.log("Custody created on-chain");
   }
 
-  async transferCustody(isAdd, amount, counterpartyAddress) {
+  async transferCustody(isAdd, amount, counterpartyAddress, custodyId, isA) {
     const transferType = isAdd
       ? "custody/deposit/erc20"
       : "custody/withdraw/erc20";
@@ -335,14 +303,14 @@ class PSymmParty {
       type: transferType,
       partyA: this.address,
       partyB: counterpartyAddress,
-      custodyId: this.custodyId,
+      custodyId: custodyId,
       collateralAmount: amount,
       collateralToken: this.mockSymm.address,
       senderCustodyId:
         "0x0000000000000000000000000000000000000000000000000000000000000000",
       expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
       timestamp: Math.floor(Date.now() / 1000).toString(),
-      nonce: this.generateNonce(true), // We are PartyA
+      nonce: this.generateNonce(isA), // We are PartyA
     };
 
     // Add message to tree and get initial signature
@@ -401,7 +369,7 @@ class PSymmParty {
           timestamp: Math.floor(Date.now() / 1000),
           nonce: transferMessage.nonce,
         },
-        this.custodyId, // senderCustodyId
+        this.personalCustodyId,
       ],
       {
         account: this.walletClient.account,
@@ -410,15 +378,13 @@ class PSymmParty {
   }
 
   async withdraw(amount) {
-    console.log(`\nInitiating withdrawal of ${amount} tokens...`);
+    console.log(
+      `\nInitiating withdrawal of ${amount} tokens from personal custody ${this.personalCustodyId}...`
+    );
 
     console.log("Executing withdrawal transaction...");
     await this.pSymm.write.withdraw(
-      [
-        this.mockSymm.address,
-        parseEther(amount),
-        this.custodyId, // custodyId
-      ],
+      [this.mockSymm.address, parseEther(amount), this.personalCustodyId],
       {
         account: this.walletClient.account,
       }
