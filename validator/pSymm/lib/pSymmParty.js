@@ -30,6 +30,7 @@ class PSymmParty {
     });
 
     this.client = null;
+    this.setupMessageHandling = this.setupMessageHandling.bind(this);
     this.setupServer();
   }
 
@@ -53,8 +54,8 @@ class PSymmParty {
 
     return new Promise((resolve, reject) => {
       this.client.on("connect", () => {
-        console.log("Connected as PartyA");
-        this.setupPartyAClient();
+        console.log("Connected as client");
+        this.setupMessageHandling(this.client, false);
         resolve();
       });
       this.client.on("connect_error", (error) => {
@@ -65,61 +66,61 @@ class PSymmParty {
 
   setupServer() {
     this.server.on("connection", (socket) => {
-      console.log("Received connection, acting as PartyB");
-      this.setupPartyBSocket(socket);
+      console.log("Received connection, acting as server");
+      this.setupMessageHandling(socket, true);
 
       socket.on("disconnect", () => {
-        console.log("\nPartyA disconnected. Final Custody Rollup Tree State:");
+        console.log("\nPeer disconnected. Final Custody Rollup Tree State:");
         console.log(JSON.stringify(this.treeBuilder.getTree(), null, 2));
       });
     });
   }
 
-  setupPartyBSocket(socket) {
+  async setupMessageHandling(socket, isServer) {
     socket.on("tree.propose", async (message) => {
-      console.log(`\nReceived tree.propose action as PartyB:
+      console.log(`\nReceived tree.propose action:
     Type: ${message.payload.params.type}
     From: ${message.payload.params.partyA}
-    CustodyId: ${message.payload.custodyId}
+    CustodyId: ${message.payload.params.custodyId}
   `);
 
-      // For PartyB, use the custodyId from the incoming message
+      // For receiving party, use the custodyId from the incoming message
       if (message.payload.params.type === "custody/init/vanilla") {
         this.custodyId = message.payload.params.custodyId;
       }
 
       try {
-        const messageHash = await this.treeBuilder.addMessage(
-          message.payload.params
-        );
+        // Add message to local tree
+        const messageHash = await this.treeBuilder.addMessage(message.payload.params);
         console.log(`Added message to tree with hash: ${messageHash}`);
 
+        // Generate and add own signature
         const signature = await this.walletClient.signMessage({
           message: { raw: messageHash },
         });
         console.log("Generated signature for message");
+        this.treeBuilder.addSignature(messageHash, signature);
 
+        // Send signature back
         socket.emit("tree.sign", {
-          custodyId: message.payload.custodyId,
+          custodyId: message.payload.params.custodyId,
           messageHash,
           signature,
         });
         console.log("Sent tree.sign response");
+
       } catch (err) {
         console.error("Failed to process tree.propose:", err);
         socket.emit("tree.reject", {
-          custodyId: message.payload.custodyId,
+          custodyId: message.payload.params.custodyId,
           messageHash: message.payload.messageHash,
           reason: err.message,
         });
-        console.log("Sent tree.reject response");
       }
     });
-  }
 
-  setupPartyAClient() {
-    this.client.on("tree.sign", async (message) => {
-      console.log(`\nPartyA received tree.sign response:
+    socket.on("tree.sign", async (message) => {
+      console.log(`\nReceived tree.sign response:
     CustodyId: ${message.custodyId}
     MessageHash: ${message.messageHash}
   `);
@@ -127,14 +128,13 @@ class PSymmParty {
       this.treeBuilder.addSignature(message.messageHash, message.signature);
       console.log("Added counterparty signature to tree");
 
-      const isFullySigned = this.treeBuilder.isMessageFullySigned(
-        message.messageHash
-      );
+      const isFullySigned = this.treeBuilder.isMessageFullySigned(message.messageHash);
       console.log(`Message is ${isFullySigned ? "fully" : "not fully"} signed`);
     });
 
-    this.client.on("tree.reject", (message) => {
-      console.error(`\nTree action rejected for custody ${message.custodyId}:
+    socket.on("tree.reject", (message) => {
+      console.error(`\nTree action rejected:
+    CustodyId: ${message.custodyId}
     Reason: ${message.reason}
     MessageHash: ${message.messageHash}
   `);
@@ -185,7 +185,8 @@ class PSymmParty {
     this.treeBuilder.addSignature(messageHash, signature);
     console.log("Added own signature to tree");
 
-    this.client.emit("tree.propose", {
+    const socket = this.client || this.server;
+    socket.emit("tree.propose", {
       type: "tree.propose",
       payload: {
         custodyId: params.custodyId,
@@ -195,6 +196,15 @@ class PSymmParty {
       },
     });
     console.log("Sent tree.propose to counterparty");
+
+    // Wait for counterparty signature
+    return new Promise((resolve) => {
+      socket.once("tree.sign", (response) => {
+        if (response.messageHash === messageHash) {
+          resolve(response.signature);
+        }
+      });
+    });
   }
 
   // Helper method to generate and increment nonce
@@ -203,7 +213,7 @@ class PSymmParty {
     const counterHex = this.nonceCounter.toString(16).padStart(62, "0");
 
     // Prefix with A0 for PartyA or B0 for PartyB
-    const prefix = isPartyA ? "a0" : "b0";
+    const prefix = isPartyA ? "A0" : "B0";
 
     // Increment counter for next use
     this.nonceCounter++;
