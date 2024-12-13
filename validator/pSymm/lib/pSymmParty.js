@@ -54,8 +54,8 @@ class PSymmParty {
 
     return new Promise((resolve, reject) => {
       this.client.on("connect", () => {
-        console.log("Connected as client");
-        this.setupMessageHandling(this.client, false);
+        console.log("Connected as client (party A)");
+        this.setupMessageHandling(this.client, true);
         resolve();
       });
       this.client.on("connect_error", (error) => {
@@ -66,8 +66,8 @@ class PSymmParty {
 
   setupServer() {
     this.server.on("connection", (socket) => {
-      console.log("Received connection, acting as server");
-      this.setupMessageHandling(socket, true);
+      console.log("Received connection, acting as server (party B)");
+      this.setupMessageHandling(socket, false);
 
       socket.on("disconnect", () => {
         console.log("\nPeer disconnected. Final Custody Rollup Tree State:");
@@ -76,11 +76,14 @@ class PSymmParty {
     });
   }
 
-  async setupMessageHandling(socket, isServer) {
+  async setupMessageHandling(socket, isA) {
     socket.on("tree.propose", async (message) => {
+      const counterparty = isA
+        ? message.payload.params.partyB
+        : message.payload.params.partyA;
       console.log(`\nReceived tree.propose action:
     Type: ${message.payload.params.type}
-    From: ${message.payload.params.partyA}
+    Counterparty: ${counterparty}
     CustodyId: ${message.payload.params.custodyId}
   `);
 
@@ -91,7 +94,9 @@ class PSymmParty {
 
       try {
         // Add message to local tree
-        const messageHash = await this.treeBuilder.addMessage(message.payload.params);
+        const messageHash = await this.treeBuilder.addMessage(
+          message.payload.params
+        );
         console.log(`Added message to tree with hash: ${messageHash}`);
 
         // Generate and add own signature
@@ -108,7 +113,6 @@ class PSymmParty {
           signature,
         });
         console.log("Sent tree.sign response");
-
       } catch (err) {
         console.error("Failed to process tree.propose:", err);
         socket.emit("tree.reject", {
@@ -116,6 +120,29 @@ class PSymmParty {
           messageHash: message.payload.messageHash,
           reason: err.message,
         });
+      }
+
+      if (!isA) {
+        if (message.payload.params.type === "custody/deposit/erc20") {
+          await this.transferCustody(
+            socket,
+            true,
+            message.payload.params.collateralAmount,
+            counterparty,
+            message.payload.params.custodyId,
+            isA
+          );
+        }
+        if (message.payload.params.type === "custody/withdraw/erc20") {
+          await this.transferCustody(
+            socket,
+            false,
+            message.payload.params.collateralAmount,
+            counterparty,
+            message.payload.params.custodyId,
+            isA
+          );
+        }
       }
     });
 
@@ -128,7 +155,9 @@ class PSymmParty {
       this.treeBuilder.addSignature(message.messageHash, message.signature);
       console.log("Added counterparty signature to tree");
 
-      const isFullySigned = this.treeBuilder.isMessageFullySigned(message.messageHash);
+      const isFullySigned = this.treeBuilder.isMessageFullySigned(
+        message.messageHash
+      );
       console.log(`Message is ${isFullySigned ? "fully" : "not fully"} signed`);
     });
 
@@ -307,49 +336,61 @@ class PSymmParty {
     amount,
     counterpartyAddress,
     custodyId,
-    isA
+    isPartyA
   ) {
-    const transferType = isAdd
-      ? "custody/deposit/erc20"
-      : "custody/withdraw/erc20";
+    // Define the two parties with their signatures
+    const thisParty = {
+      address: this.address,
+      wallet: this.walletClient,
+      signature: null,
+    };
 
-    console.log("\nInitiating transfer:", transferType);
+    const counterparty = {
+      address: counterpartyAddress,
+      signature: null,
+    };
+
+    // Determine who is A and B (we use a ref to objects)
+    const partyA = isPartyA ? thisParty : counterparty;
+    const partyB = isPartyA ? counterparty : thisParty;
+
+    console.log("\nInitiating transfer:", isAdd ? "deposit" : "withdraw");
+    console.log("This party is:", isPartyA ? "Party A" : "Party B");
 
     const transferMessage = {
       isAdd: isAdd,
-      type: transferType,
-      partyA: this.address,
-      partyB: counterpartyAddress,
+      type: isAdd ? "custody/deposit/erc20" : "custody/withdraw/erc20",
+      partyA: partyA.address,
+      partyB: partyB.address,
       custodyId: custodyId,
       collateralAmount: amount,
       collateralToken: this.mockSymm.address,
-      senderCustodyId:
-        "0x0000000000000000000000000000000000000000000000000000000000000000",
+      senderCustodyId: "0x" + "0".repeat(64),
       expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
       timestamp: Math.floor(Date.now() / 1000).toString(),
-      nonce: this.generateNonce(isA), // We are PartyA
+      nonce: this.generateNonce(isPartyA),
     };
 
-    // Add message to tree and get initial signature
+    // Add message to tree and get our signature
     const messageHash = await this.treeBuilder.addMessage(transferMessage);
-    const signature = await this.walletClient.signMessage({
+    thisParty.signature = await thisParty.wallet.signMessage({
       message: { raw: messageHash },
     });
-    this.treeBuilder.addSignature(messageHash, signature);
+    this.treeBuilder.addSignature(messageHash, thisParty.signature);
 
     // Send to counterparty and wait for their signature
     socket.emit("tree.propose", {
       type: "tree.propose",
       payload: {
-        custodyId: this.custodyId,
+        custodyId: custodyId,
         messageHash,
-        signature,
+        signature: thisParty.signature,
         params: transferMessage,
       },
     });
 
     // Wait for counterparty signature
-    const counterpartySignature = await new Promise((resolve) => {
+    counterparty.signature = await new Promise((resolve) => {
       socket.once("tree.sign", (response) => {
         if (response.messageHash === messageHash) {
           resolve(response.signature);
@@ -357,31 +398,19 @@ class PSymmParty {
       });
     });
 
-    // Log signatures for debugging
-    console.log("Signature A:", signature);
-    console.log("Signature B:", counterpartySignature);
-
-    // Ensure signatures are properly formatted hex strings
-    const formattedSignatureA = signature.startsWith("0x")
-      ? signature
-      : `0x${signature}`;
-    const formattedSignatureB = counterpartySignature.startsWith("0x")
-      ? counterpartySignature
-      : `0x${counterpartySignature}`;
-
-    // Now we have both signatures, execute the transfer
+    // Execute the transfer onchain
     await this.pSymm.write.transferCustody(
       [
         {
           isAdd: isAdd,
-          signatureA: formattedSignatureA,
-          signatureB: formattedSignatureB,
-          partyA: this.address,
-          partyB: counterpartyAddress,
-          custodyId: this.custodyId,
+          signatureA: partyA.signature,
+          signatureB: partyB.signature,
+          partyA: partyA.address,
+          partyB: partyB.address,
+          custodyId: custodyId,
           collateralAmount: parseEther(amount),
           collateralToken: this.mockSymm.address,
-          senderCustodyId: "0x" + "0".repeat(64), // Add missing field
+          senderCustodyId: "0x" + "0".repeat(64),
           expiration: Math.floor(Date.now() / 1000) + 3600,
           timestamp: Math.floor(Date.now() / 1000),
           nonce: transferMessage.nonce,
@@ -389,7 +418,7 @@ class PSymmParty {
         this.personalCustodyId,
       ],
       {
-        account: this.walletClient.account,
+        account: thisParty.wallet.account,
       }
     );
   }

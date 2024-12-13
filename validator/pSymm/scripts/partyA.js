@@ -40,7 +40,7 @@ async function main() {
   await partyA.initiateCustodyFlow(partyBAddress, bilateralCustodyId);
 
   // Wait for counterparty signatures
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  await new Promise((resolve) => setTimeout(resolve, 5000));
 
   await partyA.transferCustody(
     partyA.client,
@@ -52,7 +52,7 @@ async function main() {
   );
 
   // Wait for custody operations
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  await new Promise((resolve) => setTimeout(resolve, 5000));
 
   await partyA.transferCustody(
     partyA.client,
