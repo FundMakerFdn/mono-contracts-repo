@@ -43,6 +43,7 @@ async function main() {
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
   await partyA.transferCustody(
+    partyA.client,
     true,
     "5",
     partyBAddress,
@@ -54,6 +55,7 @@ async function main() {
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
   await partyA.transferCustody(
+    partyA.client,
     false,
     "5",
     partyBAddress,

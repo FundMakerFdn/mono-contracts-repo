@@ -291,7 +291,14 @@ class PSymmParty {
     console.log("Custody created on-chain");
   }
 
-  async transferCustody(isAdd, amount, counterpartyAddress, custodyId, isA) {
+  async transferCustody(
+    socket,
+    isAdd,
+    amount,
+    counterpartyAddress,
+    custodyId,
+    isA
+  ) {
     const transferType = isAdd
       ? "custody/deposit/erc20"
       : "custody/withdraw/erc20";
@@ -321,7 +328,7 @@ class PSymmParty {
     this.treeBuilder.addSignature(messageHash, signature);
 
     // Send to counterparty and wait for their signature
-    this.client.emit("tree.propose", {
+    socket.emit("tree.propose", {
       type: "tree.propose",
       payload: {
         custodyId: this.custodyId,
@@ -333,7 +340,7 @@ class PSymmParty {
 
     // Wait for counterparty signature
     const counterpartySignature = await new Promise((resolve) => {
-      this.client.once("tree.sign", (response) => {
+      socket.once("tree.sign", (response) => {
         if (response.messageHash === messageHash) {
           resolve(response.signature);
         }
