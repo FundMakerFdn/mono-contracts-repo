@@ -37,17 +37,6 @@ async function main() {
   // Wait for custody initialization from partyA
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
-  // Mirror partyA's transfer actions without initiating new flows
-  // await partyB.transferCustody(true, "5", partyAAddress);
-
-  // await new Promise((resolve) => setTimeout(resolve, 2000));
-
-  // await partyB.transferCustody(false, "5", partyAAddress);
-
-  // Print final tree state
-  // console.log("\nFinal Custody Rollup Tree State:");
-  // console.log(JSON.stringify(partyB.treeBuilder.getTree(), null, 2));
-
   // Keep running until interrupted
   await new Promise((resolve) => {
     process.on("SIGINT", async () => {

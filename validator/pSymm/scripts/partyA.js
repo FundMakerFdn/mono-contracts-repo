@@ -64,9 +64,11 @@ async function main() {
   );
   await partyA.withdraw("10");
 
-  // Print final tree state
+  // Print final tree state and root
   console.log("\nFinal Custody Rollup Tree State:");
   console.log(JSON.stringify(partyA.treeBuilder.getTree(), null, 2));
+  console.log("\nMerkle Root:");
+  console.log(partyA.treeBuilder.getMerkleRoot());
 
   partyA.stop();
 }

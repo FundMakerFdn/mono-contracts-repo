@@ -72,6 +72,8 @@ class PSymmParty {
       socket.on("disconnect", () => {
         console.log("\nPeer disconnected. Final Custody Rollup Tree State:");
         console.log(JSON.stringify(this.treeBuilder.getTree(), null, 2));
+        console.log("\nMerkle Root:");
+        console.log(this.treeBuilder.getMerkleRoot());
       });
     });
   }

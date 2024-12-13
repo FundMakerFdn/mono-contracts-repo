@@ -1,4 +1,5 @@
 const { encodeAbiParameters, keccak256, parseEther } = require("viem");
+const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
 
 class CustodyRollupTreeBuilder {
   constructor() {
@@ -162,6 +163,65 @@ class CustodyRollupTreeBuilder {
         { name: "nonce", type: "bytes32" },
       ],
     };
+  }
+
+  getMerkleRoot() {
+    // Convert messages to leaf format
+    const leaves = this.messages.map(message => {
+        const params = message.params;
+        
+        switch(params.type) {
+            case "custody/init/vanilla":
+                return [
+                    params.type,
+                    params.partyA,
+                    params.partyB, 
+                    BigInt(params.custodyId),
+                    params.settlementAddress,
+                    params.MA,
+                    params.isManaged,
+                    BigInt(params.expiration),
+                    BigInt(params.timestamp),
+                    params.nonce
+                ];
+                
+            case "custody/deposit/erc20":
+            case "custody/withdraw/erc20":
+                return [
+                    params.type,
+                    params.partyA,
+                    params.partyB,
+                    BigInt(params.custodyId),
+                    params.collateralToken,
+                    "0x" + "0".repeat(64), // Empty bytes32 for unused MA field
+                    params.isAdd,
+                    BigInt(params.expiration),
+                    BigInt(params.timestamp),
+                    params.nonce
+                ];
+                
+            default:
+                throw new Error(`Unsupported message type: ${params.type}`);
+        }
+    });
+
+    // Define the types for the tree
+    const types = [
+        "string",   // type
+        "address",  // partyA
+        "address",  // partyB 
+        "uint256",  // custodyId
+        "address",  // settlementAddress/collateralToken
+        "bytes32",  // MA/unused
+        "bool",     // isManaged/isAdd
+        "uint256",  // expiration
+        "uint256",  // timestamp
+        "bytes32"   // nonce
+    ];
+
+    // Create and return merkle root
+    const tree = StandardMerkleTree.of(leaves, types);
+    return tree.root;
   }
 }
 

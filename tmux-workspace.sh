@@ -37,7 +37,7 @@ tmux send-keys -t $SESSION_NAME:0.1 "sleep 5; yarn miner" C-m
 tmux send-keys -t $SESSION_NAME:0.2 "sleep 7; yarn deploy" C-m
 
 # Right pane (top)
-tmux send-keys -t $SESSION_NAME:0.3 "sleep 10; yarn addSymm 0; sleep 1; yarn pSymmA" C-m
+tmux send-keys -t $SESSION_NAME:0.3 "sleep 10; yarn addSymm 0; sleep 3; yarn pSymmA" C-m
 tmux send-keys -t $SESSION_NAME:0.4 "sleep 10; yarn addSymm 1; yarn pSymmB" C-m
 
 # Attach to the session
