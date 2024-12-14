@@ -96,7 +96,7 @@ class PSymmParty {
   `);
 
       // For receiving party, use the custodyId from the incoming message
-      if (message.payload.params.type === "custody/init/vanilla") {
+      if (message.payload.params.type === "initialize/billateral/standard") {
         this.custodyId = message.payload.params.custodyId;
       }
 
@@ -131,7 +131,7 @@ class PSymmParty {
       }
 
       if (!isA) {
-        if (message.payload.params.type === "custody/deposit/erc20") {
+        if (message.payload.params.type === "transfer/deposit/ERC20") {
           await this.transferCustody(
             socket,
             true,
@@ -141,7 +141,7 @@ class PSymmParty {
             isA
           );
         }
-        if (message.payload.params.type === "custody/withdraw/erc20") {
+        if (message.payload.params.type === "transfer/withdraw/ERC20") {
           await this.transferCustody(
             socket,
             false,
@@ -268,7 +268,7 @@ class PSymmParty {
 
     // Create custody init message
     const initMessage = {
-      type: "custody/init/vanilla",
+      type: "initialize/billateral/standard",
       partyA: this.address,
       partyB: counterpartyAddress,
       custodyId: custodyId,
@@ -367,7 +367,7 @@ class PSymmParty {
 
     const transferMessage = {
       isAdd: isAdd,
-      type: isAdd ? "custody/deposit/erc20" : "custody/withdraw/erc20",
+      type: isAdd ? "transfer/deposit/ERC20" : "transfer/withdraw/ERC20",
       partyA: partyA.address,
       partyB: partyB.address,
       custodyId: custodyId,

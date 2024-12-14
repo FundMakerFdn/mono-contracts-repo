@@ -64,7 +64,7 @@ async function main() {
 
   // Create initial vanilla custody message
   const initMessage = {
-    type: "custody/init/vanilla",
+    type: "initialize/billateral/standard",
     partyA: walletClient.account.address,
     partyB: walletClient.account.address, // Same address for personal custody
     custodyId: CUSTODY_ID.toString(),
@@ -98,7 +98,7 @@ async function main() {
 
   // Create deposit message
   const depositMessage = {
-    type: "custody/deposit/erc20",
+    type: "transfer/deposit/ERC20",
     partyA: walletClient.account.address,
     partyB: walletClient.account.address, // Same address for personal custody
     custodyId: CUSTODY_ID.toString(),

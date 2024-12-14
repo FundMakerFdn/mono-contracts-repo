@@ -36,7 +36,7 @@
  */
 
 /**
- * @typedef {Object} custodyInitVanillaParams
+ * @typedef {Object} InitializeBillateralStandardParams
  * @property {string} type
  * @property {string} partyA
  * @property {string} partyB
@@ -50,7 +50,7 @@
  */
 
 /**
- * @typedef {Object} custodyDepositErc20Params
+ * @typedef {Object} TransferDepositERC20Params
  * @property {string} type
  * @property {string} partyA
  * @property {string} partyB
@@ -95,7 +95,7 @@
  */
 
 /**
- * @typedef {Object} custodyWithdrawErc20Params
+ * @typedef {Object} TransferWithdrawERC20Params
  * @property {string} type
  * @property {string} partyA
  * @property {string} partyB
@@ -110,7 +110,7 @@
 /**
  * @typedef {Object} JsonObject
  * @property {string[]} signatures
- * @property {RfqSwapOpenParams|RfqFillSwapOpenParams|CustodyInitVanillaParams|CustodyDepositErc20Params|QuoteSwapOpenParams|QuoteFillSwapOpenParams|MarginCallSwapOpenParams|CustodyWithdrawErc20Params} params
+ * @property {RfqSwapOpenParams|RfqFillSwapOpenParams|InitializeBillateralStandardParams|TransferDepositERC20Params|QuoteSwapOpenParams|QuoteFillSwapOpenParams|MarginCallSwapOpenParams|TransferWithdrawERC20Params} params
  */
 
 /**

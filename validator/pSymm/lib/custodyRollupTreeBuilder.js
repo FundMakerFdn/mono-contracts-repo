@@ -21,7 +21,7 @@ class CustodyRollupTreeBuilder {
   async addMessage(params, signature = null) {
     let structHash;
 
-    if (params.type === "custody/init/vanilla") {
+    if (params.type === "initialize/billateral/standard") {
       structHash = keccak256(
         encodeAbiParameters(
           [
@@ -54,7 +54,7 @@ class CustodyRollupTreeBuilder {
       );
       console.log("structHash", structHash);
     } else if (
-      ["custody/deposit/erc20", "custody/withdraw/erc20"].includes(params.type)
+      ["transfer/deposit/ERC20", "transfer/withdraw/ERC20"].includes(params.type)
     ) {
       structHash = keccak256(
         encodeAbiParameters(
@@ -171,7 +171,7 @@ class CustodyRollupTreeBuilder {
         const params = message.params;
         
         switch(params.type) {
-            case "custody/init/vanilla":
+            case "initialize/billateral/standard":
                 return [
                     params.type,
                     params.partyA,
@@ -185,8 +185,8 @@ class CustodyRollupTreeBuilder {
                     params.nonce
                 ];
                 
-            case "custody/deposit/erc20":
-            case "custody/withdraw/erc20":
+            case "transfer/deposit/ERC20":
+            case "transfer/withdraw/ERC20":
                 return [
                     params.type,
                     params.partyA,
