@@ -38,6 +38,9 @@ async function main() {
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
   // Keep running until interrupted
+  // Execute any queued actions before waiting for interrupt
+  await partyB.executeAll();
+
   await new Promise((resolve) => {
     process.on("SIGINT", async () => {
       partyB.stop();

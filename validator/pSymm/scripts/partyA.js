@@ -38,6 +38,7 @@ async function main() {
   const bilateralCustodyId = Math.floor(Math.random() * 2 ** 20) + 1;
 
   await partyA.initiateCustodyFlow(partyBAddress, bilateralCustodyId);
+  await partyA.executeAll();
 
   // Wait for counterparty signatures
   await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -50,6 +51,7 @@ async function main() {
     bilateralCustodyId,
     true
   );
+  await partyA.executeFront();
 
   // Wait for custody operations
   await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -62,6 +64,8 @@ async function main() {
     bilateralCustodyId,
     true
   );
+  await partyA.executeFront();
+
   await partyA.withdraw("10");
 
   // Print final tree state and root

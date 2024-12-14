@@ -15,6 +15,9 @@ class PSymmParty {
     // Add nonce counter starting at 0
     this.nonceCounter = 0;
 
+    // Add action queue
+    this.onchainActionQueue = [];
+
     this.treeBuilder = new CustodyRollupTreeBuilder({
       name: "pSymm",
       version: "1.0",
@@ -310,29 +313,26 @@ class PSymmParty {
     console.log("Signature A:", signature);
     console.log("Signature B:", counterpartySignature);
     // Create custody on-chain with both signatures
-    await this.pSymm.write.CreateCustody(
-      [
-        {
-          signatureA: signature,
-          signatureB: counterpartySignature,
-          partyA: this.address,
-          partyB: counterpartyAddress,
-          custodyId: this.custodyId,
-          settlementAddress: this.pSymm.address,
-          MA: "0x0000000000000000000000000000000000000000000000000000000000000000",
-          isManaged: false,
-          expiration: Math.floor(Date.now() / 1000) + 3600,
-          timestamp: Math.floor(Date.now() / 1000),
-          partyId: 1,
-          nonce: initMessage.nonce,
-        },
-      ],
-      {
-        account: this.walletClient.account,
+    await this.queueOnchainAction({
+      type: 'createCustody',
+      messageHash,
+      params: {
+        signatureA: signature,
+        signatureB: counterpartySignature,
+        partyA: this.address,
+        partyB: counterpartyAddress,
+        custodyId: this.custodyId,
+        settlementAddress: this.pSymm.address,
+        MA: "0x0000000000000000000000000000000000000000000000000000000000000000",
+        isManaged: false,
+        expiration: Math.floor(Date.now() / 1000) + 3600,
+        timestamp: Math.floor(Date.now() / 1000),
+        partyId: 1,
+        nonce: initMessage.nonce,
       }
-    );
+    });
 
-    console.log("Custody created on-chain");
+    console.log("Custody creation queued");
   }
 
   async transferCustody(
@@ -405,29 +405,27 @@ class PSymmParty {
     });
 
     // Execute the transfer onchain
-    await this.pSymm.write.transferCustody(
-      [
-        {
-          isAdd: isAdd,
-          signatureA: partyA.signature,
-          signatureB: partyB.signature,
-          partyA: partyA.address,
-          partyB: partyB.address,
-          custodyId: custodyId,
-          collateralAmount: parseEther(amount),
-          collateralToken: this.mockSymm.address,
-          senderCustodyId: "0x" + "0".repeat(64),
-          expiration: Math.floor(Date.now() / 1000) + 3600,
-          timestamp: Math.floor(Date.now() / 1000),
-          partyId: isPartyA ? 1 : 2,
-          nonce: transferMessage.nonce,
-        },
-        this.personalCustodyId,
-      ],
-      {
-        account: thisParty.wallet.account,
+    await this.queueOnchainAction({
+      type: 'transferCustody',
+      messageHash,
+      params: {
+        isAdd: isAdd,
+        signatureA: partyA.signature,
+        signatureB: partyB.signature,
+        partyA: partyA.address,
+        partyB: partyB.address,
+        custodyId: custodyId,
+        collateralAmount: parseEther(amount),
+        collateralToken: this.mockSymm.address,
+        senderCustodyId: "0x" + "0".repeat(64),
+        expiration: Math.floor(Date.now() / 1000) + 3600,
+        timestamp: Math.floor(Date.now() / 1000),
+        partyId: isPartyA ? 1 : 2,
+        nonce: transferMessage.nonce,
       }
-    );
+    });
+
+    console.log("Transfer custody queued");
   }
 
   async withdraw(amount) {
@@ -443,6 +441,63 @@ class PSymmParty {
       }
     );
     console.log("Withdrawal transaction completed successfully");
+  }
+
+  async queueOnchainAction(action) {
+    const hasRequiredSignatures = this.treeBuilder.isMessageFullySigned(action.messageHash);
+    
+    if (!hasRequiredSignatures) {
+      throw new Error("Cannot queue action - missing required signatures");
+    }
+    
+    this.onchainActionQueue.push(action);
+    console.log(`Action queued. Queue length: ${this.onchainActionQueue.length}`);
+  }
+
+  async executeFront() {
+    if (this.onchainActionQueue.length === 0) {
+      console.log("No actions in queue");
+      return;
+    }
+
+    const action = this.onchainActionQueue[0];
+    await this.executeAction(action);
+    this.onchainActionQueue.shift();
+    console.log("Executed front of queue");
+  }
+
+  async executeAll() {
+    if (this.onchainActionQueue.length === 0) {
+      console.log("No actions in queue");
+      return;
+    }
+
+    console.log(`Executing ${this.onchainActionQueue.length} queued actions`);
+    while (this.onchainActionQueue.length > 0) {
+      const action = this.onchainActionQueue[0];
+      await this.executeAction(action);
+      this.onchainActionQueue.shift();
+    }
+    console.log("All queued actions executed");
+  }
+
+  async executeAction(action) {
+    switch (action.type) {
+      case 'createCustody':
+        await this.pSymm.write.CreateCustody([action.params], {
+          account: this.walletClient.account,
+        });
+        break;
+        
+      case 'transferCustody':
+        await this.pSymm.write.transferCustody([action.params, this.personalCustodyId], {
+          account: this.walletClient.account,
+        });
+        break;
+        
+      default:
+        throw new Error(`Unknown action type: ${action.type}`);
+    }
   }
 
   stop() {
