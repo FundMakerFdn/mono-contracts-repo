@@ -36,10 +36,10 @@ async function main() {
 
   partyB.server.on("connection", async (socket) => {
     // Wait for custody initialization from partyA
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    await partyB.dropActionQueue(); // party A executes custody init
+    // await new Promise((resolve) => setTimeout(resolve, 3000));
+    // await partyB.dropActionQueue(); // party A executes custody init
     // wait for counterparty transfers
-    await new Promise((resolve) => setTimeout(resolve, 4000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
     await partyB.executeOnchain();
   });
 

@@ -38,11 +38,9 @@ async function main() {
   const bilateralCustodyId = Math.floor(Math.random() * 2 ** 20) + 1;
 
   await partyA.initiateCustodyFlow(partyBAddress, bilateralCustodyId);
-  await partyA.executeOnchain();
+  // await partyA.executeOnchain();
 
   // wait for counterparty
-  await new Promise((resolve) => setTimeout(resolve, 5000));
-
   await partyA.transferCustody(
     partyA.client,
     true,
