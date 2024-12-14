@@ -166,7 +166,7 @@ class PSymmParty {
       const isFullySigned = this.treeBuilder.isMessageFullySigned(
         message.messageHash
       );
-      console.log(`Message is ${isFullySigned ? "fully" : "not fully"} signed`);
+      console.log(`Message is ${isFullySigned ? "fully" : "NOT fully"} signed`);
     });
 
     socket.on("tree.reject", (message) => {

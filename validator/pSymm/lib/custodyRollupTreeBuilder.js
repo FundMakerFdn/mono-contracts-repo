@@ -1,6 +1,30 @@
 const { encodeAbiParameters, keccak256, parseEther } = require("viem");
 const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
 
+function deterministicStringify(obj) {
+  // Sort arrays if present (including signatures array)
+  if (Array.isArray(obj)) {
+    return JSON.stringify(obj.sort());
+  }
+  
+  // Get all keys and sort them
+  const sortedKeys = Object.keys(obj).sort();
+  
+  // Build new object with sorted keys
+  const sortedObj = {};
+  sortedKeys.forEach(key => {
+    const value = obj[key];
+    // Recursively handle nested objects and arrays
+    if (typeof value === 'object' && value !== null) {
+      sortedObj[key] = deterministicStringify(value);
+    } else {
+      sortedObj[key] = value;
+    }
+  });
+  
+  return JSON.stringify(sortedObj);
+}
+
 class CustodyRollupTreeBuilder {
   constructor() {
     this.messages = [];
@@ -19,8 +43,14 @@ class CustodyRollupTreeBuilder {
   );
 
   async addMessage(params, signature = null) {
-    let structHash;
+    const message = {
+      signatures: [],
+      params,
+      messageHash: null
+    };
 
+    // Calculate messageHash for signatures
+    let structHash;
     if (params.type === "initialize/billateral/standard") {
       structHash = keccak256(
         encodeAbiParameters(
@@ -52,12 +82,7 @@ class CustodyRollupTreeBuilder {
           ]
         )
       );
-      console.log("structHash", structHash);
-    } else if (
-      ["transfer/deposit/ERC20", "transfer/withdraw/ERC20"].includes(
-        params.type
-      )
-    ) {
+    } else if (["transfer/deposit/ERC20", "transfer/withdraw/ERC20"].includes(params.type)) {
       structHash = keccak256(
         encodeAbiParameters(
           [
@@ -88,15 +113,13 @@ class CustodyRollupTreeBuilder {
           ]
         )
       );
-      console.log("structHash", structHash);
     }
-
-    const message = {
-      signatures: signature ? [signature] : [],
-      params,
-      messageHash: structHash,
-    };
-
+    
+    message.messageHash = structHash;
+    if (signature) {
+      message.signatures.push(signature);
+    }
+    
     this.messages.push(message);
     return structHash;
   }
@@ -168,61 +191,20 @@ class CustodyRollupTreeBuilder {
   }
 
   getMerkleRoot() {
-    // Convert messages to leaf format
-    const leaves = this.messages.map((message) => {
-      const params = message.params;
-
-      switch (params.type) {
-        case "initialize/billateral/standard":
-          return [
-            params.type,
-            params.partyA,
-            params.partyB,
-            BigInt(params.custodyId),
-            params.settlementAddress,
-            params.MA,
-            params.isManaged,
-            BigInt(params.expiration),
-            BigInt(params.timestamp),
-            params.nonce,
-          ];
-
-        case "transfer/deposit/ERC20":
-        case "transfer/withdraw/ERC20":
-          return [
-            params.type,
-            params.partyA,
-            params.partyB,
-            BigInt(params.custodyId),
-            params.collateralToken,
-            "0x" + "0".repeat(64), // Empty bytes32 for unused MA field
-            params.isAdd,
-            BigInt(params.expiration),
-            BigInt(params.timestamp),
-            params.nonce,
-          ];
-
-        default:
-          throw new Error(`Unsupported message type: ${params.type}`);
-      }
+    // Convert messages to deterministic JSON strings
+    const leaves = this.messages.map(message => {
+      // Create clean object with just signatures and params
+      const leafObj = {
+        signatures: [...message.signatures].sort(), // Sort signatures array
+        params: message.params
+      };
+      
+      // Convert to deterministic string
+      return [deterministicStringify(leafObj)];
     });
 
-    // Define the types for the tree
-    const types = [
-      "string", // type
-      "address", // partyA
-      "address", // partyB
-      "uint256", // custodyId
-      "address", // settlementAddress/collateralToken
-      "bytes32", // MA/unused
-      "bool", // isManaged/isAdd
-      "uint256", // expiration
-      "uint256", // timestamp
-      "uint256", // nonce
-    ];
-
-    // Create and return merkle root
-    const tree = StandardMerkleTree.of(leaves, types);
+    // Create tree with just string type
+    const tree = StandardMerkleTree.of(leaves, ['string']);
     return tree.root;
   }
 }
