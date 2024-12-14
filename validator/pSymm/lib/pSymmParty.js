@@ -107,6 +107,10 @@ class PSymmParty {
         );
         console.log(`Added message to tree with hash: ${messageHash}`);
 
+        // Add the proposer's signature first
+        this.treeBuilder.addSignature(messageHash, message.payload.signature);
+        console.log("Added proposer's signature to tree");
+
         // Generate and add own signature
         const signature = await this.walletClient.signMessage({
           message: { raw: messageHash },
