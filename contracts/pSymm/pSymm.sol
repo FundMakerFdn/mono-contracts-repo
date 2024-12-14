@@ -24,7 +24,8 @@ contract pSymm is EIP712 {
         bool isManaged;
         uint8 custodyType; // 0: personal, 1: billateral, 2: settlement
         uint256 timestamp;
-        bytes32 nonce;
+		uint256 partyId;
+        uint256 nonce;
     }
 
     event CustodyCreated(uint256 indexed CustodyId, address indexed partyA, address indexed partyB, address settlementAddress);
@@ -80,18 +81,6 @@ contract pSymm is EIP712 {
         custodyBalances[ToCustodyId][collateralToken] += collateralAmount;
     }
 
-    /**
-     * @dev Derives the isA flag by examining the first hexadecimal digit of the nonce.
-     *      If the first digit is 0, isA is true; if it's 1, isA is false.
-     * @param nonce The nonce from which to derive the isA flag.
-     * @return isA The derived boolean value.
-     */
-    function _getIsA(bytes32 nonce) internal pure returns (bool isA) {
-        uint8 firstNibble = uint8(nonce[0] >> 4); // Extract first nibble
-        require(firstNibble == 0xA || firstNibble == 0xB, "Invalid nonce first nibble");
-        return firstNibble == 0xA;
-    }
-
     // @notice Create a new custody with EIP712 signature of counterparty
     function CreateCustody(EIP712SignatureChecker.createCustodyParams memory params) 
         external 
@@ -126,6 +115,7 @@ contract pSymm is EIP712 {
             params.isManaged, 
             0, 
             block.timestamp, 
+			params.partyId,
             params.nonce
         );
 
@@ -166,7 +156,7 @@ contract pSymm is EIP712 {
         checkExpiration(params.expiration) 
         checkCustodyOwner(params.partyA, params.partyB, params.custodyId)
     {
-        bool isA = _getIsA(params.nonce);
+        bool isA = params.partyId == 1;
         require(EIP712SignatureChecker.verifyTransferCustodyEIP712(params), "Invalid signature");
         
         _handleTransferCustody(

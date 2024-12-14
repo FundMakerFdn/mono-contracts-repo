@@ -74,7 +74,7 @@ class PSymmParty {
         console.log(JSON.stringify(this.treeBuilder.getTree(), null, 2));
         console.log("\nMerkle Root:");
         console.log(this.treeBuilder.getMerkleRoot());
-        
+
         // Reset state after disconnect
         this.treeBuilder.clear();
         this.nonceCounter = 0;
@@ -245,18 +245,9 @@ class PSymmParty {
   }
 
   // Helper method to generate and increment nonce
-  generateNonce(isPartyA) {
-    // Convert counter to hex, pad to 60 chars (30 bytes)
-    const counterHex = this.nonceCounter.toString(16).padStart(62, "0");
-
-    // Prefix with A0 for PartyA or B0 for PartyB
-    const prefix = isPartyA ? "A0" : "B0";
-
-    // Increment counter for next use
+  generateNonce() {
     this.nonceCounter++;
-
-    // Return full 32 byte nonce
-    return "0x" + prefix + counterHex;
+    return this.nonceCounter;
   }
 
   async initiateCustodyFlow(counterpartyAddress, custodyId) {
@@ -277,7 +268,8 @@ class PSymmParty {
       isManaged: false,
       expiration,
       timestamp,
-      nonce: this.generateNonce(true), // We are PartyA
+      partyId: 1,
+      nonce: this.generateNonce(), // We are PartyA
     };
 
     // Get message hash and sign it directly
@@ -327,6 +319,7 @@ class PSymmParty {
           isManaged: false,
           expiration: Math.floor(Date.now() / 1000) + 3600,
           timestamp: Math.floor(Date.now() / 1000),
+          partyId: 1,
           nonce: initMessage.nonce,
         },
       ],
@@ -376,7 +369,8 @@ class PSymmParty {
       senderCustodyId: "0x" + "0".repeat(64),
       expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
       timestamp: Math.floor(Date.now() / 1000).toString(),
-      nonce: this.generateNonce(isPartyA),
+      partyId: isPartyA ? 1 : 2,
+      nonce: this.generateNonce(),
     };
 
     // Add message to tree and get our signature
@@ -421,6 +415,7 @@ class PSymmParty {
           senderCustodyId: "0x" + "0".repeat(64),
           expiration: Math.floor(Date.now() / 1000) + 3600,
           timestamp: Math.floor(Date.now() / 1000),
+          partyId: isPartyA ? 1 : 2,
           nonce: transferMessage.nonce,
         },
         this.personalCustodyId,

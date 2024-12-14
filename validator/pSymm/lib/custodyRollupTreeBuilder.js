@@ -7,15 +7,15 @@ class CustodyRollupTreeBuilder {
   }
 
   static CREATE_CUSTODY_TYPEHASH = keccak256(
-    "createCustodyParams(address partyA,address partyB,uint256 custodyId,address settlementAddress,bytes32 MA,bool isManaged,uint256 expiration,uint256 timestamp,bytes32 nonce)"
+    "createCustodyParams(address partyA,address partyB,uint256 custodyId,address settlementAddress,bytes32 MA,bool isManaged,uint256 expiration,uint256 timestamp,uint256 partyId,uint256 nonce)"
   );
 
   static TRANSFER_CUSTODY_TYPEHASH = keccak256(
-    "transferCustodyParams(bool isAdd,address partyA,address partyB,uint256 custodyId,uint256 collateralAmount,address collateralToken,uint256 expiration,uint256 timestamp,bytes32 nonce)"
+    "transferCustodyParams(bool isAdd,address partyA,address partyB,uint256 custodyId,uint256 collateralAmount,address collateralToken,uint256 expiration,uint256 timestamp,uint256 partyId,uint256 nonce)"
   );
 
   static UPDATE_MA_TYPEHASH = keccak256(
-    "updateMAParams(address partyA,address partyB,uint256 custodyId,bytes32 MA,uint256 expiration,uint256 timestamp,bytes32 nonce)"
+    "updateMAParams(address partyA,address partyB,uint256 custodyId,bytes32 MA,uint256 expiration,uint256 timestamp,uint256 partyId,uint256 nonce)"
   );
 
   async addMessage(params, signature = null) {
@@ -34,7 +34,8 @@ class CustodyRollupTreeBuilder {
             { type: "bool" }, // isManaged
             { type: "uint256" }, // expiration
             { type: "uint256" }, // timestamp
-            { type: "bytes32" }, // nonce
+            { type: "uint256" }, // partyId
+            { type: "uint256" }, // nonce
           ],
           [
             CustodyRollupTreeBuilder.CREATE_CUSTODY_TYPEHASH,
@@ -46,15 +47,16 @@ class CustodyRollupTreeBuilder {
             params.isManaged,
             BigInt(params.expiration),
             BigInt(params.timestamp),
-            keccak256(
-              encodeAbiParameters([{ type: "bytes32" }], [params.nonce])
-            ),
+            BigInt(params.partyId),
+            BigInt(params.nonce),
           ]
         )
       );
       console.log("structHash", structHash);
     } else if (
-      ["transfer/deposit/ERC20", "transfer/withdraw/ERC20"].includes(params.type)
+      ["transfer/deposit/ERC20", "transfer/withdraw/ERC20"].includes(
+        params.type
+      )
     ) {
       structHash = keccak256(
         encodeAbiParameters(
@@ -68,7 +70,8 @@ class CustodyRollupTreeBuilder {
             { type: "address" }, // collateralToken
             { type: "uint256" }, // expiration
             { type: "uint256" }, // timestamp
-            { type: "bytes32" }, // nonce
+            { type: "uint256" }, // partyId
+            { type: "uint256" }, // nonce
           ],
           [
             CustodyRollupTreeBuilder.TRANSFER_CUSTODY_TYPEHASH,
@@ -80,9 +83,8 @@ class CustodyRollupTreeBuilder {
             params.collateralToken,
             BigInt(params.expiration),
             BigInt(params.timestamp),
-            keccak256(
-              encodeAbiParameters([{ type: "bytes32" }], [params.nonce])
-            ),
+            BigInt(params.partyId),
+            BigInt(params.nonce),
           ]
         )
       );
@@ -167,56 +169,56 @@ class CustodyRollupTreeBuilder {
 
   getMerkleRoot() {
     // Convert messages to leaf format
-    const leaves = this.messages.map(message => {
-        const params = message.params;
-        
-        switch(params.type) {
-            case "initialize/billateral/standard":
-                return [
-                    params.type,
-                    params.partyA,
-                    params.partyB, 
-                    BigInt(params.custodyId),
-                    params.settlementAddress,
-                    params.MA,
-                    params.isManaged,
-                    BigInt(params.expiration),
-                    BigInt(params.timestamp),
-                    params.nonce
-                ];
-                
-            case "transfer/deposit/ERC20":
-            case "transfer/withdraw/ERC20":
-                return [
-                    params.type,
-                    params.partyA,
-                    params.partyB,
-                    BigInt(params.custodyId),
-                    params.collateralToken,
-                    "0x" + "0".repeat(64), // Empty bytes32 for unused MA field
-                    params.isAdd,
-                    BigInt(params.expiration),
-                    BigInt(params.timestamp),
-                    params.nonce
-                ];
-                
-            default:
-                throw new Error(`Unsupported message type: ${params.type}`);
-        }
+    const leaves = this.messages.map((message) => {
+      const params = message.params;
+
+      switch (params.type) {
+        case "initialize/billateral/standard":
+          return [
+            params.type,
+            params.partyA,
+            params.partyB,
+            BigInt(params.custodyId),
+            params.settlementAddress,
+            params.MA,
+            params.isManaged,
+            BigInt(params.expiration),
+            BigInt(params.timestamp),
+            params.nonce,
+          ];
+
+        case "transfer/deposit/ERC20":
+        case "transfer/withdraw/ERC20":
+          return [
+            params.type,
+            params.partyA,
+            params.partyB,
+            BigInt(params.custodyId),
+            params.collateralToken,
+            "0x" + "0".repeat(64), // Empty bytes32 for unused MA field
+            params.isAdd,
+            BigInt(params.expiration),
+            BigInt(params.timestamp),
+            params.nonce,
+          ];
+
+        default:
+          throw new Error(`Unsupported message type: ${params.type}`);
+      }
     });
 
     // Define the types for the tree
     const types = [
-        "string",   // type
-        "address",  // partyA
-        "address",  // partyB 
-        "uint256",  // custodyId
-        "address",  // settlementAddress/collateralToken
-        "bytes32",  // MA/unused
-        "bool",     // isManaged/isAdd
-        "uint256",  // expiration
-        "uint256",  // timestamp
-        "bytes32"   // nonce
+      "string", // type
+      "address", // partyA
+      "address", // partyB
+      "uint256", // custodyId
+      "address", // settlementAddress/collateralToken
+      "bytes32", // MA/unused
+      "bool", // isManaged/isAdd
+      "uint256", // expiration
+      "uint256", // timestamp
+      "uint256", // nonce
     ];
 
     // Create and return merkle root
