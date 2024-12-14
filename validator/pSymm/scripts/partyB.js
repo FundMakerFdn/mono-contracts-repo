@@ -32,20 +32,22 @@ async function main() {
   // const partyAAddress = (await hre.viem.getWalletClients())[0].account.address;
 
   // Execute flow - only respond to partyA's actions
-  await partyB.deposit("10");
+  await partyB.depositPersonal("10");
 
-  // Wait for custody initialization from partyA
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-
-  // Keep running until interrupted
-  // Execute any queued actions before waiting for interrupt
-  await partyB.executeAll();
+  partyB.server.on("connection", async (socket) => {
+    // Wait for custody initialization from partyA
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await partyB.dropActionQueue(); // party A executes custody init
+    // wait for counterparty transfers
+    await new Promise((resolve) => setTimeout(resolve, 4000));
+    await partyB.executeOnchain();
+  });
 
   await new Promise((resolve) => {
     process.on("SIGINT", async () => {
       partyB.stop();
       console.log("Withdrawing deposit...");
-      await partyB.withdraw("10");
+      await partyB.withdrawPersonal("10");
       resolve();
     });
   });

@@ -32,15 +32,15 @@ async function main() {
   const partyBAddress = (await hre.viem.getWalletClients())[1].account.address;
 
   // Execute flow
-  await partyA.deposit("10");
+  await partyA.depositPersonal("10");
 
   // Generate bilateral custody ID
   const bilateralCustodyId = Math.floor(Math.random() * 2 ** 20) + 1;
 
   await partyA.initiateCustodyFlow(partyBAddress, bilateralCustodyId);
-  await partyA.executeAll();
+  await partyA.executeOnchain();
 
-  // Wait for counterparty signatures
+  // wait for counterparty
   await new Promise((resolve) => setTimeout(resolve, 5000));
 
   await partyA.transferCustody(
@@ -51,10 +51,7 @@ async function main() {
     bilateralCustodyId,
     true
   );
-  await partyA.executeFront();
-
-  // Wait for custody operations
-  await new Promise((resolve) => setTimeout(resolve, 5000));
+  // await partyA.executeOnchain(); // done by B
 
   await partyA.transferCustody(
     partyA.client,
@@ -64,9 +61,11 @@ async function main() {
     bilateralCustodyId,
     true
   );
-  await partyA.executeFront();
+  // await partyA.executeFront();
+  // wait for party B to execute our transfers
+  await new Promise((resolve) => setTimeout(resolve, 5000));
 
-  await partyA.withdraw("10");
+  await partyA.withdrawPersonal("10");
 
   // Print final tree state and root
   console.log("\nFinal Custody Rollup Tree State:");
