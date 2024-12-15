@@ -378,19 +378,17 @@ class PSymmParty {
     custodyId,
     isPartyA
   ) {
-    // Define the two parties with their signatures
+    // Define the two parties
     const thisParty = {
       address: this.address,
       wallet: this.walletClient,
-      signature: null,
     };
 
     const counterparty = {
       address: counterpartyAddress,
-      signature: null,
     };
 
-    // Determine who is A and B (we use a ref to objects)
+    // Determine who is A and B
     const partyA = isPartyA ? thisParty : counterparty;
     const partyB = isPartyA ? counterparty : thisParty;
 
@@ -412,32 +410,8 @@ class PSymmParty {
       nonce: this.generateNonce(),
     };
 
-    // Add message to tree and get our signature
-    const messageHash = await this.treeBuilder.addMessage(transferMessage);
-    thisParty.signature = await thisParty.wallet.signMessage({
-      message: { raw: messageHash },
-    });
-    this.treeBuilder.addSignature(messageHash, thisParty.signature);
-
-    // Send to counterparty and wait for their signature
-    socket.emit("tree.propose", {
-      type: "tree.propose",
-      payload: {
-        custodyId: custodyId,
-        messageHash,
-        signature: thisParty.signature,
-        params: transferMessage,
-      },
-    });
-
-    // Wait for counterparty signature
-    counterparty.signature = await new Promise((resolve) => {
-      socket.once("tree.sign", (response) => {
-        if (response.messageHash === messageHash) {
-          resolve(response.signature);
-        }
-      });
-    });
+    const { messageHash, ownSignature, counterpartySignature } = 
+      await this.proposeAndSignMessage(socket, transferMessage);
 
     // Execute the transfer onchain
     await this.queueOnchainAction({
@@ -445,8 +419,8 @@ class PSymmParty {
       messageHash,
       params: {
         isAdd: isAdd,
-        signatureA: partyA.signature,
-        signatureB: partyB.signature,
+        signatureA: isPartyA ? ownSignature : counterpartySignature,
+        signatureB: isPartyA ? counterpartySignature : ownSignature,
         partyA: partyA.address,
         partyB: partyB.address,
         custodyId: custodyId,
@@ -528,6 +502,45 @@ class PSymmParty {
       }
     }
     console.log("Execution complete");
+  }
+
+  async proposeAndSignMessage(socket, message) {
+    // Add message to tree and get hash
+    const messageHash = await this.treeBuilder.addMessage(message);
+    
+    // Get our signature
+    const signature = await this.walletClient.signMessage({
+      message: { raw: messageHash },
+    });
+    
+    // Add our signature to tree
+    this.treeBuilder.addSignature(messageHash, signature);
+
+    // Send to counterparty and wait for their signature
+    socket.emit("tree.propose", {
+      type: "tree.propose",
+      payload: {
+        custodyId: message.custodyId,
+        messageHash,
+        signature,
+        params: message,
+      },
+    });
+
+    // Wait for and return counterparty signature
+    const counterpartySignature = await new Promise((resolve) => {
+      socket.once("tree.sign", (response) => {
+        if (response.messageHash === messageHash) {
+          resolve(response.signature);
+        }
+      });
+    });
+
+    return {
+      messageHash,
+      ownSignature: signature, 
+      counterpartySignature
+    };
   }
 
   async executeAction(action) {

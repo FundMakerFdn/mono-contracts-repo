@@ -134,7 +134,7 @@ class BaseValidator {
       }
 
       const now = Math.floor(await time.latest());
-      const waitTime = Math.max(1000, (nextStateTime - now) * 1000 - 1000);
+      const waitTime = Math.max(1000, (nextStateTime - now) * 1000 - 3000);
 
       console.log(`Waiting ${waitTime}ms until next state...`);
       setTimeout(async () => {
