@@ -42,85 +42,38 @@ class CustodyRollupTreeBuilder {
     "updateMAParams(address partyA,address partyB,uint256 custodyId,bytes32 MA,uint256 expiration,uint256 timestamp,uint256 partyId,uint256 nonce)"
   );
 
+  static RFQ_TYPE = [
+    { name: "partyA", type: "address" },
+    { name: "partyB", type: "address" },
+    { name: "custodyId", type: "uint256" },
+    { name: "partyId", type: "uint256" },
+    { name: "ISIN", type: "string" },
+    { name: "amount", type: "uint256" },
+    { name: "price", type: "uint256" },
+    { name: "side", type: "uint8" },
+    { name: "fundingRate", type: "int256" },
+    { name: "IM_A", type: "uint256" },
+    { name: "IM_B", type: "uint256" },
+    { name: "MM_A", type: "uint256" },
+    { name: "MM_B", type: "uint256" },
+    { name: "CVA_A", type: "uint256" },
+    { name: "CVA_B", type: "uint256" },
+    { name: "MC_A", type: "uint256" },
+    { name: "MC_B", type: "uint256" },
+    { name: "contractExpiry", type: "uint256" },
+    { name: "pricePrecision", type: "uint8" },
+    { name: "fundingRatePrecision", type: "uint8" },
+    { name: "cancelGracePeriod", type: "uint256" },
+    { name: "minContractAmount", type: "uint256" },
+    { name: "oracleType", type: "uint8" },
+    { name: "expiration", type: "uint256" },
+    { name: "timestamp", type: "uint256" },
+    { name: "nonce", type: "uint256" },
+  ];
   // RFQ and Quote message types don't use typehashes
   static RFQ_MESSAGE_TYPES = {
-    'rfq/open/perps': [
-      { name: 'partyA', type: 'address' },
-      { name: 'partyB', type: 'address' },
-      { name: 'custodyId', type: 'uint256' },
-      { name: 'partyId', type: 'uint256' },
-      { name: 'ISIN', type: 'string' },
-      { name: 'amount', type: 'uint256' },
-      { name: 'price', type: 'uint256' },
-      { name: 'side', type: 'uint8' },
-      { name: 'fundingRate', type: 'int256' },
-      { name: 'IM_A', type: 'uint256' },
-      { name: 'IM_B', type: 'uint256' },
-      { name: 'MM_A', type: 'uint256' },
-      { name: 'MM_B', type: 'uint256' },
-      { name: 'CVA_A', type: 'uint256' },
-      { name: 'CVA_B', type: 'uint256' },
-      { name: 'MC_A', type: 'uint256' },
-      { name: 'MC_B', type: 'uint256' },
-      { name: 'contractExpiry', type: 'uint256' },
-      { name: 'pricePrecision', type: 'uint8' },
-      { name: 'fundingRatePrecision', type: 'uint8' },
-      { name: 'cancelGracePeriod', type: 'uint256' },
-      { name: 'minContractAmount', type: 'uint256' },
-      { name: 'oracleType', type: 'uint8' },
-      { name: 'expiration', type: 'uint256' },
-      { name: 'timestamp', type: 'uint256' },
-      { name: 'nonce', type: 'uint256' }
-    ],
-    'rfq/cancel/options': [
-      { name: 'partyA', type: 'address' },
-      { name: 'partyB', type: 'address' },
-      { name: 'custodyId', type: 'uint256' },
-      { name: 'partyId', type: 'uint256' },
-      { name: 'ISIN', type: 'string' },
-      { name: 'amount', type: 'uint256' },
-      { name: 'price', type: 'uint256' },
-      { name: 'side', type: 'uint8' },
-      { name: 'strikePrice', type: 'uint256' },
-      { name: 'expiry', type: 'uint256' },
-      { name: 'IM_A', type: 'uint256' },
-      { name: 'IM_B', type: 'uint256' },
-      { name: 'MM_A', type: 'uint256' },
-      { name: 'MM_B', type: 'uint256' },
-      { name: 'CVA_A', type: 'uint256' },
-      { name: 'CVA_B', type: 'uint256' },
-      { name: 'MC_A', type: 'uint256' },
-      { name: 'MC_B', type: 'uint256' },
-      { name: 'pricePrecision', type: 'uint8' },
-      { name: 'cancelGracePeriod', type: 'uint256' },
-      { name: 'minContractAmount', type: 'uint256' },
-      { name: 'oracleType', type: 'uint8' },
-      { name: 'expiration', type: 'uint256' },
-      { name: 'timestamp', type: 'uint256' },
-      { name: 'nonce', type: 'uint256' }
-    ],
-    'rfqFill/open/perps': [
-      { name: 'partyA', type: 'address' },
-      { name: 'partyB', type: 'address' },
-      { name: 'custodyId', type: 'uint256' },
-      { name: 'partyId', type: 'uint256' },
-      { name: 'amount', type: 'uint256' },
-      { name: 'price', type: 'uint256' },
-      { name: 'expiration', type: 'uint256' },
-      { name: 'timestamp', type: 'uint256' },
-      { name: 'nonce', type: 'uint256' }
-    ],
-    'rfqFill/cancel/options': [
-      { name: 'partyA', type: 'address' },
-      { name: 'partyB', type: 'address' },
-      { name: 'custodyId', type: 'uint256' },
-      { name: 'partyId', type: 'uint256' },
-      { name: 'amount', type: 'uint256' },
-      { name: 'price', type: 'uint256' },
-      { name: 'expiration', type: 'uint256' },
-      { name: 'timestamp', type: 'uint256' },
-      { name: 'nonce', type: 'uint256' }
-    ]
+    "rfq/open/perps": CustodyRollupTreeBuilder.RFQ_TYPE,
+    "rfqFill/open/perps": CustodyRollupTreeBuilder.RFQ_TYPE,
   };
 
   static FOOTER_CUSTODY_TYPES = [
@@ -139,19 +92,25 @@ class CustodyRollupTreeBuilder {
 
     // Calculate messageHash for signatures
     let structHash;
-    
+
     // Handle RFQ and Quote message types without typehash
-    if (Object.keys(CustodyRollupTreeBuilder.RFQ_MESSAGE_TYPES).includes(params.type)) {
-      const messageFields = CustodyRollupTreeBuilder.RFQ_MESSAGE_TYPES[params.type];
-      const messageValues = messageFields.map(field => params[field]);
+    if (
+      Object.keys(CustodyRollupTreeBuilder.RFQ_MESSAGE_TYPES).includes(
+        params.type
+      )
+    ) {
+      const messageFields =
+        CustodyRollupTreeBuilder.RFQ_MESSAGE_TYPES[params.type];
+      const messageValues = messageFields.map((field) => params[field]);
       structHash = keccak256(
         encodeAbiParameters(
-          messageFields.map(field => ({ type: typeof params[field] === 'boolean' ? 'bool' : 'string' })),
+          messageFields.map((field) => ({
+            type: typeof params[field] === "boolean" ? "bool" : "string",
+          })),
           messageValues
         )
       );
-    }
-    else if (params.type === "initialize/billateral/standard") {
+    } else if (params.type === "initialize/billateral/standard") {
       structHash = keccak256(
         encodeAbiParameters(
           [
