@@ -28,17 +28,10 @@ async function main() {
   await partyB.start();
   console.log("Waiting for PartyA to connect...");
 
-  // Get PartyA's address
-  // const partyAAddress = (await hre.viem.getWalletClients())[0].account.address;
-
-  // Execute flow - only respond to partyA's actions
   await partyB.depositPersonal("10");
 
   partyB.server.on("connection", async (socket) => {
-    // Wait for custody initialization from partyA
-    // await new Promise((resolve) => setTimeout(resolve, 3000));
-    // await partyB.dropActionQueue(); // party A executes custody init
-    // wait for counterparty transfers
+    // wait for counterparty interaction
     await new Promise((resolve) => setTimeout(resolve, 2000));
     await partyB.executeOnchain();
   });

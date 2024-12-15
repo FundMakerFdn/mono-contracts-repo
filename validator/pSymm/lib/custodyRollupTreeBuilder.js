@@ -6,22 +6,22 @@ function deterministicStringify(obj) {
   if (Array.isArray(obj)) {
     return JSON.stringify(obj.sort());
   }
-  
+
   // Get all keys and sort them
   const sortedKeys = Object.keys(obj).sort();
-  
+
   // Build new object with sorted keys
   const sortedObj = {};
-  sortedKeys.forEach(key => {
+  sortedKeys.forEach((key) => {
     const value = obj[key];
     // Recursively handle nested objects and arrays
-    if (typeof value === 'object' && value !== null) {
+    if (typeof value === "object" && value !== null) {
       sortedObj[key] = deterministicStringify(value);
     } else {
       sortedObj[key] = value;
     }
   });
-  
+
   return JSON.stringify(sortedObj);
 }
 
@@ -42,11 +42,18 @@ class CustodyRollupTreeBuilder {
     "updateMAParams(address partyA,address partyB,uint256 custodyId,bytes32 MA,uint256 expiration,uint256 timestamp,uint256 partyId,uint256 nonce)"
   );
 
+  static FOOTER_CUSTODY_TYPES = [
+    { type: "uint256" }, // expiration
+    { type: "uint256" }, // timestamp
+    { type: "uint256" }, // partyId
+    { type: "uint256" }, // nonce
+  ];
+
   async addMessage(params, signature = null) {
     const message = {
       signatures: [],
       params,
-      messageHash: null
+      messageHash: null,
     };
 
     // Calculate messageHash for signatures
@@ -62,10 +69,7 @@ class CustodyRollupTreeBuilder {
             { type: "address" }, // settlementAddress
             { type: "bytes32" }, // MA
             { type: "bool" }, // isManaged
-            { type: "uint256" }, // expiration
-            { type: "uint256" }, // timestamp
-            { type: "uint256" }, // partyId
-            { type: "uint256" }, // nonce
+            ...CustodyRollupTreeBuilder.FOOTER_CUSTODY_TYPES,
           ],
           [
             CustodyRollupTreeBuilder.CREATE_CUSTODY_TYPEHASH,
@@ -82,7 +86,11 @@ class CustodyRollupTreeBuilder {
           ]
         )
       );
-    } else if (["transfer/deposit/ERC20", "transfer/withdraw/ERC20"].includes(params.type)) {
+    } else if (
+      ["transfer/deposit/ERC20", "transfer/withdraw/ERC20"].includes(
+        params.type
+      )
+    ) {
       structHash = keccak256(
         encodeAbiParameters(
           [
@@ -93,10 +101,7 @@ class CustodyRollupTreeBuilder {
             { type: "uint256" }, // custodyId
             { type: "uint256" }, // collateralAmount
             { type: "address" }, // collateralToken
-            { type: "uint256" }, // expiration
-            { type: "uint256" }, // timestamp
-            { type: "uint256" }, // partyId
-            { type: "uint256" }, // nonce
+            ...CustodyRollupTreeBuilder.FOOTER_CUSTODY_TYPES,
           ],
           [
             CustodyRollupTreeBuilder.TRANSFER_CUSTODY_TYPEHASH,
@@ -114,12 +119,12 @@ class CustodyRollupTreeBuilder {
         )
       );
     }
-    
+
     message.messageHash = structHash;
     if (signature) {
       message.signatures.push(signature);
     }
-    
+
     this.messages.push(message);
     return structHash;
   }
@@ -192,19 +197,19 @@ class CustodyRollupTreeBuilder {
 
   getMerkleRoot() {
     // Convert messages to deterministic JSON strings
-    const leaves = this.messages.map(message => {
+    const leaves = this.messages.map((message) => {
       // Create clean object with just signatures and params
       const leafObj = {
         signatures: [...message.signatures].sort(), // Sort signatures array
-        params: message.params
+        params: message.params,
       };
-      
+
       // Convert to deterministic string
       return [deterministicStringify(leafObj)];
     });
 
     // Create tree with just string type
-    const tree = StandardMerkleTree.of(leaves, ['string']);
+    const tree = StandardMerkleTree.of(leaves, ["string"]);
     return tree.root;
   }
 }
