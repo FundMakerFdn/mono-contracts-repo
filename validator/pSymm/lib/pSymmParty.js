@@ -1,7 +1,7 @@
 const { Server } = require("socket.io");
 const { io } = require("socket.io-client");
 const CustodyRollupTreeBuilder = require("./custodyRollupTreeBuilder");
-const { parseEther } = require("viem");
+const { parseEther, verifyMessage } = require("viem");
 
 class PSymmParty {
   constructor(config) {
@@ -202,6 +202,37 @@ class PSymmParty {
     MessageHash: ${message.messageHash}
   `);
 
+      // Find the message in the tree to get counterparty address
+      const treeMessage = this.treeBuilder.messages.find(
+        (m) => m.messageHash === message.messageHash
+      );
+      if (!treeMessage) {
+        console.error("Message not found in tree");
+        return;
+      }
+
+      // Get counterparty address based on whether we are party A or B
+      const counterpartyAddress = isA
+        ? treeMessage.params.partyB
+        : treeMessage.params.partyA;
+
+      // Validate the signature
+      const isValid = await this.validateSignature(
+        message.messageHash,
+        message.signature,
+        counterpartyAddress
+      );
+
+      if (!isValid) {
+        console.error("Invalid signature from counterparty");
+        socket.emit("tree.reject", {
+          custodyId: message.custodyId,
+          messageHash: message.messageHash,
+          reason: "Invalid signature",
+        });
+        return;
+      }
+
       this.treeBuilder.addSignature(message.messageHash, message.signature);
       console.log("Added counterparty signature to tree");
 
@@ -344,6 +375,7 @@ class PSymmParty {
         }
       });
     });
+    this.treeBuilder.addSignature(messageHash, counterpartySignature);
 
     console.log("Signature A:", signature);
     console.log("Signature B:", counterpartySignature);
@@ -410,7 +442,7 @@ class PSymmParty {
       nonce: this.generateNonce(),
     };
 
-    const { messageHash, ownSignature, counterpartySignature } = 
+    const { messageHash, ownSignature, counterpartySignature } =
       await this.proposeAndSignMessage(socket, transferMessage);
 
     // Execute the transfer onchain
@@ -504,15 +536,23 @@ class PSymmParty {
     console.log("Execution complete");
   }
 
+  async validateSignature(messageHash, signature, signerAddress) {
+    return await verifyMessage({
+      address: signerAddress,
+      message: { raw: messageHash },
+      signature,
+    });
+  }
+
   async proposeAndSignMessage(socket, message) {
     // Add message to tree and get hash
     const messageHash = await this.treeBuilder.addMessage(message);
-    
+
     // Get our signature
     const signature = await this.walletClient.signMessage({
       message: { raw: messageHash },
     });
-    
+
     // Add our signature to tree
     this.treeBuilder.addSignature(messageHash, signature);
 
@@ -535,11 +575,12 @@ class PSymmParty {
         }
       });
     });
+    this.treeBuilder.addSignature(messageHash, counterpartySignature);
 
     return {
       messageHash,
-      ownSignature: signature, 
-      counterpartySignature
+      ownSignature: signature,
+      counterpartySignature,
     };
   }
 
