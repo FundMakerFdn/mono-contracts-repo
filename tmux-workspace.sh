@@ -22,8 +22,8 @@ tmux split-window -v -t $SESSION_NAME:0.3
 
 
 
-tmux resize-pane -t $SESSION_NAME:0.0 -x 10
-tmux resize-pane -t $SESSION_NAME:0.2 -x 25
+tmux resize-pane -t $SESSION_NAME:0.0 -x "25%"
+tmux resize-pane -t $SESSION_NAME:0.2 -x "25%"
 
 
 # Configure each pane to print its name and sleep
