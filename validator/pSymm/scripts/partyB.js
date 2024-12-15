@@ -72,6 +72,56 @@ async function main() {
         await partyB.proposeAndSignMessage(socket, rfqFillParams);
         console.log("RFQ Fill sent");
       }
+
+      if (message.payload.params.type === "quote/open/perps") {
+        console.log("Received Quote, sending two Quote Fills...");
+
+        await partyB.handleTreePropose(socket, message);
+
+        // First quote fill for 50 contracts
+        const quoteFillParams1 = {
+          type: "quoteFill/open/perps",
+          partyA: message.payload.params.partyA,
+          partyB: message.payload.params.partyB,
+          custodyId: message.payload.params.custodyId,
+          partyId: "2",
+          ISIN: message.payload.params.ISIN,
+          amount: "50", // Half of the original amount
+          price: message.payload.params.price,
+          side: message.payload.params.side,
+          fundingRate: message.payload.params.fundingRate,
+          IM_A: message.payload.params.IM_A,
+          IM_B: message.payload.params.IM_B,
+          MM_A: message.payload.params.MM_A,
+          MM_B: message.payload.params.MM_B,
+          CVA_A: message.payload.params.CVA_A,
+          CVA_B: message.payload.params.CVA_B,
+          MC_A: message.payload.params.MC_A,
+          MC_B: message.payload.params.MC_B,
+          contractExpiry: message.payload.params.contractExpiry,
+          pricePrecision: message.payload.params.pricePrecision,
+          fundingRatePrecision: message.payload.params.fundingRatePrecision,
+          cancelGracePeriod: message.payload.params.cancelGracePeriod,
+          minContractAmount: message.payload.params.minContractAmount,
+          oracleType: message.payload.params.oracleType,
+          expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
+          nonce: partyB.generateNonce().toString(),
+          timestamp: Math.floor(Date.now() / 1000).toString(),
+        };
+
+        await partyB.proposeAndSignMessage(socket, quoteFillParams1);
+        console.log("First Quote Fill sent (50 contracts)");
+
+        // Second quote fill for remaining 50 contracts
+        const quoteFillParams2 = {
+          ...quoteFillParams1,
+          nonce: partyB.generateNonce().toString(),
+          timestamp: Math.floor(Date.now() / 1000).toString(),
+        };
+
+        await partyB.proposeAndSignMessage(socket, quoteFillParams2);
+        console.log("Second Quote Fill sent (50 contracts)");
+      }
     });
 
     // wait for counterparty interaction

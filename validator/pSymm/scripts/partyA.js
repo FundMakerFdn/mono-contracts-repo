@@ -65,7 +65,7 @@ async function main() {
     pricePrecision: "2",
     fundingRatePrecision: "6",
     cancelGracePeriod: "300",
-    minContractAmount: "0.1",
+    minContractAmount: "1",
     oracleType: "1",
     expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
     nonce: partyA.generateNonce().toString(),
@@ -78,7 +78,7 @@ async function main() {
       console.log(JSON.stringify(message));
       if (message.payload.params.type === "rfqFill/open/perps") {
         console.log("Received RFQ Fill");
-        await partyA.handleRfqFill(message);
+        await partyA.handleTreePropose(partyA.client, message);
         console.log("-------------");
         resolve();
         console.log("Shouldve resolved");
@@ -90,6 +90,63 @@ async function main() {
   console.log("RFQ sent and signed");
   console.log("Waiting for RFQ Fill...");
   await rfqFillWait;
+
+  // Add quote flow
+  const quoteParams = {
+    type: "quote/open/perps",
+    partyA: walletClient.account.address,
+    partyB: partyBAddress,
+    custodyId: bilateralCustodyId.toString(),
+    partyId: "1",
+    ISIN: "BTC-USD-PERP",
+    amount: "100", // 100 contract quote
+    price: "50000",
+    side: "1", // buy
+    fundingRate: "0",
+    IM_A: "1000",
+    IM_B: "1000",
+    MM_A: "800",
+    MM_B: "800",
+    CVA_A: "100",
+    CVA_B: "100",
+    MC_A: "900",
+    MC_B: "900",
+    contractExpiry: (Math.floor(Date.now() / 1000) + 86400).toString(), // 24h
+    pricePrecision: "2",
+    fundingRatePrecision: "6",
+    cancelGracePeriod: "300",
+    minContractAmount: "1",
+    oracleType: "1",
+    expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
+    nonce: partyA.generateNonce().toString(),
+    timestamp: Math.floor(Date.now() / 1000).toString(),
+  };
+
+  // Wait for both quote fill responses
+  const quoteFillWait = new Promise((resolve) => {
+    let fillsReceived = 0;
+
+    const handleQuoteFill = async (message) => {
+      if (message.payload.params.type === "quoteFill/open/perps") {
+        console.log(`Received Quote Fill ${fillsReceived + 1}`);
+        await partyA.handleTreePropose(partyA.client, message);
+        fillsReceived++;
+
+        if (fillsReceived === 2) {
+          partyA.client.removeListener("tree.propose", handleQuoteFill);
+          resolve();
+        }
+      }
+    };
+
+    partyA.client.on("tree.propose", handleQuoteFill);
+  });
+
+  console.log("Sending Quote...");
+  await partyA.proposeAndSignMessage(partyA.client, quoteParams);
+  console.log("Quote sent and signed");
+  console.log("Waiting for Quote Fills...");
+  await quoteFillWait;
 
   // Continue with existing custody transfer flow
   await partyA.transferCustody(

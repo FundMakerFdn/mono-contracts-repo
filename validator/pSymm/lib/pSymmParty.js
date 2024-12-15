@@ -569,25 +569,6 @@ class PSymmParty {
     console.log(`Dropped ${count} actions from queue`);
   }
 
-  async handleRfqFill(message) {
-    const messageHash = await this.treeBuilder.addMessage(
-      message.payload.params
-    );
-    this.treeBuilder.addSignature(messageHash, message.payload.signature);
-
-    const signature = await this.walletClient.signMessage({
-      message: { raw: messageHash },
-    });
-
-    this.treeBuilder.addSignature(messageHash, signature);
-
-    this.client.emit("tree.sign", {
-      custodyId: message.payload.params.custodyId,
-      messageHash,
-      signature,
-    });
-  }
-
   stop() {
     if (this.client) {
       this.client.close();

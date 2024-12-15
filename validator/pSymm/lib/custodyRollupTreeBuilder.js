@@ -74,6 +74,8 @@ class CustodyRollupTreeBuilder {
   static RFQ_MESSAGE_TYPES = {
     "rfq/open/perps": CustodyRollupTreeBuilder.RFQ_TYPE,
     "rfqFill/open/perps": CustodyRollupTreeBuilder.RFQ_TYPE,
+    "quote/open/perps": CustodyRollupTreeBuilder.RFQ_TYPE,
+    "quoteFill/open/perps": CustodyRollupTreeBuilder.RFQ_TYPE,
   };
 
   static FOOTER_CUSTODY_TYPES = [
@@ -101,12 +103,19 @@ class CustodyRollupTreeBuilder {
     ) {
       const messageFields =
         CustodyRollupTreeBuilder.RFQ_MESSAGE_TYPES[params.type];
-      const messageValues = messageFields.map((field) => params[field]);
+      const messageValues = messageFields.map((field) => {
+        const value = params[field.name];
+        // Convert values to appropriate types
+        if (field.type === "uint256" || field.type === "uint8") {
+          return BigInt(value);
+        } else if (field.type === "bool") {
+          return Boolean(value);
+        }
+        return value;
+      });
       structHash = keccak256(
         encodeAbiParameters(
-          messageFields.map((field) => ({
-            type: typeof params[field] === "boolean" ? "bool" : "string",
-          })),
+          messageFields.map((field) => ({ type: field.type })),
           messageValues
         )
       );
