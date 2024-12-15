@@ -345,37 +345,8 @@ class PSymmParty {
       nonce: this.generateNonce(), // We are PartyA
     };
 
-    // Get message hash and sign it directly
-    const messageHash = await this.treeBuilder.addMessage(initMessage);
-    const signature = await this.walletClient.signMessage({
-      message: { raw: messageHash },
-    });
-
-    // Add our signature to the tree
-    this.treeBuilder.addSignature(messageHash, signature);
-
-    // Send to counterparty with domain and types
-    this.client.emit("tree.propose", {
-      type: "tree.propose",
-      payload: {
-        custodyId: this.custodyId,
-        messageHash,
-        signature,
-        params: initMessage,
-        domain: this.treeBuilder.getDomain(),
-        types: this.treeBuilder.getTypes(),
-      },
-    });
-
-    // Wait for counterparty signature
-    const counterpartySignature = await new Promise((resolve) => {
-      this.client.once("tree.sign", (response) => {
-        if (response.messageHash === messageHash) {
-          resolve(response.signature);
-        }
-      });
-    });
-    this.treeBuilder.addSignature(messageHash, counterpartySignature);
+    const { messageHash, ownSignature: signature, counterpartySignature } = 
+      await this.proposeAndSignMessage(this.client, initMessage);
 
     console.log("Signature A:", signature);
     console.log("Signature B:", counterpartySignature);
