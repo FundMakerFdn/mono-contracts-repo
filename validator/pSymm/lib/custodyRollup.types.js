@@ -1,6 +1,10 @@
 /**
  * @typedef {Object} RfqSwapOpenParams
  * @property {string} type
+ * @property {string} partyA
+ * @property {string} partyB 
+ * @property {string} custodyId
+ * @property {string} partyId
  * @property {string} ISIN
  * @property {string} amount
  * @property {string} price
@@ -28,9 +32,12 @@
 /**
  * @typedef {Object} RfqFillSwapOpenParams
  * @property {string} type
+ * @property {string} partyA
+ * @property {string} partyB
+ * @property {string} custodyId
+ * @property {string} partyId
  * @property {string} amount
  * @property {string} price
- * @property {string} rfqNonce
  * @property {string} nonce
  * @property {string} timestamp
  */
@@ -65,11 +72,14 @@
 /**
  * @typedef {Object} QuoteSwapOpenParams
  * @property {string} type
+ * @property {string} partyA
+ * @property {string} partyB
+ * @property {string} custodyId
+ * @property {string} partyId
  * @property {string} assetName
  * @property {string} amount
  * @property {string} price
  * @property {string} side
- * @property {string} rfqFillNonce
  * @property {string} nonce
  * @property {string} timestamp
  */
@@ -77,11 +87,14 @@
 /**
  * @typedef {Object} QuoteFillSwapOpenParams
  * @property {string} type
+ * @property {string} partyA
+ * @property {string} partyB
+ * @property {string} custodyId
+ * @property {string} partyId
  * @property {string} assetName
  * @property {string} amount
  * @property {string} price
  * @property {string} side
- * @property {string} quoteNonce
  * @property {string} nonce
  * @property {string} timestamp
  */
@@ -89,7 +102,10 @@
 /**
  * @typedef {Object} MarginCallSwapOpenParams
  * @property {string} type
- * @property {string} quoteNonce
+ * @property {string} partyA
+ * @property {string} partyB
+ * @property {string} custodyId
+ * @property {string} partyId
  * @property {string} nonce
  * @property {string} timestamp
  */

@@ -89,6 +89,20 @@ class PSymmParty {
 
   async setupMessageHandling(socket, isA) {
     socket.on("tree.propose", async (message) => {
+      // Only handle custody-related actions
+      const validTypes = [
+        "initialize/billateral/standard",
+        "transfer/deposit/ERC20",
+        "transfer/withdraw/ERC20",
+      ];
+
+      if (!validTypes.includes(message.payload.params.type)) {
+        console.log(
+          `(base handler) Ignoring non-custody message type: ${message.payload.params.type}`
+        );
+        return;
+      }
+
       const counterparty = isA
         ? message.payload.params.partyB
         : message.payload.params.partyA;
@@ -104,30 +118,10 @@ class PSymmParty {
       }
 
       try {
-        // Add message to local tree
-        const messageHash = await this.treeBuilder.addMessage(
-          message.payload.params
+        const { messageHash, signature } = await this.handleTreePropose(
+          socket,
+          message
         );
-        console.log(`Added message to tree with hash: ${messageHash}`);
-
-        // Add the proposer's signature first
-        this.treeBuilder.addSignature(messageHash, message.payload.signature);
-        console.log("Added proposer's signature to tree");
-
-        // Generate and add own signature
-        const signature = await this.walletClient.signMessage({
-          message: { raw: messageHash },
-        });
-        console.log("Generated signature for message");
-        this.treeBuilder.addSignature(messageHash, signature);
-
-        // Send signature back
-        socket.emit("tree.sign", {
-          custodyId: message.payload.params.custodyId,
-          messageHash,
-          signature,
-        });
-        console.log("Sent tree.sign response");
 
         // Queue the action based on message type
         const params = message.payload.params;
@@ -275,48 +269,6 @@ class PSymmParty {
     console.log("Deposit transaction completed successfully");
   }
 
-  async proposeTransfer(params) {
-    console.log(`\nProposing transfer:
-    Type: ${params.type}
-    From: ${params.partyA}
-    To: ${params.partyB}
-    CustodyId: ${params.custodyId}
-    Amount: ${params.amount}
-  `);
-
-    const messageHash = await this.treeBuilder.addMessage(params);
-    console.log(`Generated message hash: ${messageHash}`);
-
-    const signature = await this.walletClient.signMessage({
-      message: { raw: messageHash },
-    });
-    console.log("Generated signature for transfer");
-
-    this.treeBuilder.addSignature(messageHash, signature);
-    console.log("Added own signature to tree");
-
-    const socket = this.client || this.server;
-    socket.emit("tree.propose", {
-      type: "tree.propose",
-      payload: {
-        custodyId: params.custodyId,
-        messageHash,
-        signature,
-        params,
-      },
-    });
-    console.log("Sent tree.propose to counterparty");
-
-    // Wait for counterparty signature
-    return new Promise((resolve) => {
-      socket.once("tree.sign", (response) => {
-        if (response.messageHash === messageHash) {
-          resolve(response.signature);
-        }
-      });
-    });
-  }
-
   // Helper method to generate and increment nonce
   generateNonce() {
     this.nonceCounter++;
@@ -345,8 +297,11 @@ class PSymmParty {
       nonce: this.generateNonce(), // We are PartyA
     };
 
-    const { messageHash, ownSignature: signature, counterpartySignature } = 
-      await this.proposeAndSignMessage(this.client, initMessage);
+    const {
+      messageHash,
+      ownSignature: signature,
+      counterpartySignature,
+    } = await this.proposeAndSignMessage(this.client, initMessage);
 
     console.log("Signature A:", signature);
     console.log("Signature B:", counterpartySignature);
@@ -577,10 +532,60 @@ class PSymmParty {
     }
   }
 
+  async handleTreePropose(socket, message) {
+    const messageHash = await this.treeBuilder.addMessage(
+      message.payload.params
+    );
+    console.log(`Added message to tree with hash: ${messageHash}`);
+
+    // Add the proposer's signature first
+    this.treeBuilder.addSignature(messageHash, message.payload.signature);
+    console.log("Added proposer's signature to tree");
+
+    // Generate and add own signature
+    const signature = await this.walletClient.signMessage({
+      message: { raw: messageHash },
+    });
+    console.log("Generated signature for message");
+    this.treeBuilder.addSignature(messageHash, signature);
+
+    // Send signature back
+    socket.emit("tree.sign", {
+      custodyId: message.payload.params.custodyId,
+      messageHash,
+      signature,
+    });
+    console.log("Sent tree.sign response");
+
+    return {
+      messageHash,
+      signature,
+    };
+  }
+
   dropActionQueue() {
     const count = this.onchainActionQueue.length;
     this.onchainActionQueue = [];
     console.log(`Dropped ${count} actions from queue`);
+  }
+
+  async handleRfqFill(message) {
+    const messageHash = await this.treeBuilder.addMessage(
+      message.payload.params
+    );
+    this.treeBuilder.addSignature(messageHash, message.payload.signature);
+
+    const signature = await this.walletClient.signMessage({
+      message: { raw: messageHash },
+    });
+
+    this.treeBuilder.addSignature(messageHash, signature);
+
+    this.client.emit("tree.sign", {
+      custodyId: message.payload.params.custodyId,
+      messageHash,
+      signature,
+    });
   }
 
   stop() {

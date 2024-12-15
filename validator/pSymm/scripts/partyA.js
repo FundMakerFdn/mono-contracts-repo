@@ -2,6 +2,8 @@ const MockStorage = require("#root/validator/SettleMaker/storage/mockStorage.js"
 const config = require("#root/validator/config.js");
 const PSymmParty = require("#root/validator/pSymm/lib/pSymmParty.js");
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function main() {
   const deploymentData = await MockStorage.getDeploymentData(
     config.contractsTempFile
@@ -39,6 +41,57 @@ async function main() {
 
   await partyA.initiateCustodyFlow(partyBAddress, bilateralCustodyId);
 
+  // Add RFQ flow here
+  const rfqParams = {
+    type: "rfq/open/perps",
+    partyA: walletClient.account.address,
+    partyB: partyBAddress,
+    custodyId: bilateralCustodyId.toString(),
+    partyId: "1",
+    ISIN: "BTC-USD-PERP",
+    amount: "1",
+    price: "50000",
+    side: "1", // buy
+    fundingRate: "0",
+    IM_A: "1000",
+    IM_B: "1000",
+    MM_A: "800",
+    MM_B: "800",
+    CVA_A: "100",
+    CVA_B: "100",
+    MC_A: "900",
+    MC_B: "900",
+    contractExpiry: (Math.floor(Date.now() / 1000) + 86400).toString(), // 24h
+    pricePrecision: "2",
+    fundingRatePrecision: "6",
+    cancelGracePeriod: "300",
+    minContractAmount: "0.1",
+    oracleType: "1",
+    expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
+    nonce: partyA.generateNonce().toString(),
+    timestamp: Math.floor(Date.now() / 1000).toString(),
+  };
+
+  // register a handler beforehand so that we can handle immediate response
+  const rfqFillWait = new Promise((resolve) => {
+    partyA.client.once("tree.propose", async (message) => {
+      console.log(JSON.stringify(message));
+      if (message.payload.params.type === "rfqFill/open/perps") {
+        console.log("Received RFQ Fill");
+        await partyA.handleRfqFill(message);
+        console.log("-------------");
+        resolve();
+        console.log("Shouldve resolved");
+      }
+    });
+  });
+  console.log("Sending RFQ...");
+  await partyA.proposeAndSignMessage(partyA.client, rfqParams);
+  console.log("RFQ sent and signed");
+  console.log("Waiting for RFQ Fill...");
+  await rfqFillWait;
+
+  // Continue with existing custody transfer flow
   await partyA.transferCustody(
     partyA.client,
     true,
@@ -47,6 +100,8 @@ async function main() {
     bilateralCustodyId,
     true
   );
+
+  await sleep(3000);
 
   await partyA.transferCustody(
     partyA.client,
@@ -57,7 +112,7 @@ async function main() {
     true
   );
   // wait for interactions
-  await new Promise((resolve) => setTimeout(resolve, 5000));
+  await sleep(5000);
 
   await partyA.withdrawPersonal("10");
 
