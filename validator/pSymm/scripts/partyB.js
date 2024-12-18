@@ -23,6 +23,7 @@ async function main() {
     address: walletClient.account.address,
     port: 3002,
     walletClient,
+    publicClient: await hre.viem.getPublicClient(),
     pSymm,
     mockSymm,
   });

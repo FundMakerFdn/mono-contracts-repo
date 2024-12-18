@@ -1,13 +1,14 @@
 const { Server } = require("socket.io");
 const { io } = require("socket.io-client");
 const CustodyRollupTreeBuilder = require("./custodyRollupTreeBuilder");
-const { parseEther, verifyMessage } = require("viem");
+const { parseEther, verifyMessage, decodeEventLog } = require("viem");
 
 class PSymmParty {
   constructor(config) {
     this.address = config.address;
     this.port = config.port;
     this.walletClient = config.walletClient;
+    this.publicClient = config.publicClient;
     this.pSymm = config.pSymm;
     this.mockSymm = config.mockSymm;
     this.personalCustodyId = 1; // Default personal custody ID
@@ -17,6 +18,11 @@ class PSymmParty {
 
     // Add action queue
     this.onchainActionQueue = [];
+
+    // Add event tracking
+    this.unwatchFunctions = [];
+    this.counterpartyBalances = new Map(); // Map<address, Map<token, amount>>
+    this.eventSubscriptions = new Map(); // Map<socket, Set<Function>>
 
     this.treeBuilder = new CustodyRollupTreeBuilder({
       name: "pSymm",
@@ -56,8 +62,9 @@ class PSymmParty {
     this.client = io(counterpartyUrl);
 
     return new Promise((resolve, reject) => {
-      this.client.on("connect", () => {
+      this.client.on("connect", async () => {
         console.log("Connected as client (party A)");
+        await this.subscribeToEvents(this.client);
         this.setupMessageHandling(this.client, true);
         resolve();
       });
@@ -68,8 +75,9 @@ class PSymmParty {
   }
 
   setupServer() {
-    this.server.on("connection", (socket) => {
+    this.server.on("connection", async (socket) => {
       console.log("Received connection, acting as server (party B)");
+      await this.subscribeToEvents(socket);
       this.setupMessageHandling(socket, false);
 
       socket.on("disconnect", () => {
@@ -77,6 +85,9 @@ class PSymmParty {
         console.log(JSON.stringify(this.treeBuilder.getTree(), null, 2));
         console.log("\nMerkle Root:");
         console.log(this.treeBuilder.getMerkleRoot());
+
+        // Cleanup events
+        this.cleanupSocketEvents(socket);
 
         // Reset state after disconnect
         this.treeBuilder.clear();
@@ -570,10 +581,142 @@ class PSymmParty {
   }
 
   stop() {
+    // Cleanup all socket event subscriptions
+    for (const [socket, unsubscribes] of this.eventSubscriptions) {
+      for (const unsubscribe of unsubscribes) {
+        unsubscribe();
+      }
+    }
+    this.eventSubscriptions.clear();
+
     if (this.client) {
       this.client.close();
     }
     this.server.close();
+  }
+
+  async subscribeToEvents(socket) {
+    // Create a new set for this socket's unwatch functions
+    if (!this.eventSubscriptions.has(socket)) {
+      this.eventSubscriptions.set(socket, new Set());
+    }
+
+    // Subscribe to TransferToCustody events
+    const unwatchTransfer = await this.publicClient.watchContractEvent({
+      address: this.pSymm.address,
+      abi: this.pSymm.abi,
+      eventName: "TransferToCustody",
+      onLogs: (logs) => {
+        logs.forEach((log) => {
+          try {
+            const event = decodeEventLog({
+              abi: this.pSymm.abi,
+              data: log.data,
+              topics: log.topics,
+            });
+            this.handleTransferToCustody(
+              socket,
+              event.args.custodyId,
+              event.args.collateralToken,
+              event.args.amount,
+              event.args.sender
+            );
+          } catch (error) {
+            console.error("Error processing TransferToCustody event:", error);
+          }
+        });
+      },
+      pollingInterval: 1000,
+    });
+    this.eventSubscriptions.get(socket).add(unwatchTransfer);
+
+    // Subscribe to WithdrawFromCustody events
+    const unwatchWithdraw = await this.publicClient.watchContractEvent({
+      address: this.pSymm.address,
+      abi: this.pSymm.abi,
+      eventName: "WithdrawFromCustody",
+      onLogs: (logs) => {
+        logs.forEach((log) => {
+          try {
+            const event = decodeEventLog({
+              abi: this.pSymm.abi,
+              data: log.data,
+              topics: log.topics,
+            });
+            this.handleWithdrawFromCustody(
+              socket,
+              event.args.custodyId,
+              event.args.collateralToken,
+              event.args.amount,
+              event.args.receiver
+            );
+          } catch (error) {
+            console.error("Error processing WithdrawFromCustody event:", error);
+          }
+        });
+      },
+      pollingInterval: 1000,
+    });
+    this.eventSubscriptions.get(socket).add(unwatchWithdraw);
+
+    console.log("Subscribed to custody transfer events");
+  }
+
+  handleTransferToCustody(socket, custodyId, collateralToken, amount, sender) {
+    // Get or create balance map for this counterparty
+    if (!this.counterpartyBalances.has(sender)) {
+      this.counterpartyBalances.set(sender, new Map());
+    }
+    const balances = this.counterpartyBalances.get(sender);
+
+    // Update token balance
+    const currentBalance = balances.get(collateralToken) || 0n;
+    balances.set(collateralToken, currentBalance + amount);
+
+    console.log(
+      `Event: Transfer to custody from ${sender}: ${amount} of token ${collateralToken}`
+    );
+  }
+
+  handleWithdrawFromCustody(
+    socket,
+    custodyId,
+    collateralToken,
+    amount,
+    receiver
+  ) {
+    // Get or create balance map for this counterparty
+    if (!this.counterpartyBalances.has(receiver)) {
+      this.counterpartyBalances.set(receiver, new Map());
+    }
+    const balances = this.counterpartyBalances.get(receiver);
+
+    // Update token balance
+    const currentBalance = balances.get(collateralToken) || 0n;
+    balances.set(collateralToken, currentBalance - amount);
+
+    console.log(
+      `Event: Withdraw from custody to ${receiver}: ${amount} of token ${collateralToken}`
+    );
+  }
+
+  cleanupSocketEvents(socket) {
+    if (this.eventSubscriptions.has(socket)) {
+      const unsubscribes = this.eventSubscriptions.get(socket);
+      for (const unsubscribe of unsubscribes) {
+        unsubscribe();
+      }
+      this.eventSubscriptions.delete(socket);
+      console.log("Cleaned up socket event subscriptions");
+    }
+  }
+
+  getCounterpartyBalance(counterpartyAddress, token) {
+    if (!this.counterpartyBalances.has(counterpartyAddress)) {
+      return 0n;
+    }
+    const balances = this.counterpartyBalances.get(counterpartyAddress);
+    return balances.get(token) || 0n;
   }
 }
 
