@@ -522,15 +522,16 @@ class PSymmParty {
   }
 
   async executeAction(action) {
+    let hash;
     switch (action.type) {
       case "createCustody":
-        await this.pSymm.write.CreateCustody([action.params], {
+        hash = await this.pSymm.write.CreateCustody([action.params], {
           account: this.walletClient.account,
         });
         break;
 
       case "transferCustody":
-        await this.pSymm.write.transferCustody(
+        hash = await this.pSymm.write.transferCustody(
           [action.params, this.personalCustodyId],
           {
             account: this.walletClient.account,
@@ -541,6 +542,10 @@ class PSymmParty {
       default:
         throw new Error(`Unknown action type: ${action.type}`);
     }
+
+    // Wait for transaction to be mined
+    await this.publicClient.waitForTransactionReceipt({ hash });
+    console.log(`Transaction ${hash} confirmed`);
   }
 
   async handleTreePropose(socket, message) {
@@ -551,13 +556,11 @@ class PSymmParty {
 
     // Add the proposer's signature first
     this.treeBuilder.addSignature(messageHash, message.payload.signature);
-    console.log("Added proposer's signature to tree");
 
     // Generate and add own signature
     const signature = await this.walletClient.signMessage({
       message: { raw: messageHash },
     });
-    console.log("Generated signature for message");
     this.treeBuilder.addSignature(messageHash, signature);
 
     // Send signature back
@@ -566,7 +569,6 @@ class PSymmParty {
       messageHash,
       signature,
     });
-    console.log("Sent tree.sign response");
 
     return {
       messageHash,
@@ -717,6 +719,28 @@ class PSymmParty {
     }
     const balances = this.counterpartyBalances.get(counterpartyAddress);
     return balances.get(token) || 0n;
+  }
+
+  async waitForBalance(counterpartyAddress, token, requiredAmount) {
+    console.log(`Waiting for ${counterpartyAddress} to have balance >= ${requiredAmount} of token ${token}`);
+    
+    return new Promise((resolve) => {
+      const checkBalance = () => {
+        const currentBalance = this.getCounterpartyBalance(counterpartyAddress, token);
+        console.log(`Current balance: ${currentBalance}, Required: ${requiredAmount}`);
+        
+        if (currentBalance >= requiredAmount) {
+          console.log('Required balance reached');
+          resolve();
+        } else {
+          // Check again in 1 second
+          setTimeout(checkBalance, 1000);
+        }
+      };
+
+      // Start checking
+      checkBalance();
+    });
   }
 }
 

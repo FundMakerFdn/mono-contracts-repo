@@ -143,12 +143,6 @@ async function main() {
     partyA.client.on("tree.propose", handleQuoteFill);
   });
 
-  console.log("Sending Quote...");
-  await partyA.proposeAndSignMessage(partyA.client, quoteParams);
-  console.log("Quote sent and signed");
-  console.log("Waiting for Quote Fills...");
-  await quoteFillWait;
-
   // Continue with existing custody transfer flow
   await partyA.transferCustody(
     partyA.client,
@@ -158,6 +152,12 @@ async function main() {
     bilateralCustodyId,
     true
   );
+
+  console.log("Sending Quote...");
+  await partyA.proposeAndSignMessage(partyA.client, quoteParams);
+  console.log("Quote sent and signed");
+  console.log("Waiting for Quote Fills...");
+  await quoteFillWait;
 
   await sleep(3000);
 
@@ -169,9 +169,6 @@ async function main() {
     bilateralCustodyId,
     true
   );
-  // wait for interactions
-  await sleep(5000);
-
   await partyA.withdrawPersonal("10");
 
   // Print final tree state and root

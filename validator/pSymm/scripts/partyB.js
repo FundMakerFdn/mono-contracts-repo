@@ -28,9 +28,6 @@ async function main() {
     mockSymm,
   });
 
-  await partyB.start();
-  console.log("Waiting for PartyA to connect...");
-
   await partyB.depositPersonal("10");
 
   partyB.server.on("connection", async (socket) => {
@@ -75,7 +72,9 @@ async function main() {
       }
 
       if (message.payload.params.type === "quote/open/perps") {
-        console.log("Received Quote, sending two Quote Fills...");
+        console.log("Received Quote, executing onchain queue");
+        await partyB.executeOnchain();
+        console.log("sending two Quote Fills...");
 
         await partyB.handleTreePropose(socket, message);
 
@@ -124,11 +123,10 @@ async function main() {
         console.log("Second Quote Fill sent (50 contracts)");
       }
     });
-
-    // wait for counterparty interaction
-    await sleep(5000);
-    await partyB.executeOnchain();
   });
+
+  await partyB.start();
+  console.log("Waiting for PartyA to connect...");
 
   await new Promise((resolve) => {
     process.on("SIGINT", async () => {
