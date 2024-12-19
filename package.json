@@ -29,7 +29,8 @@
     "addSymm": "hardhat addSymm --network localhost",
     "read": "hardhat read --network localhost",
     "write": "hardhat write --network localhost",
-    "scenario": "./tmux/scenario.sh"
+    "scenario": "./tmux/scenario.sh",
+    "party": "./tmux/party.sh"
   },
   "imports": {
     "#root/*": "./*"
