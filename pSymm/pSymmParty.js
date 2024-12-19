@@ -179,17 +179,6 @@ class PSymmParty {
             },
           });
 
-          // Party B initiates reciprocal transfer
-          if (!isA) {
-            await this.transferCustody(
-              socket,
-              params.type === "transfer/deposit/ERC20", // same isAdd value
-              params.collateralAmount,
-              params.partyA, // reverse the parties
-              params.custodyId,
-              false // we are party B
-            );
-          }
         }
       } catch (err) {
         console.error("Failed to process tree.propose:", err);

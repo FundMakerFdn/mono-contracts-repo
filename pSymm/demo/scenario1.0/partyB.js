@@ -32,6 +32,19 @@ async function main() {
 
   partyB.server.on("connection", async (socket) => {
     socket.on("tree.propose", async (message) => {
+      if (message.payload.params.type === "transfer/deposit/ERC20" || 
+          message.payload.params.type === "transfer/withdraw/ERC20") {
+        const params = message.payload.params;
+        await partyB.transferCustody(
+          socket,
+          params.type === "transfer/deposit/ERC20",
+          params.collateralAmount,
+          params.partyA,
+          params.custodyId,
+          false // we are party B
+        );
+      }
+
       if (message.payload.params.type === "rfq/open/perps") {
         console.log("Received RFQ, sending RFQ Fill...");
 
