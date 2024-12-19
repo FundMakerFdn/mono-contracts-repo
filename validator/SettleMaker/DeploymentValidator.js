@@ -30,9 +30,11 @@ class DeploymentValidator extends BaseValidator {
   }
 
   async handleVotingEndState() {
-    await this.contracts.settleMaker.write.finalizeBatchWinner({
-      account: this.walletClient.account,
-    });
+    const hashFinalize =
+      await this.contracts.settleMaker.write.finalizeBatchWinner({
+        account: this.walletClient.account,
+      });
+    await this.publicClient.waitForTransactionReceipt({ hash: hashFinalize });
 
     const batch = this.currentBatch;
     console.log(`Finalized batch ${batch}`);
@@ -58,10 +60,14 @@ class DeploymentValidator extends BaseValidator {
     );
     const proof = merkleTree.getProof([this.newBatchMetadataId]);
 
-    await this.contracts.batchMetadataSettlement.write.executeSettlement(
-      [BigInt(batch), this.newBatchMetadataId, proof],
-      { account: this.walletClient.account }
-    );
+    const hashMetadataExec =
+      await this.contracts.batchMetadataSettlement.write.executeSettlement(
+        [BigInt(batch), this.newBatchMetadataId, proof],
+        { account: this.walletClient.account }
+      );
+    await this.publicClient.waitForTransactionReceipt({
+      hash: hashMetadataExec,
+    });
     console.log(
       `Executed batch metadata settlement: ${this.newBatchMetadataId}`
     );
