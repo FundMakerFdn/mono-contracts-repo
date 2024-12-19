@@ -121,6 +121,9 @@ async function main() {
 
         await partyB.proposeAndSignMessage(socket, quoteFillParams2);
         console.log("Second Quote Fill sent (50 contracts)");
+        console.log("Waiting 5000ms, executing onchain action queue");
+        await sleep(5000);
+        await partyB.executeOnchain();
       }
     });
   });

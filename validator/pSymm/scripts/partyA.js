@@ -159,7 +159,7 @@ async function main() {
   console.log("Waiting for Quote Fills...");
   await quoteFillWait;
 
-  await sleep(3000);
+  await sleep(3000); // at this point we can do more interactions if needed
 
   await partyA.transferCustody(
     partyA.client,
@@ -169,6 +169,9 @@ async function main() {
     bilateralCustodyId,
     true
   );
+
+  await sleep(3000); // wait for executeOnchain from B
+
   await partyA.withdrawPersonal("10");
 
   // Print final tree state and root
