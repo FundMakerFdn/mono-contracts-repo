@@ -43,6 +43,7 @@ contract pSymmSettlement is Settlement {
     event CollateralSettlementCreated(bytes32 indexed settlementId, address partyA, bytes32 merkleRoot, bytes32 custodyId, bool isA);
 
     mapping(bytes32 => pSymmSettlementData) private pSymmSettlementDatas;
+    mapping(bytes32 => bytes32) public pSymmDataHashes;
 
     constructor(
         address _settleMaker, 
@@ -55,6 +56,7 @@ contract pSymmSettlement is Settlement {
         address partyB,
         bytes32 custodyId,
         bytes32 merkleRoot,
+        bytes32 dataHash,
         bool isA
     ) external returns (bytes32) {
         bytes32 settlementId = keccak256(abi.encode(
@@ -81,6 +83,8 @@ contract pSymmSettlement is Settlement {
         settlementData.custodyId = custodyId;
         settlementData.partyA = partyA;
         settlementData.partyB = partyB;
+
+        pSymmDataHashes[settlementId] = dataHash;
 
         emit CollateralSettlementCreated(settlementId, msg.sender, merkleRoot, custodyId, isA);
         return settlementId;

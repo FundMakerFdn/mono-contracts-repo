@@ -24,7 +24,7 @@ contract pSymm is EIP712 {
         bool isManaged;
         uint8 custodyType; // 0: personal, 1: billateral, 2: settlement
         uint256 timestamp;
-		uint256 partyId;
+        uint256 partyId;
         uint256 nonce;
     }
 
@@ -63,8 +63,8 @@ contract pSymm is EIP712 {
         bytes32 custodyId = keccak256(abi.encodePacked(partyA, partyB, _custodyId));
         require(custodys[custodyId].custodyType == 0, "Custody already closed"); // @flow to delete ?
         require(partyA != partyB, "Party A and Party B cannot be the same"); // @flow to delete
-		console.log("Custody check owner debug, id", _custodyId);
-		console.log("Party A, B:", address(custodys[custodyId].partyA), address(custodys[custodyId].partyB));
+        console.log("Custody check owner debug, id", _custodyId);
+        console.log("Party A, B:", address(custodys[custodyId].partyA), address(custodys[custodyId].partyB));
         require(custodys[custodyId].partyA == partyA && custodys[custodyId].partyB == partyB, "Invalid custodial rollup owner");
         _;
     }
@@ -115,7 +115,7 @@ contract pSymm is EIP712 {
             params.isManaged, 
             0, 
             block.timestamp, 
-			params.partyId,
+            params.partyId,
             params.nonce
         );
 
@@ -186,7 +186,7 @@ contract pSymm is EIP712 {
     }
 
     // @notice Open a settlement by calling the openSettlement function in pSymmSettlement contract
-    function openSettlement(bytes32 custodyId, bytes32 merkleRoot, bool isA) external {
+    function openSettlement(bytes32 custodyId, bytes32 merkleRoot, bytes32 datahash, bool isA) external {
         Custody storage custody = custodys[custodyId];
         require(custody.custodyType == 1, "Settlement already open");
         require(msg.sender == custody.partyA || msg.sender == custody.partyB, "Invalid Caller");
@@ -199,6 +199,7 @@ contract pSymm is EIP712 {
                 custody.partyB,
                 custodyId,
                 merkleRoot,
+                datahash,
                 isA
             );
 
