@@ -208,10 +208,12 @@ class CustodyRollupTreeBuilder {
 
   // Get the current state of the message tree
   getTree() {
-    return this.messages.map(({ signatures, params }) => ({
-      signatures,
-      params,
-    }));
+    return this.messages
+      .map(({ signatures, params }) => ({
+        signatures,
+        params,
+      }))
+      .sort((a, b) => Number(a.params.nonce) - Number(b.params.nonce));
   }
 
   // Validate that a message has all required signatures

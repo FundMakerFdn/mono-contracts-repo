@@ -1,7 +1,12 @@
 const { Server } = require("socket.io");
 const { io } = require("socket.io-client");
 const CustodyRollupTreeBuilder = require("./custodyRollupTreeBuilder");
-const { parseEther, verifyMessage, decodeEventLog } = require("viem");
+const {
+  parseEther,
+  verifyMessage,
+  getAddress,
+  decodeEventLog,
+} = require("viem");
 
 class PSymmParty {
   constructor(config) {
@@ -117,11 +122,11 @@ class PSymmParty {
       const counterparty = isA
         ? message.payload.params.partyB
         : message.payload.params.partyA;
-      console.log(`\nReceived tree.propose action:
-    Type: ${message.payload.params.type}
-    Counterparty: ${counterparty}
-    CustodyId: ${message.payload.params.custodyId}
-  `);
+      // console.log(`\nReceived tree.propose action:
+      // Type: ${message.payload.params.type}
+      // Counterparty: ${counterparty}
+      // CustodyId: ${message.payload.params.custodyId}
+      // `);
 
       // For receiving party, use the custodyId from the incoming message
       if (message.payload.params.type === "initialize/billateral/standard") {
@@ -178,7 +183,6 @@ class PSymmParty {
               nonce: params.nonce,
             },
           });
-
         }
       } catch (err) {
         console.error("Failed to process tree.propose:", err);
@@ -191,10 +195,10 @@ class PSymmParty {
     });
 
     socket.on("tree.sign", async (message) => {
-      console.log(`\nReceived tree.sign response:
-    CustodyId: ${message.custodyId}
-    MessageHash: ${message.messageHash}
-  `);
+      // console.log(`\nReceived tree.sign response:
+      // CustodyId: ${message.custodyId}
+      // MessageHash: ${message.messageHash}
+      // `);
 
       // Find the message in the tree to get counterparty address
       const treeMessage = this.treeBuilder.messages.find(
@@ -271,8 +275,9 @@ class PSymmParty {
 
   // Helper method to generate and increment nonce
   generateNonce() {
-    this.nonceCounter++;
-    return this.nonceCounter;
+    return Date.now();
+    // this.nonceCounter++;
+    // return this.nonceCounter;
   }
 
   async initiateCustodyFlow(counterpartyAddress, custodyId) {
@@ -421,7 +426,7 @@ class PSymmParty {
 
     this.onchainActionQueue.push(action);
     console.log(
-      `Action queued. Queue length: ${this.onchainActionQueue.length}`
+      `Action ${action.type} queued. Queue length: ${this.onchainActionQueue.length}`
     );
   }
 
@@ -653,8 +658,10 @@ class PSymmParty {
     console.log("Subscribed to custody transfer events");
   }
 
-  handleTransferToCustody(socket, custodyId, collateralToken, amount, sender) {
+  handleTransferToCustody(socket, custodyId, _token, amount, _sender) {
     // Get or create balance map for this counterparty
+    const sender = getAddress(_sender);
+    const collateralToken = getAddress(_token);
     if (!this.counterpartyBalances.has(sender)) {
       this.counterpartyBalances.set(sender, new Map());
     }
@@ -663,20 +670,17 @@ class PSymmParty {
     // Update token balance
     const currentBalance = balances.get(collateralToken) || 0n;
     balances.set(collateralToken, currentBalance + amount);
+    this.counterpartyBalances.set(sender, balances);
 
     console.log(
       `Event: Transfer to custody from ${sender}: ${amount} of token ${collateralToken}`
     );
   }
 
-  handleWithdrawFromCustody(
-    socket,
-    custodyId,
-    collateralToken,
-    amount,
-    receiver
-  ) {
+  handleWithdrawFromCustody(socket, custodyId, _token, amount, _receiver) {
     // Get or create balance map for this counterparty
+    const receiver = getAddress(_receiver);
+    const collateralToken = getAddress(_token);
     if (!this.counterpartyBalances.has(receiver)) {
       this.counterpartyBalances.set(receiver, new Map());
     }
@@ -685,9 +689,10 @@ class PSymmParty {
     // Update token balance
     const currentBalance = balances.get(collateralToken) || 0n;
     balances.set(collateralToken, currentBalance - amount);
+    this.counterpartyBalances.set(receiver, balances);
 
     console.log(
-      `Event: Withdraw from custody to ${receiver}: ${amount} of token ${collateralToken}`
+      `Event: Transfer from custody from ${receiver}: ${amount} of token ${collateralToken}`
     );
   }
 
@@ -710,16 +715,25 @@ class PSymmParty {
     return balances.get(token) || 0n;
   }
 
-  async waitForBalance(counterpartyAddress, token, requiredAmount) {
-    console.log(`Waiting for ${counterpartyAddress} to have balance >= ${requiredAmount} of token ${token}`);
-    
+  async waitForBalance(_address, _token, requiredAmount) {
+    const counterpartyAddress = getAddress(_address);
+    const token = getAddress(_token);
+    console.log(
+      `Waiting for ${counterpartyAddress} to have balance >= ${requiredAmount} of token ${token}`
+    );
+
     return new Promise((resolve) => {
       const checkBalance = () => {
-        const currentBalance = this.getCounterpartyBalance(counterpartyAddress, token);
-        console.log(`Current balance: ${currentBalance}, Required: ${requiredAmount}`);
-        
+        const currentBalance = this.getCounterpartyBalance(
+          counterpartyAddress,
+          token
+        );
+        console.log(
+          `Current balance: ${currentBalance}, Required: ${requiredAmount}`
+        );
+
         if (currentBalance >= requiredAmount) {
-          console.log('Required balance reached');
+          console.log("Required balance reached");
           resolve();
         } else {
           // Check again in 1 second

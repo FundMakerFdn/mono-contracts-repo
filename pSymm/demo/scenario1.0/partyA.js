@@ -156,10 +156,9 @@ async function main() {
   console.log("Sending Quote...");
   await partyA.proposeAndSignMessage(partyA.client, quoteParams);
   console.log("Quote sent and signed");
+
   console.log("Waiting for Quote Fills...");
   await quoteFillWait;
-
-  await sleep(3000); // at this point we can do more interactions if needed
 
   await partyA.transferCustody(
     partyA.client,
@@ -170,8 +169,7 @@ async function main() {
     true
   );
 
-  await sleep(3000); // wait for executeOnchain from B
-
+  await sleep(6000); // wait for party B to execute onchain
   await partyA.withdrawPersonal("10");
 
   // Print final tree state and root

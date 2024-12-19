@@ -2,6 +2,8 @@ const MockStorage = require("#root/mock/storage/mockStorage.js");
 const config = require("#root/validator/config.js");
 const PSymmParty = require("#root/pSymm/pSymmParty.js");
 
+const { parseEther } = require("viem");
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function main() {
@@ -32,8 +34,10 @@ async function main() {
 
   partyB.server.on("connection", async (socket) => {
     socket.on("tree.propose", async (message) => {
-      if (message.payload.params.type === "transfer/deposit/ERC20" || 
-          message.payload.params.type === "transfer/withdraw/ERC20") {
+      if (
+        message.payload.params.type === "transfer/deposit/ERC20" ||
+        message.payload.params.type === "transfer/withdraw/ERC20"
+      ) {
         const params = message.payload.params;
         await partyB.transferCustody(
           socket,
@@ -87,6 +91,12 @@ async function main() {
       if (message.payload.params.type === "quote/open/perps") {
         console.log("Received Quote, executing onchain queue");
         await partyB.executeOnchain();
+        // Wait for Party A's balance to reach 5
+        await partyB.waitForBalance(
+          message.payload.params.partyA,
+          partyB.mockSymm.address,
+          parseEther("5")
+        );
         console.log("sending two Quote Fills...");
 
         await partyB.handleTreePropose(socket, message);
@@ -134,9 +144,6 @@ async function main() {
 
         await partyB.proposeAndSignMessage(socket, quoteFillParams2);
         console.log("Second Quote Fill sent (50 contracts)");
-        console.log("Waiting 5000ms, executing onchain action queue");
-        await sleep(5000);
-        await partyB.executeOnchain();
       }
     });
   });
@@ -144,9 +151,15 @@ async function main() {
   await partyB.start();
   console.log("Waiting for PartyA to connect...");
 
+  const executeLastOnchain = setTimeout(async () => {
+    console.log("Executing last onchain action queue");
+    await partyB.executeOnchain();
+  }, 8000);
+
   await new Promise((resolve) => {
     process.on("SIGINT", async () => {
       partyB.stop();
+      clearTimeout(executeLastOnchain);
       console.log("Withdrawing deposit...");
       await partyB.withdrawPersonal("10");
       resolve();
