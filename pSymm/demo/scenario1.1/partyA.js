@@ -62,15 +62,15 @@ async function main() {
     CVA_B: "100",
     MC_A: "900",
     MC_B: "900",
-    contractExpiry: Date.now() + 86400000, // 24h
+    contractExpiry: (Math.floor(Date.now() / 1000) + 86400).toString(), // 24h
     pricePrecision: "2",
     fundingRatePrecision: "6",
     cancelGracePeriod: "300",
     minContractAmount: "1",
     oracleType: "1",
-    expiration: Date.now() + 3600000,
+    expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
     nonce: partyA.generateNonce().toString(),
-    timestamp: Date.now(),
+    timestamp: Math.floor(Date.now() / 1000).toString(),
   };
 
   // register a handler beforehand so that we can handle immediate response
@@ -112,15 +112,15 @@ async function main() {
     CVA_B: "100",
     MC_A: "900",
     MC_B: "900",
-    contractExpiry: Date.now() + 86400, // 24h
+    contractExpiry: (Math.floor(Date.now() / 1000) + 86400).toString(), // 24h
     pricePrecision: "2",
     fundingRatePrecision: "6",
     cancelGracePeriod: "300",
     minContractAmount: "1",
     oracleType: "1",
-    expiration: Date.now() + 3600,
+    expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
     nonce: partyA.generateNonce().toString(),
-    timestamp: Date.now(),
+    timestamp: Math.floor(Date.now() / 1000).toString(),
   };
 
   // Wait for both quote fill responses

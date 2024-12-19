@@ -178,7 +178,6 @@ class PSymmParty {
               nonce: params.nonce,
             },
           });
-
         }
       } catch (err) {
         console.error("Failed to process tree.propose:", err);
@@ -279,8 +278,8 @@ class PSymmParty {
     console.log("\nInitiating custody flow...");
     this.custodyId = custodyId;
 
-    const timestamp = Math.floor(Date.now() / 1000);
-    const expiration = timestamp + 3600;
+    const timestamp = Date.now();
+    const expiration = timestamp + 3600000;
 
     // Create custody init message
     const initMessage = {
@@ -318,8 +317,8 @@ class PSymmParty {
         settlementAddress: this.pSymm.address,
         MA: "0x0000000000000000000000000000000000000000000000000000000000000000",
         isManaged: false,
-        expiration: Math.floor(Date.now() / 1000) + 3600,
-        timestamp: Math.floor(Date.now() / 1000),
+        timestamp: Date.now(),
+        expiration: Date.now() + 3600000,
         partyId: 1,
         nonce: initMessage.nonce,
       },
@@ -362,8 +361,8 @@ class PSymmParty {
       collateralAmount: amount,
       collateralToken: this.mockSymm.address,
       senderCustodyId: "0x" + "0".repeat(64),
-      expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
-      timestamp: Math.floor(Date.now() / 1000).toString(),
+      expiration: Date.now() + 3600000,
+      timestamp: Date.now(),
       partyId: isPartyA ? 1 : 2,
       nonce: this.generateNonce(),
     };
@@ -385,8 +384,8 @@ class PSymmParty {
         collateralAmount: parseEther(amount),
         collateralToken: this.mockSymm.address,
         senderCustodyId: "0x" + "0".repeat(64),
-        expiration: Math.floor(Date.now() / 1000) + 3600,
-        timestamp: Math.floor(Date.now() / 1000),
+        expiration: Date.now() + 3600000,
+        timestamp: Date.now(),
         partyId: isPartyA ? 1 : 2,
         nonce: transferMessage.nonce,
       },
@@ -711,15 +710,22 @@ class PSymmParty {
   }
 
   async waitForBalance(counterpartyAddress, token, requiredAmount) {
-    console.log(`Waiting for ${counterpartyAddress} to have balance >= ${requiredAmount} of token ${token}`);
-    
+    console.log(
+      `Waiting for ${counterpartyAddress} to have balance >= ${requiredAmount} of token ${token}`
+    );
+
     return new Promise((resolve) => {
       const checkBalance = () => {
-        const currentBalance = this.getCounterpartyBalance(counterpartyAddress, token);
-        console.log(`Current balance: ${currentBalance}, Required: ${requiredAmount}`);
-        
+        const currentBalance = this.getCounterpartyBalance(
+          counterpartyAddress,
+          token
+        );
+        console.log(
+          `Current balance: ${currentBalance}, Required: ${requiredAmount}`
+        );
+
         if (currentBalance >= requiredAmount) {
-          console.log('Required balance reached');
+          console.log("Required balance reached");
           resolve();
         } else {
           // Check again in 1 second

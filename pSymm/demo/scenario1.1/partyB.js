@@ -37,10 +37,16 @@ async function main() {
         message.payload.params.type === "transfer/withdraw/ERC20"
       ) {
         const params = message.payload.params;
+        // Double the amount if it's a withdrawal
+        const amount =
+          params.type === "transfer/withdraw/ERC20"
+            ? (parseFloat(params.collateralAmount) * 2).toString() // Double withdrawal amount
+            : params.collateralAmount;
+
         await partyB.transferCustody(
           socket,
           params.type === "transfer/deposit/ERC20",
-          params.collateralAmount,
+          amount,
           params.partyA,
           params.custodyId,
           false // we are party B
@@ -77,9 +83,9 @@ async function main() {
           cancelGracePeriod: message.payload.params.cancelGracePeriod,
           minContractAmount: message.payload.params.minContractAmount,
           oracleType: message.payload.params.oracleType,
-          expiration: Date.now() + 3600000,
+          expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
           nonce: partyB.generateNonce().toString(),
-          timestamp: Date.now(),
+          timestamp: Math.floor(Date.now() / 1000).toString(),
         };
 
         await partyB.proposeAndSignMessage(socket, rfqFillParams);
@@ -119,9 +125,9 @@ async function main() {
           cancelGracePeriod: message.payload.params.cancelGracePeriod,
           minContractAmount: message.payload.params.minContractAmount,
           oracleType: message.payload.params.oracleType,
-          expiration: Date.now() + 3600000,
+          expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
           nonce: partyB.generateNonce().toString(),
-          timestamp: Date.now(),
+          timestamp: Math.floor(Date.now() / 1000).toString(),
         };
 
         await partyB.proposeAndSignMessage(socket, quoteFillParams1);
@@ -131,7 +137,7 @@ async function main() {
         const quoteFillParams2 = {
           ...quoteFillParams1,
           nonce: partyB.generateNonce().toString(),
-          timestamp: Date.now(),
+          timestamp: Math.floor(Date.now() / 1000).toString(),
         };
 
         await partyB.proposeAndSignMessage(socket, quoteFillParams2);
