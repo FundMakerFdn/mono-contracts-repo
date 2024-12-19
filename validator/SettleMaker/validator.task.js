@@ -1,5 +1,5 @@
 const { parseEther } = require("viem");
-const MockStorage = require("./storage/mockStorage");
+const MockStorage = require("#root/mock/storage/mockStorage.js");
 const config = require("#root/validator/config.js");
 const fs = require("fs");
 
@@ -7,7 +7,9 @@ async function validatorTask([walletId], hre) {
   // Use the static helper method
   let deploymentData;
   try {
-    deploymentData = await MockStorage.getDeploymentData(config.contractsTempFile);
+    deploymentData = await MockStorage.getDeploymentData(
+      config.contractsTempFile
+    );
   } catch (err) {
     console.error(err.message);
     console.error("Make sure the deployer is running");

@@ -26,12 +26,10 @@
     "deploy": "hardhat run --network localhost validator/SettleMaker/deploy.js",
     "validator": "hardhat validator --network localhost",
     "miner": "hardhat run --network localhost validator/miner.js",
-    "test": "node validator/pSymm/lib/custodyRollupTreeBuilder.js",
     "addSymm": "hardhat addSymm --network localhost",
     "read": "hardhat read --network localhost",
     "write": "hardhat write --network localhost",
-    "pSymmA": "hardhat run --network localhost validator/pSymm/scripts/partyA.js",
-    "pSymmB": "hardhat run --network localhost validator/pSymm/scripts/partyB.js"
+    "scenario": "./tmux/scenario.sh"
   },
   "imports": {
     "#root/*": "./*"

@@ -1,4 +1,4 @@
-const MockStorage = require("./storage/mockStorage");
+const MockStorage = require("#root/mock/storage/mockStorage.js");
 const config = require("#root/validator/config.js");
 const fs = require("fs");
 

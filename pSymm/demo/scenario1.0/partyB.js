@@ -1,6 +1,6 @@
-const MockStorage = require("#root/validator/SettleMaker/storage/mockStorage.js");
+const MockStorage = require("#root/mock/storage/mockStorage.js");
 const config = require("#root/validator/config.js");
-const PSymmParty = require("#root/validator/pSymm/lib/pSymmParty.js");
+const PSymmParty = require("#root/pSymm/pSymmParty.js");
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 

@@ -4,7 +4,7 @@ const {
   time,
 } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
 const { keccak256, toHex, decodeEventLog, parseEther } = require("viem");
-const MockStorage = require("./storage/mockStorage");
+const MockStorage = require("#root/mock/storage/mockStorage.js");
 
 async function getSettlementIdFromReceipt(txHash, publicClient, settlement) {
   const receipt = await publicClient.waitForTransactionReceipt({
@@ -180,9 +180,9 @@ async function main() {
 
   // Deploy pSymm Settlement contract
   const pSymmSettlement = await hre.viem.deployContract("pSymmSettlement", [
-    settleMaker.address,  // _settleMaker address
-    "pSymm Settlement",   // name 
-    "1.0"                // version
+    settleMaker.address, // _settleMaker address
+    "pSymm Settlement", // name
+    "1.0", // version
   ]);
   console.log("pSymmSettlement deployed to:", pSymmSettlement.address);
 
@@ -242,7 +242,7 @@ async function main() {
       BatchMetadataSettlement: batchMetadataSettlement.address,
       SettleMaker: settleMaker.address,
       pSymm: pSymm.address,
-      pSymmSettlement: pSymmSettlement.address
+      pSymmSettlement: pSymmSettlement.address,
     },
     settlements: {
       batchMetadataId,
@@ -277,7 +277,7 @@ async function main() {
       validatorSettlement,
       editSettlement,
       mockSymm,
-      pSymmSettlement
+      pSymmSettlement,
     },
     config,
     true

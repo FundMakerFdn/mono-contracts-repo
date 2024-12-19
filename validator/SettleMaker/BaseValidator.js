@@ -1,5 +1,5 @@
 const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
-const MockStorage = require("./storage/mockStorage");
+const MockStorage = require("#root/mock/storage/mockStorage.js");
 const {
   time,
 } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");

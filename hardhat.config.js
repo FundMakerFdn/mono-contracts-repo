@@ -9,17 +9,20 @@ task("validator", "Run the validator")
       console.error("This task must be run on localhost network");
       process.exit(1);
     }
-    const validatorTask = require("./validator/SettleMaker/validator.task.js");
+    const validatorTask = require("#root/validator/SettleMaker/validator.task.js");
     await validatorTask([taskArgs.walletId], hre);
   });
 
 task("read", "Read a contract function")
   .addPositionalParam("contractName", "The name of the contract")
-  .addPositionalParam("functionName", "The name of the function to read") 
+  .addPositionalParam("functionName", "The name of the function to read")
   .addVariadicPositionalParam("args", "Function arguments", [])
   .setAction(async (taskArgs, hre) => {
-    const readTask = require("./validator/SettleMaker/read.task.js");
-    await readTask([taskArgs.contractName, taskArgs.functionName, ...taskArgs.args], hre);
+    const readTask = require("#root/utils/read.task.js");
+    await readTask(
+      [taskArgs.contractName, taskArgs.functionName, ...taskArgs.args],
+      hre
+    );
   });
 
 task("write", "Write to a contract function")
@@ -28,15 +31,27 @@ task("write", "Write to a contract function")
   .addPositionalParam("functionName", "The name of the function to write")
   .addVariadicPositionalParam("args", "Function arguments", [])
   .setAction(async (taskArgs, hre) => {
-    const writeTask = require("./validator/SettleMaker/write.task.js");
-    await writeTask([taskArgs.walletId, taskArgs.contractName, taskArgs.functionName, ...taskArgs.args], hre);
+    const writeTask = require("#root/utils/write.task.js");
+    await writeTask(
+      [
+        taskArgs.walletId,
+        taskArgs.contractName,
+        taskArgs.functionName,
+        ...taskArgs.args,
+      ],
+      hre
+    );
   });
 
 task("addSymm", "Mint SYMM tokens to a wallet")
   .addPositionalParam("walletId", "The wallet ID to receive SYMM")
-  .addOptionalPositionalParam("amount", "Amount of SYMM to mint in ether units", "1000")
+  .addOptionalPositionalParam(
+    "amount",
+    "Amount of SYMM to mint in ether units",
+    "1000"
+  )
   .setAction(async (taskArgs, hre) => {
-    const addSymmTask = require("./validator/SettleMaker/addSymm.task.js");
+    const addSymmTask = require("#root/utils/addSymm.task.js");
     await addSymmTask([taskArgs.walletId, taskArgs.amount], hre);
   });
 
@@ -60,9 +75,9 @@ module.exports = {
       viaIR: true,
       optimizer: {
         enabled: true,
-        runs: 200
-      }
-    }
+        runs: 200,
+      },
+    },
   },
   networks: {
     localhost: {
