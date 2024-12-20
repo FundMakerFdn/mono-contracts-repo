@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the tmux session name
-SESSION_NAME="workspace"
+export SESSION_NAME="workspace"
 
 # Start a new tmux session
 # The -d flag detaches the session so we can configure it before attaching
