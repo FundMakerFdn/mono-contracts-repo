@@ -50,6 +50,8 @@ class PSymmPartyA extends PSymmParty {
 
         await this.publicClient.waitForTransactionReceipt({ hash });
         console.log("Settlement opened");
+        socket.disconnect();
+        this.stop();
 
         throw new Error(
           "Counterparty tries to withdraw too much, settlement opened"
@@ -233,7 +235,14 @@ async function main() {
   );
 
   await sleep(6000); // wait for party B to execute onchain
-  await partyA.withdrawPersonal("10");
+  console.log("Withdrawing deposit...");
+  try {
+    await partyA.withdrawPersonal("10");
+  } catch (e) {
+    console.error(
+      "Failed to withdraw personal custody (may be due to bilateral custody lock)"
+    );
+  }
 
   // Print final tree state and root
   console.log("\nFinal Custody Rollup Tree State:");

@@ -183,6 +183,7 @@ class PSymmParty {
           messageHash: message.payload.messageHash,
           reason: err.message,
         });
+        socket.disconnect();
       }
     });
 

@@ -43,7 +43,9 @@ class BaseValidator {
 
       await this.subscribeToEvents(
         name,
-        "SettlementCreated",
+        name != "pSymmSettlement"
+          ? "SettlementCreated"
+          : "CollateralSettlementCreated",
         async (event, log) => {
           // Only collect settlements if we've witnessed the settlement state start
           if (!this.shouldListenSettlements) {

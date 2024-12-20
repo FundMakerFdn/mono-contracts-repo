@@ -154,6 +154,42 @@ async function main() {
         console.log("Second Quote Fill sent (50 contracts)");
       }
     });
+
+    socket.on("tree.reject", async (message) => {
+      console.log("Received tree reject, opening settlement...");
+
+      // Calculate custody ID bytes32
+      const custodyId = await partyB.pSymm.read.getRollupBytes32({
+        args: [
+          message.payload.params.partyA,
+          message.payload.params.partyB,
+          BigInt(message.payload.params.custodyId),
+        ],
+      });
+
+      // Get current tree state and store it in mock storage
+      const treeState = partyB.treeBuilder.getTree();
+      const storage = new MockStorage();
+      const dataHash = storage.store(treeState);
+      storage.close();
+
+      console.log("Current datahash:", dataHash);
+
+      // Create merkle root
+      const merkleRoot = partyB.treeBuilder.getMerkleRoot();
+
+      // Open settlement with actual merkle root and data hash
+      const hash = await partyB.pSymm.write.openSettlement([
+        custodyId,
+        merkleRoot,
+        `0x${dataHash}`, // Convert hash to bytes32 format
+        false,
+      ]);
+
+      await partyB.publicClient.waitForTransactionReceipt({ hash });
+      console.log("Settlement opened by Party B");
+      socket.disconnect();
+    });
   });
 
   await partyB.start();
@@ -162,17 +198,18 @@ async function main() {
   const executeLastOnchain = setTimeout(async () => {
     console.log("Executing last onchain action queue");
     await partyB.executeOnchain();
-  }, 8000);
 
-  await new Promise((resolve) => {
-    process.on("SIGINT", async () => {
-      partyB.stop();
-      clearTimeout(executeLastOnchain);
-      console.log("Withdrawing deposit...");
+    partyB.stop();
+    clearTimeout(executeLastOnchain);
+    console.log("Withdrawing deposit...");
+    try {
       await partyB.withdrawPersonal("10");
-      resolve();
-    });
-  });
+    } catch (e) {
+      console.error(
+        "Failed to withdraw personal custody (may be due to bilateral custody lock)"
+      );
+    }
+  }, 8000);
 }
 
 main().catch((error) => {
