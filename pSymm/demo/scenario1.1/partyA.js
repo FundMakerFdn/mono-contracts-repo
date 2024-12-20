@@ -50,8 +50,8 @@ class PSymmPartyA extends PSymmParty {
 
         await this.publicClient.waitForTransactionReceipt({ hash });
         console.log("Settlement opened");
-        socket.disconnect();
-        this.stop();
+        // socket.disconnect();
+        // this.stop();
 
         throw new Error(
           "Counterparty tries to withdraw too much, settlement opened"

@@ -39,22 +39,68 @@ async function main() {
 
   partyB.server.on("connection", async (socket) => {
     socket.on("tree.propose", async (message) => {
-      if (
-        message.payload.params.type === "transfer/deposit/ERC20" ||
-        message.payload.params.type === "transfer/withdraw/ERC20"
-      ) {
-        const params = message.payload.params;
-        const isAdd = params.type === "transfer/deposit/ERC20";
+      const params = message.payload.params;
+
+      if (params.type === "transfer/deposit/ERC20") {
+        const isAdd = true; // For deposit
         await partyB.transferCustody(
           socket,
           isAdd,
-          isAdd
-            ? params.collateralAmount
-            : (parseInt(params.collateralAmount) * 2).toString(),
+          params.collateralAmount,
           params.partyA,
           params.custodyId,
           false // we are party B
         );
+      } else if (params.type === "transfer/withdraw/ERC20") {
+        const isAdd = false; // For withdrawal
+        const adjustedAmount = (
+          parseInt(params.collateralAmount) * 2
+        ).toString();
+        partyB.transferCustody(
+          socket,
+          isAdd,
+          adjustedAmount,
+          params.partyA,
+          params.custodyId,
+          false // we are party B
+        );
+        socket.on("tree.reject", async (msg) => {
+          console.log("Received tree reject, opening settlement...");
+
+          // Calculate custody ID bytes32
+          const custodyId = await partyB.pSymm.read.getRollupBytes32({
+            args: [params.partyA, params.partyB, BigInt(params.custodyId)],
+          });
+
+          // Get current tree state and store it in mock storage
+          const treeState = partyB.treeBuilder.getTree();
+          const storage = new MockStorage();
+          const dataHash = storage.store(treeState);
+          storage.close();
+
+          console.log("Current datahash:", dataHash);
+
+          // Create merkle root
+          const merkleRoot = partyB.treeBuilder.getMerkleRoot();
+
+          // Open settlement with actual merkle root and data hash
+          try {
+            const hash = await partyB.pSymm.write.openSettlement([
+              custodyId,
+              merkleRoot,
+              `0x${dataHash}`, // Convert hash to bytes32 format
+              false,
+            ]);
+          } catch (e) {
+            console.error("Failed to open settlement:", e);
+            console.error("Note: the reason may be datahash being the same");
+          }
+
+          await partyB.publicClient.waitForTransactionReceipt({ hash });
+          console.log("Settlement opened by Party B");
+          socket.disconnect();
+          resolve();
+        });
       }
 
       if (message.payload.params.type === "rfq/open/perps") {
@@ -153,42 +199,6 @@ async function main() {
         await partyB.proposeAndSignMessage(socket, quoteFillParams2);
         console.log("Second Quote Fill sent (50 contracts)");
       }
-    });
-
-    socket.on("tree.reject", async (message) => {
-      console.log("Received tree reject, opening settlement...");
-
-      // Calculate custody ID bytes32
-      const custodyId = await partyB.pSymm.read.getRollupBytes32({
-        args: [
-          message.payload.params.partyA,
-          message.payload.params.partyB,
-          BigInt(message.payload.params.custodyId),
-        ],
-      });
-
-      // Get current tree state and store it in mock storage
-      const treeState = partyB.treeBuilder.getTree();
-      const storage = new MockStorage();
-      const dataHash = storage.store(treeState);
-      storage.close();
-
-      console.log("Current datahash:", dataHash);
-
-      // Create merkle root
-      const merkleRoot = partyB.treeBuilder.getMerkleRoot();
-
-      // Open settlement with actual merkle root and data hash
-      const hash = await partyB.pSymm.write.openSettlement([
-        custodyId,
-        merkleRoot,
-        `0x${dataHash}`, // Convert hash to bytes32 format
-        false,
-      ]);
-
-      await partyB.publicClient.waitForTransactionReceipt({ hash });
-      console.log("Settlement opened by Party B");
-      socket.disconnect();
     });
   });
 
