@@ -137,7 +137,7 @@ async function main() {
     minContractAmount: "1",
     oracleType: "1",
     expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
-    nonce: partyA.generateNonce().toString(),
+    nonce: partyA.generateNonce(),
     timestamp: Math.floor(Date.now() / 1000).toString(),
   };
 
@@ -159,6 +159,16 @@ async function main() {
   console.log("RFQ sent and signed");
   console.log("Waiting for RFQ Fill...");
   await rfqFillWait;
+
+  // Continue with existing custody transfer flow
+  await partyA.transferCustody(
+    partyA.client,
+    true,
+    "5",
+    partyBAddress,
+    bilateralCustodyId,
+    true
+  );
 
   // Add quote flow
   const quoteParams = {
@@ -187,7 +197,7 @@ async function main() {
     minContractAmount: "1",
     oracleType: "1",
     expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
-    nonce: partyA.generateNonce().toString(),
+    nonce: partyA.generateNonce(),
     timestamp: Math.floor(Date.now() / 1000).toString(),
   };
 
@@ -210,16 +220,6 @@ async function main() {
 
     partyA.client.on("tree.propose", handleQuoteFill);
   });
-
-  // Continue with existing custody transfer flow
-  await partyA.transferCustody(
-    partyA.client,
-    true,
-    "5",
-    partyBAddress,
-    bilateralCustodyId,
-    true
-  );
 
   console.log("Sending Quote...");
   await partyA.proposeAndSignMessage(partyA.client, quoteParams);

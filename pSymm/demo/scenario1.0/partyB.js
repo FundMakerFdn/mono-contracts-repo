@@ -90,7 +90,7 @@ async function main() {
           minContractAmount: message.payload.params.minContractAmount,
           oracleType: message.payload.params.oracleType,
           expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
-          nonce: partyB.generateNonce().toString(),
+          nonce: partyB.generateNonce(),
           timestamp: Math.floor(Date.now() / 1000).toString(),
         };
 
@@ -138,7 +138,7 @@ async function main() {
           minContractAmount: message.payload.params.minContractAmount,
           oracleType: message.payload.params.oracleType,
           expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
-          nonce: partyB.generateNonce().toString(),
+          nonce: partyB.generateNonce(),
           timestamp: Math.floor(Date.now() / 1000).toString(),
         };
 
@@ -148,7 +148,7 @@ async function main() {
         // Second quote fill for remaining 50 contracts
         const quoteFillParams2 = {
           ...quoteFillParams1,
-          nonce: partyB.generateNonce().toString(),
+          nonce: partyB.generateNonce(),
           timestamp: Math.floor(Date.now() / 1000).toString(),
         };
 

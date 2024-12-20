@@ -79,7 +79,7 @@ async function main() {
     minContractAmount: "1",
     oracleType: "1",
     expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
-    nonce: partyA.generateNonce().toString(),
+    nonce: partyA.generateNonce(),
     timestamp: Math.floor(Date.now() / 1000).toString(),
   };
 
@@ -129,7 +129,7 @@ async function main() {
     minContractAmount: "1",
     oracleType: "1",
     expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
-    nonce: partyA.generateNonce().toString(),
+    nonce: partyA.generateNonce(),
     timestamp: Math.floor(Date.now() / 1000).toString(),
   };
 

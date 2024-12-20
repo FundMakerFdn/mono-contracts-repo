@@ -130,9 +130,6 @@ class PSymmParty {
       ];
 
       if (!validTypes.includes(message.payload.params.type)) {
-        console.log(
-          `(base handler) Ignoring non-custody message type: ${message.payload.params.type}`
-        );
         return;
       }
 
@@ -284,8 +281,8 @@ class PSymmParty {
   // Helper method to generate and increment nonce
   generateNonce() {
     return Date.now();
-    // this.nonceCounter++;
-    // return this.nonceCounter;
+    this.nonceCounter++;
+    return this.nonceCounter;
   }
 
   async initiateCustodyFlow(counterpartyAddress, custodyId) {

@@ -131,7 +131,7 @@ async function main() {
           minContractAmount: message.payload.params.minContractAmount,
           oracleType: message.payload.params.oracleType,
           expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
-          nonce: partyB.generateNonce().toString(),
+          nonce: partyB.generateNonce(),
           timestamp: Math.floor(Date.now() / 1000).toString(),
         };
 
@@ -179,7 +179,7 @@ async function main() {
           minContractAmount: message.payload.params.minContractAmount,
           oracleType: message.payload.params.oracleType,
           expiration: (Math.floor(Date.now() / 1000) + 3600).toString(),
-          nonce: partyB.generateNonce().toString(),
+          nonce: partyB.generateNonce(),
           timestamp: Math.floor(Date.now() / 1000).toString(),
         };
 
@@ -189,7 +189,7 @@ async function main() {
         // Second quote fill for remaining 50 contracts
         const quoteFillParams2 = {
           ...quoteFillParams1,
-          nonce: partyB.generateNonce().toString(),
+          nonce: partyB.generateNonce(),
           timestamp: Math.floor(Date.now() / 1000).toString(),
         };
 
@@ -203,9 +203,9 @@ async function main() {
   console.log("Waiting for PartyA to connect...");
 
   // Handle graceful shutdown on Ctrl+C
-  process.on('SIGINT', async () => {
+  process.on("SIGINT", async () => {
     console.log("\nReceived SIGINT (Ctrl+C). Cleaning up...");
-    
+
     console.log("Executing final onchain action queue");
     await partyB.executeOnchain();
 
