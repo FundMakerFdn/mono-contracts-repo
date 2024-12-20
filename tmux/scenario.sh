@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./tmux/base.sh
+source ./tmux/base.sh
 
 export SCENARIO="${1:-1.0}" # Scenario 1.0 by default
 
