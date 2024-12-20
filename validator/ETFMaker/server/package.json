@@ -1,0 +1,20 @@
+{
+  "type": "module",
+  "dependencies": {
+    "better-sqlite3": "^11.7.0",
+    "commander": "^12.1.0",
+    "cors": "^2.8.5",
+    "drizzle-orm": "^0.38.1",
+    "express": "^4.21.2",
+    "pg": "^8.13.1",
+    "yarn": "^1.22.22"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.30.0"
+  },
+  "scripts": {
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate",
+    "ETFMaker": "node ETFMaker"
+  }
+}
