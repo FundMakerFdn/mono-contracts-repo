@@ -91,12 +91,12 @@ async function main() {
               `0x${dataHash}`, // Convert hash to bytes32 format
               false,
             ]);
+            await partyB.publicClient.waitForTransactionReceipt({ hash });
           } catch (e) {
             console.error("Failed to open settlement:", e);
             console.error("Note: the reason may be datahash being the same");
           }
 
-          await partyB.publicClient.waitForTransactionReceipt({ hash });
           console.log("Settlement opened by Party B");
           socket.disconnect();
           resolve();
