@@ -1,4 +1,5 @@
 const MockStorage = require("#root/mock/storage/mockStorage.js");
+const { parseEther } = require("viem");
 const config = require("#root/validator/config.js");
 const PSymmParty = require("#root/pSymm/pSymmParty.js");
 
@@ -24,16 +25,22 @@ class PSymmPartyA extends PSymmParty {
           ],
         });
 
-        // Create mock merkle root (you can replace this with actual merkle root calculation)
-        const mockMerkleRoot = "0x" + "1".padStart(64, "0");
-        // Create mock data hash
-        const mockDataHash = "0x" + "0".padStart(64, "0");
+        // Get current tree state and store it in mock storage
+        const treeState = this.treeBuilder.getTree();
+        const storage = new MockStorage();
+        const dataHash = storage.store(treeState);
+        storage.close();
 
-        // Open settlement
+        console.log("Current datahash:", dataHash);
+
+        // Create merkle root
+        const merkleRoot = this.treeBuilder.getMerkleRoot();
+
+        // Open settlement with actual merkle root and data hash
         const hash = await this.pSymm.write.openSettlement([
           custodyId,
-          mockMerkleRoot,
-          mockDataHash,
+          merkleRoot,
+          `0x${dataHash}`, // Convert hash to bytes32 format
           true, // isA = true since this is Party A
         ]);
 
