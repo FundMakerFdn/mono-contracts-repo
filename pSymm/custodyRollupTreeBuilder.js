@@ -119,7 +119,7 @@ class CustodyRollupTreeBuilder {
           messageValues
         )
       );
-    } else if (params.type === "initialize/billateral/standard") {
+    } else if (params.type === "initialize/bilateral/standard") {
       structHash = keccak256(
         encodeAbiParameters(
           [
@@ -130,6 +130,7 @@ class CustodyRollupTreeBuilder {
             { type: "address" }, // settlementAddress
             { type: "bytes32" }, // MA
             { type: "bool" }, // isManaged
+            { type: "uint8" }, // custodyType
             ...CustodyRollupTreeBuilder.FOOTER_CUSTODY_TYPES,
           ],
           [
@@ -140,6 +141,7 @@ class CustodyRollupTreeBuilder {
             params.settlementAddress,
             params.MA,
             params.isManaged,
+            BigInt(params.custodyType),
             BigInt(params.expiration),
             BigInt(params.timestamp),
             BigInt(params.partyId),
@@ -186,6 +188,7 @@ class CustodyRollupTreeBuilder {
       message.signatures.push(signature);
     }
 
+    console.log("structHash:", structHash);
     this.messages.push(message);
     return structHash;
   }

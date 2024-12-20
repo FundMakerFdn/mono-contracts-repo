@@ -9,14 +9,44 @@ class PSymmPartyA extends PSymmParty {
   async handleTreePropose(socket, message) {
     // Check if it's a withdraw message and validate amount
     if (message.payload.params.type === "transfer/withdraw/ERC20") {
-      console.log(">>>>>>>> ???? ", message.payload.params.collateralAmount);
       const amount = parseFloat(message.payload.params.collateralAmount);
       if (amount > 5) {
-        throw new Error("Counterparty tries to withdraw too much");
+        console.log(
+          "Counterparty tries to withdraw too much, opening settlement..."
+        );
+
+        // Calculate custody ID bytes32
+        const custodyId = await this.pSymm.read.getRollupBytes32({
+          args: [
+            message.payload.params.partyA,
+            message.payload.params.partyB,
+            BigInt(message.payload.params.custodyId),
+          ],
+        });
+
+        // Create mock merkle root (you can replace this with actual merkle root calculation)
+        const mockMerkleRoot = "0x" + "1".padStart(64, "0");
+        // Create mock data hash
+        const mockDataHash = "0x" + "0".padStart(64, "0");
+
+        // Open settlement
+        const tx = await this.pSymm.write.openSettlement([
+          custodyId,
+          mockMerkleRoot,
+          mockDataHash,
+          true, // isA = true since this is Party A
+        ]);
+
+        await tx.wait();
+        console.log("Settlement opened");
+
+        throw new Error(
+          "Counterparty tries to withdraw too much, settlement opened"
+        );
       }
     }
 
-    // Call parent class implementation
+    // Call parent class implementation for other cases
     return super.handleTreePropose(socket, message);
   }
 }

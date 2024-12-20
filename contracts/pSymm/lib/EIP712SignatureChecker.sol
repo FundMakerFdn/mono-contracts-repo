@@ -17,6 +17,7 @@ library EIP712SignatureChecker {
 		address settlementAddress;
 		bytes32 MA;
 		bool isManaged;
+		uint8 custodyType;
 		uint256 expiration;
 		uint256 timestamp;
 		uint256 partyId;
@@ -73,6 +74,7 @@ library EIP712SignatureChecker {
 				params.settlementAddress,   
 				params.MA,
 				params.isManaged,
+				params.custodyType,
 				params.expiration,
 				params.timestamp,
 				params.partyId,

@@ -39,10 +39,11 @@ async function main() {
         message.payload.params.type === "transfer/withdraw/ERC20"
       ) {
         const params = message.payload.params;
+        const isAdd = params.type === "transfer/deposit/ERC20";
         await partyB.transferCustody(
           socket,
-          params.type === "transfer/deposit/ERC20",
-          params.type === "transfer/deposit/ERC20"
+          isAdd,
+          isAdd
             ? params.collateralAmount
             : (parseInt(params.collateralAmount) * 2).toString(),
           params.partyA,

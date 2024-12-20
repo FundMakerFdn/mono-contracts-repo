@@ -107,7 +107,7 @@ class PSymmParty {
     socket.on("tree.propose", async (message) => {
       // Only handle custody-related actions
       const validTypes = [
-        "initialize/billateral/standard",
+        "initialize/bilateral/standard",
         "transfer/deposit/ERC20",
         "transfer/withdraw/ERC20",
       ];
@@ -129,7 +129,7 @@ class PSymmParty {
       // `);
 
       // For receiving party, use the custodyId from the incoming message
-      if (message.payload.params.type === "initialize/billateral/standard") {
+      if (message.payload.params.type === "initialize/bilateral/standard") {
         this.custodyId = message.payload.params.custodyId;
       }
 
@@ -141,23 +141,14 @@ class PSymmParty {
 
         // Queue the action based on message type
         const params = message.payload.params;
-        if (params.type === "initialize/billateral/standard") {
+        if (params.type === "initialize/bilateral/standard") {
           await this.queueOnchainAction({
             type: "createCustody",
             messageHash,
             params: {
               signatureA: message.payload.signature,
               signatureB: signature,
-              partyA: params.partyA,
-              partyB: params.partyB,
-              custodyId: params.custodyId,
-              settlementAddress: params.settlementAddress,
-              MA: params.MA,
-              isManaged: params.isManaged,
-              expiration: params.expiration,
-              timestamp: params.timestamp,
-              partyId: params.partyId,
-              nonce: params.nonce,
+              ...params,
             },
           });
         } else if (
@@ -289,13 +280,14 @@ class PSymmParty {
 
     // Create custody init message
     const initMessage = {
-      type: "initialize/billateral/standard",
+      type: "initialize/bilateral/standard",
       partyA: this.address,
       partyB: counterpartyAddress,
       custodyId: custodyId,
       settlementAddress: this.pSymm.address,
       MA: "0x0000000000000000000000000000000000000000000000000000000000000000",
       isManaged: false,
+      custodyType: 1, // bilateral
       expiration,
       timestamp,
       partyId: 1,
@@ -323,6 +315,7 @@ class PSymmParty {
         settlementAddress: this.pSymm.address,
         MA: "0x0000000000000000000000000000000000000000000000000000000000000000",
         isManaged: false,
+        custodyType: 1,
         expiration: Math.floor(Date.now() / 1000) + 3600,
         timestamp: Math.floor(Date.now() / 1000),
         partyId: 1,

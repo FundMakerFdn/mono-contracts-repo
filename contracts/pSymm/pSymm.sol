@@ -61,7 +61,6 @@ contract pSymm is EIP712 {
 
     modifier checkCustodyOwner(address partyA, address partyB, uint256 _custodyId) {
         bytes32 custodyId = keccak256(abi.encodePacked(partyA, partyB, _custodyId));
-        require(custodys[custodyId].custodyType == 0, "Custody already closed"); // @flow to delete ?
         require(partyA != partyB, "Party A and Party B cannot be the same"); // @flow to delete
         console.log("Custody check owner debug, id", _custodyId);
         console.log("Party A, B:", address(custodys[custodyId].partyA), address(custodys[custodyId].partyB));
@@ -113,7 +112,7 @@ contract pSymm is EIP712 {
             params.settlementAddress, 
             params.MA, 
             params.isManaged, 
-            0, 
+            params.custodyType, 
             block.timestamp, 
             params.partyId,
             params.nonce
