@@ -96,8 +96,11 @@ contract pSymm is EIP712 {
         
         bytes32 domainSeparator = _domainSeparatorV4();
         console.log("Domain separator:", uint256(domainSeparator));
-        
+
+
+        require(params.custodyType != 2, "Invalid custody type");
         require(EIP712SignatureChecker.verifyCreateCustodyEIP712(params), "Invalid signature");
+
 
         bytes32 custodyId = keccak256(abi.encodePacked(params.partyA, params.partyB, params.custodyId));
         

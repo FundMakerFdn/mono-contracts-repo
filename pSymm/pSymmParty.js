@@ -15,6 +15,7 @@ class PSymmParty {
     this.walletClient = config.walletClient;
     this.publicClient = config.publicClient;
     this.pSymm = config.pSymm;
+    this.pSymmSettlement = config.pSymmSettlement;
     this.mockSymm = config.mockSymm;
     this.personalCustodyId = 1; // Default personal custody ID
 
@@ -176,7 +177,7 @@ class PSymmParty {
           });
         }
       } catch (err) {
-        console.error("Failed to process tree.propose:", err);
+        console.error("tree.propose rejected", err);
         socket.emit("tree.reject", {
           custodyId: message.payload.params.custodyId,
           messageHash: message.payload.messageHash,
@@ -284,7 +285,7 @@ class PSymmParty {
       partyA: this.address,
       partyB: counterpartyAddress,
       custodyId: custodyId,
-      settlementAddress: this.pSymm.address,
+      settlementAddress: this.pSymmSettlement.address,
       MA: "0x0000000000000000000000000000000000000000000000000000000000000000",
       isManaged: false,
       custodyType: 1, // bilateral
@@ -312,7 +313,7 @@ class PSymmParty {
         partyA: this.address,
         partyB: counterpartyAddress,
         custodyId: this.custodyId,
-        settlementAddress: this.pSymm.address,
+        settlementAddress: this.pSymmSettlement.address,
         MA: "0x0000000000000000000000000000000000000000000000000000000000000000",
         isManaged: false,
         custodyType: 1,
