@@ -70,12 +70,7 @@ async function main() {
           false // we are party B
         );
         socket.on("tree.reject", async (msg) => {
-          console.log("Received tree reject, opening settlement...");
-
-          // Calculate custody ID bytes32
-          const custodyId = await partyB.pSymm.read.getRollupBytes32({
-            args: [params.partyA, params.partyB, BigInt(params.custodyId)],
-          });
+          console.log("Received tree reject");
 
           // Get current tree state and store it in mock storage
           const treeState = partyB.treeBuilder.getTree();
@@ -83,20 +78,17 @@ async function main() {
           const dataHash = storage.store(treeState);
           storage.close();
 
-          console.log("Current datahash:", dataHash);
-
           // Create merkle root
           const merkleRoot = partyB.treeBuilder.getMerkleRoot();
 
-          // Queue settlement instead of executing directly
-          await partyB.queueSettlement(
-            custodyId,
-            merkleRoot,
-            `0x${dataHash}`,
-            false // isA = false since this is Party B
-          );
-          console.log("Settlement queued by Party B");
-          socket.disconnect();
+          partyB.dropActionQueue();
+          partyB.queueOnchainAction({
+            type: "answerSettlement",
+            params: { merkleRoot },
+          });
+          await partyB.waitForSettlementId();
+          partyB.executeOnchain();
+          // socket.disconnect();
         });
       }
 
@@ -140,7 +132,8 @@ async function main() {
       }
 
       if (message.payload.params.type === "quote/open/perps") {
-        console.log("Received Quote, executing onchain queue");
+        console.log("Received Quote, executing onchain queue in 3 seconds");
+        await sleep(3000);
         await partyB.executeOnchain();
         // Wait for Party A's balance to reach 5
         await partyB.waitForBalance(

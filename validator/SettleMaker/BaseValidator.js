@@ -10,6 +10,7 @@ const {
   encodeAbiParameters,
   getAddress,
 } = require("viem");
+const pSymmValidate = require("#root/validator/pSymm/pSymmValidate.js");
 
 class BaseValidator {
   constructor(publicClient, walletClient, contracts, config) {
@@ -443,7 +444,13 @@ class BaseValidator {
   }
 
   async evaluateSettlement(settlementContract, settlementId) {
-    // Only do additional checks for validator settlements
+    if (
+      getAddress(settlementContract) ===
+      getAddress(this.contracts.pSymmSettlement.address)
+    ) {
+      return await pSymmValidate(this.contracts.pSymmSettlement, settlementId);
+    }
+
     if (
       getAddress(settlementContract) !==
       getAddress(this.contracts.validatorSettlement.address)

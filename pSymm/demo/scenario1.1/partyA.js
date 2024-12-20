@@ -52,7 +52,7 @@ class PSymmPartyA extends PSymmParty {
         // this.stop();
 
         throw new Error(
-          "Counterparty tries to withdraw too much, settlement opened"
+          "Counterparty tries to withdraw too much, settlement queued"
         );
       }
     }
@@ -148,9 +148,7 @@ async function main() {
       if (message.payload.params.type === "rfqFill/open/perps") {
         console.log("Received RFQ Fill");
         await partyA.handleTreePropose(partyA.client, message);
-        console.log("-------------");
         resolve();
-        console.log("Shouldve resolved");
       }
     });
   });
@@ -237,7 +235,14 @@ async function main() {
     true
   );
 
-  await sleep(6000); // wait for party B to execute onchain
+  await sleep(3000);
+  console.log(
+    "Waiting for settlement queue to empty and settlement to complete..."
+  );
+  while (partyA.settlementQueue.length > 0 || partyA.settlementId === null) {
+    await sleep(1000);
+  }
+  await sleep(3000);
   console.log("Withdrawing deposit...");
   try {
     await partyA.withdrawPersonal("10");

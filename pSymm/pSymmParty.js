@@ -8,6 +8,8 @@ const {
   decodeEventLog,
 } = require("viem");
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 class PSymmParty {
   constructor(config) {
     this.address = config.address;
@@ -34,8 +36,8 @@ class PSymmParty {
 
     // Add state tracking
     this.currentBatch = 0;
-    this.hasActedInSettlementState = false;
     this.settlementPollingInterval = null;
+    this.settlementId = null; // Add settlement ID tracking
 
     this.treeBuilder = new CustodyRollupTreeBuilder({
       name: "pSymm",
@@ -423,13 +425,12 @@ class PSymmParty {
   }
 
   async queueOnchainAction(action) {
-    const hasRequiredSignatures = this.treeBuilder.isMessageFullySigned(
-      action.messageHash
-    );
-
-    if (!hasRequiredSignatures) {
-      throw new Error("Cannot queue action - missing required signatures");
-    }
+    // const hasRequiredSignatures = this.treeBuilder.isMessageFullySigned(
+    //   action.messageHash
+    // );
+    // if (!hasRequiredSignatures) {
+    //   throw new Error("Cannot queue action - missing required signatures");
+    // }
 
     this.onchainActionQueue.push(action);
     console.log(
@@ -553,6 +554,16 @@ class PSymmParty {
           }
         );
         break;
+      case "answerSettlement":
+        console.log("Settlement ID:", this.settlementId);
+
+        hash = await this.pSymmSettlement.write.answerSettlement(
+          [this.settlementId, action.params.merkleRoot],
+          {
+            account: this.walletClient.account,
+          }
+        );
+        break;
 
       default:
         throw new Error(`Unknown action type: ${action.type}`);
@@ -637,19 +648,13 @@ class PSymmParty {
   async pollSettlementState() {
     try {
       const state = Number(await this.settleMaker.read.getCurrentState());
+      this.currentBatch = Number(await this.settleMaker.read.currentBatch());
 
-      const newBatch = Number(await this.settleMaker.read.currentBatch());
-
-      // Reset flag on new batch
-      if (newBatch !== this.currentBatch) {
-        this.currentBatch = newBatch;
-        this.hasActedInSettlementState = false;
-      }
+      // Reset flag on new batch or if this is the first time (currentBatch is 1)
 
       // Only act during settlement state (1) and if we haven't acted yet
-      if (state === 1 && !this.hasActedInSettlementState) {
+      if (state === 1 && this.settlementQueue.length > 0) {
         await this.handleSettlementState();
-        this.hasActedInSettlementState = true;
       }
     } catch (error) {
       console.error("Error in pollSettlementState:", error);
@@ -668,7 +673,7 @@ class PSymmParty {
       try {
         await this.executeAction(settlement);
       } catch (e) {
-        console.error("Failed to queue settlement");
+        console.error("Failed to queue settlement:", e);
         console.error("Note: the reason may be datahash being the same");
       }
     }
@@ -740,6 +745,32 @@ class PSymmParty {
     });
     this.eventSubscriptions.get(socket).add(unwatchWithdraw);
 
+    // Subscribe to CollateralSettlementCreated events
+    const unwatchSettlement = await this.publicClient.watchContractEvent({
+      address: this.pSymmSettlement.address,
+      abi: this.pSymmSettlement.abi,
+      eventName: "CollateralSettlementCreated",
+      onLogs: (logs) => {
+        logs.forEach((log) => {
+          try {
+            const event = decodeEventLog({
+              abi: this.pSymmSettlement.abi,
+              data: log.data,
+              topics: log.topics,
+            });
+            this.handleCollateralSettlementCreated(event.args.settlementId);
+          } catch (error) {
+            console.error(
+              "Error processing CollateralSettlementCreated event:",
+              error
+            );
+          }
+        });
+      },
+      pollingInterval: 1000,
+    });
+    this.eventSubscriptions.get(socket).add(unwatchSettlement);
+
     console.log("Subscribed to custody transfer events");
   }
 
@@ -790,6 +821,24 @@ class PSymmParty {
       this.eventSubscriptions.delete(socket);
       console.log("Cleaned up socket event subscriptions");
     }
+  }
+
+  handleCollateralSettlementCreated(settlementId) {
+    this.settlementId = settlementId;
+    console.log(`Event: Settlement created with ID: ${settlementId}`);
+  }
+
+  async waitForSettlementId() {
+    return new Promise((resolve) => {
+      const checkId = () => {
+        if (this.settlementId !== null) {
+          resolve(this.settlementId);
+        } else {
+          setTimeout(checkId, 1000); // Check every second
+        }
+      };
+      checkId();
+    });
   }
 
   getCounterpartyBalance(counterpartyAddress, token) {

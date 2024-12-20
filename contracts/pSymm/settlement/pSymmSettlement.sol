@@ -89,6 +89,24 @@ contract pSymmSettlement is Settlement {
         emit CollateralSettlementCreated(settlementId, msg.sender, merkleRoot, custodyId, isA);
         return settlementId;
     }
+	function answerSettlement(
+		bytes32 settlementId,
+		bytes32 merkleRoot
+	) external {
+		pSymmSettlementData storage settlementData = pSymmSettlementDatas[settlementId];
+		require(settlementData.state == 0, "Settlement is not in an open state.");
+
+		if(settlementData.submittedAtA == 0 && msg.sender == settlementData.partyA){
+			settlementData.submittedAtA = block.timestamp;
+			settlementData.merkleRootA = merkleRoot;
+		} else if(settlementData.submittedAtB == 0 && msg.sender == settlementData.partyB) {
+			settlementData.submittedAtB = block.timestamp;
+			settlementData.merkleRootB = merkleRoot;
+		} else {
+			revert("Settlement has already been answered by this party.");
+		}
+	}
+
 
     function executeEarlyAgreement(
         bytes32 settlementId,
