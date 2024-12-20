@@ -112,7 +112,7 @@ class BaseValidator {
           const newState = Number(
             await this.contracts.settleMaker.read.getCurrentState()
           );
-          if (newState !== state) await this.checkStateAndAct();
+          await this.checkStateAndAct();
           await this.pollNextState();
         }, 1000);
         return;
