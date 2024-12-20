@@ -13,9 +13,17 @@ async function main() {
     "pSymm",
     deploymentData.data.contracts.pSymm
   );
+  const pSymmSettlement = await hre.viem.getContractAt(
+    "pSymmSettlement",
+    deploymentData.data.contracts.pSymmSettlement
+  );
   const mockSymm = await hre.viem.getContractAt(
     "MockSymm",
     deploymentData.data.contracts.MockSymm
+  );
+  const settleMaker = await hre.viem.getContractAt(
+    "SettleMaker",
+    deploymentData.data.contracts.SettleMaker
   );
   const walletClient = (await hre.viem.getWalletClients())[0];
 
@@ -25,7 +33,9 @@ async function main() {
     walletClient,
     publicClient: await hre.viem.getPublicClient(),
     pSymm,
+    pSymmSettlement,
     mockSymm,
+    settleMaker,
   });
 
   await partyA.start();
