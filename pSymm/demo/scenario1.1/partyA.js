@@ -5,13 +5,17 @@ const PSymmParty = require("#root/pSymm/pSymmParty.js");
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Add this class definition after the requires but before main()
 class PSymmPartyA extends PSymmParty {
   async handleTreePropose(socket, message) {
-    // Check if it's a withdraw message and validate amount
     if (message.payload.params.type === "transfer/withdraw/ERC20") {
       const amount = parseFloat(message.payload.params.collateralAmount);
       if (amount > 5) {
+        // Add the half-signed message to the tree before opening settlement
+        await this.treeBuilder.addMessage(
+          message.payload.params,
+          message.payload.signature
+        );
+
         console.log(
           "Counterparty tries to withdraw too much, opening settlement..."
         );
