@@ -17,18 +17,25 @@ class PSymmParty {
     this.pSymm = config.pSymm;
     this.pSymmSettlement = config.pSymmSettlement;
     this.mockSymm = config.mockSymm;
+    this.settleMaker = config.settleMaker;
     this.personalCustodyId = 1; // Default personal custody ID
 
     // Add nonce counter starting at 0
     this.nonceCounter = 0;
 
-    // Add action queue
+    // Add action and settlement queues
     this.onchainActionQueue = [];
+    this.settlementQueue = [];
 
     // Add event tracking
     this.unwatchFunctions = [];
     this.counterpartyBalances = new Map(); // Map<address, Map<token, amount>>
     this.eventSubscriptions = new Map(); // Map<socket, Set<Function>>
+
+    // Add state tracking
+    this.currentBatch = 0;
+    this.hasActedInSettlementState = false;
+    this.settlementPollingInterval = null;
 
     this.treeBuilder = new CustodyRollupTreeBuilder({
       name: "pSymm",
@@ -57,6 +64,15 @@ class PSymmParty {
 
       this.server.listen(this.port);
       console.log(`Server listening on port ${this.port}`);
+
+      // Add state tracking
+      this.currentBatch = Number(await this.settleMaker.read.currentBatch());
+
+      // Start polling interval
+      this.settlementPollingInterval = setInterval(
+        () => this.pollSettlementState(),
+        1000
+      );
     } catch (err) {
       console.error(`Failed to start server on port ${this.port}:`, err);
       throw err;
@@ -527,6 +543,20 @@ class PSymmParty {
         );
         break;
 
+      case "settlement":
+        hash = await this.pSymm.write.openSettlement(
+          [
+            action.params.custodyId,
+            action.params.merkleRoot,
+            action.params.dataHash,
+            action.params.isA,
+          ],
+          {
+            account: this.walletClient.account,
+          }
+        );
+        break;
+
       default:
         throw new Error(`Unknown action type: ${action.type}`);
     }
@@ -565,9 +595,28 @@ class PSymmParty {
   }
 
   dropActionQueue() {
-    const count = this.onchainActionQueue.length;
+    const actionCount = this.onchainActionQueue.length;
+    const settlementCount = this.settlementQueue.length;
     this.onchainActionQueue = [];
-    console.log(`Dropped ${count} actions from queue`);
+    this.settlementQueue = [];
+    console.log(
+      `Dropped ${actionCount} actions and ${settlementCount} settlements from queues`
+    );
+  }
+
+  async queueSettlement(custodyId, merkleRoot, dataHash, isA) {
+    this.settlementQueue.push({
+      type: "settlement",
+      params: {
+        custodyId,
+        merkleRoot,
+        dataHash,
+        isA,
+      },
+    });
+    console.log(
+      `Settlement queued. Queue length: ${this.settlementQueue.length}`
+    );
   }
 
   stop() {
@@ -579,10 +628,55 @@ class PSymmParty {
     }
     this.eventSubscriptions.clear();
 
+    if (this.settlementPollingInterval) {
+      clearInterval(this.settlementPollingInterval);
+    }
     if (this.client) {
       this.client.close();
     }
     this.server.close();
+  }
+
+  async pollSettlementState() {
+    try {
+      const state = Number(await this.settleMaker.read.getCurrentState());
+
+      const newBatch = Number(await this.settleMaker.read.currentBatch());
+
+      // Reset flag on new batch
+      if (newBatch !== this.currentBatch) {
+        this.currentBatch = newBatch;
+        this.hasActedInSettlementState = false;
+      }
+
+      // Only act during settlement state (1) and if we haven't acted yet
+      if (state === 1 && !this.hasActedInSettlementState) {
+        await this.handleSettlementState();
+        this.hasActedInSettlementState = true;
+      }
+    } catch (error) {
+      console.error("Error in pollSettlementState:", error);
+    }
+  }
+
+  async handleSettlementState() {
+    console.log("Settlement state detected - submitting settlements");
+    if (this.settlementQueue.length === 0) {
+      console.log("No settlements in queue");
+      return;
+    }
+
+    console.log(`Executing ${this.settlementQueue.length} queued settlements`);
+    for (const settlement of this.settlementQueue) {
+      try {
+        await this.executeAction(settlement);
+      } catch (e) {
+        console.error("Failed to queue settlement");
+        console.error("Note: the reason may be datahash being the same");
+      }
+    }
+    this.settlementQueue = [];
+    console.log("Settlement queue execution complete");
   }
 
   async subscribeToEvents(socket) {

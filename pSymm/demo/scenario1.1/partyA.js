@@ -40,16 +40,14 @@ class PSymmPartyA extends PSymmParty {
         // Create merkle root
         const merkleRoot = this.treeBuilder.getMerkleRoot();
 
-        // Open settlement with actual merkle root and data hash
-        const hash = await this.pSymm.write.openSettlement([
+        // Queue settlement instead of executing directly
+        await this.queueSettlement(
           custodyId,
           merkleRoot,
-          `0x${dataHash}`, // Convert hash to bytes32 format
-          true, // isA = true since this is Party A
-        ]);
-
-        await this.publicClient.waitForTransactionReceipt({ hash });
-        console.log("Settlement opened");
+          `0x${dataHash}`,
+          true // isA = true since this is Party A
+        );
+        console.log("Settlement queued");
         // socket.disconnect();
         // this.stop();
 
@@ -81,6 +79,10 @@ async function main() {
     "MockSymm",
     deploymentData.data.contracts.MockSymm
   );
+  const settleMaker = await hre.viem.getContractAt(
+    "SettleMaker",
+    deploymentData.data.contracts.SettleMaker
+  );
   const walletClient = (await hre.viem.getWalletClients())[0];
 
   const partyA = new PSymmPartyA({
@@ -91,6 +93,7 @@ async function main() {
     pSymm,
     pSymmSettlement,
     mockSymm,
+    settleMaker,
   });
 
   await partyA.start();

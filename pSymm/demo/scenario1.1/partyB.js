@@ -23,6 +23,10 @@ async function main() {
     "MockSymm",
     deploymentData.data.contracts.MockSymm
   );
+  const settleMaker = await hre.viem.getContractAt(
+    "SettleMaker",
+    deploymentData.data.contracts.SettleMaker
+  );
   const walletClient = (await hre.viem.getWalletClients())[1]; // Use second wallet
 
   const partyB = new PSymmParty({
@@ -33,6 +37,7 @@ async function main() {
     pSymm,
     pSymmSettlement,
     mockSymm,
+    settleMaker,
   });
 
   await partyB.depositPersonal("10");
@@ -83,23 +88,15 @@ async function main() {
           // Create merkle root
           const merkleRoot = partyB.treeBuilder.getMerkleRoot();
 
-          // Open settlement with actual merkle root and data hash
-          try {
-            const hash = await partyB.pSymm.write.openSettlement([
-              custodyId,
-              merkleRoot,
-              `0x${dataHash}`, // Convert hash to bytes32 format
-              false,
-            ]);
-            await partyB.publicClient.waitForTransactionReceipt({ hash });
-          } catch (e) {
-            console.error("Failed to open settlement:", e);
-            console.error("Note: the reason may be datahash being the same");
-          }
-
-          console.log("Settlement opened by Party B");
+          // Queue settlement instead of executing directly
+          await partyB.queueSettlement(
+            custodyId,
+            merkleRoot,
+            `0x${dataHash}`,
+            false // isA = false since this is Party B
+          );
+          console.log("Settlement queued by Party B");
           socket.disconnect();
-          resolve();
         });
       }
 
@@ -205,12 +202,14 @@ async function main() {
   await partyB.start();
   console.log("Waiting for PartyA to connect...");
 
-  const executeLastOnchain = setTimeout(async () => {
-    console.log("Executing last onchain action queue");
+  // Handle graceful shutdown on Ctrl+C
+  process.on('SIGINT', async () => {
+    console.log("\nReceived SIGINT (Ctrl+C). Cleaning up...");
+    
+    console.log("Executing final onchain action queue");
     await partyB.executeOnchain();
 
     partyB.stop();
-    clearTimeout(executeLastOnchain);
     console.log("Withdrawing deposit...");
     try {
       await partyB.withdrawPersonal("10");
@@ -219,7 +218,8 @@ async function main() {
         "Failed to withdraw personal custody (may be due to bilateral custody lock)"
       );
     }
-  }, 8000);
+    process.exit(0);
+  });
 }
 
 main().catch((error) => {
