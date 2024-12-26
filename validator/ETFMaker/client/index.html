@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ETFmaker</title>
     <link rel="stylesheet" href="index.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
@@ -19,7 +20,8 @@
             <section class="chart-section">
                 <h2>Price Chart</h2>
                 <div class="chart-placeholder">
-                    Chart will be displayed here
+                    <canvas id="etfChart" width="400" height="200"></canvas>
+                    <script src="script.js"></script>
                 </div>
             </section>
         </main>

@@ -15,6 +15,6 @@
   "scripts": {
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
-    "ETFMaker": "node ETFMaker"
+    "ETFMaker": "node etfmaker.js"
   }
 }

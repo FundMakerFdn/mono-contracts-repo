@@ -1,19 +1,13 @@
 import db from './database.js';
-import { etfWeights, tokenPools } from './schema.js';
-import { clearTable, batchInsert, getAllRows, saveWeeklyETFs } from './db-utils.js';
-import { getTokenPrices, tokensOnCEX, fetchKlineData } from './binance.js';
-import { program } from 'commander';
+import { etfWeights, currentMarketCaps, tokenPools } from './schema.js';
+import { clearTable, batchInsert } from './db-utils.js';
+import { tokensOnCEX } from './binance.js';
 import CONFIG from '../config.js'
-import { unique } from 'drizzle-orm/mysql-core';
 
 
-program
-  .option("-t, --token-count <token-count>", "Token count in the etfs.", "30")
-  .option("-s, --months-back <months-back>", "How many months back to fetch data for.", "2")
-  .option("-w, --weight-cap <weight-cap>", "The weight cap for the etfs.", "0.25")
-  .parse(process.argv);
-
-const opts = program.opts();
+/* 
+    LEGACY FUNCTIONS FOR FORMING THE ETFS BY CAP, DOES NOT FEATURE INDEX VALUE OF ASSET QUANTITY
+*/
 
 const PER_PAGE_MAX = 250;
 
@@ -26,18 +20,6 @@ const COINGECKO_CONFIG = {
     apiKey: CONFIG.COINGECKO_API_KEY
 }
 
-export async function fetchCurrentCapByID(tokenId) {
-    const response = await fetch(`https://pro-api.coingecko.com/api/v3/coins/${tokenId}`, {
-        headers: { "x-cg-pro-api-key": COINGECKO_CONFIG.apiKey }
-    }).then(async response => {
-        if (!response.ok) {
-            throw new Error(`Failed to fetch market cap for token ID ${tokenId}: ${response.status}`);
-        }
-        const data = await response.json();
-        return data.market_data.market_cap.usd;
-    });
-    return response;
-}
 
 async function fetchAllCaps(tokenCount) {
     const pageCount = Math.ceil(tokenCount / PER_PAGE_MAX);
@@ -103,126 +85,22 @@ async function fetchFilteredCaps(tokenCount, filterOutCategories = []) {
         ]);
 
         const excludeIds = new Set(
-            categoryResults.flat().map(token => token.id)
+            categoryResults.flat().map(coin => coin.id)
         );
 
         const filteredTokens = allTokens
             .filter(token => !excludeIds.has(token.id))
             .slice(0, tokenCount);
-
-        //the id's are different for each token, but the symbols can be the same, so we remove duplicates
-        const uniqueTokens = Array.from(
-            new Map(filteredTokens.map(token => [token.symbol, token])).values()
-        );
-
-        const validTokenSymbols = await tokensOnCEX(uniqueTokens.map(token => token.symbol.toUpperCase()));
         
-        const finalTokens = uniqueTokens.filter(token => validTokenSymbols.includes(token.symbol.toUpperCase()));
+        const validTokenSymbols = await tokensOnCEX(filteredTokens.map(token => token.symbol.toUpperCase()));
+        const finalTokens = filteredTokens.filter(token => validTokenSymbols.includes(token.symbol.toUpperCase()));
         console.log(`Final filtered coins: ${finalTokens.length}`);
-
         return finalTokens;
     } catch (error) {
         console.error('Error fetching data:', error);
         throw error;
     }
 }
-
-function getMondayDates(monthsBack) {
-    const dates = [];
-    const now = new Date();
-    const startDate = new Date(now.getUTCFullYear(), now.getUTCMonth() - monthsBack, now.getUTCDate());
-
-    const dayOfWeek = startDate.getUTCDay();
-    const daysUntilMonday = (dayOfWeek === 0) ? 1 : (8 - dayOfWeek);
-    let currentMonday = new Date(startDate);
-    currentMonday.setUTCDate(startDate.getUTCDate() + daysUntilMonday);
-    currentMonday.setUTCHours(0, 0, 0, 0);
-
-    while (currentMonday <= now) {
-        dates.push(currentMonday.getTime());
-        currentMonday.setUTCDate(currentMonday.getUTCDate() + 7);
-    }
-
-    return dates;
-}
-
-async function pickTokensforPools(tokenCount, monthsBack, filterOutCategories = ['stablecoins', 'wrapped-tokens', 'liquid-staking', 'asset-backed-tokens', 'binance-peg-tokens']) {
-    const coins = await fetchFilteredCaps(tokenCount, filterOutCategories);
-    const timestamps = getMondayDates(monthsBack);
-    const pools = [];
-
-    for (const timestamp of timestamps) {
-        const fetchPromises = coins.map(coin => 
-            fetchKlineData(`${coin.symbol.toUpperCase()}USDT`, timestamp)
-                .then(() => coin) 
-                .catch(() => {
-                    return null; 
-                })
-        );
-
-        const results = await Promise.all(fetchPromises);
-
-        const currentPool = results
-                            .filter(result => result !== null)
-                            .map(result => ({symbol: result.symbol, id: result.id}));
-
-        pools.push({timestamp: timestamp, tokens: currentPool});
-
-        console.log(`Token pool for timestamp ${timestamp} created with ${currentPool.length} tokens, waiting for 10 seconds.`);
-        await new Promise(resolve => setTimeout(resolve, 10000));
-    }
-
-    return pools;
-}
-
-async function extractTokensFromPools(pools) {
-    const tokensSet = new Set();
-
-    for (const pool of pools) {
-        for (const token of pool.tokens) {
-            const tokenKey = `${token.symbol}&${token.id}`;
-            if (!tokensSet.has(tokenKey)) {
-                tokensSet.add(tokenKey);
-            }
-        }
-    }
-
-    const tokensArray = Array.from(tokensSet).map(tokenKey => {
-        const [symbol, id] = tokenKey.split('&');
-        return { symbol, id };
-    });
-
-    return tokensArray;
-}
-
-async function createTokenPools(tokenCount, monthsBack, filterOutCategories = ['stablecoins', 'wrapped-tokens', 'liquid-staking', 'bridged-tokens']) {
-    const poolTokens = await pickTokensforPools(tokenCount, monthsBack, filterOutCategories);
-    const eligibleTokens = await extractTokensFromPools(poolTokens);
-    const weeklyData = await fetchWeeklyData(eligibleTokens, monthsBack);
-    await new Promise(resolve => setTimeout(resolve, 10000));
-    const pools = poolTokens.map(pool => {
-        const tokensWithMarketCaps = pool.tokens.map(token => {
-            const marketCapData = weeklyData.find(data => data.coin_id === token.id);
-            const capEntry = marketCapData.market_caps.find(([time]) => time === pool.timestamp);
-            return {
-                ...token,
-                market_cap: capEntry ? capEntry[1] : 0
-            };
-        });
-        return {
-            timestamp: pool.timestamp,
-            tokens: tokensWithMarketCaps
-        };
-    });
-
-    return pools;
-
-}
-async function saveTokenPools(pools) {
-    await batchInsert(db, tokenPools, pools);
-}
-
-
 
 async function fetchWeeklyData(coins, monthsBack) {
     function dailyToWeekly(dailyData){
@@ -311,27 +189,50 @@ async function fetchWeeklyData(coins, monthsBack) {
 
     return historicalData;
 }
+    
 
-async function formWeeklyETFsByCapFromPool(pools, tokenCount){
+async function formWeeklyETFsByCap(weeklyData, tokenCount){
+    function getWeekCount(weeklyData){
+        const weekCounts = [];
+        for (let i = 0; i < weeklyData.length; i++) {
+            weekCounts.push(weeklyData[i].prices.length);
+        }
+        return Math.max(...weekCounts);
+    }
     const weeklyETFs = [];
-
-    for (const pool of pools) {
-        const sortedTokens = pool.tokens
-            .filter(token => token.market_cap !== undefined && token.market_cap !== null)
-            .sort((a, b) => b.market_cap - a.market_cap);
-
-        const topTokens = sortedTokens.slice(0, tokenCount);
-
+    const weekCount = getWeekCount(weeklyData);
+    for (let week = 0; week < weekCount; week++) {
+        const weekMarketCaps = weeklyData
+            .map(token => {
+                const relativeWeek = token.market_caps.length - (weekCount - week);
+                
+                return {
+                    coin_id: token.coin_id,
+                    symbol: token.symbol,  
+                    market_cap: relativeWeek >= 0 && token.market_caps[relativeWeek] 
+                        ? token.market_caps[relativeWeek][1] 
+                        : 0,
+                    timestamp: relativeWeek >= 0 && token.market_caps[relativeWeek]
+                        ? token.market_caps[relativeWeek][0]  
+                        : 0
+                };
+            })
+        
+        const topTokens = weekMarketCaps
+            .sort((a, b) => b.market_cap - a.market_cap)
+            .slice(0, tokenCount);
+            
         weeklyETFs.push({
-            timestamp: pool.timestamp,
+            timestamp: topTokens[0].timestamp,
             tokens: topTokens
         });
     }
-
+    
+    console.log(`Processed ${weekCount} weeks of market cap data`);
     return weeklyETFs;
 }
 
-async function calculateETFWeightsFromPool(weeklyETFs, maxWeight){
+async function calculateETFWeights(weeklyETFs, maxWeight){
     const weeklyWeights = [];
 
     for (const weeklyETF of weeklyETFs) {
@@ -384,7 +285,7 @@ async function calculateETFWeightsFromPool(weeklyETFs, maxWeight){
                 symbol: token.symbol,
                 weight: token.cappedWeight,
                 market_cap: token.market_cap,
-                id: token.id
+                id: token.coin_id
             }))
         })
     }
@@ -392,75 +293,101 @@ async function calculateETFWeightsFromPool(weeklyETFs, maxWeight){
     return weeklyWeights;
 }
 
-async function calculateETFQuantitiesAndPrices(etfWeights, initialValue){
-    async function getQuantities(etf, value){
-        const tokenSymbols = etf.weights.map(weight => weight.symbol);
-        const prices = await getTokenPrices(tokenSymbols, etf.timestamp);
-        const quantities = prices.map((price, index) => 
-            (value * etf.weights[index].weight)/price.price
-        );
-        return quantities;
-    }
-  
-    const initialQuantities = await getQuantities(etfWeights[0], initialValue);
-    etfWeights[0].weights.forEach((weight, index) => {
-        weight.quantity = initialQuantities[index];
-    });
-    etfWeights[0].value = initialValue;
 
-
-    for (let i = 1; i < etfWeights.length; i++) {
-        const lastTokenSymbols = etfWeights[i-1].weights.map(weight => weight.symbol);
-        const lastTokenPrices = await getTokenPrices(lastTokenSymbols, etfWeights[i].timestamp);
-        await new Promise(resolve => setTimeout(resolve, 10000));
-        const lastQuantities = etfWeights[i-1].weights.map(weight => weight.quantity);
-        const lastValue = lastQuantities.reduce((sum, quantity, index) => sum + quantity * lastTokenPrices[index].price, 0);
-        etfWeights[i].value = lastValue;
-        const quantities = await getQuantities(etfWeights[i], lastValue);
-        etfWeights[i].weights.forEach((weight, index) => {
-            weight.quantity = quantities[index];
-        });
-    }
-
-}
-
-export async function fetchTokenPools(monthsBack) {
-    const timestamps = getMondayDates(monthsBack);
-    const allPools = await getAllRows(tokenPools);
-    const filteredPools = allPools.filter(pool => timestamps.includes(pool.timestamp));
-    return filteredPools;
-  }
-
-async function getETFsByCapFromPool(tokenCount, monthsBack = 60, maxWeight = 0.25, filterOutCategories = ['stablecoins', 'wrapped-tokens', 'liquid-staking']) {
-    const pools = await fetchTokenPools(monthsBack);
-    const weeklyETFs = await formWeeklyETFsByCapFromPool(pools, tokenCount);
-    const weightedETFs = await calculateETFWeightsFromPool(weeklyETFs, maxWeight);
-    console.log("Calculating quantities and prices...");
-    await calculateETFQuantitiesAndPrices(weightedETFs, 1000);
-
+async function getETFsByCap(tokenCount, monthsBack = 60, maxWeight = 0.25, filterOutCategories = ['stablecoins', 'wrapped-tokens', 'liquid-staking']) {
+    const coins = await fetchFilteredCaps(1000, filterOutCategories);
+    const weeklyData = await fetchWeeklyData(coins, monthsBack);
+    const weeklyETFs = await formWeeklyETFsByCap(weeklyData, tokenCount);
+    const weightedETFs = await calculateETFWeights(weeklyETFs, maxWeight);
     return weightedETFs;
 }
 
-async function main() {
-    await clearTable(db, tokenPools);
-    const pools = await createTokenPools(5000, opts.monthsBack);
-    await saveTokenPools(pools);
+async function saveWeeklyETFs(weightedETFs, etfName) {
+    const existingData = await db.select({
+        timestamp: etfWeights.timestamp,
+        etfName: etfWeights.etfName,
+    }).from(etfWeights);
+    const existingPairs = new Set(
+        existingData.map(row => `${row.timestamp}-${row.etfName}`)
+    );
 
+    const newEtfValues = weightedETFs
+        .filter(weightedETF => {
+            const pair = `${weightedETF.timestamp}-${etfName}`;
+            return !existingPairs.has(pair);
+        })
+        .map(weightedETF => ({
+            timestamp: weightedETF.timestamp,
+            etfName: etfName,
+            value: weightedETF.value,
+            weights: JSON.stringify(weightedETF.weights),
+        }));
 
-    await clearTable(db, etfWeights);
-    const weightedETFs = await getETFsByCapFromPool(opts.tokenCount, opts.monthsBack, opts.weightCap);
-
-    saveWeeklyETFs(weightedETFs, "test")
-        .then(() => {
-            process.exit(0);
-            })
-            .catch((error) => {
-                console.error(error);
-                process.exit(1);
-        });
+    if (newEtfValues.length > 0) {
+        await batchInsert(db, etfWeights, newEtfValues);
+        console.log(`${newEtfValues.length} new etfs saved.`);
+    } else {
+        console.log("No new etfs to save.");
+    }
 }
 
-main().catch(error => {
-    console.error('An error occurred:', error);
-    process.exit(1);
-});
+async function resaveCurrentMarketCaps(tokenCount) {
+    const tokens = await fetchAllCaps(tokenCount);
+
+    const marketCapValues = tokens.map(token => ({
+        symbol: token.symbol.toUpperCase(),
+        market_cap: token.market_cap
+    }));
+
+    await clearTable(db, currentMarketCaps);
+    await batchInsert(db, currentMarketCaps, marketCapValues);
+}
+
+async function getCurrentPriceByCap(etfName, divisor = 1000000000) {
+    const start = new Date().getTime();
+    const etfWeightRows = await db.select().from(etfWeights).where(eq(etfWeights.etfName, etfName));
+    const latestEtfWeightRow = etfWeightRows[etfWeightRows.length - 1]; 
+    const latestWeights = latestEtfWeightRow.weights;
+    let etfPrice = 0;
+    const marketCapPromises = [];
+    for (const weight of latestWeights) {
+      console.log(new Date().getTime());
+      const marketCapPromise = fetchCurrentCapByID(weight.id);
+      marketCapPromises.push(marketCapPromise);
+    }
+    const marketCaps = await Promise.all(marketCapPromises);
+    for (let i = 0; i < latestWeights.length; i++) {
+      const allocationWeightFactor = latestWeights[i].weight;
+      const marketCap = marketCaps[i];
+      etfPrice += marketCap * allocationWeightFactor / divisor;
+    }
+
+    console.log(`Current ETF Price for ${etfName}:`, etfPrice);
+    console.log("Time taken:", new Date().getTime() - start);
+    return {
+      timestamp: Date.now(),
+      etfPrice: etfPrice
+    };
+  }
+
+async function getWeeklyPricesByCap(etfName, divisor = 1000000000) {
+    const etfWeightRows = await db.select().from(etfWeights).where(eq(etfWeights.etfName, etfName));
+    const results = [];
+
+    for (const etfWeightRow of etfWeightRows) {
+        const weights = JSON.parse(etfWeightRow.weights);
+        let etfPrice = 0;
+        for (const weight of weights) {
+        const marketCap = weight.market_cap;
+        const allocationWeightFactor = weight.weight;
+        etfPrice += marketCap * allocationWeightFactor / divisor;
+        }
+        console.log(`ETF Price for ${etfName} at ${etfWeightRow.timestamp}:`, etfPrice);
+        results.push({
+        timestamp: etfWeightRow.timestamp,
+        etfPrice: etfPrice
+        });
+    }
+
+    return results;
+}
