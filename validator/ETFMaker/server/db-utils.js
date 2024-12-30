@@ -1,5 +1,5 @@
 import { sql, eq } from 'drizzle-orm';
-import { etfWeights } from './schema.js';
+import { etfWeights, tokenPools } from './schema.js';
 import db from './database.js';
 
 
@@ -24,6 +24,10 @@ export async function getETFWeights(etfName) {
 
 export async function getAllRows(tableName){
   return await db.select().from(tableName);
+}
+
+export async function saveTokenPools(pools) {
+  await batchInsert(db, tokenPools, pools);
 }
 
 export async function saveWeeklyETFs(weightedETFs, etfName) {

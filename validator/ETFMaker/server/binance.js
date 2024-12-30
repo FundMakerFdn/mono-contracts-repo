@@ -59,6 +59,21 @@ export async function fetchKlineData(ticker, timestamp = null) {
     return result;
 }
 
+async function getLiveTokenPrices(tokenSymbols){
+    const tokenString = JSON.stringify(tokenSymbols.map(symbol => `${symbol.toUpperCase()}USDT`));
+    const url = `https://api.binance.com/api/v3/ticker/price?symbols=${tokenString}`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const tokenPrices = data.map(token => ({symbol: token.symbol.slice(0, -4), price: token.price}));
+        return tokenPrices;
+    } catch (error) {
+        //change
+        console.error("Error fetching live token prices:", error.message);
+        return [];
+    }
+}
+
 export async function tokensOnCEX(tokenSymbols) {
     const url = "https://api.binance.com/api/v3/exchangeInfo";
 
@@ -83,14 +98,14 @@ export async function getCurrentETFValue(etfName) {
     const latestEtfWeightRow = etfWeightRows[etfWeightRows.length - 1]; 
     const latestWeights = latestEtfWeightRow.weights;
     const symbols = latestWeights.map(token => token.symbol);
-    const tokenPrices = await getTokenPrices(symbols)
-    const quantities = latestWeights.map(token => ({symbol: token.symbol, quantity: token.quantity}))
+    const tokenPrices = await getLiveTokenPrices(symbols);
+
+    const pricesMap = new Map(tokenPrices.map(priceObj => [priceObj.symbol, priceObj.price]));
+
     const etfValue = latestWeights.reduce((totalValue, token, index) => {
-        const price = tokenPrices[index].price;
+        const price = parseFloat(pricesMap.get(`${token.symbol}USDT`));
         return totalValue + (token.quantity * price);
     }, 0);
-
-
 
     console.log(`Current ETF Value for ${etfName}:`, etfValue);
 
@@ -104,6 +119,52 @@ export async function getWeeklyETFValues(etfName){
     const etfWeightRows = await getETFWeights(etfName);
     const values = etfWeightRows.map(etf => ({timestamp: etf.timestamp, value: etf.value}));
     return values
+}
+
+async function getMinBuyableAmounts(tokenSymbols){
+    const tokenString = JSON.stringify(tokenSymbols.map(symbol => `${symbol.toUpperCase()}USDT`));
+    const url = `https://api.binance.com/api/v3/exchangeInfo?symbols=${tokenString}`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const minBuyableAmounts = new Map();
+        data.symbols.forEach(symbolInfo => {
+            const filters = symbolInfo.filters.find(filter => filter.filterType === "NOTIONAL");
+            if (filters) {
+                minBuyableAmounts.set(symbolInfo.baseAsset, parseFloat(filters.minNotional));
+            }
+        });
+
+        return minBuyableAmounts;
+    } catch (error) {
+        //change
+        console.error("Error fetching min buyable amounts:", error.message);
+        return [];
+    }
+}
+
+export async function getCurrentMinimumETFPrice(etfName){
+    const etfWeightRows = await getETFWeights(etfName);
+    const latestEtfWeightRow = etfWeightRows[etfWeightRows.length - 1]; 
+    const latestWeights = latestEtfWeightRow.weights;
+    const symbols = latestWeights.map(token => token.symbol);
+    const tokenPrices = await getLiveTokenPrices(symbols);
+    const pricesMap = new Map(tokenPrices.map(priceObj => [priceObj.symbol, priceObj.price]));
+
+    const minAmounts = await getMinBuyableAmounts(symbols);
+    let minETFFraction = 0;
+
+    latestWeights.forEach(token => {
+        //order size is in USDT
+        const minTokenOrderSize = minAmounts.get(token.symbol);
+        const tokenPrice = pricesMap.get(token.symbol);
+        const minTokenFraction = minTokenOrderSize / (tokenPrice * token.quantity);
+        minETFFraction = Math.max(minETFFraction, minTokenFraction);
+    });
+
+    const minETFPrice = latestEtfWeightRow.value * minETFFraction;
+    
+    return minETFPrice;
 }
 
 async function processEtfWeights(etfName) {
@@ -135,3 +196,5 @@ async function processEtfWeights(etfName) {
     }
   }
 
+
+console.log(await getCurrentMinimumETFPrice("test"));

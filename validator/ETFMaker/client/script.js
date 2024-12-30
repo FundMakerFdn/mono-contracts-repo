@@ -64,4 +64,4 @@ function updatePriceEverySecond() {
 
 
 drawChart(await getWeeklyPrices());
-//updatePriceEverySecond();
+updatePriceEverySecond();

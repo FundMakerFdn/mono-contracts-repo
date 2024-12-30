@@ -1,6 +1,6 @@
 import db from './database.js';
 import { etfWeights, tokenPools } from './schema.js';
-import { clearTable, batchInsert, getAllRows, saveWeeklyETFs } from './db-utils.js';
+import { clearTable, batchInsert, getAllRows, saveWeeklyETFs, saveTokenPools } from './db-utils.js';
 import { getTokenPrices, tokensOnCEX, fetchKlineData } from './binance.js';
 import { program } from 'commander';
 import CONFIG from '../config.js'
@@ -111,9 +111,14 @@ async function fetchFilteredCaps(tokenCount, filterOutCategories = []) {
             .slice(0, tokenCount);
 
         //the id's are different for each token, but the symbols can be the same, so we remove duplicates
-        const uniqueTokens = Array.from(
-            new Map(filteredTokens.map(token => [token.symbol, token])).values()
-        );
+        const seenSymbols = new Set();
+        const uniqueTokens = filteredTokens.filter(token => {
+            if (seenSymbols.has(token.symbol)) {
+                return false; 
+            }
+            seenSymbols.add(token.symbol);
+            return true; 
+        });
 
         const validTokenSymbols = await tokensOnCEX(uniqueTokens.map(token => token.symbol.toUpperCase()));
         
@@ -164,7 +169,7 @@ async function pickTokensforPools(tokenCount, monthsBack, filterOutCategories = 
 
         const currentPool = results
                             .filter(result => result !== null)
-                            .map(result => ({symbol: result.symbol, id: result.id}));
+                            .map(result => ({symbol: result.symbol.toUpperCase(), id: result.id}));
 
         pools.push({timestamp: timestamp, tokens: currentPool});
 
@@ -199,14 +204,19 @@ async function createTokenPools(tokenCount, monthsBack, filterOutCategories = ['
     const poolTokens = await pickTokensforPools(tokenCount, monthsBack, filterOutCategories);
     const eligibleTokens = await extractTokensFromPools(poolTokens);
     const weeklyData = await fetchWeeklyData(eligibleTokens, monthsBack);
-    await new Promise(resolve => setTimeout(resolve, 10000));
+    const weeklyDataMap = new Map(
+        weeklyData.map(data => [
+            data.id,
+            new Map(data.market_caps.map(([time, cap]) => [time, cap]))
+        ])
+    );
     const pools = poolTokens.map(pool => {
         const tokensWithMarketCaps = pool.tokens.map(token => {
-            const marketCapData = weeklyData.find(data => data.coin_id === token.id);
-            const capEntry = marketCapData.market_caps.find(([time]) => time === pool.timestamp);
+            const marketCapData = weeklyDataMap.get(token.id);
+            const capEntry = marketCapData.get(pool.timestamp);
             return {
                 ...token,
-                market_cap: capEntry ? capEntry[1] : 0
+                market_cap: capEntry
             };
         });
         return {
@@ -218,11 +228,6 @@ async function createTokenPools(tokenCount, monthsBack, filterOutCategories = ['
     return pools;
 
 }
-async function saveTokenPools(pools) {
-    await batchInsert(db, tokenPools, pools);
-}
-
-
 
 async function fetchWeeklyData(coins, monthsBack) {
     function dailyToWeekly(dailyData){
@@ -266,7 +271,7 @@ async function fetchWeeklyData(coins, monthsBack) {
                     }
                     const data = await response.json();
                     return {
-                        coin_id: coin.id,
+                        id: coin.id,
                         symbol: coin.symbol.toUpperCase(),
                         prices: data.prices,
                         market_caps: data.market_caps
@@ -381,7 +386,7 @@ async function calculateETFWeightsFromPool(weeklyETFs, maxWeight){
         weeklyWeights.push({
             timestamp: weeklyETF.timestamp,
             weights: weights.map(token => ({
-                symbol: token.symbol,
+                symbol: token.symbol.toUpperCase(),
                 weight: token.cappedWeight,
                 market_cap: token.market_cap,
                 id: token.id
