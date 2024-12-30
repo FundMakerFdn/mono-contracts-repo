@@ -103,7 +103,7 @@ export async function getCurrentETFValue(etfName) {
     const pricesMap = new Map(tokenPrices.map(priceObj => [priceObj.symbol, priceObj.price]));
 
     const etfValue = latestWeights.reduce((totalValue, token, index) => {
-        const price = parseFloat(pricesMap.get(`${token.symbol}USDT`));
+        const price = parseFloat(pricesMap.get(token.symbol));
         return totalValue + (token.quantity * price);
     }, 0);
 
@@ -160,9 +160,12 @@ export async function getCurrentMinimumETFPrice(etfName){
         const tokenPrice = pricesMap.get(token.symbol);
         const minTokenFraction = minTokenOrderSize / (tokenPrice * token.quantity);
         minETFFraction = Math.max(minETFFraction, minTokenFraction);
+        console.log(minETFFraction, token.symbol);
     });
 
-    const minETFPrice = latestEtfWeightRow.value * minETFFraction;
+    const currentETFPrice = (await getCurrentETFValue(etfName)).etfPrice;
+
+    const minETFPrice = currentETFPrice * minETFFraction;
     
     return minETFPrice;
 }
@@ -197,4 +200,12 @@ async function processEtfWeights(etfName) {
   }
 
 
+  async function test(){
+    const etfWeightRows = await getETFWeights("test");
+    const latestEtfWeightRow = etfWeightRows[etfWeightRows.length - 1]; 
+    const latestWeights = latestEtfWeightRow.weights;
+    const symbols = latestWeights.map(token => token.symbol);
+    console.log(await getLiveTokenPrices(symbols));
+    console.log(await getTokenPrices(symbols));
+  }
 console.log(await getCurrentMinimumETFPrice("test"));
