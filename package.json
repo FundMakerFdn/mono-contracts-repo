@@ -2,7 +2,7 @@
   "name": "SettleMaker",
   "version": "1.0",
   "main": "index.js",
-  "repository": "git@gitq:FundMakerFdn/SettleMaker.git",
+  "repository": "git@gitq:FundMakerFdn/mono-contracts-repo.git",
   "author": "Vladyslav <web.user@ukr.net>, Max OTC maxgctwo@rasa.capital",
   "license": "MIT",
   "dependencies": {
@@ -23,14 +23,14 @@
     "ws": "^8.18.0"
   },
   "scripts": {
-    "deploy": "hardhat run --network localhost validator/SettleMaker/deploy.js",
+    "deploy": "hardhat run --network localhost apps/validator/SettleMaker/deploy.js",
     "validator": "hardhat validator --network localhost",
-    "miner": "hardhat run --network localhost validator/miner.js",
+    "miner": "hardhat run --network localhost apps/validator/miner.js",
     "addSymm": "hardhat addSymm --network localhost",
     "read": "hardhat read --network localhost",
     "write": "hardhat write --network localhost",
-    "scenario": "./tmux/scenario.sh",
-    "party": "./tmux/party.sh"
+    "scenario": "./demo/tmux/scenario.sh",
+    "party": "./demo/tmux/party.sh"
   },
   "imports": {
     "#root/*": "./*"

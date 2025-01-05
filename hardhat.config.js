@@ -9,7 +9,7 @@ task("validator", "Run the validator")
       console.error("This task must be run on localhost network");
       process.exit(1);
     }
-    const validatorTask = require("#root/validator/SettleMaker/validator.task.js");
+    const validatorTask = require("#root/apps/validator/SettleMaker/validator.task.js");
     await validatorTask([taskArgs.walletId], hre);
   });
 
@@ -18,7 +18,7 @@ task("read", "Read a contract function")
   .addPositionalParam("functionName", "The name of the function to read")
   .addVariadicPositionalParam("args", "Function arguments", [])
   .setAction(async (taskArgs, hre) => {
-    const readTask = require("#root/utils/read.task.js");
+    const readTask = require("#root/demo/utils/read.task.js");
     await readTask(
       [taskArgs.contractName, taskArgs.functionName, ...taskArgs.args],
       hre
@@ -31,7 +31,7 @@ task("write", "Write to a contract function")
   .addPositionalParam("functionName", "The name of the function to write")
   .addVariadicPositionalParam("args", "Function arguments", [])
   .setAction(async (taskArgs, hre) => {
-    const writeTask = require("#root/utils/write.task.js");
+    const writeTask = require("#root/demo/utils/write.task.js");
     await writeTask(
       [
         taskArgs.walletId,
@@ -51,7 +51,7 @@ task("addSymm", "Mint SYMM tokens to a wallet")
     "1000"
   )
   .setAction(async (taskArgs, hre) => {
-    const addSymmTask = require("#root/utils/addSymm.task.js");
+    const addSymmTask = require("#root/demo/utils/addSymm.task.js");
     await addSymmTask([taskArgs.walletId, taskArgs.amount], hre);
   });
 
@@ -83,5 +83,11 @@ module.exports = {
     localhost: {
       url: "http://127.0.0.1:8545",
     },
+  },
+  paths: {
+    sources: "./apps/contracts/src",
+    tests: "./apps/contracts/test",
+    cache: "./dist/hardhat/cache",
+    artifacts: "./dist/hardhat/artifacts",
   },
 };
