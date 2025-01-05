@@ -1,0 +1,68 @@
+{
+  "Batch": [
+    {
+      "ClearingBusinessDate": "2008-06-18T00:00:00.000Z",
+      "Instrument": {
+        "Symbol": "SU1C",
+        "SecurityID": "01",
+        "SecurityIDSource": "H",
+        "CFICode": "FFIPSO",
+        "SecurityType": "FUT",
+        "MaturityMonthYear": "200806",
+        "SecurityExchange": "CME"
+      },
+      "MDFullGrp": [
+        {
+          "MDEntryType": "6",
+          "MDEntryPx": 65.51,
+          "MDMkt": "CME"
+        },
+        {
+          "MDEntryType": "N",
+          "MDEntryPx": 65.55,
+          "MDMkt": "CME"
+        },
+        {
+          "MDEntryType": "O",
+          "MDEntryPx": 63.78,
+          "MDMkt": "CME"
+        }
+      ]
+    },
+    {
+      "ClearingBusinessDate": "2008-06-19T00:00:00.000Z",
+      "Instrument": {
+        "Symbol": "E6E",
+        "SecurityID": "EUR6E",
+        "SecurityIDSource": "H",
+        "SecurityType": "IRS",
+        "MaturityMonthYear": "200901",
+        "MaturityDate": "2008-07-14T00:00:00.000Z",
+        "Factor": 100000,
+        "SecurityExchange": "CME",
+        "SecurityDesc": "EUR6E 200901"
+      },
+      "MDFullGrp": [
+        {
+          "MDEntryType": "6",
+          "MDEntryPx": 5.209,
+          "MDEntryDate": "2008-06-19T00:00:00.000Z",
+          "MDMkt": "CME"
+        },
+        {
+          "MDEntryType": "S",
+          "MDEntryPx": 50896.5969622,
+          "MDEntryDate": "2008-06-19T00:00:00.000Z",
+          "MDMkt": "CME"
+        },
+        {
+          "MDEntryType": "4",
+          "MDEntryPx": 5.209,
+          "MDEntryDate": "2008-06-20T00:00:00.000Z",
+          "MDMkt": "CME",
+          "OpenCloseSettlFlag": "5"
+        }
+      ]
+    }
+  ]
+}

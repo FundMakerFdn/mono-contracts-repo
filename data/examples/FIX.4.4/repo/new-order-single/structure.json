@@ -1,0 +1,112 @@
+[
+    {
+        "name": "StandardHeader",
+        "depth": 1,
+        "startTag": 8,
+        "startPosition": 0,
+        "endTag": 52,
+        "endPosition": 7,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "Instrument",
+        "depth": 1,
+        "startTag": 55,
+        "startPosition": 27,
+        "endTag": 874,
+        "endPosition": 63,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "FinancingDetails",
+        "depth": 1,
+        "startTag": 913,
+        "startPosition": 64,
+        "endTag": 898,
+        "endPosition": 72,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "OrderQtyData",
+        "depth": 1,
+        "startTag": 38,
+        "startPosition": 77,
+        "endTag": 469,
+        "endPosition": 81,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "SpreadOrBenchmarkCurveData",
+        "depth": 1,
+        "startTag": 218,
+        "startPosition": 84,
+        "endTag": 761,
+        "endPosition": 89,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "YieldData",
+        "depth": 1,
+        "startTag": 235,
+        "startPosition": 90,
+        "endTag": 698,
+        "endPosition": 92,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "CommissionData",
+        "depth": 1,
+        "startTag": 12,
+        "startPosition": 101,
+        "endTag": 479,
+        "endPosition": 103,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "PegInstructions",
+        "depth": 1,
+        "startTag": 211,
+        "startPosition": 118,
+        "endTag": 840,
+        "endPosition": 123,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "DiscretionInstructions",
+        "depth": 1,
+        "startTag": 388,
+        "startPosition": 124,
+        "endTag": 846,
+        "endPosition": 128,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NewOrderSingle",
+        "depth": 0,
+        "startTag": 8,
+        "startPosition": 0,
+        "endTag": 10,
+        "endPosition": 133,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "StandardTrailer",
+        "depth": 1,
+        "startTag": 10,
+        "startPosition": 133,
+        "endTag": 10,
+        "endPosition": 133,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    }
+]

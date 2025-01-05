@@ -1,0 +1,18 @@
+export interface ITriggeringInstruction {
+  TriggerType?: string// [1] 1100 (String)
+  TriggerAction?: string// [1] 1101 (String)
+  TriggerScope?: number// [1] 1628 (Int)
+  TriggerPrice?: number// [1] 1102 (Float)
+  TriggerSymbol?: string// [1] 1103 (String)
+  TriggerSecurityID?: string// [1] 1104 (String)
+  TriggerSecurityIDSource?: string// [1] 1105 (String)
+  TriggerSecurityDesc?: string// [1] 1106 (String)
+  TriggerPriceType?: string// [1] 1107 (String)
+  TriggerPriceTypeScope?: string// [1] 1108 (String)
+  TriggerPriceDirection?: string// [1] 1109 (String)
+  TriggerNewPrice?: number// [1] 1110 (Float)
+  TriggerOrderType?: string// [1] 1111 (String)
+  TriggerNewQty?: number// [1] 1112 (Float)
+  TriggerTradingSessionID?: string// [1] 1113 (String)
+  TriggerTradingSessionSubID?: string// [1] 1114 (String)
+}

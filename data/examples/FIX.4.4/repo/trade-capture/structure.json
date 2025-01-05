@@ -1,0 +1,82 @@
+[
+    {
+        "name": "StandardHeader",
+        "depth": 1,
+        "startTag": 8,
+        "startPosition": 0,
+        "endTag": 52,
+        "endPosition": 7,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "Instrument",
+        "depth": 1,
+        "startTag": 55,
+        "startPosition": 29,
+        "endTag": 874,
+        "endPosition": 66,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "FinancingDetails",
+        "depth": 1,
+        "startTag": 913,
+        "startPosition": 67,
+        "endTag": 898,
+        "endPosition": 75,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "OrderQtyData",
+        "depth": 1,
+        "startTag": 38,
+        "startPosition": 76,
+        "endTag": 469,
+        "endPosition": 78,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "YieldData",
+        "depth": 1,
+        "startTag": 235,
+        "startPosition": 80,
+        "endTag": 698,
+        "endPosition": 83,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "SpreadOrBenchmarkCurveData",
+        "depth": 1,
+        "startTag": 218,
+        "startPosition": 95,
+        "endTag": 761,
+        "endPosition": 102,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "TradeCaptureReport",
+        "depth": 0,
+        "startTag": 8,
+        "startPosition": 0,
+        "endTag": 10,
+        "endPosition": 111,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "StandardTrailer",
+        "depth": 1,
+        "startTag": 10,
+        "startPosition": 111,
+        "endTag": 10,
+        "endPosition": 111,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    }
+]
