@@ -1,0 +1,15 @@
+export interface IOrdListStatGrp {
+  ClOrdID?: string// [1] 11 (String)
+  OrderID?: string// [1] 37 (String)
+  SecondaryClOrdID?: string// [1] 526 (String)
+  CumQty: number// [1] 14 (Float)
+  OrdStatus: string// [1] 39 (String)
+  WorkingIndicator?: boolean// [1] 636 (Boolean)
+  LeavesQty: number// [1] 151 (Float)
+  CxlQty: number// [1] 84 (Float)
+  AvgPx: number// [1] 6 (Float)
+  OrdRejReason?: number// [1] 103 (Int)
+  Text?: string// [1] 58 (String)
+  EncodedTextLen?: number// [1] 354 (Length)
+  EncodedText?: Buffer// [1] 355 (RawData)
+}

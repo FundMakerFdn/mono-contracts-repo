@@ -1,0 +1,22 @@
+{
+  "TradeRequestID": "ABC123",
+  "TradeRequestType": 3,
+  "SubscriptionRequestType": "1",
+  "MultiLegReportingType": "3",
+  "StandardHeader": {
+    "SenderCompID": "RYAN",
+    "TargetCompID": "CME",
+    "SenderSubID": "RYAN123",
+    "TargetSubID": "STP"
+  },
+  "Parties": [
+    {
+      "PartyID": "RYANTF",
+      "PartyRole": 7
+    },
+    {
+      "PartyID": "RYANTF1",
+      "PartyRole": 7
+    }
+  ]
+}

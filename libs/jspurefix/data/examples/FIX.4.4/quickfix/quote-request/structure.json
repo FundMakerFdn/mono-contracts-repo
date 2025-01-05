@@ -1,0 +1,558 @@
+[
+    {
+        "name": "header",
+        "depth": 2,
+        "startTag": 8,
+        "startPosition": 0,
+        "endTag": 52,
+        "endPosition": 7,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoSecurityAltID",
+        "depth": 5,
+        "startTag": 454,
+        "startPosition": 17,
+        "endTag": 456,
+        "endPosition": 21,
+        "delimiterTag": 455,
+        "delimiterPositions": [
+            18,
+            20
+        ]
+    },
+    {
+        "name": "SecAltIDGrp",
+        "depth": 4,
+        "startTag": 454,
+        "startPosition": 17,
+        "endTag": 456,
+        "endPosition": 21,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoEvents",
+        "depth": 5,
+        "startTag": 864,
+        "startPosition": 52,
+        "endTag": 868,
+        "endPosition": 59,
+        "delimiterTag": 865,
+        "delimiterPositions": [
+            53,
+            57
+        ]
+    },
+    {
+        "name": "EvntGrp",
+        "depth": 4,
+        "startTag": 864,
+        "startPosition": 52,
+        "endTag": 868,
+        "endPosition": 59,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "Instrument",
+        "depth": 3,
+        "startTag": 55,
+        "startPosition": 13,
+        "endTag": 874,
+        "endPosition": 61,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "FinancingDetails",
+        "depth": 3,
+        "startTag": 913,
+        "startPosition": 62,
+        "endTag": 898,
+        "endPosition": 70,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoUnderlyingSecurityAltID",
+        "depth": 7,
+        "startTag": 457,
+        "startPosition": 76,
+        "endTag": 459,
+        "endPosition": 78,
+        "delimiterTag": 458,
+        "delimiterPositions": [
+            77
+        ]
+    },
+    {
+        "name": "UndSecAltIDGrp",
+        "depth": 6,
+        "startTag": 457,
+        "startPosition": 76,
+        "endTag": 459,
+        "endPosition": 78,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoUnderlyingStips",
+        "depth": 7,
+        "startTag": 887,
+        "startPosition": 114,
+        "endTag": 889,
+        "endPosition": 120,
+        "delimiterTag": 888,
+        "delimiterPositions": [
+            115,
+            117,
+            119
+        ]
+    },
+    {
+        "name": "UnderlyingStipulations",
+        "depth": 6,
+        "startTag": 887,
+        "startPosition": 114,
+        "endTag": 889,
+        "endPosition": 120,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "UnderlyingInstrument",
+        "depth": 5,
+        "startTag": 311,
+        "startPosition": 72,
+        "endTag": 889,
+        "endPosition": 120,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoUnderlyingSecurityAltID",
+        "depth": 7,
+        "startTag": 457,
+        "startPosition": 124,
+        "endTag": 459,
+        "endPosition": 130,
+        "delimiterTag": 458,
+        "delimiterPositions": [
+            125,
+            127,
+            129
+        ]
+    },
+    {
+        "name": "UndSecAltIDGrp",
+        "depth": 6,
+        "startTag": 457,
+        "startPosition": 124,
+        "endTag": 459,
+        "endPosition": 130,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoUnderlyingStips",
+        "depth": 7,
+        "startTag": 887,
+        "startPosition": 165,
+        "endTag": 889,
+        "endPosition": 171,
+        "delimiterTag": 888,
+        "delimiterPositions": [
+            166,
+            168,
+            170
+        ]
+    },
+    {
+        "name": "UnderlyingStipulations",
+        "depth": 6,
+        "startTag": 887,
+        "startPosition": 165,
+        "endTag": 889,
+        "endPosition": 171,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "UnderlyingInstrument",
+        "depth": 5,
+        "startTag": 311,
+        "startPosition": 121,
+        "endTag": 889,
+        "endPosition": 171,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoUnderlyings",
+        "depth": 4,
+        "startTag": 711,
+        "startPosition": 71,
+        "endTag": 889,
+        "endPosition": 171,
+        "delimiterTag": 311,
+        "delimiterPositions": [
+            72,
+            121
+        ]
+    },
+    {
+        "name": "UndInstrmtGrp",
+        "depth": 3,
+        "startTag": 711,
+        "startPosition": 71,
+        "endTag": 889,
+        "endPosition": 171,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "OrderQtyData",
+        "depth": 3,
+        "startTag": 38,
+        "startPosition": 178,
+        "endTag": 468,
+        "endPosition": 180,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoStipulations",
+        "depth": 4,
+        "startTag": 232,
+        "startPosition": 184,
+        "endTag": 234,
+        "endPosition": 186,
+        "delimiterTag": 233,
+        "delimiterPositions": [
+            185
+        ]
+    },
+    {
+        "name": "Stipulations",
+        "depth": 3,
+        "startTag": 232,
+        "startPosition": 184,
+        "endTag": 234,
+        "endPosition": 186,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoLegSecurityAltID",
+        "depth": 7,
+        "startTag": 604,
+        "startPosition": 195,
+        "endTag": 605,
+        "endPosition": 197,
+        "delimiterTag": 605,
+        "delimiterPositions": [
+            196,
+            197
+        ]
+    },
+    {
+        "name": "LegSecAltIDGrp",
+        "depth": 6,
+        "startTag": 604,
+        "startPosition": 195,
+        "endTag": 605,
+        "endPosition": 197,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "InstrumentLeg",
+        "depth": 5,
+        "startTag": 600,
+        "startPosition": 191,
+        "endTag": 956,
+        "endPosition": 229,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoLegStipulations",
+        "depth": 6,
+        "startTag": 683,
+        "startPosition": 234,
+        "endTag": 688,
+        "endPosition": 239,
+        "delimiterTag": 688,
+        "delimiterPositions": [
+            235,
+            237,
+            239
+        ]
+    },
+    {
+        "name": "LegStipulations",
+        "depth": 5,
+        "startTag": 683,
+        "startPosition": 234,
+        "endTag": 688,
+        "endPosition": 239,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoNestedPartySubIDs",
+        "depth": 8,
+        "startTag": 804,
+        "startPosition": 244,
+        "endTag": 805,
+        "endPosition": 248,
+        "delimiterTag": 545,
+        "delimiterPositions": [
+            245,
+            247
+        ]
+    },
+    {
+        "name": "NstdPtysSubGrp",
+        "depth": 7,
+        "startTag": 804,
+        "startPosition": 244,
+        "endTag": 805,
+        "endPosition": 248,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoNestedPartyIDs",
+        "depth": 6,
+        "startTag": 539,
+        "startPosition": 240,
+        "endTag": 805,
+        "endPosition": 248,
+        "delimiterTag": 524,
+        "delimiterPositions": [
+            241
+        ]
+    },
+    {
+        "name": "NestedParties",
+        "depth": 5,
+        "startTag": 539,
+        "startPosition": 240,
+        "endTag": 805,
+        "endPosition": 248,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "LegBenchmarkCurveData",
+        "depth": 5,
+        "startTag": 676,
+        "startPosition": 249,
+        "endTag": 680,
+        "endPosition": 252,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoLegs",
+        "depth": 4,
+        "startTag": 555,
+        "startPosition": 190,
+        "endTag": 680,
+        "endPosition": 252,
+        "delimiterTag": 600,
+        "delimiterPositions": [
+            191
+        ]
+    },
+    {
+        "name": "QuotReqLegsGrp",
+        "depth": 3,
+        "startTag": 555,
+        "startPosition": 190,
+        "endTag": 680,
+        "endPosition": 252,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoQuoteQualifiers",
+        "depth": 4,
+        "startTag": 735,
+        "startPosition": 253,
+        "endTag": 695,
+        "endPosition": 254,
+        "delimiterTag": 695,
+        "delimiterPositions": [
+            254
+        ]
+    },
+    {
+        "name": "QuotQualGrp",
+        "depth": 3,
+        "startTag": 735,
+        "startPosition": 253,
+        "endTag": 695,
+        "endPosition": 254,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "SpreadOrBenchmarkCurveData",
+        "depth": 3,
+        "startTag": 218,
+        "startPosition": 259,
+        "endTag": 761,
+        "endPosition": 265,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "YieldData",
+        "depth": 3,
+        "startTag": 235,
+        "startPosition": 268,
+        "endTag": 698,
+        "endPosition": 271,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoPartySubIDs",
+        "depth": 6,
+        "startTag": 802,
+        "startPosition": 275,
+        "endTag": 523,
+        "endPosition": 280,
+        "delimiterTag": 523,
+        "delimiterPositions": [
+            276,
+            278,
+            280
+        ]
+    },
+    {
+        "name": "PtysSubGrp",
+        "depth": 5,
+        "startTag": 802,
+        "startPosition": 275,
+        "endTag": 523,
+        "endPosition": 280,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoPartySubIDs",
+        "depth": 6,
+        "startTag": 802,
+        "startPosition": 284,
+        "endTag": 803,
+        "endPosition": 288,
+        "delimiterTag": 523,
+        "delimiterPositions": [
+            285,
+            287
+        ]
+    },
+    {
+        "name": "PtysSubGrp",
+        "depth": 5,
+        "startTag": 802,
+        "startPosition": 284,
+        "endTag": 803,
+        "endPosition": 288,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoPartySubIDs",
+        "depth": 6,
+        "startTag": 802,
+        "startPosition": 292,
+        "endTag": 803,
+        "endPosition": 294,
+        "delimiterTag": 523,
+        "delimiterPositions": [
+            293
+        ]
+    },
+    {
+        "name": "PtysSubGrp",
+        "depth": 5,
+        "startTag": 802,
+        "startPosition": 292,
+        "endTag": 803,
+        "endPosition": 294,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoPartyIDs",
+        "depth": 4,
+        "startTag": 453,
+        "startPosition": 272,
+        "endTag": 803,
+        "endPosition": 294,
+        "delimiterTag": 448,
+        "delimiterPositions": [
+            273,
+            281,
+            289
+        ]
+    },
+    {
+        "name": "Parties",
+        "depth": 3,
+        "startTag": 453,
+        "startPosition": 272,
+        "endTag": 803,
+        "endPosition": 294,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "NoRelatedSym",
+        "depth": 2,
+        "startTag": 146,
+        "startPosition": 12,
+        "endTag": 803,
+        "endPosition": 294,
+        "delimiterTag": 55,
+        "delimiterPositions": [
+            13
+        ]
+    },
+    {
+        "name": "QuotReqGrp",
+        "depth": 1,
+        "startTag": 146,
+        "startPosition": 12,
+        "endTag": 803,
+        "endPosition": 294,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "QuoteRequest",
+        "depth": 1,
+        "startTag": 8,
+        "startPosition": 0,
+        "endTag": 355,
+        "endPosition": 298,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    },
+    {
+        "name": "trailer",
+        "depth": 0,
+        "startTag": 10,
+        "startPosition": 298,
+        "endTag": 10,
+        "endPosition": 298,
+        "delimiterTag": 0,
+        "delimiterPositions": []
+    }
+]
