@@ -1,0 +1,33 @@
+{
+  "name": "jspf-demo",
+  "version": "1.6.0",
+  "description": "",
+  "main": "dist/trade_capture/app.js",
+  "homepage": "https://github.com/TimelordUK/jspf-demo",
+  "scripts": {
+    "build": "tsc",
+    "tcp-tc": "node dist/trade_capture/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jspurefix": "file:../../libs/jspurefix",
+    "reflect-metadata": "^0.2.2",
+    "request": "^2.88.2",
+    "typings": "^2.1.1"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.7",
+    "@types/node": "^22.5.0",
+    "@types/sax": "^1.2.7",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "eslint": "^8.56.0",
+    "eslint-config-standard-with-typescript": "^43.0.1",
+    "madge": "^8.0.0",
+    "standard": "^17.1.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.5.4"
+  }
+}
