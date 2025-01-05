@@ -34,5 +34,8 @@
   },
   "imports": {
     "#root/*": "./*"
+  },
+  "devDependencies": {
+    "yarn-audit-fix": "^10.1.1"
   }
 }
