@@ -69,10 +69,12 @@ export abstract class ASessionMsgFactory implements ISessionMsgFactory {
     return this.mutate(o, MsgType.SequenceReset)
   }
 
-  public trailer (checksum: number): ILooseObject {
+  public trailer (checksum: number, signature: string): ILooseObject {
     const s = checksum.toString()
     const padded = s.padStart(3, '0')
     const o = {
+      // SignatureLength: signature.length,
+      // Signature: Buffer.from(signature),
       CheckSum: padded
     } as IStandardTrailer
     return this.mutate(o, 'StandardTrailer')

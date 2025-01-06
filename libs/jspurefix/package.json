@@ -74,9 +74,11 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@nomicfoundation/hardhat-viem": "^2.0.5",
     "align-text": "^1.0.2",
     "axios": "^1.7.5",
     "express": "^4.19.2",
+    "hardhat": "^2.22.16",
     "lodash": "^4.17.21",
     "mathjs": "^13.0.3",
     "minimist": "^1.2.8",
@@ -111,6 +113,7 @@
     "madge": "^8.0.0",
     "standard": "^17.1.0",
     "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   }
 }

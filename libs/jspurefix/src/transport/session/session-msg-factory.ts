@@ -12,5 +12,5 @@ export interface ISessionMsgFactory {
   sequenceReset: (newSeq: number, gapFill?: boolean) => ILooseObject
   heartbeat: (testReqId: string) => ILooseObject
   header: (msgType?: string, seqNum?: number, time?: Date, overrideData?: Partial<IStandardHeader>) => ILooseObject
-  trailer: (checksum: number) => ILooseObject
+  trailer: (checksum: number, signature: string) => ILooseObject
 }

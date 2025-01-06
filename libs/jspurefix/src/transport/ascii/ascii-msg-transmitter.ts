@@ -9,6 +9,12 @@ import { inject, injectable } from 'tsyringe'
 import { DITokens } from '../../runtime/di-tokens'
 import { ElasticBuffer } from '../../buffer'
 
+// // TODO: find a better way to do it
+// import '@nomicfoundation/hardhat-viem';
+// import hre from 'hardhat';
+
+// const walletClients = await hre.viem.getWalletClients();
+
 @injectable()
 export class AsciiMsgTransmitter extends MsgTransmitter {
   public msgSeqNum: number
@@ -79,7 +85,13 @@ export class AsciiMsgTransmitter extends MsgTransmitter {
     const len = buffer.getPos() - encoder.msgTypePos
     buffer.patchPaddedNumberAtPos(lenPos, len, bodyLength)
     const checksum: number = this.checksum()
-    const trl: ILooseObject | null = factory?.trailer(checksum) ?? null
+    // TODO: Make wallet a session property
+    // const signature: string = walletClients[(this.config.description as any).walletId].signMessage({
+    //   message: JSON.stringify(obj)
+    // })
+    // const signature: string = 'account' + (this.config.description as any).walletId + 'signature'
+    const signature: string = 'accountsignature'
+    const trl: ILooseObject | null = factory?.trailer(checksum, signature) ?? null
     if (trl) {
       encoder.encode(trl, trailerName)
     }

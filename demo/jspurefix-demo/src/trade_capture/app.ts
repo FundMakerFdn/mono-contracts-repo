@@ -32,7 +32,7 @@ class AppLauncher extends SessionLauncher {
               const walletClient = clients[extConfig.description.walletId!];
               const address = walletClient.account.address;
               console.log(
-                `Configured wallet address for ${
+                `[+++] Configured wallet address for ${
                   isInitiator ? "initiator" : "acceptor"
                 }: ${address}`
               );
