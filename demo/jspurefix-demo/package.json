@@ -1,20 +1,22 @@
 {
-  "name": "jspf-demo",
+  "name": "jspurefix-demo",
   "version": "1.6.0",
   "description": "",
   "main": "dist/trade_capture/app.js",
-  "homepage": "https://github.com/TimelordUK/jspf-demo",
   "scripts": {
     "build": "tsc",
-    "tcp-tc": "node dist/trade_capture/app.js",
+    "app": "yarn hardhat run dist/trade_capture/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@nomicfoundation/hardhat-viem": "^2.0.5",
+    "hardhat": "^2.22.16",
     "jspurefix": "file:../../libs/jspurefix",
     "reflect-metadata": "^0.2.2",
     "request": "^2.88.2",
+    "ts-node": "^10.9.2",
     "typings": "^2.1.1"
   },
   "devDependencies": {

@@ -23,3 +23,9 @@ dist
 # Hardhat Ignition default folder for deployments against a local node
 /ignition
 
+
+
+
+.nx/cache
+.nx/workspace-data
+

@@ -1,5 +1,6 @@
 import { TradeFactory } from './trade-factory'
-import { IJsFixConfig, MsgView, AsciiSession, IJsFixLogger } from 'jspurefix'
+import { MsgView, AsciiSession, IJsFixLogger } from 'jspurefix'
+import { IExtendedFixConfig } from './types'
 import {
   ITradeCaptureReport, ITradeCaptureReportRequest,
   ITradeCaptureReportRequestAck, MsgType
@@ -10,7 +11,7 @@ export class TradeCaptureClient extends AsciiSession {
   private readonly fixLog: IJsFixLogger
   private readonly reports: Map<string, ITradeCaptureReport>
 
-  constructor (public readonly config: IJsFixConfig) {
+  constructor (public readonly config: IExtendedFixConfig) {
     super(config)
     this.logReceivedMsgs = true
     this.reports = new Map<string, ITradeCaptureReport>()

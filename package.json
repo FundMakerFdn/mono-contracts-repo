@@ -1,7 +1,6 @@
 {
-  "name": "SettleMaker",
+  "name": "settle-maker-mono",
   "version": "1.0",
-  "main": "index.js",
   "repository": "git@gitq:FundMakerFdn/mono-contracts-repo.git",
   "author": "Vladyslav <web.user@ukr.net>, Max OTC maxgctwo@rasa.capital",
   "license": "MIT",
