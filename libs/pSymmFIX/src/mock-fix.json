@@ -1,0 +1,71 @@
+{
+  "tags": {
+    "8": {
+      "name": "BeginString",
+      "type": "String"
+    },
+    "9": {
+      "name": "BodyLength",
+      "type": "Int"
+    },
+    "35": {
+      "name": "MsgType",
+      "type": "String"
+    },
+    "555": {
+      "name": "NoLegs",
+      "type": "NumInGroup"
+    },
+    "600": {
+      "name": "LegSymbol",
+      "type": "String"
+    },
+    "601": {
+      "name": "LegPrice",
+      "type": "Price"
+    },
+    "602": {
+      "name": "LegQty",
+      "type": "Qty"
+    },
+    "453": {
+      "name": "NoPartyIDs",
+      "type": "NumInGroup"
+    },
+    "448": {
+      "name": "PartyID",
+      "type": "String"
+    },
+    "447": {
+      "name": "PartyIDSource",
+      "type": "String"
+    },
+    "452": {
+      "name": "PartyRole",
+      "type": "Int"
+    }
+  },
+  "groups": {
+    "LegGroup": {
+      "name": "LegGroup",
+      "tags": [555, 600, 601, 602]
+    },
+    "Parties": {
+      "name": "Parties",
+      "tags": [453, 448, 447, 452]
+    }
+  },
+  "messages": {
+    "D": {
+      "shortName": "NewOrderSingle",
+      "longName": "New Order Single",
+      "tags": [
+        {"tag": 8, "required": true},
+        {"tag": 9, "required": true},
+        {"tag": 35, "required": true},
+        {"tag": 555, "required": true, "isGroup": true},
+        {"tag": 453, "required": false, "isGroup": true}
+      ]
+    }
+  }
+}
