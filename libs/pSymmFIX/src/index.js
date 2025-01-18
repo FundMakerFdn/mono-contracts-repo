@@ -62,42 +62,44 @@ class pSymmFIX {
         currentPath.push(grName);
         currentPath.push(0);
       } else {
-        const path = [...currentPath];
+        // Only process field if we're not in an empty group
+        if (counterStack.length === 0 || counterStack[counterStack.length - 1].groupsLeft > 0) {
+          const path = [...currentPath];
 
-        if (counterStack.length > 0) {
-          let lastCounter = counterStack[counterStack.length - 1];
-          lastCounter.tagsLeft--;
+          if (counterStack.length > 0) {
+            let lastCounter = counterStack[counterStack.length - 1];
+            lastCounter.tagsLeft--;
 
-          while (lastCounter.tagsLeft === 0) {
-            lastCounter.groupsLeft--;
+            while (lastCounter.tagsLeft === 0) {
+              lastCounter.groupsLeft--;
 
-            if (lastCounter.groupsLeft > 0) {
-              // Reset tags counter for next group iteration
-              lastCounter.tagsLeft = lastCounter.tagsTotal;
-              currentPath[currentPath.length - 1]++; // Increment group index
-            } else {
-              // Group is complete
-              counterStack.pop();
-              currentPath.pop(); // Remove group index
-              currentPath.pop(); // Remove group name
+              if (lastCounter.groupsLeft > 0) {
+                // Reset tags counter for next group iteration
+                lastCounter.tagsLeft = lastCounter.tagsTotal;
+                currentPath[currentPath.length - 1]++; // Increment group index
+              } else {
+                // Group is complete
+                counterStack.pop();
+                currentPath.pop(); // Remove group index
+                currentPath.pop(); // Remove group name
 
-              if (counterStack.length === 0) {
-                break; // Exit the while loop if no more groups to process
-              }
+                if (counterStack.length === 0) {
+                  break; // Exit the while loop if no more groups to process
+                }
 
-              lastCounter = counterStack[counterStack.length - 1];
-              lastCounter.tagsLeft--;
-              
-              if (lastCounter.tagsLeft < 0) {
-                break; // Exit if we've processed all tags
+                lastCounter = counterStack[counterStack.length - 1];
+                lastCounter.tagsLeft--;
+                
+                if (lastCounter.tagsLeft < 0) {
+                  break; // Exit if we've processed all tags
+                }
               }
             }
           }
+
+          path.push(fieldName);
+          setNestedVal(fixObj, path, fieldValue);
         }
-
-        path.push(fieldName);
-
-        setNestedVal(fixObj, path, fieldValue);
       }
     }
     return fixObj;
