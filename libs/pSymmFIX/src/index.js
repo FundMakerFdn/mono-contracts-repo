@@ -16,7 +16,66 @@ class pSymmFIX {
 
   encode(fixObj) {
     let fixStr = "";
-    // TODO
+    const parts = [];
+    
+    // Handle regular fields first
+    for (const [key, value] of Object.entries(fixObj)) {
+      if (Array.isArray(value)) continue; // Skip groups for now
+      
+      // Find tag number for this field name
+      const tagNum = Object.entries(this.dict.tags)
+        .find(([_, info]) => info.name === key)?.[0];
+      
+      if (tagNum) {
+        parts.push(`${tagNum}=${value}`);
+      }
+    }
+
+    // Handle groups
+    for (const [key, value] of Object.entries(fixObj)) {
+      if (!Array.isArray(value)) continue;
+      
+      // Find group info
+      const groupInfo = this.dict.groups[key];
+      if (!groupInfo) continue;
+      
+      // Get NumInGroup tag
+      const numInGroupTag = groupInfo.tags[0];
+      parts.push(`${numInGroupTag}=${value.length}`);
+      
+      // Add each group item's fields
+      for (const item of value) {
+        for (const [fieldName, fieldValue] of Object.entries(item)) {
+          if (Array.isArray(fieldValue)) {
+            // Handle nested groups recursively
+            const nestedGroup = this.dict.groups[fieldName];
+            if (!nestedGroup) continue;
+            
+            const nestedNumInGroupTag = nestedGroup.tags[0];
+            parts.push(`${nestedNumInGroupTag}=${fieldValue.length}`);
+            
+            for (const nestedItem of fieldValue) {
+              for (const [nestedFieldName, nestedFieldValue] of Object.entries(nestedItem)) {
+                const nestedTagNum = Object.entries(this.dict.tags)
+                  .find(([_, info]) => info.name === nestedFieldName)?.[0];
+                if (nestedTagNum) {
+                  parts.push(`${nestedTagNum}=${nestedFieldValue}`);
+                }
+              }
+            }
+          } else {
+            // Regular field
+            const tagNum = Object.entries(this.dict.tags)
+              .find(([_, info]) => info.name === fieldName)?.[0];
+            if (tagNum) {
+              parts.push(`${tagNum}=${fieldValue}`);
+            }
+          }
+        }
+      }
+    }
+
+    fixStr = parts.join("|");
     return fixStr;
   }
 
