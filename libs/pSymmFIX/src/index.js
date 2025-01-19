@@ -15,68 +15,103 @@ class pSymmFIX {
   }
 
   encode(fixObj) {
-    let fixStr = "";
-    const parts = [];
-    
-    // Handle regular fields first
-    for (const [key, value] of Object.entries(fixObj)) {
-      if (Array.isArray(value)) continue; // Skip groups for now
-      
-      // Find tag number for this field name
-      const tagNum = Object.entries(this.dict.tags)
-        .find(([_, info]) => info.name === key)?.[0];
-      
-      if (tagNum) {
-        parts.push(`${tagNum}=${value}`);
-      }
-    }
+    if (!this.validateObj(fixObj)) return false;
 
-    // Handle groups
-    for (const [key, value] of Object.entries(fixObj)) {
-      if (!Array.isArray(value)) continue;
-      
-      // Find group info
-      const groupInfo = this.dict.groups[key];
-      if (!groupInfo) continue;
-      
-      // Get NumInGroup tag
-      const numInGroupTag = groupInfo.tags[0];
-      parts.push(`${numInGroupTag}=${value.length}`);
-      
-      // Add each group item's fields
-      for (const item of value) {
-        for (const [fieldName, fieldValue] of Object.entries(item)) {
-          if (Array.isArray(fieldValue)) {
-            // Handle nested groups recursively
-            const nestedGroup = this.dict.groups[fieldName];
-            if (!nestedGroup) continue;
-            
-            const nestedNumInGroupTag = nestedGroup.tags[0];
-            parts.push(`${nestedNumInGroupTag}=${fieldValue.length}`);
-            
-            for (const nestedItem of fieldValue) {
-              for (const [nestedFieldName, nestedFieldValue] of Object.entries(nestedItem)) {
-                const nestedTagNum = Object.entries(this.dict.tags)
-                  .find(([_, info]) => info.name === nestedFieldName)?.[0];
-                if (nestedTagNum) {
-                  parts.push(`${nestedTagNum}=${nestedFieldValue}`);
-                }
-              }
-            }
-          } else {
-            // Regular field
-            const tagNum = Object.entries(this.dict.tags)
-              .find(([_, info]) => info.name === fieldName)?.[0];
-            if (tagNum) {
-              parts.push(`${tagNum}=${fieldValue}`);
-            }
-          }
+    // Use the stack-based iterative approach similar to decode()
+    // encode should work in one pass like decode does
+    // don't create helper functions
+    // store state of nestedness in the main stack to track nested groups
+    // Instead of setting key: value, just push tagNum=value to result array
+    // Order should be respected, iterate over desired tags instead of supplied values.
+
+    return result.join("|");
+  }
+
+  validateObj(fixObj) {
+    // Get message type and definition
+    const msgType = fixObj?.MsgType;
+    const msgDef = this.dict.messages[msgType];
+    let iota = 0;
+    if (!msgDef) return false;
+
+    // Stack for tracking nested group validation
+    const stack = [];
+
+    // Track seen tags to validate order and completeness
+    const seenTags = new Set();
+
+    // Helper to validate a single group
+    const validateGroup = (obj, groupTags) => {
+      const required = groupTags.filter((t) => t.required).map((t) => t.tag);
+      const all = groupTags.map((t) => t.tag);
+
+      // Check all required tags are present
+      for (const tag of required) {
+        // Check if this is a group start tag
+        const isGroupStart = Object.entries(this.dict.groups).find(
+          ([_, group]) => group.tags[0] === tag
+        );
+
+        if (isGroupStart) {
+          // For group tags, check if group name exists
+          if (!(isGroupStart[0] in obj)) return false;
+        } else {
+          // For regular tags, check field name
+          const fieldName = this.dict.tags[tag].name;
+          if (!(fieldName in obj)) return false;
         }
       }
-    }
 
-    fixStr = parts.join("|");
-    return fixStr;
+      // Check no extra tags
+      for (const field in obj) {
+        // Skip if field is a known group name
+        if (field in this.dict.groups) continue;
+
+        const tagNum = Object.entries(this.dict.tags).find(
+          ([_, info]) => info.name === field
+        )?.[0];
+
+        // Check if this tag is a group start tag
+        const isGroupStart = Object.values(this.dict.groups).some(
+          (group) => group.tags[0] === parseInt(tagNum)
+        );
+        if (isGroupStart) continue;
+
+        if (!tagNum || !all.includes(parseInt(tagNum))) return false;
+      }
+
+      return true;
+    };
+
+    // Validate main message
+    if (!validateGroup(fixObj, msgDef.tags)) return false;
+
+    // Validate nested groups recursively
+    const validateNestedGroups = (obj) => {
+      for (const [key, value] of Object.entries(obj)) {
+        if (!Array.isArray(value)) continue;
+
+        const groupInfo = this.dict.groups[key];
+        if (!groupInfo) return false;
+
+        // Validate each item in group
+        for (const item of value) {
+          if (
+            !validateGroup(
+              item,
+              groupInfo.tags.slice(1).map((tag) => ({ tag, required: true }))
+            )
+          ) {
+            return false;
+          }
+          // Recursively validate nested groups
+          if (!validateNestedGroups(item)) return false;
+        }
+      }
+      return true;
+    };
+
+    return validateNestedGroups(fixObj);
   }
 
   decode(fixStr) {
@@ -122,14 +157,17 @@ class pSymmFIX {
         currentPath.push(0);
       } else {
         // Only process field if we're not in an empty group
-        if (counterStack.length === 0 || counterStack[counterStack.length - 1].groupsLeft > 0) {
+        if (
+          counterStack.length === 0 ||
+          counterStack[counterStack.length - 1].groupsLeft > 0
+        ) {
           const path = [...currentPath];
 
           if (counterStack.length > 0) {
             let lastCounter = counterStack[counterStack.length - 1];
             lastCounter.tagsLeft--;
 
-            while (lastCounter.tagsLeft === 0) {
+            while (lastCounter.tagsLeft == 0) {
               lastCounter.groupsLeft--;
 
               if (lastCounter.groupsLeft > 0) {
@@ -147,20 +185,19 @@ class pSymmFIX {
                 }
 
                 lastCounter = counterStack[counterStack.length - 1];
-                lastCounter.tagsLeft--;
-                
-                if (lastCounter.tagsLeft < 0) {
-                  break; // Exit if we've processed all tags
-                }
+                // lastCounter.tagsLeft--;
               }
             }
           }
 
           path.push(fieldName);
           setNestedVal(fixObj, path, fieldValue);
+          console.log("counter", counterStack);
         }
       }
     }
+    console.log(JSON.stringify(fixObj), this.validateObj(fixObj));
+    // if (!this.validateObj(fixObj)) return false;
     return fixObj;
   }
 }

@@ -48,7 +48,7 @@
   "groups": {
     "LegGroup": {
       "name": "LegGroup",
-      "tags": [555, 600, 601, 602]
+      "tags": [555, 600, 601, 602, 453]
     },
     "Parties": {
       "name": "Parties",
@@ -60,11 +60,10 @@
       "shortName": "NewOrderSingle",
       "longName": "New Order Single",
       "tags": [
-        {"tag": 8, "required": true},
-        {"tag": 9, "required": true},
-        {"tag": 35, "required": true},
-        {"tag": 555, "required": true, "isGroup": true},
-        {"tag": 453, "required": false, "isGroup": true}
+        { "tag": 8, "required": true },
+        { "tag": 9, "required": true },
+        { "tag": 35, "required": true },
+        { "tag": 555, "required": false, "isGroup": true }
       ]
     }
   }

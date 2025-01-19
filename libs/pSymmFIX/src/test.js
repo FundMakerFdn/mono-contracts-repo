@@ -1,3 +1,4 @@
 // Run both encoder and decoder tests
-require('./test-encoder.js');
-require('./test-decoder.js');
+require("./test-encode.js");
+require("./test-decode.js");
+require("./test-validate.js");
