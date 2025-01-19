@@ -11,8 +11,9 @@ class pSymmFIX {
     MockFIX: "#data/mock-fix.json",
     pSymmFIX: "#data/psymm-fix.json",
   };
-  constructor(version) {
+  constructor(version, fieldSep = "|") {
     this.version = version;
+    this.fieldSep = fieldSep;
     this.dict = require(this.#dicts[version]);
 
     // Prefetch groupName => tagNum dict (for validateObj)
@@ -91,7 +92,7 @@ class pSymmFIX {
       }
     }
 
-    return result.join("|");
+    return result.join(this.fieldSep);
   }
 
   validateObj(fixObj) {
@@ -181,7 +182,7 @@ class pSymmFIX {
   decode(fixStr) {
     const fixObj = {};
 
-    const pairs = fixStr.split("|");
+    const pairs = fixStr.split(this.fieldSep);
 
     // Nested group processing
     const counterStack = []; // Stack of {tagsLeft, tagsTotal, groupsLeft} objects
