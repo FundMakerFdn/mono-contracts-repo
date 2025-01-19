@@ -46,11 +46,11 @@
     }
   },
   "groups": {
-    "LegGroup": {
+    "555": {
       "name": "LegGroup",
       "tags": [555, 600, 601, 602, 453]
     },
-    "Parties": {
+    "453": {
       "name": "Parties",
       "tags": [453, 448, 447, 452]
     }

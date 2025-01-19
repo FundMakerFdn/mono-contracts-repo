@@ -14,6 +14,24 @@ class pSymmFIX {
   constructor(version) {
     this.version = version;
     this.dict = require(this.#dicts[version]);
+
+    // Prefetch groupName => tagNum dict (for validateObj)
+    this.groupNameToNum = Object.entries(this.dict.groups).reduce(
+      (acc, [tag, info]) => {
+        acc[info.name] = tag;
+        return acc;
+      },
+      {}
+    );
+
+    // Prefetch tagName => tagNum dict (for validateObj)
+    this.tagNameToNum = Object.entries(this.dict.tags).reduce(
+      (acc, [tag, info]) => {
+        acc[info.name] = tag;
+        return acc;
+      },
+      {}
+    );
   }
 
   encode(fixObj) {
@@ -41,10 +59,8 @@ class pSymmFIX {
 
       if (tagDef.type === "NumInGroup") {
         // Find corresponding group info
-        const groupInfo = Object.values(this.dict.groups).find(
-          (g) => g.tags[0] === tagNum
-        );
-        const groupName = groupInfo.name;
+        const groupInfo = this.dict.groups[tagNum];
+        const groupName = groupInfo?.name;
         const groupData = obj[groupName] || [];
 
         // Only include group if it's required or has content
@@ -102,13 +118,10 @@ class pSymmFIX {
       // Check all required tags are present
       for (const tag of required) {
         // Check if this is a group start tag
-        const isGroupStart = Object.entries(this.dict.groups).find(
-          ([_, group]) => group.tags[0] === tag
-        );
-
-        if (isGroupStart) {
+        const groupInfo = this.dict.groups[tag];
+        if (groupInfo) {
           // For group tags, check if group name exists
-          if (!(isGroupStart[0] in obj)) return false;
+          if (!(groupInfo.name in obj)) return false;
         } else {
           // For regular tags, check field name
           const fieldName = this.dict.tags[tag].name;
@@ -119,16 +132,12 @@ class pSymmFIX {
       // Check no extra tags
       for (const field in obj) {
         // Skip if field is a known group name
-        if (field in this.dict.groups) continue;
+        if (field in this.groupNameToNum) continue;
 
-        const tagNum = Object.entries(this.dict.tags).find(
-          ([_, info]) => info.name === field
-        )?.[0];
+        const tagNum = this.tagNameToNum[field];
 
         // Check if this tag is a group start tag
-        const isGroupStart = Object.values(this.dict.groups).some(
-          (group) => group.tags[0] === parseInt(tagNum)
-        );
+        const isGroupStart = tagNum in this.dict.groups;
         if (isGroupStart) continue;
 
         if (!tagNum || !all.includes(parseInt(tagNum))) return false;
@@ -145,8 +154,9 @@ class pSymmFIX {
       for (const [key, value] of Object.entries(obj)) {
         if (!Array.isArray(value)) continue;
 
-        const groupInfo = this.dict.groups[key];
-        if (!groupInfo) return false;
+        const groupTag = this.groupNameToNum[key];
+        if (!groupTag) return false;
+        const groupInfo = this.dict.groups[groupTag];
 
         // Validate each item in group
         for (const item of value) {
@@ -192,10 +202,9 @@ class pSymmFIX {
         const groupCount = parseInt(value);
         let grName, grTagCount;
 
-        // TODO: improve group finding
-        for (const [groupName, groupInfo] of Object.entries(this.dict.groups)) {
-          if (!groupInfo.tags.includes(parseInt(tagNum))) continue;
-          grName = groupName;
+        const groupInfo = this.dict.groups[tagNum];
+        if (groupInfo) {
+          grName = groupInfo.name;
           grTagCount = groupInfo.tags.length - 1; // minus No
         }
         // Generate [{}, {}, ...] placeholder for group items
