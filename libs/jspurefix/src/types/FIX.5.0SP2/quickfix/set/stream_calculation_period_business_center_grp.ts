@@ -1,5 +1,0 @@
-import { IStreamCalculationPeriodBusinessCenterGrpNoStreamCalculationPeriodBusinessCenters } from './stream_calculation_period_business_center_grp_no_stream_calculation_period_business_centers'
-
-export interface IStreamCalculationPeriodBusinessCenterGrp {
-  NoStreamCalculationPeriodBusinessCenters?: IStreamCalculationPeriodBusinessCenterGrpNoStreamCalculationPeriodBusinessCenters[]// [1] StreamCalculationPeriodBusinessCenter.40074
-}

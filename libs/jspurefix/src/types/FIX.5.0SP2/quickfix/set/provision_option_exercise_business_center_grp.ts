@@ -1,5 +1,0 @@
-import { IProvisionOptionExerciseBusinessCenterGrpNoProvisionOptionExerciseBusinessCenters } from './provision_option_exercise_business_center_grp_no_provision_option_exercise_business_centers'
-
-export interface IProvisionOptionExerciseBusinessCenterGrp {
-  NoProvisionOptionExerciseBusinessCenters?: IProvisionOptionExerciseBusinessCenterGrpNoProvisionOptionExerciseBusinessCenters[]// [1] ProvisionOptionExerciseBusinessCenter.40124
-}

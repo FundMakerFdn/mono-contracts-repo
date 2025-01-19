@@ -1,6 +1,0 @@
-[0] 568 (TradeRequestID) = ABC123, [1] 569 (TradeRequestType) = 3[UnreportedTradesThatMatchCriteria]
-[2] 263 (SubscriptionRequestType) = 1[SnapshotUpdatesSubscribe], [3] 442 (MultiLegReportingType) = 3[MultiLegSecurity]
-[4] 49 (SenderCompID) = RYAN, [5] 56 (TargetCompID) = CME
-[6] 50 (SenderSubID) = RYAN123, [7] 57 (TargetSubID) = STP
-[8] 448 (PartyID) = RYANTF1, [9] 452 (PartyRole) = 7[EnteringFirm]
-[10] 448 (PartyID) = RYANTF1, [11] 452 (PartyRole) = 7[EnteringFirm]

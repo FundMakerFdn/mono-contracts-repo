@@ -1,5 +1,0 @@
-import { IReturnRateValuationDateBusinessCenterGrpNoReturnRateValuationDateBusinessCenters } from './return_rate_valuation_date_business_center_grp_no_return_rate_valuation_date_business_centers'
-
-export interface IReturnRateValuationDateBusinessCenterGrp {
-  NoReturnRateValuationDateBusinessCenters?: IReturnRateValuationDateBusinessCenterGrpNoReturnRateValuationDateBusinessCenters[]// [1] ReturnRateValuationDateBusinessCenter.42771
-}

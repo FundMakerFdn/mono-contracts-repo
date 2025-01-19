@@ -1,5 +1,0 @@
-import { IUnderlyingMarketDisruptionFallbackGrpNoUnderlyingMarketDisruptionFallbacks } from './underlying_market_disruption_fallback_grp_no_underlying_market_disruption_fallbacks'
-
-export interface IUnderlyingMarketDisruptionFallbackGrp {
-  NoUnderlyingMarketDisruptionFallbacks?: IUnderlyingMarketDisruptionFallbackGrpNoUnderlyingMarketDisruptionFallbacks[]// [1] UnderlyingMarketDisruptionFallbackType.41867, UnderlyingMarketDisruptionFallbackValue.41339
-}

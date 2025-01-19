@@ -1,5 +1,0 @@
-import { IMarketDisruptionFallbackReferencePriceGrpNoMarketDisruptionFallbackReferencePrices } from './market_disruption_fallback_reference_price_grp_no_market_disruption_fallback_reference_prices'
-
-export interface IMarketDisruptionFallbackReferencePriceGrp {
-  NoMarketDisruptionFallbackReferencePrices?: IMarketDisruptionFallbackReferencePriceGrpNoMarketDisruptionFallbackReferencePrices[]// [1] MarketDisruptionFallbackUnderlierType.41097, MarketDisruptionFallbackUnderlierSecurityID.41098 .. MarketDisruptionFallbackBasketDivisor.41105
-}

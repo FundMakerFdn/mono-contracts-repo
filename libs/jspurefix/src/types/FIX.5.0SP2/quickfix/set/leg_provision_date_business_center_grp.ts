@@ -1,5 +1,0 @@
-import { ILegProvisionDateBusinessCenterGrpNoLegProvisionDateBusinessCenters } from './leg_provision_date_business_center_grp_no_leg_provision_date_business_centers'
-
-export interface ILegProvisionDateBusinessCenterGrp {
-  NoLegProvisionDateBusinessCenters?: ILegProvisionDateBusinessCenterGrpNoLegProvisionDateBusinessCenters[]// [1] LegProvisionDateBusinessCenter.40452
-}

@@ -1,5 +1,0 @@
-import { ILegPaymentStreamFixingDateBusinessCenterGrpNoLegPaymentStreamFixingDateBusinessCenters } from './leg_payment_stream_fixing_date_business_center_grp_no_leg_payment_stream_fixing_date_business_centers'
-
-export interface ILegPaymentStreamFixingDateBusinessCenterGrp {
-  NoLegPaymentStreamFixingDateBusinessCenters?: ILegPaymentStreamFixingDateBusinessCenterGrpNoLegPaymentStreamFixingDateBusinessCenters[]// [1] LegPaymentStreamFixingDateBusinessCenter.40318
-}

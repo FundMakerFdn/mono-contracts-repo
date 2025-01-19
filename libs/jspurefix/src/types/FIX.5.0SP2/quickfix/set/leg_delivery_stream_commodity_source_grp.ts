@@ -1,5 +1,0 @@
-import { ILegDeliveryStreamCommoditySourceGrpNoLegDeliveryStreamCommoditySources } from './leg_delivery_stream_commodity_source_grp_no_leg_delivery_stream_commodity_sources'
-
-export interface ILegDeliveryStreamCommoditySourceGrp {
-  NoLegDeliveryStreamCommoditySources?: ILegDeliveryStreamCommoditySourceGrpNoLegDeliveryStreamCommoditySources[]// [1] LegDeliveryStreamCommoditySource.41461
-}

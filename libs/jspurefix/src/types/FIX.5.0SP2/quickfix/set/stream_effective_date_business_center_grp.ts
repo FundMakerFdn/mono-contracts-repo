@@ -1,5 +1,0 @@
-import { IStreamEffectiveDateBusinessCenterGrpNoStreamEffectiveDateBusinessCenters } from './stream_effective_date_business_center_grp_no_stream_effective_date_business_centers'
-
-export interface IStreamEffectiveDateBusinessCenterGrp {
-  NoStreamEffectiveDateBusinessCenters?: IStreamEffectiveDateBusinessCenterGrpNoStreamEffectiveDateBusinessCenters[]// [1] StreamEffectiveDateBusinessCenter.40909
-}

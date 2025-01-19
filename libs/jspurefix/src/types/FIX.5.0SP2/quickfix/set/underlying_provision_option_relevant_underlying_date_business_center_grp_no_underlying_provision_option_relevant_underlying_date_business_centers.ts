@@ -1,3 +1,0 @@
-export interface IUnderlyingProvisionOptionRelevantUnderlyingDateBusinessCenterGrpNoUnderlyingProvisionOptionRelevantUnderlyingDateBusinessCenters {
-  UnderlyingProvisionOptionRelevantUnderlyingDateBusinessCenter?: string// [1] 42189 (String)
-}

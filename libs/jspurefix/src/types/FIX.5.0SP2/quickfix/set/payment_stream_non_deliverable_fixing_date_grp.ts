@@ -1,5 +1,0 @@
-import { IPaymentStreamNonDeliverableFixingDateGrpNoNonDeliverableFixingDates } from './payment_stream_non_deliverable_fixing_date_grp_no_non_deliverable_fixing_dates'
-
-export interface IPaymentStreamNonDeliverableFixingDateGrp {
-  NoNonDeliverableFixingDates?: IPaymentStreamNonDeliverableFixingDateGrpNoNonDeliverableFixingDates[]// [1] NonDeliverableFixingDate.40826, NonDeliverableFixingDateType.40827
-}

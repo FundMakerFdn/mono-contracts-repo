@@ -1,5 +1,0 @@
-import { ILegProtectionTermObligationGrpNoLegProtectionTermObligations } from './leg_protection_term_obligation_grp_no_leg_protection_term_obligations'
-
-export interface ILegProtectionTermObligationGrp {
-  NoLegProtectionTermObligations?: ILegProtectionTermObligationGrpNoLegProtectionTermObligations[]// [1] LegProtectionTermObligationType.41636, LegProtectionTermObligationValue.41637
-}

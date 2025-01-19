@@ -1,5 +1,0 @@
-import { ILegPaymentScheduleFixingDayGrpNoLegPaymentScheduleFixingDays } from './leg_payment_schedule_fixing_day_grp_no_leg_payment_schedule_fixing_days'
-
-export interface ILegPaymentScheduleFixingDayGrp {
-  NoLegPaymentScheduleFixingDays?: ILegPaymentScheduleFixingDayGrpNoLegPaymentScheduleFixingDays[]// [1] LegPaymentScheduleFixingDayOfWeek.41531, LegPaymentScheduleFixingDayNumber.41532
-}

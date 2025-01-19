@@ -1,5 +1,0 @@
-import { ILegPaymentStubEndDateBusinessCenterGrpNoLegPaymentStubEndDateBusinessCenters } from './leg_payment_stub_end_date_business_center_grp_no_leg_payment_stub_end_date_business_centers'
-
-export interface ILegPaymentStubEndDateBusinessCenterGrp {
-  NoLegPaymentStubEndDateBusinessCenters?: ILegPaymentStubEndDateBusinessCenterGrpNoLegPaymentStubEndDateBusinessCenters[]// [1] LegPaymentStubEndDateBusinessCenter.42496
-}

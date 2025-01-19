@@ -1,3 +1,0 @@
-export interface IUnderlyingPaymentStreamInitialFixingDateBusinessCenterGrpNoUnderlyingPaymentStreamInitialFixingDateBusinessCenters {
-  UnderlyingPaymentStreamInitialFixingDateBusinessCenter?: string// [1] 40600 (String)
-}

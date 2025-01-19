@@ -1,5 +1,0 @@
-import { ILegStreamCalculationPeriodDateGrpNoLegStreamCalculationPeriodDates } from './leg_stream_calculation_period_date_grp_no_leg_stream_calculation_period_dates'
-
-export interface ILegStreamCalculationPeriodDateGrp {
-  NoLegStreamCalculationPeriodDates?: ILegStreamCalculationPeriodDateGrpNoLegStreamCalculationPeriodDates[]// [1] LegStreamCalculationPeriodDate.41639, LegStreamCalculationPeriodDateType.41640
-}

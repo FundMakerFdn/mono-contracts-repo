@@ -1,5 +1,0 @@
-import { IPaymentStubStartDateBusinessCenterGrpNoPaymentStubStartDateBusinessCenters } from './payment_stub_start_date_business_center_grp_no_payment_stub_start_date_business_centers'
-
-export interface IPaymentStubStartDateBusinessCenterGrp {
-  NoPaymentStubStartDateBusinessCenters?: IPaymentStubStartDateBusinessCenterGrpNoPaymentStubStartDateBusinessCenters[]// [1] PaymentStubStartDateBusinessCenter.42706
-}

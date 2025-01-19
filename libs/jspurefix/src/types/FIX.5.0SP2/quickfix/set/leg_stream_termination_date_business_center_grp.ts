@@ -1,5 +1,0 @@
-import { ILegStreamTerminationDateBusinessCenterGrpNoLegStreamTerminationDateBusinessCenters } from './leg_stream_termination_date_business_center_grp_no_leg_stream_termination_date_business_centers'
-
-export interface ILegStreamTerminationDateBusinessCenterGrp {
-  NoLegStreamTerminationDateBusinessCenters?: ILegStreamTerminationDateBusinessCenterGrpNoLegStreamTerminationDateBusinessCenters[]// [1] LegStreamTerminationDateBusinessCenter.40259
-}

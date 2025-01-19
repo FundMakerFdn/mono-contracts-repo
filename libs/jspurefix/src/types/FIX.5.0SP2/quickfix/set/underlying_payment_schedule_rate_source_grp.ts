@@ -1,5 +1,0 @@
-import { IUnderlyingPaymentScheduleRateSourceGrpNoUnderlyingPaymentScheduleRateSources } from './underlying_payment_schedule_rate_source_grp_no_underlying_payment_schedule_rate_sources'
-
-export interface IUnderlyingPaymentScheduleRateSourceGrp {
-  NoUnderlyingPaymentScheduleRateSources?: IUnderlyingPaymentScheduleRateSourceGrpNoUnderlyingPaymentScheduleRateSources[]// [1] UnderlyingPaymentScheduleRateSource.40705, UnderlyingPaymentScheduleRateSourceType.40706, UnderlyingPaymentScheduleReferencePage.40707
-}

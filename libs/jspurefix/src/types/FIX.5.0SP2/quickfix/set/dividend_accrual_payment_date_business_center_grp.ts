@@ -1,5 +1,0 @@
-import { IDividendAccrualPaymentDateBusinessCenterGrpNoDividendAccrualPaymentDateBusinessCenters } from './dividend_accrual_payment_date_business_center_grp_no_dividend_accrual_payment_date_business_centers'
-
-export interface IDividendAccrualPaymentDateBusinessCenterGrp {
-  NoDividendAccrualPaymentDateBusinessCenters?: IDividendAccrualPaymentDateBusinessCenterGrpNoDividendAccrualPaymentDateBusinessCenters[]// [1] DividendAccrualPaymentDateBusinessCenter.42237
-}

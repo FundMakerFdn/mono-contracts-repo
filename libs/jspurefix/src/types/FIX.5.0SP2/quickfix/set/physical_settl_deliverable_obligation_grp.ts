@@ -1,5 +1,0 @@
-import { IPhysicalSettlDeliverableObligationGrpNoPhysicalSettlDeliverableObligations } from './physical_settl_deliverable_obligation_grp_no_physical_settl_deliverable_obligations'
-
-export interface IPhysicalSettlDeliverableObligationGrp {
-  NoPhysicalSettlDeliverableObligations?: IPhysicalSettlDeliverableObligationGrpNoPhysicalSettlDeliverableObligations[]// [1] PhysicalSettlDeliverableObligationType.40210, PhysicalSettlDeliverableObligationValue.40211
-}

@@ -1,5 +1,0 @@
-import { IUnderlyingComplexEventPeriodGrpNoUnderlyingComplexEventPeriods } from './underlying_complex_event_period_grp_no_underlying_complex_event_periods'
-
-export interface IUnderlyingComplexEventPeriodGrp {
-  NoUnderlyingComplexEventPeriods?: IUnderlyingComplexEventPeriodGrpNoUnderlyingComplexEventPeriods[]// [1] UnderlyingComplexEventPeriodType.41730, UnderlyingComplexEventBusinessCenter.41731 .. UnderlyingComplexEventAveragingWeight.41715
-}

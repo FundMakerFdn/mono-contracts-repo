@@ -1,5 +1,0 @@
-import { IUnderlyingPricingDateBusinessCenterGrpNoUnderlyingPricingDateBusinessCenters } from './underlying_pricing_date_business_center_grp_no_underlying_pricing_date_business_centers'
-
-export interface IUnderlyingPricingDateBusinessCenterGrp {
-  NoUnderlyingPricingDateBusinessCenters?: IUnderlyingPricingDateBusinessCenterGrpNoUnderlyingPricingDateBusinessCenters[]// [1] UnderlyingPricingDateBusinessCenter.41948
-}

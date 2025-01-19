@@ -1,5 +1,0 @@
-import { IUnderlyingStreamCommoditySettlPeriodGrpNoUnderlyingStreamCommoditySettlPeriods } from './underlying_stream_commodity_settl_period_grp_no_underlying_stream_commodity_settl_periods'
-
-export interface IUnderlyingStreamCommoditySettlPeriodGrp {
-  NoUnderlyingStreamCommoditySettlPeriods?: IUnderlyingStreamCommoditySettlPeriodGrpNoUnderlyingStreamCommoditySettlPeriods[]// [1] UnderlyingStreamCommoditySettlCountry.42003, UnderlyingStreamCommoditySettlTimeZone.42004 .. UnderlyingStreamCommoditySettlPeriodXIDRef.42015
-}

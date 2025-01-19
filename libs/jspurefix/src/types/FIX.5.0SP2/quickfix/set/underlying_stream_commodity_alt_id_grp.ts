@@ -1,5 +1,0 @@
-import { IUnderlyingStreamCommodityAltIDGrpNoUnderlyingStreamCommodityAltIDs } from './underlying_stream_commodity_alt_id_grp_no_underlying_stream_commodity_alt_i_ds'
-
-export interface IUnderlyingStreamCommodityAltIDGrp {
-  NoUnderlyingStreamCommodityAltIDs?: IUnderlyingStreamCommodityAltIDGrpNoUnderlyingStreamCommodityAltIDs[]// [1] UnderlyingStreamCommodityAltID.41991, UnderlyingStreamCommodityAltIDSource.41992
-}

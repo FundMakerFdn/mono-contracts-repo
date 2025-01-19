@@ -1,5 +1,0 @@
-import { IDeliveryStreamCommoditySourceGrpNoDeliveryStreamCommoditySources } from './delivery_stream_commodity_source_grp_no_delivery_stream_commodity_sources'
-
-export interface IDeliveryStreamCommoditySourceGrp {
-  NoDeliveryStreamCommoditySources?: IDeliveryStreamCommoditySourceGrpNoDeliveryStreamCommoditySources[]// [1] DeliveryStreamCommoditySource.41086
-}
