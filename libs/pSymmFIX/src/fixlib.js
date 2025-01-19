@@ -1,5 +1,3 @@
-const mockFixDict = require("#data/mock-fix.json");
-
 function setNestedVal(obj, path, value) {
   console.debug("set", path, "=", value);
   let i;
@@ -9,9 +7,13 @@ function setNestedVal(obj, path, value) {
 }
 
 class pSymmFIX {
+  #dicts = {
+    MockFIX: "#data/mock-fix.json",
+    pSymmFIX: "#data/psymm-fix.json",
+  };
   constructor(version) {
     this.version = version;
-    this.dict = mockFixDict;
+    this.dict = require(this.#dicts[version]);
   }
 
   encode(fixObj) {
@@ -77,6 +79,9 @@ class pSymmFIX {
   }
 
   validateObj(fixObj) {
+    // Check BeginString matches version
+    if (fixObj?.BeginString !== this.version) return false;
+
     // Get message type and definition
     const msgType = fixObj?.MsgType;
     const msgDef = this.dict.messages[msgType];

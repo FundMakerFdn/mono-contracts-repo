@@ -2,12 +2,12 @@ const pSymmFIX = require("pSymmFIX");
 const assert = require("assert");
 
 // Initialize FIX parser
-const fix = new pSymmFIX("FIX.4.4");
+const fix = new pSymmFIX("MockFIX");
 
 // Test 1: Valid basic NewOrderSingle message
 console.log("\nTest 1: Valid basic message");
 const validBasic = {
-  BeginString: "FIX.4.4",
+  BeginString: "MockFIX",
   BodyLength: "100",
   MsgType: "D",
 };
@@ -17,7 +17,7 @@ console.log("✓ Valid basic message test passed");
 // Test 2: Missing required field
 console.log("\nTest 2: Missing required field");
 const missingRequired = {
-  BeginString: "FIX.4.4",
+  BeginString: "MockFIX",
   BodyLength: "100",
   // Missing MsgType
 };
@@ -27,7 +27,7 @@ console.log("✓ Missing required field test passed");
 // Test 3: Invalid group structure (missing required group field)
 console.log("\nTest 3: Invalid group structure");
 const invalidGroup = {
-  BeginString: "FIX.4.4",
+  BeginString: "MockFIX",
   BodyLength: "100",
   MsgType: "D",
   LegGroup: [
@@ -44,7 +44,7 @@ console.log("✓ Invalid group structure test passed");
 // Test 4: Valid nested groups
 console.log("\nTest 4: Valid nested groups");
 const validNested = {
-  BeginString: "FIX.4.4",
+  BeginString: "MockFIX",
   BodyLength: "100",
   MsgType: "D",
   LegGroup: [
@@ -85,7 +85,7 @@ console.log("✓ Valid nested groups test passed");
 // Test 5: Invalid nested group (missing required nested group field)
 console.log("\nTest 5: Invalid nested groups");
 const invalidNested = {
-  BeginString: "FIX.4.4",
+  BeginString: "MockFIX",
   BodyLength: "100",
   MsgType: "D",
   LegGroup: [

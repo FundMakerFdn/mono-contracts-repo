@@ -2,12 +2,12 @@ const pSymmFIX = require("pSymmFIX");
 const assert = require("assert");
 
 // Initialize FIX parser
-const fix = new pSymmFIX("FIX.4.4");
+const fix = new pSymmFIX("MockFIX");
 
 // Test 1: Basic message without groups
 console.log("\nTest 1: Basic message");
 const basicObj = {
-  BeginString: "FIX.4.4",
+  BeginString: "MockFIX",
   BodyLength: "100",
   MsgType: "D",
 };
@@ -22,7 +22,7 @@ console.log("✓ Basic message test passed");
 // Test 2: Message with nested groups
 console.log("\nTest 2: Nested groups message");
 const nestedObj = {
-  BeginString: "FIX.4.4",
+  BeginString: "MockFIX",
   BodyLength: "100",
   MsgType: "D",
   LegGroup: [
@@ -68,7 +68,7 @@ console.log("✓ Nested groups test passed");
 // Test 3: Empty group
 console.log("\nTest 3: Empty group message");
 const emptyGroupObj = {
-  BeginString: "FIX.4.4",
+  BeginString: "MockFIX",
   BodyLength: "100",
   MsgType: "D",
 };
