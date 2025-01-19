@@ -19,8 +19,8 @@ assert.strictEqual(
 );
 console.log("✓ Basic message test passed");
 
-// Test 3: Message with nested groups
-console.log("\nTest 3: Nested groups message");
+// Test 2: Message with nested groups
+console.log("\nTest 2: Nested groups message");
 const nestedObj = {
   BeginString: "FIX.4.4",
   BodyLength: "100",
@@ -65,8 +65,8 @@ assert.strictEqual(
 );
 console.log("✓ Nested groups test passed");
 
-// Test 4: Empty group
-console.log("\nTest 4: Empty group message");
+// Test 3: Empty group
+console.log("\nTest 3: Empty group message");
 const emptyGroupObj = {
   BeginString: "FIX.4.4",
   BodyLength: "100",

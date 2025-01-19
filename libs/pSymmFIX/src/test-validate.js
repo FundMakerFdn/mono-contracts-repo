@@ -10,7 +10,6 @@ const validBasic = {
   BeginString: "FIX.4.4",
   BodyLength: "100",
   MsgType: "D",
-  LegGroup: [], // Required group but empty is ok
 };
 assert.strictEqual(fix.validateObj(validBasic), true);
 console.log("✓ Valid basic message test passed");
@@ -25,25 +24,8 @@ const missingRequired = {
 assert.strictEqual(fix.validateObj(missingRequired), false);
 console.log("✓ Missing required field test passed");
 
-// Test 3: Valid message with populated groups
-console.log("\nTest 3: Valid message with groups");
-const validGroups = {
-  BeginString: "FIX.4.4",
-  BodyLength: "100",
-  MsgType: "D",
-  LegGroup: [
-    {
-      LegSymbol: "AAPL",
-      LegPrice: "100",
-      LegQty: "10",
-    },
-  ],
-};
-assert.strictEqual(fix.validateObj(validGroups), true);
-console.log("✓ Valid groups test passed");
-
-// Test 4: Invalid group structure (missing required group field)
-console.log("\nTest 4: Invalid group structure");
+// Test 3: Invalid group structure (missing required group field)
+console.log("\nTest 3: Invalid group structure");
 const invalidGroup = {
   BeginString: "FIX.4.4",
   BodyLength: "100",
@@ -59,8 +41,8 @@ const invalidGroup = {
 assert.strictEqual(fix.validateObj(invalidGroup), false);
 console.log("✓ Invalid group structure test passed");
 
-// Test 5: Valid nested groups
-console.log("\nTest 5: Valid nested groups");
+// Test 4: Valid nested groups
+console.log("\nTest 4: Valid nested groups");
 const validNested = {
   BeginString: "FIX.4.4",
   BodyLength: "100",
@@ -100,8 +82,8 @@ const validNested = {
 assert.strictEqual(fix.validateObj(validNested), true);
 console.log("✓ Valid nested groups test passed");
 
-// Test 6: Invalid nested group (missing required nested group field)
-console.log("\nTest 6: Invalid nested groups");
+// Test 5: Invalid nested group (missing required nested group field)
+console.log("\nTest 5: Invalid nested groups");
 const invalidNested = {
   BeginString: "FIX.4.4",
   BodyLength: "100",

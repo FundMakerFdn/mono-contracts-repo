@@ -245,8 +245,7 @@ class pSymmFIX {
         }
       }
     }
-    console.log(JSON.stringify(fixObj), this.validateObj(fixObj));
-    // if (!this.validateObj(fixObj)) return false;
+    if (!this.validateObj(fixObj)) return false;
     return fixObj;
   }
 }

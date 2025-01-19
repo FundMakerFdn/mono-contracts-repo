@@ -13,7 +13,7 @@ assert.strictEqual(basicResult.BodyLength, "100");
 assert.strictEqual(basicResult.MsgType, "D");
 console.log("✓ Basic message test passed");
 
-// Test 3: Message with nested groups
+// Test 2: Message with nested groups
 const nestedGroupMsg =
   "8=FIX.4.4|9=100|35=D|555=2|" +
   // First leg group with 2 parties
@@ -24,7 +24,7 @@ const nestedGroupMsg =
   "600=MSFT|601=200|602=20|453=1|" +
   "448=ID3|447=D|452=3";
 
-console.log("\nTest 3: Nested groups message");
+console.log("\nTest 2: Nested groups message");
 const nestedResult = fix.decode(nestedGroupMsg);
 console.log(JSON.stringify(nestedResult));
 assert.strictEqual(
