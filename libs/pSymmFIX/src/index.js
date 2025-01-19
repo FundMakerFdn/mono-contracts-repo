@@ -1,7 +1,7 @@
 const mockFixDict = require("./mock-fix.json");
 
 function setNestedVal(obj, path, value) {
-  console.debug("DEBUG XXX", "set", path, "=", value);
+  console.debug("set", path, "=", value);
   let i;
   for (i = 0; i < path.length - 1; i++) obj = obj[path[i]];
 
@@ -17,12 +17,61 @@ class pSymmFIX {
   encode(fixObj) {
     if (!this.validateObj(fixObj)) return false;
 
-    // Use the stack-based iterative approach similar to decode()
-    // encode should work in one pass like decode does
-    // don't create helper functions
-    // store state of nestedness in the main stack to track nested groups
-    // Instead of setting key: value, just push tagNum=value to result array
-    // Order should be respected, iterate over desired tags instead of supplied values.
+    const result = [];
+    const stack = [
+      { obj: fixObj, tags: this.dict.messages[fixObj.MsgType].tags },
+    ];
+
+    while (stack.length > 0) {
+      const current = stack[stack.length - 1];
+      const { obj, tags } = current;
+
+      if (!current.tagIndex) current.tagIndex = 0;
+
+      if (current.tagIndex >= tags.length) {
+        stack.pop();
+        continue;
+      }
+
+      const tagInfo = tags[current.tagIndex++];
+      const tagNum = tagInfo.tag;
+      const tagDef = this.dict.tags[tagNum];
+
+      if (tagDef.type === "NumInGroup") {
+        // Find corresponding group info
+        const groupInfo = Object.values(this.dict.groups).find(
+          (g) => g.tags[0] === tagNum
+        );
+        const groupName = groupInfo.name;
+        const groupData = obj[groupName] || [];
+
+        // Only include group if it's required or has content
+        const isRequired = tagInfo.required;
+        if (isRequired || groupData.length > 0) {
+          // Add group count
+          result.push(`${tagNum}=${groupData.length}`);
+
+          if (groupData.length > 0) {
+            // Push group items to stack
+            const groupTags = groupInfo.tags
+              .slice(1)
+              .map((tag) => ({ tag, required: true }));
+            for (let i = groupData.length - 1; i >= 0; i--) {
+              stack.push({
+                obj: groupData[i],
+                tags: groupTags,
+                tagIndex: 0,
+              });
+            }
+          }
+        }
+      } else {
+        const fieldName = tagDef.name;
+        if (fieldName in obj) {
+          result.push(`${tagNum}=${obj[fieldName]}`);
+        }
+      }
+    }
 
     return result.join("|");
   }
@@ -185,7 +234,7 @@ class pSymmFIX {
                 }
 
                 lastCounter = counterStack[counterStack.length - 1];
-                // lastCounter.tagsLeft--;
+                lastCounter.tagsLeft--;
               }
             }
           }

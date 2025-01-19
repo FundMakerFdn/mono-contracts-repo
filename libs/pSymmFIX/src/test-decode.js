@@ -27,9 +27,8 @@ const nestedGroupMsg =
 console.log("\nTest 3: Nested groups message");
 const nestedResult = fix.decode(nestedGroupMsg);
 console.log(JSON.stringify(nestedResult));
-assert.strictEqual(nestedResult.LegGroup.length, 2);
-assert.strictEqual(nestedResult.LegGroup[0].Parties.length, 2);
-assert.strictEqual(nestedResult.LegGroup[1].Parties.length, 1);
-assert.strictEqual(nestedResult.LegGroup[0].Parties[0].PartyID, "ID1");
-assert.strictEqual(nestedResult.LegGroup[1].Parties[0].PartyID, "ID3");
+assert.strictEqual(
+  JSON.stringify(nestedResult),
+  '{"BeginString":"FIX.4.4","BodyLength":"100","MsgType":"D","LegGroup":[{"LegSymbol":"AAPL","LegPrice":"100","LegQty":"10","Parties":[{"PartyID":"ID1","PartyIDSource":"D","PartyRole":"1"},{"PartyID":"ID2","PartyIDSource":"D","PartyRole":"2"}]},{"LegSymbol":"MSFT","LegPrice":"200","LegQty":"20","Parties":[{"PartyID":"ID3","PartyIDSource":"D","PartyRole":"3"}]}]}'
+);
 console.log("✓ Nested groups test passed");
