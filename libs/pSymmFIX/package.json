@@ -2,5 +2,14 @@
   "name": "pSymmFIX",
   "version": "1.0.0",
   "main": "src/index.js",
-  "license": "MIT"
+  "license": "MIT",
+  "imports": {
+    "#data/*": "./data/*"
+  },
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "node test/index.js"
+  }
 }

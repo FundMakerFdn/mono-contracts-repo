@@ -1,4 +1,4 @@
-const pSymmFIX = require("./index.js");
+const pSymmFIX = require("pSymmFIX");
 const assert = require("assert");
 
 // Initialize FIX parser
