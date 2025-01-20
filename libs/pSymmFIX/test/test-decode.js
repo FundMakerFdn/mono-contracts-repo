@@ -5,7 +5,7 @@ const assert = require("assert");
 const fix = new pSymmFIX("MockFIX");
 
 // Test 1: Basic message without groups
-const basicMsg = "8=MockFIX|9=100|35=D";
+const basicMsg = "8=MockFIX|9=100|35=D|10=123";
 console.log("\nTest 1: Basic message");
 const basicResult = fix.decode(basicMsg);
 assert.strictEqual(basicResult.BeginString, "MockFIX");
@@ -22,13 +22,13 @@ const nestedGroupMsg =
   "448=ID2|447=D|452=2|" +
   // Second leg group with 1 party
   "600=MSFT|601=200|602=20|453=1|" +
-  "448=ID3|447=D|452=3";
+  "448=ID3|447=D|452=3|10=231";
 
 console.log("\nTest 2: Nested groups message");
 const nestedResult = fix.decode(nestedGroupMsg);
 console.log(JSON.stringify(nestedResult));
 assert.strictEqual(
   JSON.stringify(nestedResult),
-  '{"BeginString":"MockFIX","BodyLength":"100","MsgType":"D","LegGroup":[{"LegSymbol":"AAPL","LegPrice":"100","LegQty":"10","Parties":[{"PartyID":"ID1","PartyIDSource":"D","PartyRole":"1"},{"PartyID":"ID2","PartyIDSource":"D","PartyRole":"2"}]},{"LegSymbol":"MSFT","LegPrice":"200","LegQty":"20","Parties":[{"PartyID":"ID3","PartyIDSource":"D","PartyRole":"3"}]}]}'
+  '{"BeginString":"MockFIX","BodyLength":"100","MsgType":"D","LegGroup":[{"LegSymbol":"AAPL","LegPrice":"100","LegQty":"10","Parties":[{"PartyID":"ID1","PartyIDSource":"D","PartyRole":"1"},{"PartyID":"ID2","PartyIDSource":"D","PartyRole":"2"}]},{"LegSymbol":"MSFT","LegPrice":"200","LegQty":"20","Parties":[{"PartyID":"ID3","PartyIDSource":"D","PartyRole":"3"}]}],"CheckSum":"231"}'
 );
 console.log("✓ Nested groups test passed");

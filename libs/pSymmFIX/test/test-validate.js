@@ -8,8 +8,9 @@ const fix = new pSymmFIX("MockFIX");
 console.log("\nTest 1: Valid basic message");
 const validBasic = {
   BeginString: "MockFIX",
-  BodyLength: "100",
+  BodyLength: null,
   MsgType: "D",
+  CheckSum: null,
 };
 assert.strictEqual(fix.validateObjThrow(validBasic), true);
 console.log("✓ Valid basic message test passed");
@@ -18,8 +19,9 @@ console.log("✓ Valid basic message test passed");
 console.log("\nTest 2: Missing required field");
 const missingRequired = {
   BeginString: "MockFIX",
-  BodyLength: "100",
+  BodyLength: null,
   // Missing MsgType
+  CheckSum: null,
 };
 assert.strictEqual(fix.validateObj(missingRequired), false);
 console.log("✓ Missing required field test passed");
@@ -28,7 +30,7 @@ console.log("✓ Missing required field test passed");
 console.log("\nTest 3: Invalid group structure");
 const invalidGroup = {
   BeginString: "MockFIX",
-  BodyLength: "100",
+  BodyLength: null,
   MsgType: "D",
   LegGroup: [
     {
@@ -37,6 +39,7 @@ const invalidGroup = {
       LegQty: "10",
     },
   ],
+  CheckSum: null,
 };
 assert.strictEqual(fix.validateObj(invalidGroup), false);
 console.log("✓ Invalid group structure test passed");
@@ -78,6 +81,7 @@ const validNested = {
       ],
     },
   ],
+  CheckSum: null,
 };
 assert.strictEqual(fix.validateObjThrow(validNested), true);
 console.log("✓ Valid nested groups test passed");
@@ -86,7 +90,7 @@ console.log("✓ Valid nested groups test passed");
 console.log("\nTest 5: Invalid nested groups");
 const invalidNested = {
   BeginString: "MockFIX",
-  BodyLength: "100",
+  BodyLength: null,
   MsgType: "D",
   LegGroup: [
     {
@@ -102,6 +106,7 @@ const invalidNested = {
       ],
     },
   ],
+  CheckSum: null,
 };
 assert.strictEqual(fix.validateObj(invalidNested), false);
 console.log("✓ Invalid nested groups test passed");

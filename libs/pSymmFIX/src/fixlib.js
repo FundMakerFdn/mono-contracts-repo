@@ -125,6 +125,9 @@ class pSymmFIX {
       fixObj.BodyLength = (body.join(this.fieldSep).length + 2).toString();
     }
 
+    const headerStack = [{ obj: fixObj, tags: this.headerReq }];
+    this.#encodeSection(headerStack, header, fixObj);
+
     // Handle CheckSum if it's null
     if (fixObj.CheckSum === null) {
       // First encode everything except trailer
@@ -133,15 +136,12 @@ class pSymmFIX {
       fixObj.CheckSum = sum.toString().padStart(3, "0");
     }
 
-    // Process final header and trailer with all fields
-    const headerStack = [{ obj: fixObj, tags: this.headerReq }];
     const trailerStack = [{ obj: fixObj, tags: this.trailerReq }];
 
-    this.#encodeSection(headerStack, header, fixObj);
     this.#encodeSection(trailerStack, trailer, fixObj);
 
     // Combine all parts
-    return [...header, ...body, ...trailer].join(this.fieldSep);
+    return [...header, ...body, ...trailer].join(this.fieldSep) + this.fieldSep;
   }
 
   validateObj(fixObj) {
@@ -261,6 +261,7 @@ class pSymmFIX {
 
     for (const pair of pairs) {
       const [tag, value] = pair.split("=");
+      if (!tag || !value) continue;
       const tagNum = tag.toString();
       const tagInfo = this.dict.tags[tagNum];
 
