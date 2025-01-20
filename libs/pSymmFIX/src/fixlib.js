@@ -146,7 +146,7 @@ class pSymmFIX {
 
   validateObj(fixObj) {
     try {
-      validateObjThrow(fixObj);
+      this.validateObjThrow(fixObj);
       return true;
     } catch (e) {
       // FixValidationError
