@@ -1,6 +1,6 @@
 {
   "header": [8, 9, 35],
-  "trailer": [],
+  "trailer": [10],
   "tags": {
     "8": {
       "name": "BeginString",
@@ -8,6 +8,10 @@
     },
     "9": {
       "name": "BodyLength",
+      "type": "Int"
+    },
+    "10": {
+      "name": "CheckSum",
       "type": "Int"
     },
     "35": {

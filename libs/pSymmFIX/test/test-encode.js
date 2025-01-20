@@ -8,8 +8,9 @@ const fix = new pSymmFIX("MockFIX");
 console.log("\nTest 1: Basic message");
 const basicObj = {
   BeginString: "MockFIX",
-  BodyLength: "100",
+  BodyLength: null,
   MsgType: "D",
+  CheckSum: null,
 };
 const basicResult = fix.encode(basicObj);
 console.log(basicResult);
@@ -23,7 +24,7 @@ console.log("✓ Basic message test passed");
 console.log("\nTest 2: Nested groups message");
 const nestedObj = {
   BeginString: "MockFIX",
-  BodyLength: "100",
+  BodyLength: null,
   MsgType: "D",
   LegGroup: [
     {
@@ -56,6 +57,7 @@ const nestedObj = {
       ],
     },
   ],
+  CheckSum: null,
 };
 const nestedResult = fix.encode(nestedObj);
 console.log(nestedResult);
@@ -64,19 +66,5 @@ assert.strictEqual(
   JSON.stringify(nestedObj)
 );
 console.log("✓ Nested groups test passed");
-
-// Test 3: Empty group
-console.log("\nTest 3: Empty group message");
-const emptyGroupObj = {
-  BeginString: "MockFIX",
-  BodyLength: "100",
-  MsgType: "D",
-};
-const emptyGroupResult = fix.encode(emptyGroupObj);
-assert.strictEqual(
-  JSON.stringify(fix.decode(emptyGroupResult)),
-  JSON.stringify(emptyGroupObj)
-);
-console.log("✓ Empty group test passed");
 
 console.log("\nAll tests passed! ✓");

@@ -52,16 +52,13 @@ class pSymmFIX {
     }));
   }
 
-  encode(fixObj) {
-    if (!this.validateObjThrow(fixObj)) return false;
+  #calculateChecksum(msg) {
+    return (
+      msg.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) % 256
+    );
+  }
 
-    const result = [];
-    const stack = [
-      { obj: fixObj, tags: this.trailerReq },
-      { obj: fixObj, tags: this.dict.messages[fixObj.MsgType].body },
-      { obj: fixObj, tags: this.headerReq }, // first in stack
-    ];
-
+  #encodeSection(stack, result, obj) {
     while (stack.length > 0) {
       const current = stack[stack.length - 1];
       const { obj, tags } = current;
@@ -78,19 +75,15 @@ class pSymmFIX {
       const tagDef = this.dict.tags[tagNum];
 
       if (tagDef.type === "NumInGroup") {
-        // Find corresponding group info
         const groupInfo = this.dict.groups[tagNum];
         const groupName = groupInfo?.name;
         const groupData = obj[groupName] || [];
 
-        // Only include group if it's required or has content
         const isRequired = tagInfo.required;
         if (isRequired || groupData.length > 0) {
-          // Add group count
           result.push(`${tagNum}=${groupData.length}`);
 
           if (groupData.length > 0) {
-            // Push group items to stack
             const groupTags = groupInfo.tags
               .slice(1)
               .map((tag) => ({ tag, required: true }));
@@ -110,8 +103,45 @@ class pSymmFIX {
         }
       }
     }
+  }
 
-    return result.join(this.fieldSep);
+  encode(fixObj) {
+    if (!this.validateObjThrow(fixObj)) return false;
+
+    // Split encoding into header, body, and trailer parts
+    const header = [];
+    const body = [];
+    const trailer = [];
+
+    // Process body first to calculate length
+    const bodyStack = [
+      { obj: fixObj, tags: this.dict.messages[fixObj.MsgType].body },
+    ];
+    this.#encodeSection(bodyStack, body, fixObj);
+
+    // Handle BodyLength if it's null
+    if (fixObj.BodyLength === null) {
+      // 2 separators: header | body | trailer
+      fixObj.BodyLength = (body.join(this.fieldSep).length + 2).toString();
+    }
+
+    // Handle CheckSum if it's null
+    if (fixObj.CheckSum === null) {
+      // First encode everything except trailer
+      const msgWithoutChecksum = [...header, ...body].join(this.fieldSep);
+      const sum = this.#calculateChecksum(msgWithoutChecksum);
+      fixObj.CheckSum = sum.toString().padStart(3, "0");
+    }
+
+    // Process final header and trailer with all fields
+    const headerStack = [{ obj: fixObj, tags: this.headerReq }];
+    const trailerStack = [{ obj: fixObj, tags: this.trailerReq }];
+
+    this.#encodeSection(headerStack, header, fixObj);
+    this.#encodeSection(trailerStack, trailer, fixObj);
+
+    // Combine all parts
+    return [...header, ...body, ...trailer].join(this.fieldSep);
   }
 
   validateObj(fixObj) {
