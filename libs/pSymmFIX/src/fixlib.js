@@ -1,5 +1,5 @@
 function setNestedVal(obj, path, value) {
-  console.debug("set", path, "=", value);
+  // console.debug("set", path, "=", value);
   let i;
   for (i = 0; i < path.length - 1; i++) obj = obj[path[i]];
 
@@ -209,7 +209,7 @@ class pSymmFIX {
           grTagCount = groupInfo.tags.length - 1; // minus No
         }
         // Generate [{}, {}, ...] placeholder for group items
-        console.log("Group itemCount tagPerItem", groupCount, grTagCount);
+        // console.log("Group itemCount tagPerItem", groupCount, grTagCount);
         const placeholder = Array.from({ length: groupCount }, () => ({}));
         setNestedVal(fixObj, [...currentPath, grName], placeholder);
         counterStack.push({
@@ -256,7 +256,7 @@ class pSymmFIX {
 
           path.push(fieldName);
           setNestedVal(fixObj, path, fieldValue);
-          console.log("counter", counterStack);
+          // console.log("counter", counterStack);
         }
       }
     }
