@@ -1,4 +1,6 @@
 {
+  "header": [8, 9, 35],
+  "trailer": [],
   "tags": {
     "8": {
       "name": "BeginString",
@@ -59,12 +61,7 @@
     "D": {
       "shortName": "NewOrderSingle",
       "longName": "New Order Single",
-      "tags": [
-        { "tag": 8, "required": true },
-        { "tag": 9, "required": true },
-        { "tag": 35, "required": true },
-        { "tag": 555, "required": false, "isGroup": true }
-      ]
+      "body": [{ "tag": 555, "required": false, "isGroup": true }]
     }
   }
 }

@@ -6,6 +6,13 @@ function setNestedVal(obj, path, value) {
   obj[path[i]] = value;
 }
 
+class FixValidationError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "FixValidationError";
+  }
+}
+
 class pSymmFIX {
   #dicts = {
     MockFIX: "#data/mock-fix.json",
@@ -33,14 +40,26 @@ class pSymmFIX {
       },
       {}
     );
+
+    // Preprocess header/trailer tags
+    this.headerReq = (this.dict.header || []).map((tag) => ({
+      tag,
+      required: true,
+    }));
+    this.trailerReq = (this.dict.trailer || []).map((tag) => ({
+      tag,
+      required: true,
+    }));
   }
 
   encode(fixObj) {
-    if (!this.validateObj(fixObj)) return false;
+    if (!this.validateObjThrow(fixObj)) return false;
 
     const result = [];
     const stack = [
-      { obj: fixObj, tags: this.dict.messages[fixObj.MsgType].tags },
+      { obj: fixObj, tags: this.trailerReq },
+      { obj: fixObj, tags: this.dict.messages[fixObj.MsgType].body },
+      { obj: fixObj, tags: this.headerReq }, // first in stack
     ];
 
     while (stack.length > 0) {
@@ -96,87 +115,109 @@ class pSymmFIX {
   }
 
   validateObj(fixObj) {
-    // Check BeginString matches version
-    if (fixObj?.BeginString !== this.version) return false;
-
-    // Get message type and definition
-    const msgType = fixObj?.MsgType;
-    const msgDef = this.dict.messages[msgType];
-    let iota = 0;
-    if (!msgDef) return false;
-
-    // Stack for tracking nested group validation
-    const stack = [];
-
-    // Track seen tags to validate order and completeness
-    const seenTags = new Set();
-
-    // Helper to validate a single group
-    const validateGroup = (obj, groupTags) => {
-      const required = groupTags.filter((t) => t.required).map((t) => t.tag);
-      const all = groupTags.map((t) => t.tag);
-
-      // Check all required tags are present
-      for (const tag of required) {
-        // Check if this is a group start tag
-        const groupInfo = this.dict.groups[tag];
-        if (groupInfo) {
-          // For group tags, check if group name exists
-          if (!(groupInfo.name in obj)) return false;
-        } else {
-          // For regular tags, check field name
-          const fieldName = this.dict.tags[tag].name;
-          if (!(fieldName in obj)) return false;
-        }
-      }
-
-      // Check no extra tags
-      for (const field in obj) {
-        // Skip if field is a known group name
-        if (field in this.groupNameToNum) continue;
-
-        const tagNum = this.tagNameToNum[field];
-
-        // Check if this tag is a group start tag
-        const isGroupStart = tagNum in this.dict.groups;
-        if (isGroupStart) continue;
-
-        if (!tagNum || !all.includes(parseInt(tagNum))) return false;
-      }
-
+    try {
+      validateObjThrow(fixObj);
       return true;
-    };
+    } catch (e) {
+      // FixValidationError
+      return false;
+    }
+  }
+  validateObjThrow(fixObj) {
+    // Validate header fields
+    for (const tagInfo of this.headerReq) {
+      const tagDef = this.dict.tags[tagInfo.tag];
+      if (tagInfo.required && !(tagDef.name in fixObj)) {
+        throw new FixValidationError(
+          `Missing required header field: ${tagDef.name}`
+        );
+      }
+    }
 
-    // Validate main message
-    if (!validateGroup(fixObj, msgDef.tags)) return false;
+    // Validate message type and get message definition
+    if (!("MsgType" in fixObj)) {
+      throw new FixValidationError("Missing required field: MsgType");
+    }
+    const msgDef = this.dict.messages[fixObj.MsgType];
+    if (!msgDef) {
+      throw new FixValidationError(`Invalid message type: ${fixObj.MsgType}`);
+    }
 
-    // Validate nested groups recursively
-    const validateNestedGroups = (obj) => {
-      for (const [key, value] of Object.entries(obj)) {
-        if (!Array.isArray(value)) continue;
+    // Validate trailer fields
+    for (const tagInfo of this.trailerReq) {
+      const tagDef = this.dict.tags[tagInfo.tag];
+      if (tagInfo.required && !(tagDef.name in fixObj)) {
+        throw new FixValidationError(
+          `Missing required trailer field: ${tagDef.name}`
+        );
+      }
+    }
 
-        const groupTag = this.groupNameToNum[key];
-        if (!groupTag) return false;
-        const groupInfo = this.dict.groups[groupTag];
-
-        // Validate each item in group
-        for (const item of value) {
-          if (
-            !validateGroup(
-              item,
-              groupInfo.tags.slice(1).map((tag) => ({ tag, required: true }))
-            )
-          ) {
-            return false;
+    // Validate message body fields and groups
+    const validateGroup = (obj, groupTags, path = "") => {
+      // Check for extra fields
+      const allowedFields = new Set([
+        ...this.headerReq.map((t) => this.dict.tags[t.tag].name),
+        ...this.trailerReq.map((t) => this.dict.tags[t.tag].name),
+        ...groupTags.map((t) => {
+          const tag = typeof t === "object" ? t.tag : t;
+          const tagDef = this.dict.tags[tag];
+          if (tagDef.type === "NumInGroup") {
+            return this.dict.groups[tag].name;
           }
-          // Recursively validate nested groups
-          if (!validateNestedGroups(item)) return false;
+          return tagDef.name;
+        }),
+      ]);
+
+      for (const field in obj) {
+        if (!allowedFields.has(field)) {
+          throw new FixValidationError(`Unknown field ${path}${field}`);
         }
       }
-      return true;
+
+      // Validate each tag/group
+      for (const tagInfo of groupTags) {
+        const tag = typeof tagInfo === "object" ? tagInfo.tag : tagInfo;
+        const required = tagInfo.required || false;
+        const tagDef = this.dict.tags[tag];
+
+        if (tagDef.type === "NumInGroup") {
+          const groupInfo = this.dict.groups[tag];
+          const groupName = groupInfo.name;
+          const groupData = obj[groupName];
+
+          if (required && (!groupData || groupData.length === 0)) {
+            throw new FixValidationError(
+              `Missing required group: ${path}${groupName}`
+            );
+          }
+
+          if (groupData && groupData.length > 0) {
+            const groupTags = groupInfo.tags
+              .slice(1)
+              .map((t) => ({ tag: t, required: true }));
+            for (let i = 0; i < groupData.length; i++) {
+              validateGroup(
+                groupData[i],
+                groupTags,
+                `${path}${groupName}[${i}].`
+              );
+            }
+          }
+        } else {
+          const fieldName = tagDef.name;
+          if (required && !(fieldName in obj)) {
+            throw new FixValidationError(
+              `Missing required field: ${path}${fieldName}`
+            );
+          }
+        }
+      }
     };
 
-    return validateNestedGroups(fixObj);
+    // Start validation with message body
+    validateGroup(fixObj, msgDef.body);
+    return true;
   }
 
   decode(fixStr) {
@@ -260,7 +301,7 @@ class pSymmFIX {
         }
       }
     }
-    if (!this.validateObj(fixObj)) return false;
+    if (!this.validateObjThrow(fixObj)) return false;
     return fixObj;
   }
 }

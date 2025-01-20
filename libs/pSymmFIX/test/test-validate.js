@@ -11,7 +11,7 @@ const validBasic = {
   BodyLength: "100",
   MsgType: "D",
 };
-assert.strictEqual(fix.validateObj(validBasic), true);
+assert.strictEqual(fix.validateObjThrow(validBasic), true);
 console.log("✓ Valid basic message test passed");
 
 // Test 2: Missing required field
@@ -79,7 +79,7 @@ const validNested = {
     },
   ],
 };
-assert.strictEqual(fix.validateObj(validNested), true);
+assert.strictEqual(fix.validateObjThrow(validNested), true);
 console.log("✓ Valid nested groups test passed");
 
 // Test 5: Invalid nested group (missing required nested group field)
