@@ -41,15 +41,9 @@ class pSymmFIX {
       {}
     );
 
-    // Preprocess header/trailer tags
-    this.headerReq = (this.dict.header || []).map((tag) => ({
-      tag,
-      required: true,
-    }));
-    this.trailerReq = (this.dict.trailer || []).map((tag) => ({
-      tag,
-      required: true,
-    }));
+    // Get header/trailer tags with their requirements
+    this.headerTags = (this.dict.header?.tags || []);
+    this.trailerTags = (this.dict.trailer?.tags || []);
   }
 
   #calculateChecksum(msg) {
@@ -125,7 +119,7 @@ class pSymmFIX {
       fixObj.BodyLength = (body.join(this.fieldSep).length + 2).toString();
     }
 
-    const headerStack = [{ obj: fixObj, tags: this.headerReq }];
+    const headerStack = [{ obj: fixObj, tags: this.headerTags }];
     this.#encodeSection(headerStack, header, fixObj);
 
     // Handle CheckSum if it's null
@@ -136,7 +130,7 @@ class pSymmFIX {
       fixObj.CheckSum = sum.toString().padStart(3, "0");
     }
 
-    const trailerStack = [{ obj: fixObj, tags: this.trailerReq }];
+    const trailerStack = [{ obj: fixObj, tags: this.trailerTags }];
 
     this.#encodeSection(trailerStack, trailer, fixObj);
 
@@ -155,7 +149,7 @@ class pSymmFIX {
   }
   validateObjThrow(fixObj) {
     // Validate header fields
-    for (const tagInfo of this.headerReq) {
+    for (const tagInfo of this.headerTags) {
       const tagDef = this.dict.tags[tagInfo.tag];
       if (tagInfo.required && !(tagDef.name in fixObj)) {
         throw new FixValidationError(
@@ -174,7 +168,7 @@ class pSymmFIX {
     }
 
     // Validate trailer fields
-    for (const tagInfo of this.trailerReq) {
+    for (const tagInfo of this.trailerTags) {
       const tagDef = this.dict.tags[tagInfo.tag];
       if (tagInfo.required && !(tagDef.name in fixObj)) {
         throw new FixValidationError(
@@ -187,8 +181,8 @@ class pSymmFIX {
     const validateGroup = (obj, groupTags, path = "") => {
       // Check for extra fields
       const allowedFields = new Set([
-        ...this.headerReq.map((t) => this.dict.tags[t.tag].name),
-        ...this.trailerReq.map((t) => this.dict.tags[t.tag].name),
+        ...this.headerTags.map((t) => this.dict.tags[t.tag].name),
+        ...this.trailerTags.map((t) => this.dict.tags[t.tag].name),
         ...groupTags.map((t) => {
           const tag = typeof t === "object" ? t.tag : t;
           const tagDef = this.dict.tags[tag];
