@@ -42,8 +42,8 @@ class pSymmFIX {
     );
 
     // Get header/trailer tags with their requirements
-    this.headerTags = (this.dict.header?.tags || []);
-    this.trailerTags = (this.dict.trailer?.tags || []);
+    this.headerTags = (this.dict.header || []);
+    this.trailerTags = (this.dict.trailer || []);
   }
 
   #calculateChecksum(msg) {

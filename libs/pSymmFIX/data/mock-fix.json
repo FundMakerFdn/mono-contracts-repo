@@ -1,16 +1,12 @@
 {
-  "header": {
-    "tags": [
-      { "tag": 8, "required": true },
-      { "tag": 9, "required": true },
-      { "tag": 35, "required": true }
-    ]
-  },
-  "trailer": {
-    "tags": [
-      { "tag": 10, "required": true }
-    ]
-  },
+  "header": [
+    { "tag": 8, "required": true },
+    { "tag": 9, "required": true },
+    { "tag": 35, "required": true }
+  ],
+  "trailer": [
+    { "tag": 10, "required": true }
+  ],
   "tags": {
     "8": {
       "name": "BeginString",
