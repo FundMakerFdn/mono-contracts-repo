@@ -85,10 +85,7 @@ async function main() {
   console.log("Proof for first action:", proof1);
   console.log("Proof for second action:", proof2);
 
-  // In a real implementation, you would now:
-  // 1. Sign the root with both parties
-  // 2. Submit the root and signatures to the pSymm contract
-  // 3. Execute actions by providing proofs
+  // After getting signature from each party, we can submit root onchain
 }
 
 main().catch((error) => {
