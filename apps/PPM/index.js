@@ -1,13 +1,5 @@
-import { createPublicClient, createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { hardhat } from "viem/chains";
 import { PPMTree } from "./PPMTree.js";
-
-// Setup clients
-const publicClient = createPublicClient({
-  chain: hardhat,
-  transport: http(),
-});
 
 async function main() {
   // Example private keys (in production these would be securely managed)
