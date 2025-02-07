@@ -89,6 +89,7 @@ contract pSymmSettlement is Settlement {
         emit CollateralSettlementCreated(settlementId, msg.sender, merkleRoot, custodyId, isA);
         return settlementId;
     }
+    
 	function answerSettlement(
 		bytes32 settlementId,
 		bytes32 merkleRoot
