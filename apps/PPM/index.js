@@ -40,21 +40,15 @@ async function main() {
     },
   };
 
-  // Sign action1
-  const message1 = new TextEncoder().encode(JSON.stringify(action1));
-
-  // Get signatures from both parties
-  const sigA1 = createSchnorrSignature(message1, BigInt(partyAKey));
-  const sigB1 = createSchnorrSignature(message1, BigInt(partyBKey));
+  // Sign action1 using EIP-712
+  const sigA1 = createSchnorrSignature(action1, BigInt(partyAKey));
+  const sigB1 = createSchnorrSignature(action1, BigInt(partyBKey));
 
   ppmTree.addLeaf(action1, [sigA1, sigB1]);
 
-  // Sign action2
-  const message2 = new TextEncoder().encode(JSON.stringify(action2));
-
-  // Get signatures from both parties
-  const sigA2 = createSchnorrSignature(message2, BigInt(partyAKey));
-  const sigB2 = createSchnorrSignature(message2, BigInt(partyBKey));
+  // Sign action2 using EIP-712
+  const sigA2 = createSchnorrSignature(action2, BigInt(partyAKey));
+  const sigB2 = createSchnorrSignature(action2, BigInt(partyBKey));
 
   ppmTree.addLeaf(action2, [sigA2, sigB2]);
 
