@@ -1,5 +1,5 @@
 import { privateKeyToAccount } from "viem/accounts";
-import { PPMTree } from "./PPMTree.js";
+import { createSchnorrSignature, PPMTree } from "./PPMTree.js";
 
 async function main() {
   // Example private keys (in production these would be securely managed)
@@ -40,24 +40,23 @@ async function main() {
     },
   };
 
-  // Sign the stringified action data
-  const partyASignature = await partyA.signMessage({
-    message: JSON.stringify(action1),
-  });
-  const partyBSignature = await partyB.signMessage({
-    message: JSON.stringify(action1),
-  });
+  // Sign action1
+  const message1 = new TextEncoder().encode(JSON.stringify(action1));
 
-  ppmTree.addLeaf(action1, [partyASignature, partyBSignature]);
+  // Get signatures from both parties
+  const sigA1 = createSchnorrSignature(message1, BigInt(partyAKey));
+  const sigB1 = createSchnorrSignature(message1, BigInt(partyBKey));
 
-  const partyASignature2 = await partyA.signMessage({
-    message: JSON.stringify(action2),
-  });
-  const partyBSignature2 = await partyB.signMessage({
-    message: JSON.stringify(action2),
-  });
+  ppmTree.addLeaf(action1, [sigA1, sigB1]);
 
-  ppmTree.addLeaf(action2, [partyASignature2, partyBSignature2]);
+  // Sign action2
+  const message2 = new TextEncoder().encode(JSON.stringify(action2));
+
+  // Get signatures from both parties
+  const sigA2 = createSchnorrSignature(message2, BigInt(partyAKey));
+  const sigB2 = createSchnorrSignature(message2, BigInt(partyBKey));
+
+  ppmTree.addLeaf(action2, [sigA2, sigB2]);
 
   // Build the tree
   const tree = ppmTree.buildTree();
