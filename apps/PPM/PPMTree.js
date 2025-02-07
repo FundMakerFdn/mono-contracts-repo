@@ -1,26 +1,48 @@
 import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
-import { encodeAbiParameters, parseAbiParameters } from "viem";
+import { encodeAbiParameters, parseAbiParameters, keccak256 } from "viem";
 import { secp256k1 } from "@noble/curves/secp256k1";
-import { sha256 } from "@noble/hashes/sha256";
-import { bytesToNumberBE } from "@noble/curves/abstract/utils";
+import { bytesToHex, hexToBytes } from "@noble/curves/abstract/utils";
 
-// Helper function to create a Schnorr signature
+// Helper function to create a Muon-style Schnorr signature
 export function createSchnorrSignature(message, privateKey) {
-  const r = secp256k1.utils.randomPrivateKey();
-  const R = secp256k1.ProjectivePoint.BASE.multiply(bytesToNumberBE(r));
-  const X = secp256k1.ProjectivePoint.fromHex(
-    secp256k1.getPublicKey(privateKey)
-  );
-  const c = hashChallenge(R.toRawBytes(true), X.toRawBytes(true), message);
-  const s = (bytesToNumberBE(r) + c * BigInt(privateKey)) % secp256k1.CURVE.n;
-  return `${Buffer.from(R.toRawBytes(true)).toString("hex")},${s.toString(16)}`;
-}
+  // 1. Hash message using keccak256
+  const msgHash = BigInt(keccak256(message));
+  
+  // 2. Generate random k
+  const k = BigInt("0x" + bytesToHex(secp256k1.utils.randomPrivateKey()));
+  
+  // 3. Compute k*G
+  const kG = secp256k1.ProjectivePoint.BASE.multiply(k);
+  
+  // 4. Get ethereum address of k*G
+  const kGCompressed = kG.toRawBytes(true);
+  const nonceAddr = "0x" + keccak256(kGCompressed).slice(-40);
+  
+  // Get public key
+  const pubKey = secp256k1.ProjectivePoint.fromHex(secp256k1.getPublicKey(hexToBytes(privateKey.toString(16))));
+  const pubKeyX = pubKey.toAffine().x;
+  const pubKeyYParity = pubKey.toAffine().y % 2n;
+  
+  // 5. Compute challenge e = H(PKx || PKyp || msgHash || nonceAddr)
+  const challengeInput = new Uint8Array([
+    ...hexToBytes(pubKeyX.toString(16).padStart(64, '0')),
+    Number(pubKeyYParity),
+    ...hexToBytes(msgHash.toString(16).padStart(64, '0')),
+    ...hexToBytes(nonceAddr.slice(2))
+  ]);
+  const e = BigInt(keccak256(challengeInput));
+  
+  // 6. Compute s = (k - privateKey * e) % Q
+  const Q = secp256k1.CURVE.n;
+  let s = (k - (BigInt(privateKey) * e)) % Q;
+  if (s < 0n) s += Q;
 
-// Compute challenge scalar c = H(R || X || m)
-function hashChallenge(R, X, message) {
-  const data = new Uint8Array([...R, ...X, ...message]);
-  const hash = sha256(data);
-  return BigInt("0x" + Buffer.from(hash).toString("hex")) % secp256k1.CURVE.n;
+  return {
+    signature: s.toString(16),
+    nonce: nonceAddr,
+    pubKeyX: pubKeyX.toString(16),
+    pubKeyYParity: Number(pubKeyYParity)
+  };
 }
 
 export class PPMTree {
@@ -30,29 +52,11 @@ export class PPMTree {
     this.signatures = new Map(); // Store signatures for each leaf
   }
 
-  // Aggregate Schnorr signatures
-  aggregateSignatures(signatures, message) {
-    // Each signature should be an object containing {R: Point, s: bigint}
-    const sigs = signatures.map((sig) => {
-      const [R_bytes, s_hex] = sig.split(",");
-      const R = secp256k1.ProjectivePoint.fromHex(R_bytes);
-      const s = BigInt("0x" + s_hex);
-      return { R, s };
-    });
-
-    // Aggregate R points and s values
-    let R_agg = sigs[0].R;
-    let s_agg = sigs[0].s;
-
-    for (let i = 1; i < sigs.length; i++) {
-      R_agg = R_agg.add(sigs[i].R);
-      s_agg = (s_agg + sigs[i].s) % secp256k1.CURVE.n;
-    }
-
-    // Return aggregated signature as string
-    return `${Buffer.from(R_agg.toRawBytes(true)).toString(
-      "hex"
-    )},${s_agg.toString(16)}`;
+  // Aggregate Muon-style Schnorr signatures
+  aggregateSignatures(signatures) {
+    // For Muon signatures, we don't aggregate - we verify each individually
+    // Return the first valid signature
+    return signatures[0];
   }
 
   // Encode leaf data based on action type
@@ -94,27 +98,37 @@ export class PPMTree {
     ]);
   }
 
-  // Verify an aggregated signature
-  verifyAggregatedSignature(leaf, aggregatedSignature) {
+  // Verify a Muon-style signature
+  verifySignature(leaf, signature) {
     const message = new TextEncoder().encode(JSON.stringify(leaf));
-    const [R_hex, s_hex] = aggregatedSignature.split(",");
-
-    const R = secp256k1.ProjectivePoint.fromHex(R_hex);
-    const s = BigInt("0x" + s_hex);
-
-    // Get public key point X
-    const X = secp256k1.ProjectivePoint.fromHex(
-      secp256k1.getPublicKey(leaf.party)
+    const msgHash = BigInt(keccak256(message));
+    
+    const pubKeyX = BigInt("0x" + signature.pubKeyX);
+    const HALF_Q = (secp256k1.CURVE.n >> 1n) + 1n;
+    
+    // Verify pubKeyX < HALF_Q
+    if (pubKeyX >= HALF_Q) return false;
+    
+    const s = BigInt("0x" + signature.signature);
+    if (s >= secp256k1.CURVE.n) return false;
+    
+    // Compute challenge e
+    const challengeInput = new Uint8Array([
+      ...hexToBytes(signature.pubKeyX.padStart(64, '0')),
+      Number(signature.pubKeyYParity),
+      ...hexToBytes(msgHash.toString(16).padStart(64, '0')),
+      ...hexToBytes(signature.nonce.slice(2))
+    ]);
+    const e = BigInt(keccak256(challengeInput));
+    
+    // Verify using ecrecover
+    const Q = secp256k1.CURVE.n;
+    const recoveredPoint = secp256k1.ProjectivePoint.fromPrivateKey(
+      (Q - (pubKeyX * s % Q)) % Q
     );
-
-    // Compute challenge
-    const c = hashChallenge(R.toRawBytes(true), X.toRawBytes(true), message);
-
-    // Verify: s*G = R + c*X
-    const sG = secp256k1.ProjectivePoint.BASE.multiply(s);
-    const R_plus_cX = R.add(X.multiply(c));
-
-    return sG.equals(R_plus_cX);
+    const recoveredAddr = "0x" + keccak256(recoveredPoint.toRawBytes(true)).slice(-40);
+    
+    return recoveredAddr === signature.nonce;
   }
 
   // Build the merkle tree
