@@ -88,6 +88,7 @@ export class SchnorrParty {
     this.nonces = [];
     this.secretNonces = [];
     this.effectiveNonce = null;
+    this.keyChallenge = null;
   }
 
   generateNonces() {

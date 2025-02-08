@@ -33,6 +33,9 @@ async function main() {
 
   const partyA = new SchnorrParty(partyAPubKey, partyAKey, v);
   const partyB = new SchnorrParty(partyBPubKey, partyBKey, v);
+  // Set key challenges from aggregation
+  partyA.keyChallenge = aggregated.keyChallenges[partyAPubKey];
+  partyB.keyChallenge = aggregated.keyChallenges[partyBPubKey];
 
   const action = {
     index: 1,
@@ -62,10 +65,6 @@ async function main() {
     message
   );
 
-  // Set key challenges from aggregation
-  partyA.keyChallenge = aggregated.keyChallenges[partyAPubKey];
-  partyB.keyChallenge = aggregated.keyChallenges[partyBPubKey];
-
   // Broadcast 2: Each party computes and broadcasts its partial signature
   const partialSigA = partyA.partiallySign(challenge, message);
   const partialSigB = partyB.partiallySign(challenge, message);
@@ -94,16 +93,15 @@ async function main() {
   console.log("Combined signature valid:", isValid);
 
   if (isValid) {
-    // Get recovery bit (v) based on R.y being even/odd
-    const v = (combinedSignature.R.y & 1n) ? 28 : 27;
-    
     // Convert R.x to 32 bytes
-    const rBytes = combinedSignature.R.x.toString(16).padStart(64, '0');
-    // Convert s to 32 bytes 
-    const sBytes = combinedSignature.s.toString(16).padStart(64, '0');
-    
+    const rBytes = combinedSignature.R.x.toString(16).padStart(64, "0");
+    // Convert s to 32 bytes
+    const sBytes = combinedSignature.s.toString(16).padStart(64, "0");
+    // Get recovery bit (v) based on R.y being even/odd
+    const v = combinedSignature.R.y & 1n ? 28 : 27;
+
     // Combine v, r, s into 65-byte signature
-    const signature = `0x${v.toString(16)}${rBytes}${sBytes}`;
+    const signature = `0x${rBytes}${sBytes}${v.toString(16)}`;
     console.log("65-byte signature:", signature);
   }
 }
