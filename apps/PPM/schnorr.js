@@ -2,76 +2,142 @@ import { secp256k1 } from "@noble/curves/secp256k1";
 import { bytesToHex, concatBytes } from "@noble/curves/abstract/utils";
 import { keccak256, hexToBytes } from "viem";
 
-// Sign a message using Schnorr signature
-export function sign(msg, privateKey) {
-  // Generate random k
-  const k = secp256k1.utils.randomPrivateKey();
-
-  // Calculate R = G * k
-  const R = secp256k1.ProjectivePoint.BASE.multiply(
-    BigInt("0x" + bytesToHex(k))
+export function computeChallenge(aggregatedNonce, aggregatedPubKey, message) {
+  debugger;
+  const challengeInput = concatBytes(
+    aggregatedNonce.toRawBytes(),
+    aggregatedPubKey.toRawBytes(),
+    message
   );
-
-  // Get public key P = G * privateKey
-  const P = secp256k1.ProjectivePoint.BASE.multiply(privateKey);
-
-  // Calculate challenge e = H(R || P || msg)
-  const challengeInput = new Uint8Array([
-    ...R.toRawBytes(),
-    ...P.toRawBytes(),
-    ...msg,
-  ]);
-  const e = BigInt(keccak256(challengeInput));
-
-  // Calculate s = k + e * privateKey
-  const s = (BigInt("0x" + bytesToHex(k)) + e * privateKey) % secp256k1.CURVE.n;
-
-  return {
-    R: R,
-    s: s,
-    e: e,
-  };
+  return BigInt(keccak256(challengeInput));
 }
 
-// Verify a Schnorr signature
-export function verify(R, s, e, P) {
-  // Check G * s = R + e * P
-  const Gs = secp256k1.ProjectivePoint.BASE.multiply(s);
-  const eP = P.multiply(e);
-  const RPlus_eP = R.add(eP);
-
-  return Gs.equals(RPlus_eP);
+export function combineNonces(nonces, message) {
+  if (!nonces || nonces.length === 0) throw new Error("Nonces required");
+  let nonceBytes = new Uint8Array(0);
+  for (const nonce of nonces) {
+    nonceBytes = concatBytes(nonceBytes, nonce.toRawBytes());
+  }
+  const bindingCoeff = BigInt(keccak256(concatBytes(nonceBytes, message)));
+  let effectiveNonce = secp256k1.ProjectivePoint.ZERO;
+  for (let i = 0; i < nonces.length; i++) {
+    const weight = bindingCoeff ** BigInt(i) % secp256k1.CURVE.n;
+    effectiveNonce = effectiveNonce.add(nonces[i].multiply(weight));
+  }
+  return effectiveNonce;
 }
 
-// Aggregate multiple public keys into a single key with rogue-key attack protection
+export function aggregateNonces(allNonces, message) {
+  if (!allNonces || allNonces.length === 0) throw new Error("Nonces required");
+  let aggregated = secp256k1.ProjectivePoint.ZERO;
+  for (const nonces of allNonces) {
+    aggregated = aggregated.add(combineNonces(nonces, message));
+  }
+  return aggregated;
+}
+
 export function aggregatePublicKeys(publicKeys) {
-  if (!Array.isArray(publicKeys) || publicKeys.length === 0) {
-    throw new Error("Must provide array of public keys");
-  }
-
-  // Convert hex strings to bytes and sort by big endian numeric value
-  publicKeys = publicKeys.map(hexToBytes).sort((a, b) => {
-    const aBig = BigInt("0x" + bytesToHex(a));
-    const bBig = BigInt("0x" + bytesToHex(b));
-    return Number(aBig - bBig);
+  if (!publicKeys || publicKeys.length === 0)
+    throw new Error("Public keys required");
+  const sortedKeys = publicKeys.slice().sort((a, b) => {
+    return BigInt(a) < BigInt(b) ? -1 : 1;
   });
-
-  // Concatenate all public keys and hash them to create the challenge
-  const allKeysBytes = concatBytes(...publicKeys);
-  const challenge = hexToBytes(keccak256(allKeysBytes));
-
-  // Calculate sum of (H(L||Xi) * Xi) where L is the hash of all keys
+  const keysBytes = concatBytes(...sortedKeys.map((hex) => hexToBytes(hex)));
+  const L = keccak256(keysBytes);
+  const keyChallenges = {};
   let aggregatedKey = secp256k1.ProjectivePoint.ZERO;
-  for (const pubKey of publicKeys) {
-    // Create per-key challenge by hashing challenge with public key
-    const keyBytes = pubKey; //.toRawBytes();
-    debugger;
-    const keyChallenge = BigInt(keccak256(concatBytes(challenge, keyBytes)));
+  for (const pubKey of sortedKeys) {
+    const pubKeyBytes = hexToBytes(pubKey);
+    const a_i = BigInt(keccak256(concatBytes(hexToBytes(L), pubKeyBytes)));
+    keyChallenges[pubKey] = a_i;
+    const pubPoint = secp256k1.ProjectivePoint.fromHex(pubKeyBytes);
+    aggregatedKey = aggregatedKey.add(pubPoint.multiply(a_i));
+  }
+  return { keyChallenges, aggregatedKey };
+}
 
-    // Convert public key bytes to Point and multiply by challenge
-    const pubKeyPoint = secp256k1.ProjectivePoint.fromHex(pubKey);
-    aggregatedKey = aggregatedKey.add(pubKeyPoint.multiply(keyChallenge));
+export function combinePartialSignatures(partialSigs) {
+  if (!partialSigs || partialSigs.length === 0) throw new Error("Signatures required");
+  let s = 0n;
+  let R = null;
+  
+  for (const sig of partialSigs) {
+    s = (s + sig.s) % secp256k1.CURVE.n;
+    R = R ? R.add(sig.R) : sig.R;
+  }
+  
+  return { R, s, challenge: partialSigs[0].challenge };
+}
+
+export function verifySignature(
+  aggregatedNonce,
+  s,
+  challenge,
+  aggregatedPubKey
+) {
+  const left = secp256k1.ProjectivePoint.BASE.multiply(s);
+  const right = aggregatedNonce.add(aggregatedPubKey.multiply(challenge));
+  return left.equals(right);
+}
+
+export class SchnorrParty {
+  constructor(pubKey, privateKey, v = 1) {
+    this.pubKey = pubKey;
+    this.privateKey = BigInt(privateKey);
+    this.v = v;
+    this.nonces = [];
+    this.secretNonces = [];
+    this.effectiveNonce = null;
   }
 
-  return aggregatedKey;
+  generateNonces() {
+    this.nonces = [];
+    this.secretNonces = [];
+    for (let i = 0; i < this.v; i++) {
+      const kBytes = secp256k1.utils.randomPrivateKey();
+      const k = BigInt("0x" + bytesToHex(kBytes));
+      const R = secp256k1.ProjectivePoint.BASE.multiply(k);
+      this.secretNonces.push(k);
+      this.nonces.push(R);
+    }
+    return this.nonces;
+  }
+
+  acceptNonces(allNonces, message) {
+    this.effectiveNonce = aggregateNonces(allNonces, message);
+    return this.effectiveNonce;
+  }
+
+  partiallySign(challenge, message) {
+    if (this.nonces.length !== this.v || this.secretNonces.length !== this.v) {
+      throw new Error("Nonces not generated");
+    }
+    let nonceBytes = new Uint8Array(0);
+    for (const nonce of this.nonces) {
+      nonceBytes = concatBytes(nonceBytes, nonce.toRawBytes());
+    }
+    const bindingCoeff = BigInt(keccak256(concatBytes(nonceBytes, message)));
+    let effectiveSecretNonce = BigInt(0);
+    for (let i = 0; i < this.v; i++) {
+      const weight = bindingCoeff ** BigInt(i) % secp256k1.CURVE.n;
+      effectiveSecretNonce =
+        (effectiveSecretNonce + this.secretNonces[i] * weight) %
+        secp256k1.CURVE.n;
+    }
+    const s =
+      (effectiveSecretNonce + challenge * this.keyChallenge * this.privateKey) %
+      secp256k1.CURVE.n;
+    const effectiveNonce = combineNonces(this.nonces, message);
+    return { R: effectiveNonce, s, challenge };
+  }
+}
+
+export function sign(message, privateKey) {
+  const kBytes = secp256k1.utils.randomPrivateKey();
+  const k = BigInt("0x" + bytesToHex(kBytes));
+  const R = secp256k1.ProjectivePoint.BASE.multiply(k);
+  const P = secp256k1.ProjectivePoint.BASE.multiply(BigInt(privateKey));
+  const challenge = computeChallenge(R, P, message);
+  const s = (k + challenge * BigInt(privateKey)) % secp256k1.CURVE.n;
+  return { R, s, challenge };
 }
