@@ -1,76 +1,30 @@
-import { privateKeyToAccount } from "viem/accounts";
-import { createSchnorrSignature, PPMTree } from "./PPMTree.js";
+import { createSchnorrSignature } from "./PPMTree.js";
 
 async function main() {
   // Example private keys (in production these would be securely managed)
-  const partyAKey =
-    "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-  const partyBKey =
-    "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d";
-
-  // Create accounts
-  const partyA = privateKeyToAccount(partyAKey);
-  const partyB = privateKeyToAccount(partyBKey);
-
-  // Create PPM Tree
-  const ppmTree = new PPMTree();
+  const partyAKey = BigInt("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80");
+  const partyBKey = BigInt("0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d");
 
   // Create action data
   const action1 = {
     index: 1,
     type: "transfer",
     chainId: 12,
-    pSymm: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-    party: partyA.address,
+    pSymm: "0x5FbDB2315678afecb367f032d93F642f64180aa3", 
+    party: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
     args: {
       receiver: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
       amount: 1000000,
     },
   };
 
-  const action2 = {
-    index: 2,
-    type: "transfer",
-    chainId: 12,
-    pSymm: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-    party: partyB.address,
-    args: {
-      receiver: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
-      amount: 2000000,
-    },
-  };
+  // Sign action1 using Schnorr
+  const sigA1 = createSchnorrSignature(action1, partyAKey);
+  const sigB1 = createSchnorrSignature(action1, partyBKey);
 
-  // Sign action1 using EIP-712
-  const sigA1 = createSchnorrSignature(action1, BigInt(partyAKey));
-  const sigB1 = createSchnorrSignature(action1, BigInt(partyBKey));
-
-  ppmTree.addLeaf(action1, [sigA1, sigB1]);
-
-  // Sign action2 using EIP-712
-  const sigA2 = createSchnorrSignature(action2, BigInt(partyAKey));
-  const sigB2 = createSchnorrSignature(action2, BigInt(partyBKey));
-
-  ppmTree.addLeaf(action2, [sigA2, sigB2]);
-
-  // Build the tree
-  const tree = ppmTree.buildTree();
-
-  // Get root hash
-  const root = ppmTree.getRoot();
-
-  // Get proofs
-  const proof1 = ppmTree.getProof(1);
-  const proof2 = ppmTree.getProof(2);
-
-  // Print each entry in the tree
-  for (const [i, v] of tree.entries()) {
-    console.log(`Entry ${i}:`, v);
-  }
-  console.log("Merkle Root:", root);
-  console.log("Proof for first action:", proof1);
-  console.log("Proof for second action:", proof2);
-
-  // After getting signature from each party, we can submit root onchain
+  console.log("Action 1 signatures:");
+  console.log("Party A signature:", sigA1);
+  console.log("Party B signature:", sigB1);
 }
 
 main().catch((error) => {

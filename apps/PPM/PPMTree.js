@@ -4,47 +4,20 @@ import { secp256k1 } from "@noble/curves/secp256k1";
 import { bytesToHex, hexToBytes } from "@noble/curves/abstract/utils";
 import { hashPPMLeaf } from "./eip712.js";
 
-// Helper function to create a Muon-style Schnorr signature
+import { sign as schnorrSign } from "./schnorr.js";
+
+// Helper function to create a Schnorr signature
 export function createSchnorrSignature(leaf, privateKey) {
-  // 1. Hash leaf using EIP-712
-  const msgHash = BigInt(hashPPMLeaf(leaf));
-
-  // 2. Generate random k
-  const k = BigInt("0x" + bytesToHex(secp256k1.utils.randomPrivateKey()));
-
-  // 3. Compute k*G
-  const kG = secp256k1.ProjectivePoint.BASE.multiply(k);
-
-  // 4. Get ethereum address of k*G
-  const kGCompressed = kG.toRawBytes(true);
-  const nonceAddr = "0x" + keccak256(kGCompressed).slice(-40);
-
-  // Get public key
-  const pubKey = secp256k1.ProjectivePoint.fromHex(
-    secp256k1.getPublicKey(hexToBytes(privateKey.toString(16)))
-  );
-  const pubKeyX = pubKey.toAffine().x;
-  const pubKeyYParity = pubKey.toAffine().y % 2n;
-
-  // 5. Compute challenge e = H(PKx || PKyp || msgHash || nonceAddr)
-  const challengeInput = new Uint8Array([
-    ...hexToBytes(pubKeyX.toString(16).padStart(64, "0")),
-    Number(pubKeyYParity),
-    ...hexToBytes(msgHash.toString(16).padStart(64, "0")),
-    ...hexToBytes(nonceAddr.slice(2)),
-  ]);
-  const e = BigInt(keccak256(challengeInput));
-
-  // 6. Compute s = (k - privateKey * e) % Q
-  const Q = secp256k1.CURVE.n;
-  let s = (k - BigInt(privateKey) * e) % Q;
-  if (s < 0n) s += Q;
-
+  // Hash the leaf using EIP-712
+  const msgHash = hashPPMLeaf(leaf);
+  
+  // Sign the hash
+  const signature = schnorrSign(msgHash, privateKey);
+  
   return {
-    signature: s.toString(16),
-    nonce: nonceAddr,
-    pubKeyX: pubKeyX.toString(16),
-    pubKeyYParity: Number(pubKeyYParity),
+    R: signature.R,
+    s: signature.s,
+    e: signature.e
   };
 }
 
@@ -143,7 +116,8 @@ export class PPMTree {
       "address", // pSymm
       "address", // party
       "bytes", // encoded args
-      "string", // aggregated signatures
+      "address", // signer (may be aggregated)
+      "bytes", // aggregated signatures
     ]);
 
     return this.tree;
