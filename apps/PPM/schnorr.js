@@ -3,7 +3,6 @@ import { bytesToHex, concatBytes } from "@noble/curves/abstract/utils";
 import { keccak256, hexToBytes } from "viem";
 
 export function computeChallenge(aggregatedNonce, aggregatedPubKey, message) {
-  debugger;
   const challengeInput = concatBytes(
     aggregatedNonce.toRawBytes(),
     aggregatedPubKey.toRawBytes(),
@@ -57,15 +56,16 @@ export function aggregatePublicKeys(publicKeys) {
 }
 
 export function combinePartialSignatures(partialSigs) {
-  if (!partialSigs || partialSigs.length === 0) throw new Error("Signatures required");
+  if (!partialSigs || partialSigs.length === 0)
+    throw new Error("Signatures required");
   let s = 0n;
   let R = null;
-  
+
   for (const sig of partialSigs) {
     s = (s + sig.s) % secp256k1.CURVE.n;
     R = R ? R.add(sig.R) : sig.R;
   }
-  
+
   return { R, s, challenge: partialSigs[0].challenge };
 }
 
