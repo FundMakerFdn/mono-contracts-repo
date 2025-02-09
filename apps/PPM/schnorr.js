@@ -132,13 +132,3 @@ export class SchnorrParty {
     return { R: effectiveNonce, s, challenge };
   }
 }
-
-export function sign(message, privateKey) {
-  const kBytes = secp256k1.utils.randomPrivateKey();
-  const k = BigInt("0x" + bytesToHex(kBytes));
-  const R = secp256k1.ProjectivePoint.BASE.multiply(k);
-  const P = secp256k1.ProjectivePoint.BASE.multiply(BigInt(privateKey));
-  const challenge = computeChallenge(R, P, message);
-  const s = (k + challenge * BigInt(privateKey)) % secp256k1.CURVE.n;
-  return { R, s, challenge };
-}

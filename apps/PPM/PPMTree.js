@@ -4,35 +4,11 @@ import { secp256k1 } from "@noble/curves/secp256k1";
 import { bytesToHex, hexToBytes } from "@noble/curves/abstract/utils";
 import { hashPPMLeaf } from "./eip712.js";
 
-import { sign as schnorrSign } from "./schnorr.js";
-
-// Helper function to create a Schnorr signature
-export function createSchnorrSignature(leaf, privateKey) {
-  // Hash the leaf using EIP-712
-  const msgHash = hashPPMLeaf(leaf);
-  
-  // Sign the hash
-  const signature = schnorrSign(msgHash, privateKey);
-  
-  return {
-    R: signature.R,
-    s: signature.s,
-    e: signature.e
-  };
-}
-
 export class PPMTree {
   constructor() {
     this.leaves = [];
     this.tree = null;
     this.signatures = new Map(); // Store signatures for each leaf
-  }
-
-  // Aggregate Muon-style Schnorr signatures
-  aggregateSignatures(signatures) {
-    // For Muon signatures, we don't aggregate - we verify each individually
-    // Return the first valid signature
-    return signatures[0];
   }
 
   // Encode leaf data based on action type
@@ -58,10 +34,9 @@ export class PPMTree {
   }
 
   // Add a leaf to the tree
-  addLeaf(leaf, signatures) {
+  addLeaf(leaf, signature) {
     const encodedArgs = this.encodeLeafData(leaf.type, leaf.args);
     const message = new TextEncoder().encode(JSON.stringify(leaf));
-    const aggregatedSignature = this.aggregateSignatures(signatures, message);
 
     this.leaves.push([
       leaf.index.toString(),
@@ -70,7 +45,7 @@ export class PPMTree {
       leaf.pSymm,
       leaf.party,
       encodedArgs,
-      aggregatedSignature,
+      signature,
     ]);
   }
 
@@ -117,7 +92,7 @@ export class PPMTree {
       "address", // party
       "bytes", // encoded args
       "address", // signer (may be aggregated)
-      "bytes", // aggregated signatures
+      "bytes", // aggregated signature
     ]);
 
     return this.tree;

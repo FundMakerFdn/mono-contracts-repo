@@ -1,4 +1,3 @@
-import { createSchnorrSignature } from "./PPMTree.js";
 import { privateKeyToAccount } from "viem/accounts";
 import {
   SchnorrParty,
@@ -100,7 +99,7 @@ async function main() {
     // Get recovery bit (v) based on R.y being even/odd
     const v = combinedSignature.R.y & 1n ? 28 : 27;
 
-    // Combine v, r, s into 65-byte signature
+    // Combine r, s, v into 65-byte signature
     const signature = `0x${rBytes}${sBytes}${v.toString(16)}`;
     console.log("65-byte signature:", signature);
   }
