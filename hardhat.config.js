@@ -85,7 +85,7 @@ module.exports = {
     },
   },
   paths: {
-    sources: "./apps/contracts/src",
+    sources: "./apps/",
     tests: "./apps/contracts/test",
     cache: "./dist/hardhat/cache",
     artifacts: "./dist/hardhat/artifacts",
