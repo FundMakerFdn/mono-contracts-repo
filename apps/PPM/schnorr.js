@@ -1,14 +1,27 @@
 import { secp256k1 } from "@noble/curves/secp256k1";
-import { bytesToHex, concatBytes } from "@noble/curves/abstract/utils";
-import { keccak256, hexToBytes } from "viem";
+import { concatBytes } from "@noble/curves/abstract/utils";
+import { keccak256, bytesToHex, hexToBytes } from "viem";
 
 export function computeChallenge(aggregatedNonce, aggregatedPubKey, message) {
-  const challengeInput = concatBytes(
-    aggregatedNonce.toRawBytes(),
-    aggregatedPubKey.toRawBytes(),
+  // Convert R (aggregatedNonce) to Ethereum address format
+  // Take last 20 bytes of keccak256 of uncompressed point bytes (minus 0x04 prefix)
+  const rBytes = aggregatedNonce.toRawBytes(false).slice(1);
+  const rAddr = bytesToHex(hexToBytes(keccak256(rBytes)).slice(12, 32));
+
+  // Get compressed pubkey parts
+  const pubBytes = aggregatedPubKey.toRawBytes(true);
+  const parity = pubBytes[0] - 2 + 27; // Convert 0x02/0x03 to 27/28
+  const px = bytesToHex(pubBytes.slice(1));
+
+  // Encode like solidity abi.encodePacked(address, uint8, bytes32, bytes32)
+  const encoded = concatBytes(
+    hexToBytes(rAddr),
+    new Uint8Array([parity]),
+    hexToBytes(px),
     message
   );
-  return BigInt(keccak256(challengeInput));
+
+  return BigInt(keccak256(encoded));
 }
 
 export function combineNonces(nonces, message) {
@@ -69,15 +82,17 @@ export function combinePartialSignatures(partialSigs) {
   return { R, s, challenge: partialSigs[0].challenge };
 }
 
-export function verifySignature(
-  aggregatedNonce,
-  s,
-  challenge,
-  aggregatedPubKey
-) {
-  const left = secp256k1.ProjectivePoint.BASE.multiply(s);
-  const right = aggregatedNonce.add(aggregatedPubKey.multiply(challenge));
-  return left.equals(right);
+export function verifySignature(s, challenge, aggregatedPubKey, message) {
+  // R = G*s - P*e
+  const R = secp256k1.ProjectivePoint.BASE.multiply(s).subtract(
+    aggregatedPubKey.multiply(challenge)
+  );
+
+  // e' = h(R || P || m)
+  const e = computeChallenge(R, aggregatedPubKey, message);
+
+  // check e' == e
+  return e === challenge;
 }
 
 export class SchnorrParty {
@@ -96,7 +111,7 @@ export class SchnorrParty {
     this.secretNonces = [];
     for (let i = 0; i < this.v; i++) {
       const kBytes = secp256k1.utils.randomPrivateKey();
-      const k = BigInt("0x" + bytesToHex(kBytes));
+      const k = BigInt(bytesToHex(kBytes));
       const R = secp256k1.ProjectivePoint.BASE.multiply(k);
       this.secretNonces.push(k);
       this.nonces.push(R);

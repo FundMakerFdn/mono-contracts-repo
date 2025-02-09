@@ -1,3 +1,4 @@
+import { keccak256, hexToBytes } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import {
   SchnorrParty,
@@ -47,7 +48,9 @@ async function main() {
       amount: 1000000,
     },
   };
-  const message = new TextEncoder().encode(JSON.stringify(action));
+  const msgHex = keccak256(JSON.stringify(action));
+  const message = hexToBytes(msgHex);
+  console.log("Message being signed:", msgHex);
 
   debugger;
   // Broadcast 1: Each party generates and broadcasts its nonce.
@@ -84,25 +87,13 @@ async function main() {
 
   // Verify combined signature
   const isValid = verifySignature(
-    combinedSignature.R,
     combinedSignature.s,
     combinedSignature.challenge,
-    aggregated.aggregatedKey
+    aggregated.aggregatedKey,
+    message
   );
   console.log("Combined signature valid:", isValid);
-
-  if (isValid) {
-    // Convert R.x to 32 bytes
-    const rBytes = combinedSignature.R.x.toString(16).padStart(64, "0");
-    // Convert s to 32 bytes
-    const sBytes = combinedSignature.s.toString(16).padStart(64, "0");
-    // Get recovery bit (v) based on R.y being even/odd
-    const v = combinedSignature.R.y & 1n ? 28 : 27;
-
-    // Combine r, s, v into 65-byte signature
-    const signature = `0x${rBytes}${sBytes}${v.toString(16)}`;
-    console.log("65-byte signature:", signature);
-  }
+  console.log(combinedSignature.R.toHex(false));
 }
 
 main().catch((error) => {
