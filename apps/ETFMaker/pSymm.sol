@@ -6,11 +6,12 @@ import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "hardhat/console.sol";
+import "../contracts/src/SettleMaker/interfaces/ISettlement.sol";
 
 using SafeERC20 for IERC20;
 
 contract pSymm is EIP712 {
+	type IDispute is ISettlement;
 
     mapping(bytes32 => bytes32) private custodys;
     mapping(bytes32 => mapping(address => uint256)) public custodyBalances; // custodyId => token address => balance
@@ -24,7 +25,7 @@ contract pSymm is EIP712 {
     mapping(bytes32 => mapping(uint256 => bytes)) public custodyMsg; // custodyId => token address => balance
     mapping(bytes32 => uint256) private custodyMsgLenght;
     // SettleMaker
-    mapping(bytes32 => Dispute) private disputes; // custodyId => Dispute
+    mapping(bytes32 => IDispute) private disputes; // custodyId => Dispute
     constructor() EIP712("pSymm", "2.0") {}
 
     modifier checkCustodyState(bytes32 _id) {
@@ -32,43 +33,43 @@ contract pSymm is EIP712 {
         _;
     }
 
-    modifier checkCustodyBalance(bytes32 _id, address _token, uint256 _amount) {≈
+    modifier checkCustodyBalance(bytes32 _id, address _token, uint256 _amount) {
         require(custodyBalances[_id][_token] >= _amount, "Out of collateral");
         _;
     }
 
-    function createCustody(bytes32 _ppm) external{
-        require(_ppm == bytes(0), "PPM already created")
+    function createCustody(bytes32 _ppm) external {
+        require(_ppm == bytes(0), "PPM already created");
         custodys[_ppm] = _ppm;
         // @TODO update state
         // @TODO event
     }
 
-    function updatePPM(bytes32 _id, bytes32 _ppm, uint256 _timestamp) external 
-    checkCustodyState(bytes32 _id) {
+    function updatePPM(bytes32 _id, bytes32 _ppm, uint256 _timestamp) external
+	checkCustodyState(_id) {
         // check signature
         // check merkle
-        require(_timestamp <= block.timestamp && _timestamp > lastSMAUpdateTimestamp[_id], "signature expired")
+        require(_timestamp <= block.timestamp && _timestamp > lastSMAUpdateTimestamp[_id], "signature expired");
         PPMs[_id] = _ppm;
         // @TODO event
     }
 
     function addressToCustody(address sender, bytes32 _id, address _token, uint256 _amount, bytes signature) external {
         // @TODO verify EIP712 signature
-        IERC20(_token).safeTransferFrom(target, _amount);
+		IERC20(_token).safeTransferFrom(sender, address(this), _amount);
         custodyBalances[_id][_token] += _amount;
         // @TODO event
     }
 
     function addressToCustody(bytes32 _id, address _token, uint256 _amount) external {
-        IERC20(_token).safeTransferFrom(target, _amount);
+		IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
         custodyBalances[_id][_token] += _amount;
         // @TODO event
     }
 
-    function custodyToAddress(address _target, uint256 _id, address _token, uint256 _amount) external 
-    checkCustodyState(bytes32 _id)
-    checkCustodyBalance(_id, _token, _amount) {
+    function custodyToAddress(address _target, uint256 _id, address _token, uint256 _amount) external
+	checkCustodyState(_id)
+	checkCustodyBalance(_id, _token, _amount) {
         // check signature
         // check merkle
         IERC20(_token).safeTransfer(_target, _amount);
@@ -76,38 +77,40 @@ contract pSymm is EIP712 {
         // @TODO event
     }
 
-    function custodyToCustody(bytes32 target, uint256 _id, address _token, uint256 _amount) external 
-    checkCustodyState(bytes32 _id)
+    function custodyToCustody(bytes32 _target, uint256 _id, address _token, uint256 _amount) external 
+    checkCustodyState(_id)
     checkCustodyBalance(_id, _token, _amount) {
         // check signature
         // check merkle
-        IERC20(_token).safeTransfer(_target, amount);
-        custodyBalances[_id][_token] -= amount;
-        custodyBalances[target][_token] += amount;
+        IERC20(_token).safeTransfer(_target, _amount);
+        custodyBalances[_id][_token] -= _amount;
+        custodyBalances[_target][_token] += _amount;
         // @TODO event
     }
 
     function custodyToSMA(address _smaAddress, uint256 _id, address _token, uint256 _amount) external 
-    checkCustodyState(bytes32 _id)
+    checkCustodyState(_id)
     checkCustodyBalance(_id, _token, _amount) {
         // check signature
         // check merkle
-        require(smaAllowance[_id][_smaAddress] == true, "SMA not whitelisted")
-        IERC20(_token).safeTransfer(_target, _amount);
+        require(smaAllowance[_id][_smaAddress] == true, "SMA not whitelisted");
+        IERC20(_token).safeTransfer(_smaAddress, _amount);
         custodyBalances[_id][_token] -= _amount;
         // @TODO event
     }
 
     /// SettleMaker
 
-    function publishCustodyMsg(bytes _msg) { // no check, we verify offchain the trailer
+    event CustodyMsgPublished(bytes32 indexed _id, bytes _msg, uint256 _index);
+
+    function publishCustodyMsg(bytes32 _id, bytes memory _msg) public { // no check, we verify offchain the trailer
         custodyMsg[_id][custodyMsg[_id]] = _msg; 
         custodyMsgLenght[_id]++;
         // @TODO event
     }
 
     function createDispute(bytes32 _id) external
-    checkCustodyState(bytes32 _id) {
+    checkCustodyState(_id) {
         // who can create dispute is whitelisted in PPM
         custodyState[_id] = 2;
         // @TODO event
@@ -119,13 +122,13 @@ contract pSymm is EIP712 {
         // 3. push transfer signed in 1
     }
 
-    mapping( bytes32 => mapping( address => address)) private settlemenReRouting;
-    function instantWithdraw() {
+    mapping( bytes32 => mapping( address => address)) private settlementReRouting;
+    function instantWithdraw() public {
         // buy the right of redirecting claims from a dispute
     }
 
-    function executeDisputeSettlement() { // SettleMaker address in the PPM
-        if (settlemenReRouting[_target] != 0){
+    function executeDisputeSettlement() public { // SettleMaker address in the PPM
+        if (settlementReRouting[_target] != 0){
             // transfer to new target
         } else {
             // normal transfer
@@ -139,13 +142,13 @@ contract pSymm is EIP712 {
     //          Submit and revoke are only considered if called by a validator
     //          Any user can propose a submit though discuss
     //          Solver who spam submit will be slashed by other SettleMaker validators
-    function submitProvisional(bytes32 _id, bytes _calldata, bytes _msg) external { emit submitProvisional(_id, _calldata, _ms, block.timestamp);}
+    function submitProvisional(bytes32 _id, bytes _calldata, bytes _msg) external { emit submitProvisional(_id, _calldata, _msg, block.timestamp);}
     function revokeProvisional(bytes32 _id, bytes _calldata, bytes _msg) external { emit revokeProvisional(_id, _calldata, _msg, block.timestamp);}
     function discussProvisional(bytes32 _id, bytes _msg) external { emit discussProvisional(_id, _msg, block.timestamp);}  // submit arweave merkle leaves here
     
     /// Read function
 
-    function getBalance(bytes32 _id, address _token) external pure view return(uint256){
+    function getBalance(bytes32 _id, address _token) external pure returns (uint256) {
         return custodyBalances[_id][_token];
     }
 }

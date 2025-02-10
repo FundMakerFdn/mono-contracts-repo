@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "../../../SettleMaker/Settlement.sol";
-import "../../../SettleMaker/interface/IValidatorSettlement.sol";
+import "../../../SettleMaker/interfaces/IValidatorSettlement.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 

@@ -6,22 +6,26 @@ import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "hardhat/console.sol";
+import "./interfaces/IETFRegistry.sol";
+import "./interfaces/IPSYMM.sol";
 
 using SafeERC20 for IERC20;
 
 contract ETFMaker is EIP712, IERC20 {
 
     IETFRegistry immutable ETF_REGISTRY;
-    uint256 immutable ETF_ID
+    uint256 immutable ETF_ID;
     IPSYMM immutable PSYMM;
     bytes32 immutable CUSTODY_ID;
     address immutable COLLATERAL_TOKEN;
-    uint256 immutable COLLATERAL_TOKEN_PRECISION
+    uint256 immutable COLLATERAL_TOKEN_PRECISION;
 
-    uint256 private cumulativeRebalanceSpread;
+    uint256 private cumRebalanceSpread;
 
     mapping(address => uint256) private deposited;
+
+	// @TODO move to a separate interface for IETFMaker
+	event rebalanceSpreadReport(uint256 spread, uint256 timestamp);
 
     constructor(
         address etfMakerRegistryAddress,
@@ -29,9 +33,14 @@ contract ETFMaker is EIP712, IERC20 {
         address pSymmAddress,
         bytes32 custodyId,
         address collateralToken,
+        uint256 collateralTokenPrecision
     ) EIP712("EtfMaker", "1.0") {
-        ETF_REGISTRY = ETFRegistry(etfMakerRegistryAddress)
-        PSYMM = pSymm(pSymmAddress)
+        ETF_REGISTRY = IETFRegistry(etfMakerRegistryAddress);
+        ETF_ID = etfId;
+        PSYMM = IPSYMM(pSymmAddress);
+        CUSTODY_ID = custodyId;
+        COLLATERAL_TOKEN = collateralToken;
+        COLLATERAL_TOKEN_PRECISION = collateralTokenPrecision;
     }
 
     // 0 deposit token
@@ -73,8 +82,8 @@ contract ETFMaker is EIP712, IERC20 {
 
     /// Read function
 
-    function getPrice() external pure view return(uint256){
-        return ETFREGISTRY.getPrice(ETF_ID) * ( 1e18 - cumulativeRebalanceSpread);
+    function getPrice() external pure returns (uint256) {
+        return ETF_REGISTRY.getPrice(ETF_ID) * ( 1e18 - cumRebalanceSpread);
     }
 
 }
@@ -82,8 +91,8 @@ contract ETFMaker is EIP712, IERC20 {
 contract ETFRegistry {
     mapping(uint256 => uint256) private custodyMsgLenght;
 
-    struct ETF{
-        mappging( uint256 => bytes)) private weights //timestamp => weights
+    struct ETF {
+        mapping(uint256 => bytes) weights; //timestamp => weights
         // threshold signature or ECDSA
         uint256 updateFrequency;
         address publisher;

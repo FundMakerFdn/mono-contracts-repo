@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "../../../SettleMaker/Settlement.sol";
-import "../../../SettleMaker/interface/IEditSettlement.sol";
+import "../../../SettleMaker/interfaces/IEditSettlement.sol";
 
 /// @title Edit Settlement Contract
 /// @notice Manages core settlement contract addresses through voting

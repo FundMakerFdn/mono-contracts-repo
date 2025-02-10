@@ -2,13 +2,13 @@
 pragma solidity ^0.8.24;
 
 import "../../SettleMaker/Settlement.sol";
-import "../../SettleMaker/interface/ISettlement.sol";
+import "../../SettleMaker/interfaces/ISettlement.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import "../../pSymm/lib/EIP712SignatureChecker.sol";
-import "../../pSymm/pSymm.sol" as pSymm;
+import "../../../../ETFMaker/pSymm.sol" as pSymm;
 
 contract pSymmSettlement is Settlement {
     using SafeERC20 for IERC20;

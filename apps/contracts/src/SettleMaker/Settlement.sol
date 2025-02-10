@@ -3,8 +3,8 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import "./interface/ISettlement.sol";
-import "./interface/ISettleMaker.sol";
+import "./interfaces/ISettlement.sol";
+import "./interfaces/ISettleMaker.sol";
 
 abstract contract Settlement is ISettlement, EIP712 {
     mapping(bytes32 => uint8) internal settlements;
