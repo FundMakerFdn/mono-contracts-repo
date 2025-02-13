@@ -35,64 +35,22 @@ export class PPMTree {
 
   // Add a leaf to the tree
   addLeaf(leaf, signature) {
-    const encodedArgs = this.encodeLeafData(leaf.type, leaf.args);
-    const message = new TextEncoder().encode(JSON.stringify(leaf));
-
-    this.leaves.push([
-      leaf.index.toString(),
-      leaf.type,
-      leaf.chainId.toString(),
-      leaf.pSymm,
-      leaf.party,
-      encodedArgs,
-      signature,
-    ]);
-  }
-
-  // Verify a Muon-style signature
-  verifySignature(leaf, signature) {
-    const msgHash = BigInt(hashPPMLeaf(leaf));
-
-    const pubKeyX = BigInt("0x" + signature.pubKeyX);
-    const HALF_Q = (secp256k1.CURVE.n >> 1n) + 1n;
-
-    // Verify pubKeyX < HALF_Q
-    if (pubKeyX >= HALF_Q) return false;
-
-    const s = BigInt("0x" + signature.signature);
-    if (s >= secp256k1.CURVE.n) return false;
-
-    // Compute challenge e
-    const challengeInput = new Uint8Array([
-      ...hexToBytes(signature.pubKeyX.padStart(64, "0")),
-      Number(signature.pubKeyYParity),
-      ...hexToBytes(msgHash.toString(16).padStart(64, "0")),
-      ...hexToBytes(signature.nonce.slice(2)),
-    ]);
-    const e = BigInt(keccak256(challengeInput));
-
-    // Verify using ecrecover
-    const Q = secp256k1.CURVE.n;
-    const recoveredPoint = secp256k1.ProjectivePoint.fromPrivateKey(
-      (Q - ((pubKeyX * s) % Q)) % Q
-    );
-    const recoveredAddr =
-      "0x" + keccak256(recoveredPoint.toRawBytes(true)).slice(-40);
-
-    return recoveredAddr === signature.nonce;
+    this.leaves.push({ ...leaf, ...signature });
   }
 
   // Build the merkle tree
   buildTree() {
     this.tree = StandardMerkleTree.of(this.leaves, [
-      "string", // index
+      "uint256", // timestamp
       "string", // actionType
       "string", // chainId
       "address", // pSymm
-      "address", // party
       "bytes", // encoded args
-      "address", // signer (may be aggregated)
-      "bytes", // aggregated signature
+
+      "uint8", // P.parity
+      "bytes32", // P.px
+      "bytes32", // sig.e
+      "bytes32", // sig.s
     ]);
 
     return this.tree;

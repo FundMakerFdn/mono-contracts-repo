@@ -49,13 +49,27 @@ contract MockPPM is EIP712 {
         Schnorr.Signature calldata sig,
         bytes32[] calldata merkleProof
     ) external checkCustodyState(_id) {
-        bytes32 message = keccak256(abi.encodePacked(_id, _ppm, _timestamp));
-        bytes32 leaf = keccak256(abi.encodePacked("pubkey", pubKey.parity, pubKey.x));
-
+        // Verify timestamp
         require(_timestamp <= block.timestamp && _timestamp > lastSMAUpdateTimestamp[_id], "Signature expired");
+
+        // Verify pubkey is whitelisted in current PPM
+        bytes32 leaf = keccak256(abi.encode(
+			0, "pubKey", block.chainid,
+           address(this),
+           abi.encode(pubKey.parity, pubKey.x)
+        ));
         require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
+
+        // Verify signature
+        bytes32 message = keccak256(abi.encode(
+            _timestamp,
+            "updatePPM",
+            _id,
+            _ppm
+        ));
         require(Schnorr.verify(pubKey, message, sig), "Invalid signature");
 
+        // Update state
         PPMs[_id] = _ppm;
         lastSMAUpdateTimestamp[_id] = _timestamp;
 
