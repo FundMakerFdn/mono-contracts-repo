@@ -39,12 +39,18 @@ contract MockPPM is EIP712 {
         // @TODO update state
         // @TODO event
     }
-    function updatePPM(bytes32 _id, bytes32 _ppm, uint256 _timestamp) external
-	checkCustodyState(_id) {
-        // check signature
-        // check merkle
+    function updatePPM(
+        bytes32 _id,
+        bytes32 _ppm,
+        uint256 _timestamp,
+        Schnorr.PublicKey calldata pubKey,
+        Schnorr.Signature calldata sig
+    ) external checkCustodyState(_id) {
+        bytes32 message = keccak256(abi.encodePacked(_id, _ppm, _timestamp));
+        require(Schnorr.verify(pubKey, message, sig), "Invalid signature");
         require(_timestamp <= block.timestamp && _timestamp > lastSMAUpdateTimestamp[_id], "signature expired");
         PPMs[_id] = _ppm;
+        lastSMAUpdateTimestamp[_id] = _timestamp;
         // @TODO event
     }
 }
