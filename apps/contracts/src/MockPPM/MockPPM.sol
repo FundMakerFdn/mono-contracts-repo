@@ -8,10 +8,12 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../SettleMaker/interfaces/ISettlement.sol";
 import "./Schnorr.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 using SafeERC20 for IERC20;
 
 contract MockPPM is EIP712 {
+	event PPMUpdated(bytes32 indexed id, bytes32 ppm, uint256 timestamp);
 
     mapping(bytes32 => bytes32) private custodys;
     mapping(bytes32 => mapping(address => uint256)) public custodyBalances; // custodyId => token address => balance
@@ -34,7 +36,7 @@ contract MockPPM is EIP712 {
         _;
     }
     function createCustody(bytes32 _ppm) external {
-        require(_ppm == 0, "PPM already created");
+        require(_ppm == bytes32(0), "PPM already created");
         custodys[_ppm] = _ppm;
         // @TODO update state
         // @TODO event
@@ -44,13 +46,19 @@ contract MockPPM is EIP712 {
         bytes32 _ppm,
         uint256 _timestamp,
         Schnorr.PublicKey calldata pubKey,
-        Schnorr.Signature calldata sig
+        Schnorr.Signature calldata sig,
+        bytes32[] calldata merkleProof
     ) external checkCustodyState(_id) {
         bytes32 message = keccak256(abi.encodePacked(_id, _ppm, _timestamp));
+        bytes32 leaf = keccak256(abi.encodePacked("pubkey", pubKey.parity, pubKey.x));
+
+        require(_timestamp <= block.timestamp && _timestamp > lastSMAUpdateTimestamp[_id], "Signature expired");
+        require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
         require(Schnorr.verify(pubKey, message, sig), "Invalid signature");
-        require(_timestamp <= block.timestamp && _timestamp > lastSMAUpdateTimestamp[_id], "signature expired");
+
         PPMs[_id] = _ppm;
         lastSMAUpdateTimestamp[_id] = _timestamp;
-        // @TODO event
+
+        emit PPMUpdated(_id, _ppm, _timestamp);
     }
 }
