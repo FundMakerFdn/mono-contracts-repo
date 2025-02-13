@@ -23,7 +23,7 @@ contract pSymm is EIP712 {
     // 1 PPM private key is shared inside PPM
     // 2 In case of dispute, we reveal PPM Pk that decode 
     mapping(bytes32 => mapping(uint256 => bytes)) public custodyMsg; // custodyId => token address => balance
-    mapping(bytes32 => uint256) private custodyMsgLenght;
+    mapping(bytes32 => uint256) private custodyMsgLength;
     // SettleMaker
     mapping(bytes32 => IDispute) private disputes; // custodyId => Dispute
     constructor() EIP712("pSymm", "2.0") {}
@@ -105,7 +105,7 @@ contract pSymm is EIP712 {
 
     function publishCustodyMsg(bytes32 _id, bytes memory _msg) public { // no check, we verify offchain the trailer
         custodyMsg[_id][custodyMsg[_id]] = _msg; 
-        custodyMsgLenght[_id]++;
+        custodyMsgLength[_id]++;
         // @TODO event
     }
 

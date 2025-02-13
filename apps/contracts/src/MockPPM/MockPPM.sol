@@ -1,128 +1,50 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "hardhat/console.sol";
+import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "../SettleMaker/interfaces/ISettlement.sol";
+import "./Schnorr.sol";
 
-contract MockPPM {
-    // PPM Tree root and nullifier tracking
-    bytes32 public ppmRoot;
-    mapping(bytes32 => bool) public nullifiers;
-    
-    // Mock custody state
-    struct Custody {
-        address partyA;
-        address partyB;
-        uint256 custodyId;
-        bool exists;
+using SafeERC20 for IERC20;
+
+contract MockPPM is EIP712 {
+
+    mapping(bytes32 => bytes32) private custodys;
+    mapping(bytes32 => mapping(address => uint256)) public custodyBalances; // custodyId => token address => balance
+    mapping(bytes32 => mapping(address => bool)) public smaAllowance; // custodyId => deployed SMA address => isAllowed
+    mapping(bytes32 => bool) private signatureClaimed;
+    mapping(bytes32 => uint256) public lastSMAUpdateTimestamp; // custodyId => timestamp
+    mapping(bytes32 => bytes32) private PPMs;
+    mapping(bytes32 => uint8) private custodyState;
+    // 1 PPM private key is shared inside PPM
+    // 2 In case of dispute, we reveal PPM Pk that decode 
+    mapping(bytes32 => mapping(uint256 => bytes)) public custodyMsg; // custodyId => token address => balance
+    mapping(bytes32 => uint256) private custodyMsgLength;
+    // SettleMaker
+    mapping(bytes32 => ISettlement) private disputes; // custodyId => Dispute
+
+    constructor() EIP712("MockPPM", "1.0") {}
+
+    modifier checkCustodyState(bytes32 _id) {
+        require(custodyState[_id] == 0, "State isn't 0");
+        _;
     }
-    mapping(bytes32 => Custody) public custodies;
-    
-    // PPM Action types
-    enum ActionType {
-        TRANSFER,
-        PARASWAP,
-        AAVE_SUPPLY,
-        AAVE_WITHDRAW,
-        DEPLOY_SMA
+    function createCustody(bytes32 _ppm) external {
+        require(_ppm == 0, "PPM already created");
+        custodys[_ppm] = _ppm;
+        // @TODO update state
+        // @TODO event
     }
-
-    // Events
-    event PPMRootUpdated(bytes32 oldRoot, bytes32 newRoot);
-    event ActionExecuted(bytes32 indexed custodyId, ActionType actionType);
-    event SMADeployed(address smaAddress, address factory);
-
-    constructor(bytes32 initialPPMRoot) {
-        ppmRoot = initialPPMRoot;
-    }
-
-    // Verify PPM merkle proof and privileges
-    function verifyPPMProof(
-        bytes32[] calldata proof,
-        bytes32 leaf,
-        ActionType actionType,
-        bytes32 custodyId
-    ) public view returns (bool) {
-        // Verify merkle proof
-        bool isValidProof = MerkleProof.verify(proof, ppmRoot, leaf);
-        if (!isValidProof) return false;
-
-        // Additional privilege checks could be added here based on actionType
-        return true;
-    }
-
-    // Execute PPM action with signature nullifier
-    function executePPMAction(
-        bytes32[] calldata proof,
-        bytes32 leaf,
-        ActionType actionType,
-        bytes32 custodyId,
-        bytes calldata signature
-    ) external {
-        // Check signature hasn't been used
-        bytes32 nullifier = keccak256(abi.encodePacked(signature));
-        require(!nullifiers[nullifier], "Signature already used");
-        
-        // Verify PPM proof
-        require(verifyPPMProof(proof, leaf, actionType, custodyId), "Invalid PPM proof");
-
-        // Mark signature as used
-        nullifiers[nullifier] = true;
-
-        // Execute action based on type
-        if (actionType == ActionType.PARASWAP) {
-            _mockParaswapSwap(custodyId);
-        } else if (actionType == ActionType.AAVE_SUPPLY) {
-            _mockAaveSupply(custodyId);
-        } else if (actionType == ActionType.AAVE_WITHDRAW) {
-            _mockAaveWithdraw(custodyId);
-        } else if (actionType == ActionType.DEPLOY_SMA) {
-            _mockDeploySMA(custodyId);
-        }
-
-        emit ActionExecuted(custodyId, actionType);
-    }
-
-    // Mock Paraswap interaction
-    function _mockParaswapSwap(bytes32 custodyId) internal {
-        // Mock implementation
-    }
-
-    // Mock Aave interactions
-    function _mockAaveSupply(bytes32 custodyId) internal {
-        // Mock implementation
-    }
-
-    function _mockAaveWithdraw(bytes32 custodyId) internal {
-        // Mock implementation
-    }
-
-    // Mock SMA deployment
-    function _mockDeploySMA(bytes32 custodyId) internal returns (address) {
-        address mockSMA = address(uint160(uint256(keccak256(abi.encodePacked(block.timestamp, custodyId)))));
-        emit SMADeployed(mockSMA, address(this));
-        return mockSMA;
-    }
-
-    // Update PPM root (would require governance in production)
-    function updatePPMRoot(bytes32 newRoot) external {
-        emit PPMRootUpdated(ppmRoot, newRoot);
-        ppmRoot = newRoot;
-    }
-
-    // Mock custody creation for testing
-    function mockCreateCustody(
-        address partyA,
-        address partyB,
-        uint256 custodyId
-    ) external {
-        bytes32 id = keccak256(abi.encodePacked(partyA, partyB, custodyId));
-        custodies[id] = Custody({
-            partyA: partyA,
-            partyB: partyB,
-            custodyId: custodyId,
-            exists: true
-        });
+    function updatePPM(bytes32 _id, bytes32 _ppm, uint256 _timestamp) external
+	checkCustodyState(_id) {
+        // check signature
+        // check merkle
+        require(_timestamp <= block.timestamp && _timestamp > lastSMAUpdateTimestamp[_id], "signature expired");
+        PPMs[_id] = _ppm;
+        // @TODO event
     }
 }

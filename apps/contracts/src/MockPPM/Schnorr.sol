@@ -1,9 +1,9 @@
 //SPDX-License-Identifier: LGPLv3
 pragma solidity ^0.8.0;
 
-contract Schnorr {
+library Schnorr {
   // secp256k1 group order
-  uint256 constant public Q =
+  uint256 constant internal Q =
     0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141;
 
   // parity := public key y-coord parity (27 or 28)
@@ -17,7 +17,7 @@ contract Schnorr {
     bytes32 message,
     bytes32 e,
     bytes32 s
-  ) public pure returns (bool) {
+  ) internal pure returns (bool) {
     // ecrecover = (m, v, r, s);
     bytes32 sp = bytes32(Q - mulmod(uint256(s), uint256(px), Q));
     bytes32 ep = bytes32(Q - mulmod(uint256(e), uint256(px), Q));
