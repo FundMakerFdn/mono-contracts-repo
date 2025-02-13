@@ -1,0 +1,475 @@
+[
+    {
+        "StandardHeader": {
+            "BeginString": "pSymm.FIX.2.0",
+            "MsgType": "A",
+            "DeploymentID": 101,
+            "SenderCompID": "0xPartyA",
+            "TargetCompID": "0xPartyB",
+            "MsgSeqNum": 1,
+            "CustodyID": "0xCustody123",
+            "SendingTime": 1738106782105000000
+        },
+        "HeartBtInt": 10,
+        "StandardTrailer": {
+            "PublicKey": "0xPartyA",
+            "Signature": "0xSignature"
+        }
+    },
+    {
+        "StandardHeader": {
+            "BeginString": "pSymm.FIX.2.0",
+            "MsgType": "PPM",
+            "DeploymentID": 101,
+            "SenderCompID": "0xPartyB",
+            "TargetCompID": "0xPartyA",
+            "MsgSeqNum": 1,
+            "CustodyID": "0xCustody123",
+            "SendingTime": 1738106782106000000
+        },
+        "PPM": [
+            {
+                "chainId": 12,
+                "pSymm": "0x888",
+                "party": "pSymm Commission",
+                "type": "transfer",
+                "receiver": "0x00",
+                "allocation": 10000
+            },
+            {
+                "chainId": 12,
+                "pSymm": "0x888",
+                "party": "ETF Factory",
+                "type": "transfer",
+                "receiver": "0x00",
+                "allocation": 9999
+            },
+            {
+                "chainId": 12,
+                "pSymm": "0x888",
+                "party": "Allocator",
+                "type": "transfer",
+                "receiver": "0x00",
+                "allocation": 1000,
+                "trace": "0x123"
+            },
+            {
+                "chainId": 12,
+                "pSymm": "0x888",
+                "party": "Currator",
+                "type": "deploy",
+                "receiver": "0x234",
+                "allocation": "0x9827"
+            },
+            {
+                "chainId": 12,
+                "pSymm": "0x888",
+                "party": "Guardian",
+                "type": "pause",
+                "receiver": "0x00",
+                "allocation": "0x123"
+            }
+        ],
+        "StandardTrailer": {
+            "PublicKey": "0xPartyB",
+            "Signature": "0xSignature"
+        }
+    },
+    {
+        "StandardHeader": {
+            "BeginString": "pSymm.FIX.2.0",
+            "MsgType": "ACK",
+            "DeploymentID": 101,
+            "SenderCompID": "0xPartyA",
+            "TargetCompID": "0xPartyB",
+            "MsgSeqNum": 2,
+            "CustodyID": "0xCustody123",
+            "SendingTime": 1738106782106000000
+        },
+        "RefMsgSeqNum": null,
+        "StandardTrailer": {
+            "PublicKey": "0xPartyA",
+            "Signature": "0xSignature"
+        }
+    },
+    {
+        "StandardHeader": {
+            "BeginString": "pSymm.FIX.2.0",
+            "MsgType": "R",
+            "DeploymentID": 101,
+            "SenderCompID": "0xPartyA",
+            "TargetCompID": "0xPartyB",
+            "MsgSeqNum": 3,
+            "CustodyID": "0xCustody123",
+            "SendingTime": 1738106782106000000
+        },
+        "QuoteReqID": "REQ123",
+        "QuoteReqGrp": [
+            {
+                "Instrument": {
+                    "Symbol": "BTC/USD",
+                    "InstrumentID": "PSYMM0000131104",
+                    "InstrumentType": "PERP",
+                    "InstrumentDetails": {
+                        "InitialMarginClient": "0.10",
+                        "InitialMarginBroker": "0",
+                        "MaintenanceMarginClient": "0.05",
+                        "MaintenanceMarginBroker": "0.05",
+                        "LiquidationFeeClient": "0.01",
+                        "LiquidationFeeBroker": "0.01",
+                        "MinPrice": "0.00100000",
+                        "MaxPrice": "1000.00000000",
+                        "TickSize": "0.00100000",
+                        "MinNotional": "10.00000000",
+                        "MaxNotional": "90000000.00000000",
+                        "FundingRate": "1",
+                        "FundingRatePrecision": "3"
+                    }
+                },
+                "Side": "1",
+                "OrderQtyData": {
+                    "OrderQty": "100"
+                },
+                "Currency": "USD",
+                "ValidUntilTime": 1738279582106000000,
+                "Price": "50000"
+            }
+        ],
+        "StandardTrailer": {
+            "PublicKey": "0xPartyA",
+            "Signature": "0xSignature"
+        }
+    },
+    {
+        "StandardHeader": {
+            "BeginString": "pSymm.FIX.2.0",
+            "MsgType": "ACK",
+            "DeploymentID": 101,
+            "SenderCompID": "0xPartyB",
+            "TargetCompID": "0xPartyA",
+            "MsgSeqNum": 2,
+            "CustodyID": "0xCustody123",
+            "SendingTime": 1738106782106000000
+        },
+        "RefMsgSeqNum": null,
+        "StandardTrailer": {
+            "PublicKey": "0xPartyB",
+            "Signature": "0xSignature"
+        }
+    },
+    {
+        "StandardHeader": {
+            "BeginString": "pSymm.FIX.2.0",
+            "MsgType": "S",
+            "DeploymentID": 101,
+            "SenderCompID": "0xPartyB",
+            "TargetCompID": "0xPartyA",
+            "MsgSeqNum": 3,
+            "CustodyID": "0xCustody123",
+            "SendingTime": 1738106782106000000
+        },
+        "QuoteReqID": "REQ123",
+        "Instrument": {
+            "Symbol": "BTC/USD",
+            "InstrumentID": "PSYMM0000131104",
+            "InstrumentType": "PERP",
+            "InstrumentDetails": {
+                "InitialMarginClient": "0.10",
+                "InitialMarginBroker": "0",
+                "MaintenanceMarginClient": "0.05",
+                "MaintenanceMarginBroker": "0.05",
+                "LiquidationFeeClient": "0.01",
+                "LiquidationFeeBroker": "0.01",
+                "MinPrice": "0.00100000",
+                "MaxPrice": "1000.00000000",
+                "TickSize": "0.00100000",
+                "MinNotional": "10.00000000",
+                "MaxNotional": "90000000.00000000",
+                "FundingRate": "1",
+                "FundingRatePrecision": "3"
+            }
+        },
+        "Side": "1",
+        "OrderQtyData": {
+            "OrderQty": "100"
+        },
+        "Currency": "USD",
+        "BidPx": "50000",
+        "OfferPx": "50100",
+        "BidSize": "100",
+        "OfferSize": "100",
+        "ValidUntilTime": 1738279582106000000,
+        "StandardTrailer": {
+            "PublicKey": "0xPartyB",
+            "Signature": "0xSignature"
+        }
+    },
+    {
+        "StandardHeader": {
+            "BeginString": "pSymm.FIX.2.0",
+            "MsgType": "ACK",
+            "DeploymentID": 101,
+            "SenderCompID": "0xPartyA",
+            "TargetCompID": "0xPartyB",
+            "MsgSeqNum": 4,
+            "CustodyID": "0xCustody123",
+            "SendingTime": 1738106782106000000
+        },
+        "RefMsgSeqNum": null,
+        "StandardTrailer": {
+            "PublicKey": "0xPartyA",
+            "Signature": "0xSignature"
+        }
+    },
+    {
+        "StandardHeader": {
+            "BeginString": "pSymm.FIX.2.0",
+            "MsgType": "D",
+            "DeploymentID": 101,
+            "SenderCompID": "0xPartyA",
+            "TargetCompID": "0xPartyB",
+            "MsgSeqNum": 5,
+            "CustodyID": "0xCustody123",
+            "SendingTime": 1738106782106000000
+        },
+        "ClOrdID": "ORD123",
+        "Instrument": {
+            "Symbol": "BTC/USD",
+            "InstrumentID": "PSYMM0000131104",
+            "InstrumentType": "PERP",
+            "InstrumentDetails": {
+                "InitialMarginClient": "0.10",
+                "InitialMarginBroker": "0",
+                "MaintenanceMarginClient": "0.05",
+                "MaintenanceMarginBroker": "0.05",
+                "LiquidationFeeClient": "0.01",
+                "LiquidationFeeBroker": "0.01",
+                "MinPrice": "0.00100000",
+                "MaxPrice": "1000.00000000",
+                "TickSize": "0.00100000",
+                "MinNotional": "10.00000000",
+                "MaxNotional": "90000000.00000000",
+                "FundingRate": "1",
+                "FundingRatePrecision": "3"
+            }
+        },
+        "Price": "50050",
+        "Side": "1",
+        "TransactTime": 1738106782106000000,
+        "OrderQtyData": {
+            "OrderQty": "100"
+        },
+        "OrdType": "2",
+        "StandardTrailer": {
+            "PublicKey": "0xPartyA",
+            "Signature": "0xSignature"
+        }
+    },
+    {
+        "StandardHeader": {
+            "BeginString": "pSymm.FIX.2.0",
+            "MsgType": "ACK",
+            "DeploymentID": 101,
+            "SenderCompID": "0xPartyB",
+            "TargetCompID": "0xPartyA",
+            "MsgSeqNum": 4,
+            "CustodyID": "0xCustody123",
+            "SendingTime": 1738106782106000000
+        },
+        "RefMsgSeqNum": null,
+        "StandardTrailer": {
+            "PublicKey": "0xPartyB",
+            "Signature": "0xSignature"
+        }
+    },
+    {
+        "StandardHeader": {
+            "BeginString": "pSymm.FIX.2.0",
+            "MsgType": "8",
+            "DeploymentID": 101,
+            "SenderCompID": "0xPartyB",
+            "TargetCompID": "0xPartyA",
+            "MsgSeqNum": 5,
+            "CustodyID": "0xCustody123",
+            "SendingTime": 1738106782106000000
+        },
+        "OrderID": "ORD456",
+        "ClOrdID": "ORD123",
+        "ExecID": "EXEC123123789",
+        "ExecType": "F",
+        "OrdStatus": "1",
+        "Instrument": {
+            "Symbol": "BTC/USD",
+            "InstrumentID": "PSYMM0000131104",
+            "InstrumentType": "PERP",
+            "InstrumentDetails": {
+                "InitialMarginClient": "0.10",
+                "InitialMarginBroker": "0",
+                "MaintenanceMarginClient": "0.05",
+                "MaintenanceMarginBroker": "0.05",
+                "LiquidationFeeClient": "0.01",
+                "LiquidationFeeBroker": "0.01",
+                "MinPrice": "0.00100000",
+                "MaxPrice": "1000.00000000",
+                "TickSize": "0.00100000",
+                "MinNotional": "10.00000000",
+                "MaxNotional": "90000000.00000000",
+                "FundingRate": "1",
+                "FundingRatePrecision": "3"
+            }
+        },
+        "Side": "1",
+        "OrderQtyData": {
+            "OrderQty": "100"
+        },
+        "Price": "50050",
+        "CumQty": "50",
+        "LastQty": "50",
+        "LastPx": "50050",
+        "StandardTrailer": {
+            "PublicKey": "0xPartyB",
+            "Signature": "0xSignature"
+        }
+    },
+    {
+        "StandardHeader": {
+            "BeginString": "pSymm.FIX.2.0",
+            "MsgType": "ACK",
+            "DeploymentID": 101,
+            "SenderCompID": "0xPartyA",
+            "TargetCompID": "0xPartyB",
+            "MsgSeqNum": 6,
+            "CustodyID": "0xCustody123",
+            "SendingTime": 1738106782106000000
+        },
+        "RefMsgSeqNum": null,
+        "StandardTrailer": {
+            "PublicKey": "0xPartyA",
+            "Signature": "0xSignature"
+        }
+    },
+    {
+        "StandardHeader": {
+            "BeginString": "pSymm.FIX.2.0",
+            "MsgType": "8",
+            "DeploymentID": 101,
+            "SenderCompID": "0xPartyB",
+            "TargetCompID": "0xPartyA",
+            "MsgSeqNum": 6,
+            "CustodyID": "0xCustody123",
+            "SendingTime": 1738106782106000000
+        },
+        "OrderID": "ORD456",
+        "ClOrdID": "ORD123",
+        "ExecID": "EXEC123123790",
+        "ExecType": "F",
+        "OrdStatus": "2",
+        "Instrument": {
+            "Symbol": "BTC/USD",
+            "InstrumentID": "PSYMM0000131104",
+            "InstrumentType": "PERP",
+            "InstrumentDetails": {
+                "InitialMarginClient": "0.10",
+                "InitialMarginBroker": "0",
+                "MaintenanceMarginClient": "0.05",
+                "MaintenanceMarginBroker": "0.05",
+                "LiquidationFeeClient": "0.01",
+                "LiquidationFeeBroker": "0.01",
+                "MinPrice": "0.00100000",
+                "MaxPrice": "1000.00000000",
+                "TickSize": "0.00100000",
+                "MinNotional": "10.00000000",
+                "MaxNotional": "90000000.00000000",
+                "FundingRate": "1",
+                "FundingRatePrecision": "3"
+            }
+        },
+        "Side": "1",
+        "OrderQtyData": {
+            "OrderQty": "100"
+        },
+        "Price": "50050",
+        "CumQty": "100",
+        "LastQty": "50",
+        "LastPx": "50050",
+        "StandardTrailer": {
+            "PublicKey": "0xPartyB",
+            "Signature": "0xSignature"
+        }
+    },
+    {
+        "StandardHeader": {
+            "BeginString": "pSymm.FIX.2.0",
+            "MsgType": "ACK",
+            "DeploymentID": 101,
+            "SenderCompID": "0xPartyA",
+            "TargetCompID": "0xPartyB",
+            "MsgSeqNum": 7,
+            "CustodyID": "0xCustody123",
+            "SendingTime": 1738106782106000000
+        },
+        "RefMsgSeqNum": null,
+        "StandardTrailer": {
+            "PublicKey": "0xPartyA",
+            "Signature": "0xSignature"
+        }
+    },
+    {
+        "StandardHeader": {
+            "BeginString": "pSymm.FIX.2.0",
+            "MsgType": "TFC",
+            "DeploymentID": 101,
+            "SenderCompID": "0xPartyB",
+            "TargetCompID": "0xPartyA",
+            "MsgSeqNum": 7,
+            "CustodyID": "0xCustody123",
+            "SendingTime": 1738106782106000000
+        },
+        "EIP712Header": "transferCustodyParams(bool isAdd,address partyA,address partyB,uint256 custodyId,uint256 collateralAmount,address collateralToken,uint256 expiration,uint256 timestamp,uint256 partyId,uint256 nonce)",
+        "MA": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "IsManaged": "N",
+        "CollateralAmount": "5000000000000000000",
+        "CollateralToken": "0x1234567890abcdef1234567890abcdef12345679",
+        "Expiration": 1738279582105000000,
+        "PartyID": "2",
+        "StandardTrailer": {
+            "PublicKey": "0xPartyB",
+            "Signature": "0xSignature"
+        }
+    },
+    {
+        "StandardHeader": {
+            "BeginString": "pSymm.FIX.2.0",
+            "MsgType": "BRJ",
+            "DeploymentID": 101,
+            "SenderCompID": "0xPartyA",
+            "TargetCompID": "0xPartyB",
+            "MsgSeqNum": 8,
+            "CustodyID": "0xCustody123",
+            "SendingTime": 1738106782106000000
+        },
+        "RefSeqNum": 7,
+        "BusinessRejectReason": 123,
+        "Text": "Withdraw amount dispute",
+        "StandardTrailer": {
+            "PublicKey": "0xPartyA",
+            "Signature": "0xSignature"
+        }
+    },
+    {
+        "StandardHeader": {
+            "BeginString": "pSymm.FIX.2.0",
+            "MsgType": "5",
+            "DeploymentID": 101,
+            "SenderCompID": "0xPartyA",
+            "TargetCompID": "0xPartyB",
+            "MsgSeqNum": 9,
+            "CustodyID": "0xCustody123",
+            "SendingTime": 1738106782106000000
+        },
+        "StandardTrailer": {
+            "PublicKey": "0xPartyA",
+            "Signature": "0xSignature"
+        }
+    }
+]
