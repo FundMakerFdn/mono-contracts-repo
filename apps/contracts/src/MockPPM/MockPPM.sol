@@ -54,7 +54,7 @@ contract MockPPM is EIP712 {
 
         // Verify pubkey is whitelisted in current PPM
         bytes32 leaf = keccak256(abi.encode(
-			0, "pubKey", block.chainid,
+			0, "whitelist", block.chainid,
            address(this),
            abi.encode(pubKey.parity, pubKey.x)
         ));
@@ -69,7 +69,6 @@ contract MockPPM is EIP712 {
         ));
         require(Schnorr.verify(pubKey, message, sig), "Invalid signature");
 
-        // Update state
         PPMs[_id] = _ppm;
         lastSMAUpdateTimestamp[_id] = _timestamp;
 
