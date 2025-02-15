@@ -68,6 +68,8 @@ contract MockPPM is EIP712 {
             _ppm
         ));
         require(Schnorr.verify(pubKey, message, sig), "Invalid signature");
+		bytes32 signatureHash = keccak256(abi.encode(sig.e, sig.s));
+		signatureClaimed[signatureHash] = true;
 
         PPMs[_id] = _ppm;
         lastSMAUpdateTimestamp[_id] = _timestamp;
