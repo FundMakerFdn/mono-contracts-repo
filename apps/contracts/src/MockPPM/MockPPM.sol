@@ -174,6 +174,39 @@ contract MockPPM is EIP712 {
         IERC20(_token).safeTransfer(_destination, _amount);
     }
 
+    function isERC20Collateral(
+        bytes32 _id,
+        address _party,
+        address _tokenAddress,
+        uint256 _haircut,
+        string calldata _isin,
+        bytes32[] calldata merkleProof
+    ) public view returns (bool) {
+        bytes32 leaf = keccak256(abi.encode(
+            "ERC20", block.chainid,
+            address(this), custodyState[_id],
+            abi.encode(_party, _tokenAddress, _haircut, _isin)
+        ));
+        return MerkleProof.verify(merkleProof, PPMs[_id], leaf);
+    }
+
+    function isSMACollateral(
+        bytes32 _id,
+        address _party,
+        address _tokenAddress,
+        address _smaAddress,
+        uint256 _haircut,
+        string calldata _pricingMethod,
+        bytes32[] calldata merkleProof
+    ) public view returns (bool) {
+        bytes32 leaf = keccak256(abi.encode(
+            "SMA", block.chainid,
+            address(this), custodyState[_id],
+            abi.encode(_party, _tokenAddress, _smaAddress, _haircut, _pricingMethod)
+        ));
+        return MerkleProof.verify(merkleProof, PPMs[_id], leaf);
+    }
+
     function callSMA(
         bytes32 _id,
         address _smaAddress,
