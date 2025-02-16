@@ -18,7 +18,7 @@ interface ISMAFactory {
 
 // Will be merged to pSymm
 contract MockPPM is EIP712 {
-	event PPMUpdated(bytes32 indexed id, bytes32 ppm, uint256 timestamp);
+    event PPMUpdated(bytes32 indexed id, bytes32 ppm, uint256 timestamp);
 
     mapping(bytes32 => bytes32) private custodys;
     mapping(bytes32 => mapping(address => uint256)) public custodyBalances; // custodyId => token address => balance
@@ -57,7 +57,7 @@ contract MockPPM is EIP712 {
         Schnorr.PPMKey calldata pubKey,
         bytes32[] calldata merkleProof
     ) public view returns (bool) {
-		// PPMKey is either ETH address or Schnorr pubkey
+        // PPMKey is either ETH address or Schnorr pubkey
         bytes32 leaf = keccak256(abi.encode(
             "whitelist", block.chainid,
             address(this),  custodyState[_id],
@@ -88,8 +88,8 @@ contract MockPPM is EIP712 {
             _newPPM
         ));
         require(Schnorr.verify(pubKey, message, sig), "Invalid signature");
-		bytes32 signatureHash = keccak256(abi.encode(sig.e, sig.s));
-		signatureClaimed[signatureHash] = true;
+        bytes32 signatureHash = keccak256(abi.encode(sig.e, sig.s));
+        signatureClaimed[signatureHash] = true;
 
         PPMs[_id] = _newPPM;
         lastSMAUpdateTimestamp[_id] = _timestamp;
@@ -99,7 +99,7 @@ contract MockPPM is EIP712 {
 
     event SMADeployed(bytes32 indexed id, address factoryAddress, address smaAddress);
 
-	// TODO: Overload action functions without sig parameter (if we check with msg.sender)
+    // TODO: Overload action functions without sig parameter (if we check with msg.sender)
     function deploySMA(
         bytes32 _id,
         address _factoryAddress,

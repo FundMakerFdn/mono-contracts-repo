@@ -11,7 +11,7 @@ import "../contracts/src/SettleMaker/interfaces/ISettlement.sol";
 using SafeERC20 for IERC20;
 
 contract pSymm is EIP712 {
-	type IDispute is ISettlement;
+    type IDispute is ISettlement;
 
     mapping(bytes32 => bytes32) private custodys;
     mapping(bytes32 => mapping(address => uint256)) public custodyBalances; // custodyId => token address => balance
@@ -46,7 +46,7 @@ contract pSymm is EIP712 {
     }
 
     function updatePPM(bytes32 _id, bytes32 _ppm, uint256 _timestamp) external
-	checkCustodyState(_id) {
+    checkCustodyState(_id) {
         // check signature
         // check merkle
         require(_timestamp <= block.timestamp && _timestamp > lastSMAUpdateTimestamp[_id], "signature expired");
@@ -56,20 +56,20 @@ contract pSymm is EIP712 {
 
     function addressToCustody(address sender, bytes32 _id, address _token, uint256 _amount, bytes signature) external {
         // @TODO verify EIP712 signature
-		IERC20(_token).safeTransferFrom(sender, address(this), _amount);
+        IERC20(_token).safeTransferFrom(sender, address(this), _amount);
         custodyBalances[_id][_token] += _amount;
         // @TODO event
     }
 
     function addressToCustody(bytes32 _id, address _token, uint256 _amount) external {
-		IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
+        IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
         custodyBalances[_id][_token] += _amount;
         // @TODO event
     }
 
     function custodyToAddress(address _target, uint256 _id, address _token, uint256 _amount) external
-	checkCustodyState(_id)
-	checkCustodyBalance(_id, _token, _amount) {
+    checkCustodyState(_id)
+    checkCustodyBalance(_id, _token, _amount) {
         // check signature
         // check merkle
         IERC20(_token).safeTransfer(_target, _amount);
