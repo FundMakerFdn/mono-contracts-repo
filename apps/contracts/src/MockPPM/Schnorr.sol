@@ -6,10 +6,11 @@ library Schnorr {
     uint256 constant internal Q =
         0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141;
 
-    struct PublicKey {
-        uint8 parity;    // y-coord parity (27 or 28)
-        bytes32 x;       // x-coordinate
-    }
+	// PPMKey - a flexible struct for Ethereum address & Schnorr public key
+	struct PPMKey {
+		uint8 parity; // for ETH = 0, for Schnorr is y-coord parity
+		bytes32 x; // if ETH, ethAddress = address(uint160(uint256(key.x)))
+	}
 
     struct Signature {
         bytes32 e;       // challenge
@@ -21,7 +22,7 @@ library Schnorr {
     // message := 32-byte message
     // e := schnorr signature challenge
     // s := schnorr signature
-    function verifyRaw(
+    function verifySignature(
         uint8 parity,
         bytes32 px,
         bytes32 message,
@@ -43,13 +44,17 @@ library Schnorr {
         );
     }
 
-    function verify(PublicKey memory pk, bytes32 message, Signature memory sig) internal pure returns (bool) {
-        return verifyRaw(
-            pk.parity,
-            pk.x,
-            message,
-            sig.e,
-            sig.s
-        );
+    function verify(PPMKey calldata key, bytes32 message, Signature calldata sig) internal view returns (bool) {
+		if (key.parity == 0) {
+			return msg.sender == address(uint160(uint256(key.x)));
+		} else {
+			return verifySignature(
+				key.parity,
+				key.x,
+				message,
+				sig.e,
+				sig.s
+			);
+		}
     }
 }

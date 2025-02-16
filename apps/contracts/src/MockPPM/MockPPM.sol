@@ -10,12 +10,13 @@ import "../SettleMaker/interfaces/ISettlement.sol";
 import "./Schnorr.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
+using SafeERC20 for IERC20;
+
 interface ISMAFactory {
     function deploySMA(bytes calldata data) external returns (address);
 }
 
-using SafeERC20 for IERC20;
-
+// Will be merged to pSymm
 contract MockPPM is EIP712 {
 	event PPMUpdated(bytes32 indexed id, bytes32 ppm, uint256 timestamp);
 
@@ -39,73 +40,80 @@ contract MockPPM is EIP712 {
         require(custodyState[_id] == 0, "State isn't 0");
         _;
     }
+    modifier checkCustodyBalance(bytes32 _id, address _token, uint256 _amount) {
+        require(custodyBalances[_id][_token] >= _amount, "Out of collateral");
+        _;
+    }
+
     function createCustody(bytes32 _ppm) external {
         require(_ppm == bytes32(0), "PPM already created");
         custodys[_ppm] = _ppm;
         // @TODO update state
         // @TODO event
     }
-    function isPubKeyInPPM(
+    function isPubKeyWhitelisted(
         bytes32 _id,
-        Schnorr.PublicKey calldata pubKey,
+        string memory _action,
+        Schnorr.PPMKey calldata pubKey,
         bytes32[] calldata merkleProof
     ) public view returns (bool) {
+		// PPMKey is either ETH address or Schnorr pubkey
         bytes32 leaf = keccak256(abi.encode(
-            0, "whitelist", block.chainid,
-            address(this),
-            abi.encode(pubKey.parity, pubKey.x)
+            "whitelist", block.chainid,
+            address(this),  custodyState[_id],
+            abi.encode(_action, pubKey.parity, pubKey.x)
         ));
         return MerkleProof.verify(merkleProof, PPMs[_id], leaf);
     }
 
     function updatePPM(
         bytes32 _id,
-        bytes32 _ppm,
+        bytes32 _newPPM,
         uint256 _timestamp,
-        Schnorr.PublicKey calldata pubKey,
+        Schnorr.PPMKey calldata pubKey,
         Schnorr.Signature calldata sig,
         bytes32[] calldata merkleProof
     ) external checkCustodyState(_id) {
         // Verify timestamp
         require(_timestamp <= block.timestamp && _timestamp > lastSMAUpdateTimestamp[_id], "Signature expired");
 
-        // Verify pubkey is whitelisted in current PPM
-        require(isPubKeyInPPM(_id, pubKey, merkleProof), "Invalid merkle proof");
+        // Verify pubkey is whitelisted to updatePPM in current state
+        require(isPubKeyWhitelisted(_id, "updatePPM", pubKey, merkleProof), "Invalid merkle proof");
 
         // Verify signature
         bytes32 message = keccak256(abi.encode(
             _timestamp,
             "updatePPM",
             _id,
-            _ppm
+            _newPPM
         ));
         require(Schnorr.verify(pubKey, message, sig), "Invalid signature");
 		bytes32 signatureHash = keccak256(abi.encode(sig.e, sig.s));
 		signatureClaimed[signatureHash] = true;
 
-        PPMs[_id] = _ppm;
+        PPMs[_id] = _newPPM;
         lastSMAUpdateTimestamp[_id] = _timestamp;
 
-        emit PPMUpdated(_id, _ppm, _timestamp);
+        emit PPMUpdated(_id, _newPPM, _timestamp);
     }
 
-    event SMADeployed(bytes32 indexed id, address smaAddress);
-    event SMACall(bytes32 indexed id, address smaAddress, bytes data);
+    event SMADeployed(bytes32 indexed id, address factoryAddress, address smaAddress);
 
+	// TODO: Overload action functions without sig parameter (if we check with msg.sender)
     function deploySMA(
         bytes32 _id,
         address _factoryAddress,
         bytes calldata _data,
         uint256 _timestamp,
-        Schnorr.PublicKey calldata pubKey,
+        Schnorr.PPMKey calldata pubKey,
         Schnorr.Signature calldata sig,
         bytes32[] calldata merkleProof
     ) external checkCustodyState(_id) {
         // Verify timestamp
         require(_timestamp <= block.timestamp && _timestamp > lastSMAUpdateTimestamp[_id], "Signature expired");
 
-        // Verify pubkey is whitelisted in current PPM
-        require(isPubKeyInPPM(_id, pubKey, merkleProof), "Invalid merkle proof");
+        // Verify pubkey is whitelisted to deploySMA in current state
+        require(isPubKeyWhitelisted(_id, "deploySMA", pubKey, merkleProof), "Invalid merkle proof");
 
         // Verify signature
         bytes32 message = keccak256(abi.encode(
@@ -127,7 +135,43 @@ contract MockPPM is EIP712 {
         smaAllowance[_id][smaAddress] = true;
         // lastSMAUpdateTimestamp[_id] = _timestamp;
 
-        emit SMADeployed(_id, smaAddress);
+        emit SMADeployed(_id, _factoryAddress, smaAddress);
+    }
+
+    function transfer(
+        bytes32 _id,
+        address _token,
+        address _destination,
+        uint256 _amount,
+        uint256 _timestamp,
+        Schnorr.PPMKey calldata pubKey,
+        Schnorr.Signature calldata sig,
+        bytes32[] calldata merkleProof
+    ) external checkCustodyState(_id) checkCustodyBalance(_id, _token, _amount) {
+        // Verify timestamp
+        require(_timestamp <= block.timestamp, "Signature expired");
+
+        // Verify pubkey is whitelisted for transfer to this destination
+        bytes32 leaf = keccak256(abi.encode(
+            "transfer", block.chainid,
+            address(this), custodyState[_id],
+            abi.encode(pubKey, _token, _destination)
+        ));
+        require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
+
+        // Verify signature
+        bytes32 message = keccak256(abi.encode(
+            _timestamp,
+            "transfer",
+            _id,
+            _token,
+            _destination,
+            _amount
+        ));
+        require(Schnorr.verify(pubKey, message, sig), "Invalid signature");
+
+        custodyBalances[_id][_token] -= _amount;
+        IERC20(_token).safeTransfer(_destination, _amount);
     }
 
     function callSMA(
@@ -135,7 +179,7 @@ contract MockPPM is EIP712 {
         address _smaAddress,
         bytes calldata _data,
         uint256 _timestamp,
-        Schnorr.PublicKey calldata pubKey,
+        Schnorr.PPMKey calldata pubKey,
         Schnorr.Signature calldata sig,
         bytes32[] calldata merkleProof
     ) external checkCustodyState(_id) {
@@ -145,8 +189,8 @@ contract MockPPM is EIP712 {
         // Verify SMA is whitelisted
         require(smaAllowance[_id][_smaAddress], "SMA not whitelisted");
 
-        // Verify pubkey is whitelisted in current PPM
-        require(isPubKeyInPPM(_id, pubKey, merkleProof), "Invalid merkle proof");
+        // Verify pubkey is whitelisted to callSMA in current state
+        require(isPubKeyWhitelisted(_id, "callSMA", pubKey, merkleProof), "Invalid merkle proof");
 
         // Verify signature
         bytes32 message = keccak256(abi.encode(
@@ -160,13 +204,9 @@ contract MockPPM is EIP712 {
         // bytes32 signatureHash = keccak256(abi.encode(sig.e, sig.s));
         // require(!signatureClaimed[signatureHash], "Signature already claimed");
         // signatureClaimed[signatureHash] = true;
-
-        // Call the SMA
-        (bool success,) = _smaAddress.call(_data);
-        require(success, "SMA call failed");
-
         // lastSMAUpdateTimestamp[_id] = _timestamp;
 
-        emit SMACall(_id, _smaAddress, _data);
+        (bool success,) = _smaAddress.call(_data);
+        require(success, "SMA call failed");
     }
 }
