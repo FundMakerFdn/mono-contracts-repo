@@ -251,4 +251,36 @@ contract MockPPM is EIP712 {
         (bool success,) = _smaAddress.call(_data);
         require(success, "SMA call failed");
     }
+
+     function changeCustodyState(
+        bytes32 _id,
+        uint8 _state,
+        uint256 _timestamp,
+        Schnorr.PPMKey calldata pubKey,
+        Schnorr.Signature calldata sig,
+        bytes32[] calldata merkleProof
+    ) external checkCustodyState(_id) {
+        // Verify timestamp
+        require(_timestamp <= block.timestamp, "Signature expired");
+
+        // Verify pubkey is whitelisted for changeCustodyState
+        bytes32 leaf = keccak256(abi.encode(
+            "changeCustodyState", block.chainid,
+            address(this), custodyState[_id],
+            abi.encode(pubKey, _state)
+        ));
+        require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
+
+        // Verify signature
+        bytes32 message = keccak256(abi.encode(
+            _timestamp,
+            "changeCustodyState",
+            _id,
+            _state
+        ));
+        require(Schnorr.verify(pubKey, message, sig), "Invalid signature");
+
+        custodyState[_id] = _state;
+        emit CustodyStateChanged(_id, _state);
+    }
 }
