@@ -23,6 +23,7 @@ contract MockPPM is EIP712 {
     mapping(bytes32 => bytes32) private custodys;
     mapping(bytes32 => mapping(address => uint256)) public custodyBalances; // custodyId => token address => balance
     mapping(bytes32 => mapping(address => bool)) public smaAllowance; // custodyId => deployed SMA address => isAllowed
+    mapping(address => bool) public onlyCustodyOwner; // deployed SMA address => isDeployed
     mapping(bytes32 => bool) private signatureClaimed;
     mapping(bytes32 => uint256) public lastSMAUpdateTimestamp; // custodyId => timestamp
     mapping(bytes32 => bytes32) private PPMs;
@@ -133,6 +134,7 @@ contract MockPPM is EIP712 {
         
         // Whitelist the new SMA
         smaAllowance[_id][smaAddress] = true;
+        onlyCustodyOwner[smaAddress] = true;
         // lastSMAUpdateTimestamp[_id] = _timestamp;
 
         emit SMADeployed(_id, _factoryAddress, smaAddress);
