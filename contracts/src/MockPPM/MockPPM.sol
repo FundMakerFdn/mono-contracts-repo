@@ -191,6 +191,7 @@ contract MockPPM is EIP712 {
 
         // Verify SMA is whitelisted
         require(smaAllowance[_id][_smaAddress], "SMA not whitelisted");
+		require(onlyCustodyOwner[_smaAddress], "No permission")
 
         // Verify pubkey is whitelisted for custodyToSMA to this destination
         bytes32 leaf = keccak256(abi.encode(
