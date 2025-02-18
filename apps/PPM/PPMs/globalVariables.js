@@ -8,6 +8,11 @@ const partyAPub = privateKeyToAccount(`0x${partyAPk.toString(16)}`).publicKey;
 const partyBPub = privateKeyToAccount(`0x${partyBPk.toString(16)}`).publicKey;
 const partyCPub = privateKeyToAccount(`0x${partyCPk.toString(16)}`).publicKey;
 
+// Custody State
+const DEFAULT_CUSTODY_STATE = 0;
+const DISPUTE_CUSTODY_STATE = 1;
+const PAUSE_CUSTODY_STATE = 2;
+
 // pSymm Deployed Addresses
 const pSymm_BSC = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 const pSymm_ETH = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
