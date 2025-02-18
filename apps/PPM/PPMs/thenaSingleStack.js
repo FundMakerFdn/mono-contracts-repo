@@ -30,9 +30,9 @@ const ownerMultisig = [ownerKey];
 // --- Define Items with Automatic Expansion ---
 addPPM({
   type: "custodyToAddress",
-  chainId: BSC_CHAIN_ID,
-  pSymm: pSymm_BSC,
-  state: DEFAULT_STATE,
+  chainId: CHAIN_ID.BSC,
+  pSymm: pSymm.BSC,
+  state: STATE.DEFAULT,
   args: { receiver: ownerPub },
   party: [curratorMultisig, ownerMultisig],
 });
