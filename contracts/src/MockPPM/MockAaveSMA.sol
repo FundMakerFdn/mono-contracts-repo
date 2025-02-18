@@ -17,15 +17,20 @@ contract MockAaveSMA {
         _;
     }
 
-    function borrow(address token, uint256 minAmount) external view onlyPSymm {
+    function borrow(address _token, uint256 _minAmount) external view onlyPSymm {
 		// borrow minAmount of token
-		console.log("Borrow function called with arguments %s %s", token, minAmount);
+		console.log("Borrow function called with arguments %s %s", _token, _minAmount);
     }
 
-    function repay(address token, uint256 amount) external view onlyPSymm {
+    function repay(address _token, uint256 _amount) external view onlyPSymm {
 		// repay amount of token
-		console.log("Borrow function called with arguments %s %s", token, amount);
+		console.log("Borrow function called with arguments %s %s", _token, _amount);
+    }
+
+    function smaToCustody(address _token, uint256 _amount) external view onlyPSymm {
+      IERC20(_token).safeTransfer(pSymmAddress, _amount);
     }
 
 	// function supply, withdraw
 }
+

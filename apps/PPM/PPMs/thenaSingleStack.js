@@ -1,33 +1,29 @@
-import { keccak256, hexToBytes } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
 import {
-  SchnorrParty,
-  aggregatePublicKeys,
-  aggregateNonces,
-  computeChallenge,
-  combinePartialSignatures,
-  verifySignature,
-} from "./schnorr.js";
-import {
-    pSymm_BSC,
-    settleMaker_BSC,
-    BSC_CHAIN_ID,
-    USDC_TOKEN_BSC,
-    ETH_TOKEN_BSC,
-    partyAKey,
-    partyBKey,
-    partyCPk,
-    partyAPub,
-    partyBPub,
-    partyCPub,
-    DEFAULT_CUSTODY_STATE,
-    DISPUTE_CUSTODY_STATE,
-    PAUSE_CUSTODY_STATE,
-} from "./globalVariables.js"
+  pSymm_BSC,
+  settleMaker_BSC,
+  BSC_CHAIN_ID,
+  USDC_TOKEN_BSC,
+  ETH_TOKEN_BSC,
+  partyAKey,
+  partyBKey,
+  partyCPk,
+  partyAPub,
+  partyBPub,
+  partyCPub,
+  DEFAULT_STATE,
+  DISPUTE_STATE,
+  PAUSE_STATE,
+} from "./globalVariables.js";
+import { addPPM } from "./ppmBuilder.js";
 
-const curratorKey = partyAPk;
+// --- Global Storage and Helper ---
+const ppmItems = [];
+
+
+// --- Setup Keys and Multisigs ---
+const curratorKey = partyAKey;
 const curratorPub = partyAPub;
-const guardianKey = partyBPk;
+const guardianKey = partyBKey;
 const guardianPub = partyBPub;
 const ownerKey = partyCPk;
 const ownerPub = partyCPub;
@@ -35,283 +31,205 @@ const ownerPub = partyCPub;
 const curratorMultisig = [curratorKey, guardianKey];
 const ownerMultisig = [ownerKey];
 
-const transferToOwner = {
-    type: "custodyToAddress",
-    chainId: BSC_CHAIN_ID,
-    pSymm: pSymm_BSC,
-    state: DEFAULT_CUSTODY_STATE,
-    args: {
-      receiver: ownerPub,
-    },
-    party: curratorMultisig
-  };
+// --- Define Items with Automatic Expansion ---
+addPPM({
+  type: "custodyToAddress",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: DEFAULT_STATE,
+  args: { receiver: ownerPub },
+  party: [curratorMultisig, ownerMultisig],
+});
 
-  const disputeTransferToOwner = {
-    type: "custodyToAddress",
-    chainId: BSC_CHAIN_ID,
-    pSymm: pSymm_BSC,
-    state: DISPUTE_CUSTODY_STATE,
-    args: {
-    },
-    party: settleMaker_BSC
-  };
+addPPM({
+  type: "custodyToAddress",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: DISPUTE_STATE,
+  args: {},
+  party: settleMaker_BSC,
+});
 
-  const pauseTransferToOwner = {
-    type: "custodyToAddress",
-    chainId: BSC_CHAIN_ID,
-    pSymm: pSymm_BSC,
-    state: PAUSE_CUSTODY_STATE,
-    args: {
-    },
-    party: ownerMultisig
-  };
+addPPM({
+  type: "custodyToAddress",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: PAUSE_STATE,
+  args: {},
+  party: ownerMultisig,
+});
 
 // SMA deployment
-const deployAaveSMA = {
-    type: "deploySMA",
-    chainId: BSC_CHAIN_ID,
-    pSymm: pSymm_BSC,
-    state: DEFAULT_CUSTODY_STATE,
-    args: {
-    },
-    party: curratorMultisig
-  };
-// TODO Thena SMA
-// TODO Venus SMA
+addPPM({
+  type: "deploySMA",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: DEFAULT_STATE,
+  args: {smaType:"aave", factoryAddress: "0x0"},
+  party: curratorMultisig,
+});
 
 // SMA transfers
-const transferToAaveSMA = {
-    type: "custodyToSMA",
-    chainId: BSC_CHAIN_ID,
-    pSymm: pSymm_BSC,
-    state: DEFAULT_CUSTODY_STATE,
-    args: {
-        token: USDC_TOKEN_BSC,
-    },
-    party: curratorMultisig
-  };
+//// Custody to SMA
+addPPM({
+  type: "custodyToSMA",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: DEFAULT_STATE,
+  args: {smaType:"aave", token: USDC_TOKEN_BSC },
+  party: [curratorMultisig, ownerMultisig],
+});
 
-  const ownerTransferToAaveSMA = {
-    type: "custodyToSMA",
-    chainId: BSC_CHAIN_ID,
-    pSymm: pSymm_BSC,
-    state: DEFAULT_CUSTODY_STATE,
-    args: {
-    },
-    party: ownerMultisig
-  };
+addPPM({
+  type: "custodyToSMA",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: DISPUTE_STATE,
+  args: {smaType:"aave"},
+  party: settleMaker_BSC,
+});
 
-  const disputeTransferToAaveSMA = {
-    type: "custodyToSMA",
-    chainId: BSC_CHAIN_ID,
-    pSymm: pSymm_BSC,
-    state: DISPUTE_CUSTODY_STATE,
-    args: {
-    },
-    party: settleMaker_BSC
-  };
+addPPM({
+  type: "custodyToSMA",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: PAUSE_STATE,
+  args: {smaType:"aave"},
+  party: ownerMultisig,
+});
 
-  const pauseTransferToAaveSMA = {
-    type: "custodyToSMA",
-    chainId: BSC_CHAIN_ID,
-    pSymm: pSymm_BSC,
-    state: PAUSE_CUSTODY_STATE,
-    args: {
-    },
-    party: ownerMultisig
-  };
+//// SMA to Custody
+addPPM({
+  type: "callSMA",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: DEFAULT_STATE,
+  args: {smaType:"smaToCustody" },
+  party: [curratorMultisig, ownerMultisig],
+});
 
-// SMA calls
-    // Aave SMA
-    const callAaveBorrow = {
-        index: 3,
-        type: "callSMA",
-        chainId: BSC_CHAIN_ID,
-        pSymm: pSymm_BSC,
-        state: DEFAULT_CUSTODY_STATE,
-        args: {
-            token: USDC_TOKEN_BSC,
-        },
-        party: curratorMultisig
-    };
+addPPM({
+  type: "callSMA",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: DISPUTE_STATE,
+  args: {smaType:"smaToCustody" },
+  party: settleMaker_BSC,
+});
 
-    const ownerCallAaveBorrow = {
-        type: "callSMA",
-        chainId: BSC_CHAIN_ID,
-        pSymm: pSymm_BSC,
-        state: DEFAULT_CUSTODY_STATE,
-        args: {},
-        party: ownerMultisig
-    };
+addPPM({
+  type: "callSMA",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: PAUSE_STATE,
+  args: {smaType:"smaToCustody" },
+  party: ownerMultisig,
+});
 
-    const disputeCallAaveBorrow = {
-        type: "callSMA",
-        chainId: BSC_CHAIN_ID,
-        pSymm: pSymm_BSC,
-        state: DISPUTE_CUSTODY_STATE,
-        args: {
-        },
-        party: settleMaker_BSC
-    };
+// SMA calls – Aave
+addPPM({
+  index: 3,
+  type: "callSMA",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: DEFAULT_STATE,
+  args: {smaType:"aave", function: "borrow", token: USDC_TOKEN_BSC },
+  party: [curratorMultisig, ownerMultisig],
+});
 
-    const pauseCallAaveBorrow = {
-        type: "callSMA",
-        chainId: BSC_CHAIN_ID,
-        pSymm: pSymm_BSC,
-        state: PAUSE_CUSTODY_STATE,
-        args: {
-        },
-        party: ownerMultisig
-    };
-    
-    const callAaveRepay = {
-        type: "callSMA",
-        chainId: BSC_CHAIN_ID,
-        pSymm: pSymm_BSC,
-        state: DEFAULT_CUSTODY_STATE,
-        args: {
-        },
-        party: curratorMultisig
-    };
+addPPM({
+  type: "callSMA",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: DEFAULT_STATE,
+  args: {smaType:"aave", function: "repay", token: USDC_TOKEN_BSC },
+  party: [curratorMultisig, ownerMultisig],
+});
 
-    const ownerCallAaveRepay = {
-        type: "callSMA",
-        chainId: BSC_CHAIN_ID,
-        pSymm: pSymm_BSC,
-        state: DEFAULT_CUSTODY_STATE,
-        args: {},
-        party: ownerMultisig
-    };
+addPPM({
+  type: "callSMA",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: PAUSE_STATE,
+  args: {smaType:"aave"},
+  party: ownerMultisig,
+});
 
-    const disputeCallAaveRepay = {
-        type: "callSMA",
-        chainId: BSC_CHAIN_ID,
-        pSymm: pSymm_BSC,
-        state: DISPUTE_CUSTODY_STATE,
-        args: {
-        },
-        party: settleMaker_BSC
-    };
+// SMA calls – Paraswap SMA
+addPPM({
+  type: "callSMA",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: DEFAULT_STATE,
+  args: {
+    smaType:"paraswap",
+    tokenInput: USDC_TOKEN_BSC,
+    tokenOutput: ETH_TOKEN_BSC,
+    maxSpread: 0.1,
+  },
+  party: [curratorMultisig, ownerMultisig],
+});
 
-    const pauseCallAaveRepay = {
-        type: "callSMA",
-        chainId: BSC_CHAIN_ID,
-        pSymm: pSymm_BSC,
-        state: PAUSE_CUSTODY_STATE,
-        args: {
-        },
-        party: ownerMultisig
-    };
+addPPM({
+  type: "callSMA",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: DEFAULT_STATE,
+  args: {
+    smaType:"paraswap",
+    tokenInput: ETH_TOKEN_BSC,
+    tokenOutput: USDC_TOKEN_BSC,
+    maxSpread: 0.1,
+  },
+  party: [curratorMultisig, ownerMultisig],
+});
 
-    // Paraswap SMA
-    const callParaswapUSDCETH = {
-        type: "callSMA",
-        chainId: BSC_CHAIN_ID,
-        pSymm: pSymm_BSC,
-        state: DEFAULT_CUSTODY_STATE,
-        args: {
-            tokenInput: USDC_TOKEN_BSC,
-            tokenOutput: ETH_TOKEN_BSC,
-            maxSpread: 0.1,
-        },
-        party: curratorMultisig
-    };
+addPPM({
+  type: "callSMA",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: DISPUTE_STATE,
+  args: {smaType:"paraswap"},
+  party: ownerMultisig,
+});
 
-    const callParaswapETHUSDC = {
-        type: "callSMA",
-        chainId: BSC_CHAIN_ID,
-        pSymm: pSymm_BSC,
-        state: DEFAULT_CUSTODY_STATE,
-        args: {
-            tokenInput: ETH_TOKEN_BSC,
-            tokenOutput: USDC_TOKEN_BSC,
-            maxSpread: 0.1,
-        },
-        party: curratorMultisig
-    };
-
-    const ownerCallParaswap = {
-        type: "callSMA",
-        chainId: BSC_CHAIN_ID,
-        pSymm: pSymm_BSC,
-        state: DEFAULT_CUSTODY_STATE,
-        args: {},
-        party: ownerMultisig
-    };
-
-    const disputeCallParaswap = {
-        type: "callSMA",
-        chainId: BSC_CHAIN_ID,
-        pSymm: pSymm_BSC,
-        state: DISPUTE_CUSTODY_STATE,
-        args: {
-        },
-        party: ownerMultisig
-    };
-
-    const pauseCallParaswap = {
-        type: "callSMA",
-        chainId: BSC_CHAIN_ID,
-        pSymm: pSymm_BSC,
-        state: PAUSE_CUSTODY_STATE,
-        args: {
-        },
-        party: ownerMultisig
-    };
+addPPM({
+  type: "callSMA",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: PAUSE_STATE,
+  args: {smaType:"paraswap"},
+  party: ownerMultisig,
+});
 
 // State changes
+addPPM({
+  type: "changeCustodyState",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: DEFAULT_STATE,
+  args: { newState: DISPUTE_STATE },
+  party: [guardianPub, ownerMultisig, curratorPub]
+});
 
-const guardianDisputeState = {
+addPPM({
+  type: "changeCustodyState",
+  chainId: BSC_CHAIN_ID,
+  pSymm: pSymm_BSC,
+  state: DEFAULT_STATE,
+  args: { newState: PAUSE_STATE },
+  party: [guardianPub, ownerMultisig]
+});
+
+addPPM({
     type: "changeCustodyState",
     chainId: BSC_CHAIN_ID,
     pSymm: pSymm_BSC,
-    state: DEFAULT_CUSTODY_STATE,
-    args: {
-        oldState: DEFAULT_CUSTODY_STATE,
-        newState: DISPUTE_CUSTODY_STATE,
-    },
-    party: guardianPub
-};
+    state: PAUSE_STATE,
+    args: { newState: DEFAULT_STATE },
+    party: ownerMultisig,
+  });
 
-const ownerResumeState = {
-    type: "changeCustodyState",
-    chainId: BSC_CHAIN_ID,
-    pSymm: pSymm_BSC,
-    state: PAUSE_CUSTODY_STATE,
-    args: {
-        oldState: PAUSE_CUSTODY_STATE,
-        newState: DEFAULT_CUSTODY_STATE,
-    },
-    party: ownerMultisig
-};
+// TODO add venus and Thena
 
-const PPM = [
-    transferToOwner,
-    disputeTransferToOwner,
-    pauseTransferToOwner,
-    deployAaveSMA,
-    transferToAaveSMA,
-    callAaveBorrow,
-    callAaveRepay,
-    callParaswapUSDCETH,
-    callParaswapETHUSDC,
-    guardianDisputeState,
-    ownerResumeState,
-    ownerCallAaveBorrow,
-    ownerCallAaveRepay,
-    ownerCallParaswap,
-    ownerTransferToAaveSMA,
-    disputeCallAaveBorrow,
-    disputeCallAaveRepay,
-    disputeCallParaswap,
-    disputeTransferToAaveSMA,
-    disputeTransferToOwner,
-    pauseCallAaveBorrow,
-    pauseCallAaveRepay,
-    pauseCallParaswap,
-    pauseTransferToAaveSMA,
-    pauseTransferToOwner,
-   
-]
-
-export default PPM;
+export default ppmItems;
