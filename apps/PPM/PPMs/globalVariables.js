@@ -9,27 +9,38 @@ const partyBPub = privateKeyToAccount(`0x${partyBPk.toString(16)}`).publicKey;
 const partyCPub = privateKeyToAccount(`0x${partyCPk.toString(16)}`).publicKey;
 
 // Custody State
-const DEFAULT_CUSTODY_STATE = 0;
-const DISPUTE_CUSTODY_STATE = 1;
-const PAUSE_CUSTODY_STATE = 2;
+const STATE = {
+    DEFAILT: 0,
+    DISPUTE: 1,
+    PAUSE: 2
+  };
 
 // pSymm Deployed Addresses
-const pSymm_BSC = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-const pSymm_ETH = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const pSymm = {
+    BSC: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    ETH: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+  };
 
 // SettleMaker Deployed Addresses
-const settleMaker_BSC = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
-const settleMaker_ETH = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
+const settleMaker = {
+    BSC: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    ETH: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+  };
 
 // Chain IDs
-const BSC_CHAIN_ID = 56;
-const ETH_CHAIN_ID = 1;
+const CHAIN_ID = {
+    BSC: 56,
+    ETH: 1
+  };
 
-// USDC Token Addresses
-const USDC_TOKEN_BSC = "0x0000000000000000000000000000000000000000";
-const USDC_TOKEN_ETH = "0x0000000000000000000000000000000000000000";
-
-// ETH Token Addresses
-const ETH_TOKEN_BSC = "0x0000000000000000000000000000000000000000";
-const ETH_TOKEN_ETH = "0x0000000000000000000000000000000000000000";
-
+// Token Addresses
+const TOKEN = {
+    USDC: {
+      BSC: "0x0000000000000000000000000000000000000000",
+      ETH: "0x0000000000000000000000000000000000000000"
+    },
+    ETH: {
+      BSC: "0x0000000000000000000000000000000000000000",
+      ETH: "0x0000000000000000000000000000000000000000"
+    }
+  };

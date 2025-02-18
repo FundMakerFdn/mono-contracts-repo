@@ -1,18 +1,15 @@
 import {
-    pSymm_BSC,
-    settleMaker_BSC,
-    BSC_CHAIN_ID,
-    USDC_TOKEN_BSC,
-    ETH_TOKEN_BSC,
     partyAKey,
     partyBKey,
     partyCPk,
     partyAPub,
     partyBPub,
     partyCPub,
-    DEFAULT_STATE,
-    DISPUTE_STATE,
-    PAUSE_STATE,
+    pSymm,
+    settleMaker,
+    CHAIN_ID,
+    TOKEN,
+    STATE,
   } from "./globalVariables.js";
   import { addPPM } from "./ppmBuilder.js";
   
@@ -22,28 +19,29 @@ import {
   // --- Setup Keys and Multisigs ---
   const curratorKey = partyAKey;
   const curratorPub = partyAPub;
-  const guardianKey = partyBKey;
-  const guardianPub = partyBPub;
+  const guardian1Key = partyBKey;
+  const guardian1Pub = partyBPub;
+  const guardian2Key = partyCKey;
+  const guardian2Pub = partyCPub;
   
-  const curratorMultisig = [curratorKey, guardianKey];
-  const ownerMultisig = [ownerKey];
+  const curratorMultisig = [curratorKey, guardian1Key, guardian2Key];
   
   // --- Define Items with Automatic Expansion ---
   addPPM({
     type: "custodyToAddress",
-    chainId: BSC_CHAIN_ID,
-    pSymm: pSymm_BSC,
-    state: DEFAULT_STATE,
+    chainId: CHAIN_ID.BSC,
+    pSymm: pSymm.BSC,
+    state: STATE.DISPUTE,
     args: { receiver: ownerPub },
-    party: curratorMultisig,
+    party: settleMaker.BSC,
   });
   
 // SMA deployment
 addPPM({
     type: "deploySMA",
-    chainId: BSC_CHAIN_ID,
-    pSymm: pSymm_BSC,
-    state: DEFAULT_STATE,
+    chainId: CHAIN_ID.BSC,
+    pSymm: pSymm.BSC,
+    state: STATE.DEFAULT,
     args: {smaType:"aave", factoryAddress: "0x0"},
     party: curratorMultisig,
   });
@@ -51,39 +49,87 @@ addPPM({
 // SMA transfers
    addPPM({
     type: "custodyToSMA",
-    chainId: BSC_CHAIN_ID,
-    pSymm: pSymm_BSC,
-    state: DEFAULT_STATE,
-    args: {smaType:"aave", token: USDC_TOKEN_BSC },
-    party: [curratorMultisig, ownerMultisig],
+    chainId: CHAIN_ID.BSC,
+    pSymm: pSymm.BSC,
+    state: STATE.DEFAULT,
+    args: {smaType:"ETFMaker", token: TOKEN.USDC.BSC },
+    party: curratorMultisig,
+  });
+
+  addPPM({
+    type: "callSMA",
+    chainId: CHAIN_ID.BSC,
+    pSymm: pSymm.BSC,
+    state: STATE.DEFAULT,
+    args: {smaType:"ETFMaker", function: "smaToCustody"},
+    party: curratorMultisig,
   });
 
   // ETFMaker SMA
   addPPM({
     type: "callSMA",
-    chainId: BSC_CHAIN_ID,
-    pSymm: pSymm_BSC,
-    args: {smaType:"ETFMaker"},
+    chainId: CHAIN_ID.BSC,
+    pSymm: pSymm.BSC,
+    state: STATE.DEFAULT,
+    args: {smaType:"ETFMaker", function: "mint"},
     party: curratorMultisig,
   });
 
-  // Paraswap SMA
   addPPM({
     type: "callSMA",
-    chainId: BSC_CHAIN_ID,
-    pSymm: pSymm_BSC,
-    args: {smaType:"paraswap"},
+    chainId: CHAIN_ID.BSC,
+    pSymm: pSymm.BSC,
+    state: STATE.DEFAULT,
+    args: {smaType:"ETFMaker", function: "burn"},
     party: curratorMultisig,
+  });
+
+  addPPM({
+    type: "callSMA",
+    chainId: CHAIN_ID.BSC,
+    pSymm: pSymm.BSC,
+    state: STATE.DEFAULT,
+    args: {smaType:"ETFMaker", function: "withdraw"},
+    party: curratorMultisig,
+  });
+
+  // SMA disputes
+  addPPM({
+    type: "callSMA",
+    chainId: CHAIN_ID.BSC,
+    pSymm: pSymm.BSC,
+    state: STATE.DISPUTE,
+    args: {smaType:"ETFMaker", function: "mint"},
+    party: settleMaker.BSC,
+  });
+
+  addPPM({
+    type: "callSMA",
+    chainId: CHAIN_ID.BSC,
+    pSymm: pSymm.BSC,
+    state: STATE.DISPUTE,
+    args: {smaType:"ETFMaker", function: "burn"},
+    party: settleMaker.BSC,
+  });
+
+  addPPM({
+    type: "callSMA",
+    chainId: CHAIN_ID.BSC,
+    pSymm: pSymm.BSC,
+    state: STATE.DISPUTE,
+    args: {smaType:"ETFMaker", function: "withdraw"},
+    party: settleMaker.BSC,
   });
 
   // State changes
   addPPM({
     type: "changeCustodyState",
-    chainId: BSC_CHAIN_ID,
-    pSymm: pSymm_BSC,
-    state: DEFAULT_STATE,
-    args: { newState: DISPUTE_STATE },
-    party: [guardianPub, ownerMultisig, curratorPub]
+    chainId: CHAIN_ID.BSC,
+    pSymm: pSymm.BSC,
+    state: STATE.DEFAULT,
+    args: { newState: STATE.DISPUTE },
+    party: [guardian1Pub, guardian2Pub, curratorPub]
   });
 
   export default ppmItems;
+  
