@@ -12,8 +12,8 @@ import {
     CHAIN_ID,
     TOKEN,
     STATE,
-  } from "./globalVariables.js";
-  import { addPPM } from "./ppmBuilder.js";
+  } from "../globalVariables.js";
+  import { addPPM } from "../ppmBuilder.js";
   
   // --- Global Storage and Helper ---
   const ppmItems = [];
@@ -68,56 +68,56 @@ addPPM({
     type: "callSMA",
     chainId: CHAIN_ID.BSC,
     pSymm: pSymm.BSC,
-    state: STATE.DEFAULT,
+    state: STATE.DISPUTE,
     args: {
     smaType:"paraswap",
     tokenInput: TOKEN.ETH.BSC,
     tokenOutput: TOKEN.USDC.BSC,
     maxSpread: 0.01,
     },
-    party: [partyAKey, partyBKey, settleMaker.BSC],
+    party: [partyAPub, partyBPub, settleMaker.BSC],
 });
 
 addPPM({
     type: "callSMA",
     chainId: CHAIN_ID.ETH,
     pSymm: pSymm.ETH,
-    state: STATE.DEFAULT,
+    state: STATE.DISPUTE,
     args: {
         smaType:"paraswap",
         tokenInput: TOKEN.ETH.ETH,
         tokenOutput: TOKEN.USDC.ETH,
         maxSpread: 0.01,
     },
-    party: [partyAKey, partyBKey, settleMaker.ETH],
+    party: [partyAPub, partyBPub, settleMaker.ETH],
 });
 
 addPPM({
     type: "callSMA",
     chainId: CHAIN_ID.BSC,
     pSymm: pSymm.BSC,
-    state: STATE.DEFAULT,
+    state: STATE.DISPUTE,
     args: {
     smaType:"paraswap",
     tokenInput: TOKEN.SYMM.BSC,
     tokenOutput: TOKEN.USDC.BSC,
         maxSpread: 0.01,
     },
-    party: [partyAKey, partyBKey, settleMaker.BSC],
+    party: [partyAPub, partyBPub, settleMaker.BSC],
 });
 
 addPPM({
     type: "callSMA",
     chainId: CHAIN_ID.ETH,
     pSymm: pSymm.ETH,
-    state: STATE.DEFAULT,
+    state: STATE.DISPUTE,
     args: {
         smaType:"paraswap",
         tokenInput: TOKEN.SYMM.ETH,
         tokenOutput: TOKEN.USDC.ETH,
         maxSpread: 0.01,
     },
-    party: [partyAKey, partyBKey, settleMaker.ETH],
+    party: [partyAPub, partyBPub, settleMaker.ETH],
 });
   
 // --- State Changes ---

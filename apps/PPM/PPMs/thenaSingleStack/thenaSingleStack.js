@@ -10,8 +10,8 @@ import {
   CHAIN_ID,
   TOKEN,
   STATE,
-} from "./globalVariables.js";
-import { addPPM } from "./ppmBuilder.js";
+} from "../globalVariables.js";
+import { addPPM } from "../ppmBuilder.js";
 
 // --- Global Storage and Helper ---
 const ppmItems = [];
