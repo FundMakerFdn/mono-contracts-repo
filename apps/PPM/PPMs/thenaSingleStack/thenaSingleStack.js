@@ -61,7 +61,7 @@ addPPM({
   chainId: CHAIN_ID.BSC,
   pSymm: pSymm.BSC,
   state: STATE.DEFAULT,
-  args: {smaType:"aave", factoryAddress: "0x0"},
+  args: { smaType: "aave", factoryAddress: "0x0" },
   party: curratorMultisig,
 });
 
@@ -72,7 +72,7 @@ addPPM({
   chainId: CHAIN_ID.BSC,
   pSymm: pSymm.BSC,
   state: STATE.DEFAULT,
-  args: {smaType:"aave", token: TOKEN.USDC.BSC },
+  args: { smaType: "aave", token: TOKEN.USDC.BSC },
   party: [curratorMultisig, ownerMultisig],
 });
 
@@ -81,7 +81,7 @@ addPPM({
   chainId: CHAIN_ID.BSC,
   pSymm: pSymm.BSC,
   state: STATE.DISPUTE,
-  args: {smaType:"aave"},
+  args: { smaType: "aave" },
   party: settleMaker.BSC,
 });
 
@@ -90,7 +90,7 @@ addPPM({
   chainId: CHAIN_ID.BSC,
   pSymm: pSymm.BSC,
   state: STATE.PAUSE,
-  args: {smaType:"aave"},
+  args: { smaType: "aave" },
   party: ownerMultisig,
 });
 
@@ -100,7 +100,7 @@ addPPM({
   chainId: CHAIN_ID.BSC,
   pSymm: pSymm.BSC,
   state: STATE.DEFAULT,
-  args: {smaType:"smaToCustody" },
+  args: { smaType: "smaToCustody" },
   party: [curratorMultisig, ownerMultisig],
 });
 
@@ -109,7 +109,7 @@ addPPM({
   chainId: CHAIN_ID.BSC,
   pSymm: pSymm.BSC,
   state: STATE.DISPUTE,
-  args: {smaType:"smaToCustody" },
+  args: { smaType: "smaToCustody" },
   party: settleMaker.BSC,
 });
 
@@ -118,18 +118,17 @@ addPPM({
   chainId: CHAIN_ID.BSC,
   pSymm: pSymm.BSC,
   state: STATE.PAUSE,
-  args: {smaType:"smaToCustody" },
+  args: { smaType: "smaToCustody" },
   party: ownerMultisig,
 });
 
 // SMA calls – Aave
 addPPM({
-  index: 3,
   type: "callSMA",
   chainId: CHAIN_ID.BSC,
   pSymm: pSymm.BSC,
   state: STATE.DEFAULT,
-  args: {smaType:"aave", function: "borrow", token: TOKEN.USDC.BSC },
+  args: { smaType: "aave", function: "borrow", token: TOKEN.USDC.BSC },
   party: [curratorMultisig, ownerMultisig],
 });
 
@@ -138,7 +137,7 @@ addPPM({
   chainId: CHAIN_ID.BSC,
   pSymm: pSymm.BSC,
   state: STATE.DEFAULT,
-  args: {smaType:"aave", function: "repay", token: TOKEN.USDC.BSC },
+  args: { smaType: "aave", function: "repay", token: TOKEN.USDC.BSC },
   party: [curratorMultisig, ownerMultisig],
 });
 
@@ -147,7 +146,7 @@ addPPM({
   chainId: CHAIN_ID.BSC,
   pSymm: pSymm.BSC,
   state: STATE.PAUSE,
-  args: {smaType:"aave"},
+  args: { smaType: "aave" },
   party: ownerMultisig,
 });
 
@@ -158,7 +157,7 @@ addPPM({
   pSymm: pSymm.BSC,
   state: STATE.DEFAULT,
   args: {
-    smaType:"paraswap",
+    smaType: "paraswap",
     tokenInput: TOKEN.USDC.BSC,
     tokenOutput: TOKEN.ETH.BSC,
     maxSpread: 0.01,
@@ -172,7 +171,7 @@ addPPM({
   pSymm: pSymm.BSC,
   state: STATE.DEFAULT,
   args: {
-    smaType:"paraswap",
+    smaType: "paraswap",
     tokenInput: TOKEN.ETH.BSC,
     tokenOutput: TOKEN.USDC.BSC,
     maxSpread: 0.1,
@@ -185,7 +184,7 @@ addPPM({
   chainId: CHAIN_ID.BSC,
   pSymm: pSymm.BSC,
   state: STATE.DISPUTE,
-  args: {smaType:"paraswap"},
+  args: { smaType: "paraswap" },
   party: ownerMultisig,
 });
 
@@ -194,7 +193,7 @@ addPPM({
   chainId: CHAIN_ID.BSC,
   pSymm: pSymm.BSC,
   state: STATE.PAUSE,
-  args: {smaType:"paraswap"},
+  args: { smaType: "paraswap" },
   party: ownerMultisig,
 });
 
@@ -205,7 +204,7 @@ addPPM({
   pSymm: pSymm.BSC,
   state: STATE.DEFAULT,
   args: { newState: STATE.DISPUTE },
-  party: [guardianPub, ownerMultisig, curratorPub]
+  party: [guardianPub, ownerMultisig, curratorPub],
 });
 
 addPPM({
@@ -214,17 +213,17 @@ addPPM({
   pSymm: pSymm.BSC,
   state: STATE.DEFAULT,
   args: { newState: STATE.PAUSE },
-  party: [guardianPub, ownerMultisig]
+  party: [guardianPub, ownerMultisig],
 });
 
 addPPM({
-    type: "changeCustodyState",
-    chainId: CHAIN_ID.BSC,
-    pSymm: pSymm.BSC,
-    state: STATE.PAUSE,
-    args: { newState: STATE.DEFAULT },
-    party: ownerMultisig,
-  });
+  type: "changeCustodyState",
+  chainId: CHAIN_ID.BSC,
+  pSymm: pSymm.BSC,
+  state: STATE.PAUSE,
+  args: { newState: STATE.DEFAULT },
+  party: ownerMultisig,
+});
 
 // TODO add venus and Thena
 

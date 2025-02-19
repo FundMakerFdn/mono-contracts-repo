@@ -4,11 +4,20 @@ import {
   parseAbiParameters,
   encodeAbiParameters,
   concat,
+  pad,
 } from "viem";
+import { StandardMerkleTree } from "@openzeppelin/merkle-tree";
 
 class PPMBuilder {
   constructor() {
     this.ppmItems = [];
+    this.argsToTypes = {
+      deploySMA: "string smaType,address factoryAddress,bytes callData",
+      callSMA: "string smaType,address smaAddress,bytes callData",
+      custodyToAddress: "address receiver",
+      custodyToSMA: "address smaType,address token",
+      changeCustodyState: "uint8 newState",
+    };
   }
 
   // Expands object combinations for array values in party, chainId, and state
@@ -39,14 +48,26 @@ class PPMBuilder {
   }
 
   addItem(_item) {
-    const item = { ..._item };
+    const item = { ..._item }; // copy by value
     if (item.type === "callSMA") {
-      const calldata = this.encodeCalldata(
-        item.args.calldata.type,
-        item.args.calldata.args
+      const callData = this.encodeCalldata(
+        item.args.callData.type,
+        item.args.callData.args
       );
-      item.args.calldata = calldata;
+      item.args.callData = callData;
     }
+    const parsed = parseAbiParameters(this.argsToTypes[item.type]).slice(
+      0,
+      item.args.length
+    );
+
+    const argList = [];
+    for (const { name } of parsed) {
+      argList.push(item.args[name]);
+    }
+
+    item.args = encodeAbiParameters(parsed, argList);
+    console.log("Full encoded args:", item.args);
 
     const expanded = this.expandObject(item);
     this.ppmItems.push(...expanded);
@@ -55,6 +76,31 @@ class PPMBuilder {
 
   getPPM() {
     return this.ppmItems;
+  }
+
+  buildTreeRoot() {
+    const values = this.ppmItems.map((item) => [
+      item.type,
+      item.chainId,
+      item.pSymm,
+      item.state,
+      item.args,
+      item.party.parity,
+      pad(item.party.x),
+    ]);
+    console.log("Merkle tree leaves: ", values);
+
+    const tree = StandardMerkleTree.of(values, [
+      "string", // entry type
+      "uint256", // chainId
+      "address", // pSymm
+      "uint8", // state
+      "bytes", // abi.encode(args)
+      "uint8", // party.parity
+      "bytes32", // party.x
+    ]);
+
+    return tree.root;
   }
 
   encodeCalldata(funcType, funcArgs) {
@@ -74,8 +120,10 @@ class PPMBuilder {
       funcArgs
     );
 
-    console.log(selector, params);
-    console.log(concat([selector, params]));
+    const callData = concat([selector, params]);
+    console.log("Encoded callData:", callData);
+
+    return callData;
   }
 }
 
