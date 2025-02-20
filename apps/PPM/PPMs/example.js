@@ -1,12 +1,4 @@
-import {
-  NULL_ADDR,
-  CHAIN_ID,
-  pSymm,
-  STATE,
-  TOKEN,
-  curratorMultisig,
-  ownerMultisig,
-} from "./globalVariables.js";
+import { NULL_ADDR, CHAIN_ID, pSymm, STATE, TOKEN } from "./globalVariables.js";
 
 import { PPMBuilder } from "./ppmBuilder.js";
 
