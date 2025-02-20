@@ -234,7 +234,8 @@ contract MockPPM is EIP712 {
         bytes32 _id,
         string calldata _smaType,
         address _smaAddress,
-        bytes calldata _data,
+        bytes calldata _fixedCallData,
+        bytes calldata _tailCallData,
         uint256 _timestamp,
         Schnorr.PPMKey calldata pubKey,
         Schnorr.Signature calldata sig,
@@ -252,28 +253,32 @@ contract MockPPM is EIP712 {
             block.chainid,
             address(this),
             custodyState[_id],
-            abi.encode(_smaType, _smaAddress, _data),
+            abi.encode(_smaType, _smaAddress, _fixedCallData),
             pubKey.parity,
             pubKey.x
         ));
         require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
 
+		// @docs _fixedCallData = bytes.concat(selector, abi.encode(partialArgs))
+		// @docs _tailCallData = abi.encode(restOfArgs)
+		bytes memory _fullCallData = bytes.concat(_fixedCallData, _tailCallData);
+
         // Verify signature
         bytes32 message = keccak256(abi.encode(
-            _timestamp,
-            "callSMA", 
-            _id,
-            _smaType,
-            _smaAddress,
-            _data
-        ));
+			_timestamp,
+			"callSMA", 
+			_id,
+			_smaType,
+			_smaAddress,
+			_fullCallData
+		));
         require(Schnorr.verify(pubKey, message, sig), "Invalid signature");
         // bytes32 signatureHash = keccak256(abi.encode(sig.e, sig.s));
         // require(!signatureClaimed[signatureHash], "Signature already claimed");
         // signatureClaimed[signatureHash] = true;
         // lastSMAUpdateTimestamp[_id] = _timestamp;
 
-        (bool success,) = _smaAddress.call(_data);
+        (bool success,) = _smaAddress.call(_fullCallData);
         require(success, "SMA call failed");
     }
 
