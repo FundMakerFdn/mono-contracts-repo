@@ -19,6 +19,9 @@ interface ISMAFactory {
 // Will be merged to pSymm
 contract MockPPM is EIP712 {
     event PPMUpdated(bytes32 indexed id, bytes32 ppm, uint256 timestamp);
+    event CustodyStateChanged(bytes32 indexed id, uint8 newState);
+    event SMADeployed(bytes32 indexed id, address factoryAddress, address smaAddress);
+
 
     mapping(bytes32 => bytes32) private custodys;
     mapping(bytes32 => mapping(address => uint256)) public custodyBalances; // custodyId => token address => balance
@@ -52,20 +55,6 @@ contract MockPPM is EIP712 {
         // @TODO update state
         // @TODO event
     }
-    function isPubKeyWhitelisted(
-        bytes32 _id,
-        string memory _action,
-        Schnorr.PPMKey calldata pubKey,
-        bytes32[] calldata merkleProof
-    ) public view returns (bool) {
-        // PPMKey is either ETH address or Schnorr pubkey
-        bytes32 leaf = keccak256(abi.encode(
-            "whitelist", block.chainid,
-            address(this),  custodyState[_id],
-            abi.encode(_action, pubKey.parity, pubKey.x)
-        ));
-        return MerkleProof.verify(merkleProof, PPMs[_id], leaf);
-    }
 
     function updatePPM(
         bytes32 _id,
@@ -78,8 +67,17 @@ contract MockPPM is EIP712 {
         // Verify timestamp
         require(_timestamp <= block.timestamp && _timestamp > lastSMAUpdateTimestamp[_id], "Signature expired");
 
-        // Verify pubkey is whitelisted to updatePPM in current state
-        require(isPubKeyWhitelisted(_id, "updatePPM", pubKey, merkleProof), "Invalid merkle proof");
+        // Verify pubkey is whitelisted for this action
+        bytes32 leaf = keccak256(abi.encode(
+            "updatePPM",
+            block.chainid,
+            address(this),
+            custodyState[_id],
+            abi.encode(),
+            pubKey.parity,
+            pubKey.x
+        ));
+        require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
 
         // Verify signature
         bytes32 message = keccak256(abi.encode(
@@ -98,11 +96,9 @@ contract MockPPM is EIP712 {
         emit PPMUpdated(_id, _newPPM, _timestamp);
     }
 
-    event SMADeployed(bytes32 indexed id, address factoryAddress, address smaAddress);
-
-    // TODO: Overload action functions without sig parameter (if we check with msg.sender)
     function deploySMA(
         bytes32 _id,
+        string calldata _smaType,
         address _factoryAddress,
         bytes calldata _data,
         uint256 _timestamp,
@@ -113,14 +109,24 @@ contract MockPPM is EIP712 {
         // Verify timestamp
         require(_timestamp <= block.timestamp && _timestamp > lastSMAUpdateTimestamp[_id], "Signature expired");
 
-        // Verify pubkey is whitelisted to deploySMA in current state
-        require(isPubKeyWhitelisted(_id, "deploySMA", pubKey, merkleProof), "Invalid merkle proof");
+        // Verify pubkey is whitelisted for this action
+        bytes32 leaf = keccak256(abi.encode(
+            "deploySMA",
+            block.chainid,
+            address(this),
+            custodyState[_id],
+            abi.encode(_smaType, _factoryAddress, _data),
+            pubKey.parity,
+            pubKey.x
+        ));
+        require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
 
         // Verify signature
         bytes32 message = keccak256(abi.encode(
             _timestamp,
             "deploySMA",
             _id,
+            _smaType,
             _factoryAddress,
             _data
         ));
@@ -153,11 +159,15 @@ contract MockPPM is EIP712 {
         // Verify timestamp
         require(_timestamp <= block.timestamp, "Signature expired");
 
-        // Verify pubkey is whitelisted for custodyToAddress to this destination
+        // Verify pubkey is whitelisted for this action
         bytes32 leaf = keccak256(abi.encode(
-            "custodyToAddress", block.chainid,
-            address(this), custodyState[_id],
-            abi.encode(pubKey, _token, _destination)
+            "custodyToAddress",
+            block.chainid,
+            address(this),
+            custodyState[_id],
+            abi.encode(_destination),
+            pubKey.parity,
+            pubKey.x
         ));
         require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
 
@@ -191,13 +201,17 @@ contract MockPPM is EIP712 {
 
         // Verify SMA is whitelisted
         require(smaAllowance[_id][_smaAddress], "SMA not whitelisted");
-		require(onlyCustodyOwner[_smaAddress], "No permission")
+		require(onlyCustodyOwner[_smaAddress], "No permission");
 
-        // Verify pubkey is whitelisted for custodyToSMA to this destination
+        // Verify pubkey is whitelisted for this action
         bytes32 leaf = keccak256(abi.encode(
-            "custodyToSMA", block.chainid,
-            address(this), custodyState[_id],
-            abi.encode(pubKey, _token)
+            "custodyToSMA",
+            block.chainid,
+            address(this),
+            custodyState[_id],
+            abi.encode(_smaAddress, _token),
+            pubKey.parity,
+            pubKey.x
         ));
         require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
 
@@ -218,6 +232,7 @@ contract MockPPM is EIP712 {
 
     function callSMA(
         bytes32 _id,
+        string calldata _smaType,
         address _smaAddress,
         bytes calldata _data,
         uint256 _timestamp,
@@ -231,14 +246,24 @@ contract MockPPM is EIP712 {
         // Verify SMA is whitelisted
         require(smaAllowance[_id][_smaAddress], "SMA not whitelisted");
 
-        // Verify pubkey is whitelisted to callSMA in current state
-        require(isPubKeyWhitelisted(_id, "callSMA", pubKey, merkleProof), "Invalid merkle proof");
+        // Verify pubkey is whitelisted for this action
+        bytes32 leaf = keccak256(abi.encode(
+            "callSMA",
+            block.chainid,
+            address(this),
+            custodyState[_id],
+            abi.encode(_smaType, _smaAddress, _data),
+            pubKey.parity,
+            pubKey.x
+        ));
+        require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
 
         // Verify signature
         bytes32 message = keccak256(abi.encode(
             _timestamp,
             "callSMA", 
             _id,
+            _smaType,
             _smaAddress,
             _data
         ));
@@ -263,11 +288,15 @@ contract MockPPM is EIP712 {
         // Verify timestamp
         require(_timestamp <= block.timestamp, "Signature expired");
 
-        // Verify pubkey is whitelisted for changeCustodyState
+        // Verify pubkey is whitelisted for this action
         bytes32 leaf = keccak256(abi.encode(
-            "changeCustodyState", block.chainid,
-            address(this), custodyState[_id],
-            abi.encode(pubKey, _state)
+            "changeCustodyState",
+            block.chainid,
+            address(this),
+            custodyState[_id],
+            abi.encode(_state),
+            pubKey.parity,
+            pubKey.x
         ));
         require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
 
@@ -284,4 +313,3 @@ contract MockPPM is EIP712 {
         emit CustodyStateChanged(_id, _state);
     }
 }
-/Users/maxguillabert/march24/mono-contracts-repo

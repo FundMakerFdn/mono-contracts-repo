@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "hardhat/console.sol";
+
+using SafeERC20 for IERC20;
 
 contract MockAaveSMA {
     address public immutable pSymmAddress;
@@ -27,7 +31,7 @@ contract MockAaveSMA {
 		console.log("Borrow function called with arguments %s %s", _token, _amount);
     }
 
-    function smaToCustody(address _token, uint256 _amount) external view onlyPSymm {
+    function smaToCustody(address _token, uint256 _amount) external onlyPSymm {
       IERC20(_token).safeTransfer(pSymmAddress, _amount);
     }
 
