@@ -31,7 +31,8 @@
     "party": "./demo/tmux/party.sh"
   },
   "imports": {
-    "#root/*": "./*"
+    "#root/*": "./*",
+    "#libs/*": "./libs/*"
   },
   "devDependencies": {
     "yarn-audit-fix": "^10.1.1"

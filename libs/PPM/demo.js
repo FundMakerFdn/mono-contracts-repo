@@ -7,7 +7,7 @@ import {
   computeChallenge,
   combinePartialSignatures,
   verifySignature,
-} from "./schnorr.js";
+} from "@fundmaker/schnorr";
 
 // Example private keys (in production these would be securely managed)
 const partyAKey = BigInt(
