@@ -36,5 +36,10 @@
   },
   "devDependencies": {
     "yarn-audit-fix": "^10.1.1"
-  }
+  },
+  "workspaces": [
+    "apps/*",
+    "libs/*"
+  ],
+  "private": true
 }

@@ -15,7 +15,7 @@ class PPMBuilder {
       deploySMA: "string smaType,address factoryAddress,bytes callData",
       callSMA: "string smaType,address smaAddress,bytes callData",
       custodyToAddress: "address receiver",
-      custodyToSMA: "address smaType,address token",
+      custodyToSMA: "string smaType,address token",
       changeCustodyState: "uint8 newState",
     };
   }
