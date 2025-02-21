@@ -76,9 +76,21 @@ note : ..., executionReport, liquidation, liquidation Ack
 
 note : ..., executionReport, liquidation, liquidation Ack
 
-/* ------------ Scenario 1.2.2: ------------ */
-
-
 /* ------------ Scenario 1.3.0: ------------ */
+My counterparty did disconect, what do I do.
+Push message onchain, counterparty need to answer x% of the time, if not, I can liquidate.
 
-note : PPM cancel grace period, heathbeat, heathbeat % ACK, minContractAmount, contractExpiry, max%LimitOrderFromPrice, min%LimitOrderFromPrice,  fundingRateSource
+/* ------------ Scenario 1.3.1: ------------ */
+My counterparty has a lot of latency. ( Do I close trades ? ) ( 1 minute, 10 seconde, 1 second)
+
+/* ------------ Scenario 1.3.2: ------------ */
+My config file or db is corrupted, do I get an alerte, does it stop trades . ( But I live positions )
+
+/* ------------ Scenario 1.3.3: ------------ */
+Cross Chain tests, 1 solver is on chainA, and one solver is on chain B. ( Bridge )
+
+/* ------------ Scenario 1.3.4: ------------ */
+Haircut test, 1 solver use USDC as collateral and the other use ETH as collateral.
+
+/* ------------ Scenario 1.3.5: ------------ */
+Funding agreement test.
