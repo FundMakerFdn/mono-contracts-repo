@@ -8,6 +8,7 @@ export default function Home() {
   const [positions, setPositions] = useState([]);
   const [orderPrice, setOrderPrice] = useState('');
   const [orderQuantity, setOrderQuantity] = useState('');
+  const [amount, setAmount] = useState(1000000000000000000);
 
   const handleDeposit = async () => {
     try {
@@ -16,14 +17,47 @@ export default function Home() {
         return;
       }
 
+      // Setup clients
+      const publicClient = createPublicClient({
+        chain: hardhat,
+        transport: custom(window.ethereum)
+      });
+
       const walletClient = createWalletClient({
         chain: hardhat,
         transport: custom(window.ethereum)
       });
 
-      const [address] = await walletClient.requestAddresses();
+      const [account] = await walletClient.requestAddresses();
+
+      console.log(account)
+
+      const approveData = {
+        address: MOCK_TOKEN_ADDRESS,
+        abi: MockTokenAbi,
+        functionName: 'approve',
+        args: [MOCK_DEPOSIT_ADDRESS, amount],
+        account
+      };
+
+      const approveTx = await walletClient.writeContract(approveData);
+
+      await publicClient.waitForTransactionReceipt({ hash: approveTx });
+
+      const depositData = {
+        address: MOCK_DEPOSIT_ADDRESS,
+        abi: MockDepositAbi,
+        functionName: 'deposit',
+        args: [amount],
+        account
+      };
+  
+      const depositTx = await walletClient.writeContract(depositData);
+
+      const receipt = await publicClient.waitForTransactionReceipt({ hash: depositTx });
+
+      console.log('Deposit successful!', receipt);
       
-      // Mock deposit for demo
       setIsDeposited(true);
       alert('Deposit successful!');
     } catch (error) {

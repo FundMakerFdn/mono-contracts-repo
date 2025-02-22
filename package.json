@@ -33,7 +33,8 @@
     "noir_demo": "./demo/tmux/noir_demo.sh",
     "server:a": "cd noir_demo && node server_A.js",
     "server:b": "cd noir_demo && node server_B.js",
-    "dev": "cd noir_demo/frontend && yarn dev"
+    "dev": "cd noir_demo/frontend && yarn dev",
+    "noir_demo_deploy": "cd noir_demo && hardhat run scripts/deploy.js --network localhost"
   },
   "imports": {
     "#root/*": "./*",
