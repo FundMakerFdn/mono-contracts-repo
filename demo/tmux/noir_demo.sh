@@ -14,12 +14,12 @@ tmux new-window -t $SESSION:1 -n 'frontend'
 tmux send-keys -t $SESSION:1 'cd noir_demo/frontend && npm run dev' C-m
 
 # Window 3: PartyA Backend
-tmux new-window -t $SESSION:2 -n 'partyA'
-tmux send-keys -t $SESSION:2 'cd noir_demo/partyA && node server.js' C-m
+tmux new-window -t $SESSION:2 -n 'partyB'
+tmux send-keys -t $SESSION:2 'cd noir_demo && node server_B.js' C-m
 
 # Window 4: PartyB Backend
-tmux new-window -t $SESSION:3 -n 'partyB'
-tmux send-keys -t $SESSION:3 'cd noir_demo/partyB && node server.js' C-m
+tmux new-window -t $SESSION:3 -n 'partyA'
+tmux send-keys -t $SESSION:3 'cd noir_demo && node server_A.js' C-m
 
 # Attach to session
 tmux attach-session -t $SESSION
