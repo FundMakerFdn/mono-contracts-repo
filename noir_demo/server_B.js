@@ -1,9 +1,6 @@
 const WebSocket = require('ws');
 
-// Sequence counter
 let seq = { a: 1, b: 1 };
-
-// Storage
 let storage = {
   messages: [],
   orders: [],
@@ -12,8 +9,7 @@ let storage = {
 
 const partyClient = "0xPartyA";
 const partyBroker = "0xPartyB";
-
-const getDate = () => Date.now() * 1_000_000; // nanoseconds
+const getDate = () => Date.now() * 1_000_000;
 
 // Helper functions
 const makeStandardHeader = (MsgType, isPartyA) => ({
@@ -38,20 +34,17 @@ const makeAckB = () => ({
   StandardTrailer: makeStandardTrailer(false),
 });
 
-// Mock instrument data
 const instrument = {
   Symbol: "BTC/USD",
   InstrumentID: "PSYMM0000131104",
   InstrumentType: "PERP",
 };
 
-// WebSocket server
 const wss = new WebSocket.Server({ port: 3002 });
 
 wss.on('connection', (ws) => {
   console.log('PartyA connected');
 
-  // Send initial PPM report
   const reportPPM = {
     StandardHeader: makeStandardHeader("PPM", false),
     PPM: [
@@ -68,15 +61,12 @@ wss.on('connection', (ws) => {
   };
   ws.send(JSON.stringify(reportPPM));
 
-  // Handle messages from PartyA
   ws.on('message', (data) => {
     const message = JSON.parse(data);
     console.log('Received from PartyA:', message);
 
-    // Store message
     storage.messages = [message, ...storage.messages.slice(0, 1)];
 
-    // Process different message types
     switch (message.StandardHeader.MsgType) {
       case 'A': // Logon
         handleLogon(ws);
@@ -91,21 +81,28 @@ wss.on('connection', (ws) => {
         break;
       
       case 'ACK': // Acknowledgment
-        // Process ack if needed
+        console.log('Received ACK from PartyA');
         break;
     }
+  });
+
+  ws.on('error', (error) => {
+    console.error('WebSocket error:', error);
+  });
+
+  ws.on('close', () => {
+    console.log('PartyA disconnected');
   });
 });
 
 function handleLogon(ws) {
+  console.log('Processing logon request');
   ws.send(JSON.stringify(makeAckB()));
 }
 
 function handleQuoteRequest(ws, request) {
-  // Send ack first
   ws.send(JSON.stringify(makeAckB()));
 
-  // Generate random quote (mock implementation)
   const basePrice = 50000;
   const randomSpread = Math.random() * 100;
   
@@ -117,7 +114,7 @@ function handleQuoteRequest(ws, request) {
     OfferPx: (basePrice + randomSpread).toFixed(2),
     BidSize: "100",
     OfferSize: "100",
-    ValidUntilTime: getDate() + 2 * 86400 * 1_000_000_000,
+    ValidUntilTime: getDate() + 2 * 86400 * 1_000_000_000, // 2 days
     StandardTrailer: makeStandardTrailer(false),
   };
 
@@ -126,23 +123,19 @@ function handleQuoteRequest(ws, request) {
 }
 
 function handleNewOrder(ws, order) {
-  // Send ack first
   ws.send(JSON.stringify(makeAckB()));
 
-  // Store order
   storage.orders.push(order);
 
-  // Mock fill in two parts
   const halfQty = Math.floor(order.OrderQtyData.OrderQty / 2);
   
-  // First execution report (partial fill)
   const execReport1 = {
     StandardHeader: makeStandardHeader("8", false),
     OrderID: `ORD${Date.now()}`,
     ClOrdID: order.ClOrdID,
     ExecID: `EXEC${Date.now()}_1`,
     ExecType: "F",
-    OrdStatus: "1",
+    OrdStatus: "1", // Partially filled
     Instrument: instrument,
     Side: order.Side,
     OrderQtyData: order.OrderQtyData,
@@ -155,7 +148,6 @@ function handleNewOrder(ws, order) {
 
   ws.send(JSON.stringify(execReport1));
 
-  // Second execution report (complete fill) after 2 seconds
   setTimeout(() => {
     const execReport2 = {
       StandardHeader: makeStandardHeader("8", false),
@@ -163,7 +155,7 @@ function handleNewOrder(ws, order) {
       ClOrdID: order.ClOrdID,
       ExecID: `EXEC${Date.now()}_2`,
       ExecType: "F",
-      OrdStatus: "2",
+      OrdStatus: "2", // Filled
       Instrument: instrument,
       Side: order.Side,
       OrderQtyData: order.OrderQtyData,
@@ -177,5 +169,10 @@ function handleNewOrder(ws, order) {
     ws.send(JSON.stringify(execReport2));
   }, 2000);
 }
+
+// Error handling for the server
+wss.on('error', (error) => {
+  console.error('WebSocket server error:', error);
+});
 
 console.log('PartyB server running on port 3002');

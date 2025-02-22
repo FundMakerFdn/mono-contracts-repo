@@ -2,13 +2,21 @@
 import { useState, useEffect } from 'react';
 import { createPublicClient, http, createWalletClient, custom } from 'viem';
 import { hardhat } from 'viem/chains';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function Home() {
+// Import contract artifacts
+import {contracts, MockTokenAbi, MockDepositAbi} from '@/src/config.js';
+
+const MOCK_TOKEN_ADDRESS = contracts.MockToken;
+const MOCK_DEPOSIT_ADDRESS = contracts.MockDeposit;
+
+export default function TradingInterface() {
   const [isDeposited, setIsDeposited] = useState(false);
   const [positions, setPositions] = useState([]);
+  const [collateral, setCollateral] = useState({ balance: '0', upnl: '0' });
   const [orderPrice, setOrderPrice] = useState('');
   const [orderQuantity, setOrderQuantity] = useState('');
-  const [amount, setAmount] = useState(1000000000000000000);
+  const depositAmount = BigInt('1000000000000000000'); // 1 ETH in wei
 
   const handleDeposit = async () => {
     try {
@@ -17,7 +25,6 @@ export default function Home() {
         return;
       }
 
-      // Setup clients
       const publicClient = createPublicClient({
         chain: hardhat,
         transport: custom(window.ethereum)
@@ -30,39 +37,33 @@ export default function Home() {
 
       const [account] = await walletClient.requestAddresses();
 
-      console.log(account)
-
-      const approveData = {
+      // Approve token spending
+      const approveTx = await walletClient.writeContract({
         address: MOCK_TOKEN_ADDRESS,
         abi: MockTokenAbi,
         functionName: 'approve',
-        args: [MOCK_DEPOSIT_ADDRESS, amount],
+        args: [MOCK_DEPOSIT_ADDRESS, depositAmount],
         account
-      };
-
-      const approveTx = await walletClient.writeContract(approveData);
+      });
 
       await publicClient.waitForTransactionReceipt({ hash: approveTx });
 
-      const depositData = {
+      // Deposit tokens
+      const depositTx = await walletClient.writeContract({
         address: MOCK_DEPOSIT_ADDRESS,
         abi: MockDepositAbi,
         functionName: 'deposit',
-        args: [amount],
+        args: [depositAmount],
         account
-      };
-  
-      const depositTx = await walletClient.writeContract(depositData);
+      });
 
-      const receipt = await publicClient.waitForTransactionReceipt({ hash: depositTx });
-
-      console.log('Deposit successful!', receipt);
+      await publicClient.waitForTransactionReceipt({ hash: depositTx });
       
       setIsDeposited(true);
       alert('Deposit successful!');
     } catch (error) {
       console.error('Deposit error:', error);
-      alert('Deposit failed');
+      alert('Deposit failed: ' + error.message);
     }
   };
 
@@ -86,100 +87,124 @@ export default function Home() {
           quantity: orderQuantity
         })
       });
-      const data = await response.json();
-      alert('Buy order sent!');
+      
+      if (!response.ok) throw new Error('Buy order failed');
+      
+      alert('Buy order sent successfully!');
+      setOrderPrice('');
+      setOrderQuantity('');
     } catch (error) {
       console.error('Buy error:', error);
-      alert('Buy failed');
+      alert('Buy failed: ' + error.message);
     }
   };
 
-  // Fetch positions periodically
   useEffect(() => {
-    const fetchPositions = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/partyA/position', {
+        // Fetch positions
+        const posResponse = await fetch('http://localhost:3001/api/partyA/position', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' }
         });
-        const data = await response.json();
-        setPositions(data.positions);
+        const posData = await posResponse.json();
+        setPositions(posData.positions);
+
+        // Fetch collateral
+        const colResponse = await fetch('http://localhost:3001/api/partyA/collateral', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const colData = await colResponse.json();
+        setCollateral(colData);
       } catch (error) {
-        console.error('Error fetching positions:', error);
+        console.error('Error fetching data:', error);
       }
     };
 
-    const interval = setInterval(fetchPositions, 5000);
+    const interval = setInterval(fetchData, 5000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h2 className="text-xl font-medium mb-4">Trading Interface</h2>
-        <div className="space-y-4">
-          <div>
+    <div className="p-8 max-w-6xl mx-auto space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Trading Controls</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex gap-4">
             <button 
               onClick={handleDeposit}
               disabled={isDeposited}
-              className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 disabled:bg-gray-400"
+              className="bg-blue-600 text-white px-4 py-2 rounded disabled:bg-gray-400"
             >
               Deposit
             </button>
+            <div className="text-sm text-gray-600">
+              Balance: {collateral.balance} USDC
+              <br />
+              uPNL: {collateral.upnl} USDC
+            </div>
           </div>
-          <div className="flex gap-2 items-start">
+          
+          <div className="flex gap-4 items-center">
             <input
-              type="text"
+              type="number"
               placeholder="Price"
               value={orderPrice}
               onChange={(e) => setOrderPrice(e.target.value)}
-              className="border rounded p-2 w-32"
+              className="border rounded px-3 py-2 w-32"
             />
             <input
-              type="text"
+              type="number"
               placeholder="Quantity"
               value={orderQuantity}
               onChange={(e) => setOrderQuantity(e.target.value)}
-              className="border rounded p-2 w-32"
+              className="border rounded px-3 py-2 w-32"
             />
             <button
               onClick={handleBuy}
               disabled={!isDeposited}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 disabled:bg-gray-300"
+              className="bg-green-600 text-white px-4 py-2 rounded disabled:bg-gray-400"
             >
               Buy
             </button>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      <div>
-        <h2 className="text-xl font-medium mb-4">Open Positions</h2>
-        <div className="border rounded-lg overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="text-left p-4">Order ID</th>
-                <th className="text-left p-4">Side</th>
-                <th className="text-left p-4">Quantity</th>
-                <th className="text-left p-4">Price</th>
-                <th className="text-left p-4">Last Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              {positions.map((position) => (
-                <tr key={position.OrderID} className="border-t">
-                  <td className="p-4">{position.OrderID}</td>
-                  <td className="p-4">{position.Side === '1' ? 'Buy' : 'Sell'}</td>
-                  <td className="p-4">{position.CumQty}</td>
-                  <td className="p-4">{position.Price}</td>
-                  <td className="p-4">{position.LastPx}</td>
+      <Card>
+        <CardHeader>
+          <CardTitle>Positions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-3">Order ID</th>
+                  <th className="text-left p-3">Side</th>
+                  <th className="text-left p-3">Quantity</th>
+                  <th className="text-left p-3">Price</th>
+                  <th className="text-left p-3">Last Price</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+              </thead>
+              <tbody>
+                {positions.map((position) => (
+                  <tr key={position.OrderID} className="border-b">
+                    <td className="p-3">{position.OrderID}</td>
+                    <td className="p-3">{position.Side === '1' ? 'Buy' : 'Sell'}</td>
+                    <td className="p-3">{position.CumQty}</td>
+                    <td className="p-3">{position.Price}</td>
+                    <td className="p-3">{position.LastPx}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -6,10 +6,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Sequence counter
-let seq = { a: 1, b: 1 };
 
-// Storage
+let seq = { a: 1, b: 1 };
 let storage = {
   positions: [],
   messages: [],
@@ -19,10 +17,9 @@ let storage = {
 
 const partyClient = "0xPartyA";
 const partyBroker = "0xPartyB";
+const getDate = () => Date.now() * 1_000_000;
 
-const getDate = () => Date.now() * 1_000_000; // nanoseconds
 
-// Helper functions from the protocol
 const makeStandardHeader = (MsgType, isPartyA) => ({
   BeginString: "pSymm.FIX.2.0",
   MsgType,
@@ -36,21 +33,21 @@ const makeStandardHeader = (MsgType, isPartyA) => ({
 
 const makeStandardTrailer = (isA) => ({
   PublicKey: isA ? partyClient : partyBroker,
-  Signature: "0xSignature", // Mock signature
+  Signature: "0xSignature",
 });
 
-const makeAckA = () => ({
+const makeAck = () => ({
   StandardHeader: makeStandardHeader("ACK", true),
   RefMsgSeqNum: seq.b - 1,
   StandardTrailer: makeStandardTrailer(true),
 });
 
-// WebSocket connection to PartyB
+
 const wsClient = new WebSocket('ws://localhost:3002');
 
 wsClient.on('open', () => {
   console.log('Connected to PartyB');
-  // Send logon message
+
   const logon = {
     StandardHeader: makeStandardHeader("A", true),
     HeartBtInt: 10,
@@ -63,25 +60,20 @@ wsClient.on('message', (data) => {
   const message = JSON.parse(data);
   console.log('Received from PartyB:', message);
 
-  // Store message
   storage.messages = [message, ...storage.messages.slice(0, 1)];
 
-  // Process different message types
   switch (message.StandardHeader.MsgType) {
     case 'PPM':
-      // Send ack for PPM report
-      wsClient.send(JSON.stringify(makeAckA()));
+      wsClient.send(JSON.stringify(makeAck()));
       break;
     
-    case 'S': // Quote
-      // Store quote and send ack
-      wsClient.send(JSON.stringify(makeAckA()));
+    case 'S':
+      wsClient.send(JSON.stringify(makeAck()));
       break;
     
-    case '8': // ExecutionReport
-      // Update positions
+    case '8':
       handleExecutionReport(message);
-      wsClient.send(JSON.stringify(makeAckA()));
+      wsClient.send(JSON.stringify(makeAck()));
       break;
   }
 });
@@ -104,6 +96,18 @@ function handleExecutionReport(report) {
       LastPx: report.LastPx
     });
   }
+
+  const totalValue = storage.positions.reduce((sum, pos) => {
+    const qty = parseFloat(pos.CumQty);
+    const price = parseFloat(pos.Price);
+    const lastPrice = parseFloat(pos.LastPx);
+    const pnl = pos.Side === '1' 
+      ? (lastPrice - price) * qty 
+      : (price - lastPrice) * qty;
+    return sum + pnl;
+  }, 0);
+
+  storage.upnl = totalValue.toFixed(2);
 }
 
 // API Routes
