@@ -56,26 +56,42 @@ task("addSymm", "Mint SYMM tokens to a wallet")
   });
 
 // To exclude files from compilation for debug purposes:
-// const {
-//   TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS,
-// } = require("hardhat/builtin-tasks/task-names");
+const {
+  TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS,
+} = require("hardhat/builtin-tasks/task-names");
 
-// subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS).setAction(
-//   async (_, __, runSuper) => {
-//     const paths = await runSuper();
-//     return paths.filter((p) => !p.includes("/pSymm/"));
-//   }
-// );
+subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS).setAction(
+  async (_, __, runSuper) => {
+    const paths = await runSuper();
+    return paths.filter(
+      // filter old pSymm and unfinished ETFMaker
+      (p) => !p.includes("/pSymm/") && !p.includes("/ETFMaker/")
+    );
+    // return paths.filter((p) => p.includes("/NoirTest/"));
+  }
+);
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
-    version: "0.8.27",
-    settings: {
-      viaIR: true,
-      optimizer: {
-        enabled: true,
-        runs: 200,
+    compilers: [
+      {
+        version: "0.8.27",
+        settings: {
+          viaIR: true,
+          optimizer: { enabled: false },
+        },
+      },
+    ],
+    overrides: {
+      "contracts/src/NoirTest/NoirTest.sol": {
+        version: "0.8.27",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
       },
     },
   },
@@ -85,8 +101,8 @@ module.exports = {
     },
   },
   paths: {
-    sources: "./apps/",
-    tests: "./apps/contracts/test",
+    sources: "./contracts/src/",
+    tests: "./contracts/test/",
     cache: "./dist/hardhat/cache",
     artifacts: "./dist/hardhat/artifacts",
   },
