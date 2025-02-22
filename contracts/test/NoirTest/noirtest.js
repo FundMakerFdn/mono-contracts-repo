@@ -54,19 +54,6 @@ describe("NoirTest", function () {
     const result = await noirTest.read.verify([proofHex, publicInputs[0]]);
     assert.equal(result, true, "Valid proof should verify");
   });
-
-  // it("Should reject an invalid proof", async function () {
-  //   const { noirTest, circuit } = await loadFixture(deployFixture);
-
-  //   const x = 5n;
-  //   const wrongY = 26n; // incorrect result
-
-  //   // Generate the proof with wrong public input
-  //   const proof = await circuit.generateFinalProof({ x }, wrongY);
-
-  //   // const result = await noirTest.read.verify([proof, wrongY]);
-  //   // assert.equal(result, false, "Invalid proof should not verify");
-  // });
 });
 //
 
