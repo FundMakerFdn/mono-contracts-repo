@@ -18,6 +18,7 @@
     "@openzeppelin/contracts": "^5.1.0",
     "@openzeppelin/merkle-tree": "^1.0.7",
     "better-sqlite3": "^11.5.0",
+    "express": "^4.21.2",
     "hardhat": "^2.22.16",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
@@ -32,7 +33,12 @@
     "read": "hardhat read --network localhost",
     "write": "hardhat write --network localhost",
     "scenario": "./demo/tmux/scenario.sh",
-    "party": "./demo/tmux/party.sh"
+    "party": "./demo/tmux/party.sh",
+    "noir_demo": "./demo/tmux/noir_demo.sh",
+    "server:a": "cd noir_demo && node server_A.js",
+    "server:b": "cd noir_demo && node server_B.js",
+    "dev": "cd noir_demo/frontend && yarn dev",
+    "noir_demo_deploy": "cd noir_demo && hardhat run scripts/deploy.js --network localhost"
   },
   "imports": {
     "#root/*": "./*",
