@@ -1,0 +1,6 @@
+[package]
+name = "pSymm"
+type = "bin"
+authors = [""]
+
+[dependencies]
