@@ -45,7 +45,7 @@ fn hashNote(note: Note, custody_id: [u8; 32]) -> [u8; 32] {
 // Split note into note_a + note_b
 fn main(
     note: Note, note_a: Note, note_b: Note,
-    note_index: Field, note_hash_path: [[u8; 32]; 30], // commitment merkle
+    note_index: Field, note_hash_path: [[u8; 32]; 10], // commitment merkle
     note_commitment: [u8; 32],
     noteA_commitment: [u8; 32],
     noteB_commitment: [u8; 32],
