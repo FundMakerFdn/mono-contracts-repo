@@ -19,7 +19,9 @@ export default function TradingInterface() {
   const [orderPrice, setOrderPrice] = useState('');
   const [orderQuantity, setOrderQuantity] = useState('');
   const [mintedBalance, setMintedBalance] = useState('0');
-  const depositAmount = BigInt('1000000000000000000'); // 1 ETH in wei
+  const DECIMALS = 18; // Standard ERC20 decimals
+  const TOKEN_UNIT = BigInt('1' + '0'.repeat(DECIMALS)); // 1 token in base units
+  const depositAmount = TOKEN_UNIT * BigInt(1000); // 1 ETH in wei
 
   // Initialize clients
   const setupClients = async () => {

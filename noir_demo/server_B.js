@@ -11,8 +11,11 @@ const MockTokenAbi =
 const MockDepositAbi =
 	require("./frontend/artifacts/contracts/MockPPM.sol/MockDeposit.json").abi;
 
-const contracts = require("./frontend/src/contracts.json").contract;
-console.log("contracts: ", contracts);
+const contracts = require("./frontend/src/contracts.json").contracts;
+
+const DECIMALS = 18;
+const TOKEN_UNIT = BigInt('1' + '0'.repeat(DECIMALS));
+const depositAmount = TOKEN_UNIT * BigInt(1000);
 
 const MOCK_TOKEN_ADDRESS = contracts.MockToken;
 const MOCK_DEPOSIT_ADDRESS = contracts.MockDeposit;
