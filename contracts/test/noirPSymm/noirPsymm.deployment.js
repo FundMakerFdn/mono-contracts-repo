@@ -18,6 +18,14 @@ async function deployFixture() {
   };
 }
 
+async function deployTestFixture() {
+  const [deployer, partyA, partyB] = await hre.viem.getWalletClients();
+  const publicClient = await hre.viem.getPublicClient();
+  const noirPsymm = await hre.viem.deployContract("noirPsymm", []);
+  const mockUSDC = await hre.viem.deployContract("MockUSDC", []);
+  return { noirPsymm, mockUSDC, deployer, partyA, partyB, publicClient };
+}
+
 function shouldDeployNoirPsymm() {
   it("should deploy successfully", async function () {
     const { noirPsymm } = await loadFixture(deployFixture);
@@ -27,5 +35,6 @@ function shouldDeployNoirPsymm() {
 
 module.exports = {
   shouldDeployNoirPsymm,
-  deployFixture
+  deployFixture,
+  deployTestFixture
 };

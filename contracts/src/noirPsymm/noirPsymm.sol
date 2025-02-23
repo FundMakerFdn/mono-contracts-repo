@@ -57,7 +57,7 @@ contract noirPsymm is EIP712 {
     /// @dev Updates the tree upward while preserving all previously inserted data.
     /// @param _commitment The commitment (leaf) to insert.
     /// @return index The index at which the commitment was inserted.
-    function _insert(bytes32 _commitment) internal returns (uint32 index) {
+    function _insert(bytes32 _commitment) public returns (uint32 index) {
         index = nextIndex;
         require(index < MAX_LEAVES, "Merkle tree is full");
         
@@ -119,12 +119,14 @@ contract noirPsymm is EIP712 {
 
     /// @notice Moves an address-based deposit into custody.
     /// @param _commitment The commitment associated with the deposit.
-    function addressToCustody(bytes32 _commitment) public {
+    function addressToCustody(bytes32 _commitment, uint256 _amount, address _token) public {
         require(!commitments[_commitment], "The commitment has been submitted");
 
         uint32 insertedIndex = _insert(_commitment);
         commitments[_commitment] = true;
 
+        // deposit erc20
+        IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
         emit Deposit(_commitment, insertedIndex, block.timestamp);
     }
 
@@ -229,8 +231,8 @@ contract noirPsymm is EIP712 {
         address recoveredSigner = ECDSA.recover(ethSignedMessageHash, _signature);
         require(recoveredSigner == _signer, "Invalid signature");
 
-        addressToCustody(_commitment1);
-        addressToCustody(_commitment2);
+        addressToCustody(_commitment1, 0, address(0));
+        addressToCustody(_commitment2, 0, address(0));
 
         
         /*Verify(bytes calldata _zkProof,
@@ -312,7 +314,7 @@ contract noirPsymm is EIP712 {
     function _getPPM(bytes32 _id) internal returns (bytes32) {
         if (PPMs[_id] == bytes32(0)) {
             PPMs[_id] = _id; // or assign the correct bytes32 root
-        }
-        return PPMs[_id];
-    }   
+            }
+            return PPMs[_id];
+        }   
 }
