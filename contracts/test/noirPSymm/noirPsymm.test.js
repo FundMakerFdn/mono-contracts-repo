@@ -8,4 +8,4 @@ const { shouldDeployNoirPsymm } = require("./noirPsymm.deployment");
 
 shouldDeployNoirPsymm();
 //shouldInsert();
-//shouldCustodyToAddress();
+shouldCustodyToAddress();

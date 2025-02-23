@@ -182,9 +182,10 @@ contract noirPsymm {
 
         IERC20(_token).safeTransfer(_destination, _amount);
 
+        addressToCustody(_commitment, 0, address(0));
+
         /*Verify(bytes calldata _zkProof,
             bytes32 _nullifier,
-            bytes32 _commitment,
             bytes32 _id)
         */
     }
@@ -236,8 +237,6 @@ contract noirPsymm {
 
         /*Verify(bytes calldata _zkProof,
             bytes32 _nullifier,
-            bytes32 _commitment1,
-            bytes32 _commitment2,
             bytes32 _id)
         */
     }
@@ -280,6 +279,7 @@ contract noirPsymm {
         address recoveredSigner = ECDSA.recover(ethSignedMessageHash, _signature);
         require(recoveredSigner == _signer, "Invalid signature");
 
+
         custodyState[_id] = _state;
         emit CustodyStateChanged(_id, _state);
     }
@@ -309,9 +309,9 @@ contract noirPsymm {
         nullifier[_nullifier] = true;
         seizedBalances[_id][_token] -= _amount;
 
+    
         /*Verify(bytes calldata _zkProof,
             bytes32 _nullifier,
-            bytes32 _commitment,
             bytes32 _id)
         */
     }
