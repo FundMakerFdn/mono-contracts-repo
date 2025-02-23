@@ -5,7 +5,9 @@ import { hardhat } from 'viem/chains';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 // Import contract artifacts
-import {contracts, MockTokenAbi, MockDepositAbi} from '@/src/config.js';
+import { contracts } from '@/src/contracts.json'
+import { abi as MockTokenAbi } from "@/artifacts/contracts/MockPPM.sol/MockToken.json"
+import { abi as MockDepositAbi } from "@/artifacts/contracts/MockPPM.sol/MockDeposit.json"
 
 const MOCK_TOKEN_ADDRESS = contracts.MockToken;
 const MOCK_DEPOSIT_ADDRESS = contracts.MockDeposit;
