@@ -188,6 +188,18 @@ contract MockPPM is EIP712 {
         emit SMADeployed(_id, _factoryAddress, smaAddress);
     }
 
+    function addressToCustody(address sender, bytes32 _id, address _token, uint256 _amount, bytes memory signature) external {
+        // @TODO verify EIP712 signature
+        IERC20(_token).safeTransferFrom(sender, address(this), _amount);
+        custodyBalances[_id][_token] += _amount;
+        // @TODO event
+    }
+
+    function addressToCustody(bytes32 _id, address _token, uint256 _amount) external {
+        IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
+        custodyBalances[_id][_token] += _amount;
+        // @TODO event
+    }
     function custodyToAddress(
         bytes32 _id,
         address _token,

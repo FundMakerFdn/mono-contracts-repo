@@ -4,6 +4,10 @@
   "author": "Vladyslav <web.user@ukr.net>, Max OTC maxgctwo@rasa.capital",
   "license": "MIT",
   "dependencies": {
+    "@aztec/bb.js": "0.72.1",
+    "@noir-lang/backend_barretenberg": "^0.36.0",
+    "@noir-lang/noir_js": "1.0.0-beta.2",
+    "@noir-lang/noir_wasm": "1.0.0-beta.2",
     "@nomicfoundation/hardhat-ignition": "^0.15.7",
     "@nomicfoundation/hardhat-ignition-viem": "^0.15.7",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.12",
