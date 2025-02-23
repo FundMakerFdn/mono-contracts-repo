@@ -21,7 +21,7 @@ fn compute_merkle_root<let N: u32>(leaf: [u8; 32], index: Field, hash_path: [[u8
 struct Note {
     nullifier: [u8; 32],
     amount: [u8; 32], // LE-encoded (0x1234.. = [.., 0x34, 0x12])
-    token: [u8; 32],
+    token: [u8; 20],
     custody_id: [u8; 32],
     secret_nonce: [u8; 32],
 }
