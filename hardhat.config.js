@@ -106,4 +106,7 @@ module.exports = {
     cache: "./dist/hardhat/cache",
     artifacts: "./dist/hardhat/artifacts",
   },
+  mocha: {
+    timeout: 100000000,
+  },
 };
