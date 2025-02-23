@@ -6,6 +6,6 @@ const { shouldInsert } = require("./insert.test");
 const { shouldCustodyToAddress } = require("./custodyToAddress.test");
 const { shouldDeployNoirPsymm } = require("./noirPsymm.deployment");
 
-//shouldDeployNoirPsymm();
+shouldDeployNoirPsymm();
 //shouldInsert();
-shouldCustodyToAddress();
+//shouldCustodyToAddress();

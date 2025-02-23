@@ -7,18 +7,6 @@ const { CHAIN_ID, partyAKey, partyBKey } = require("./globalVariables");
 const { secp256k1 } = require("@noble/curves/secp256k1");
 const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
 
-function getEthAddress(pubKey) {
-    // Get uncompressed public key and remove '04' prefix
-    const uncompressed = pubKey.toRawBytes(false).slice(1);
-    // Take keccak256 hash and get last 20 bytes
-    const address = '0x' + keccak256(bytesToHex(uncompressed)).slice(-40);
-    return address;
-  }
-
-function getMetamaskPrivateKey(privKey) {
-    // Convert to hex and pad to 32 bytes (64 characters) with leading zeros
-    return '0x' + privKey.toString(16).padStart(64, '0');
-}
   
   
 function shouldCustodyToAddress() {
@@ -31,23 +19,9 @@ function shouldCustodyToAddress() {
       }
 
       const { noirPsymm, mockUSDC, deployer, partyA, partyB, publicClient } = await loadFixture(deployTestFixture);
-      const partyAAddress = await  partyA.getAddresses();
-      const partyBAddress = await partyB.getAddresses();
-      const partyAPub = partyAAddress[0];
-      const partyBPub = partyBAddress[0];
-      const privKey1 = BigInt(bytesToHex(secp256k1.utils.randomPrivateKey()));
-  const privKey2 = BigInt(bytesToHex(secp256k1.utils.randomPrivateKey()));
-      const partyAPubKey = secp256k1.ProjectivePoint.BASE.multiply(privKey1);
-      const partyBPubKey = secp256k1.ProjectivePoint.BASE.multiply(privKey2);
-      const combinedPrivKey = (privKey1 + privKey2) % secp256k1.CURVE.n;
-      const combinedPubKey = secp256k1.ProjectivePoint.BASE.multiply(combinedPrivKey);
+      
 
-
-      console.log("partyAPubKey", privKey1, partyAPubKey);
-      console.log("partyBPubKey", privKey2, partyBPubKey);
-      console.log("combinedPrivKey", getMetamaskPrivateKey(combinedPrivKey));
-      console.log("combinedPubKey", getEthAddress(combinedPubKey));
-      console.log("partyAPub", partyAPub);
+     
       // Transfer tokens to the noirPsymm contract so it can forward tokens
       const funding = parseEther("1000");
       tx = await mockUSDC.write.mint([partyAPub, funding]);
@@ -70,7 +44,7 @@ function shouldCustodyToAddress() {
 
 
 
-    const values = [
+        const values = [
         "custodyToAddress",
         CHAIN_ID.HARDHAT,
         noirPsymm.address,
