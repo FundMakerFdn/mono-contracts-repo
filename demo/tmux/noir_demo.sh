@@ -1,24 +1,30 @@
 #!/bin/bash
+export SESSION_NAME="noir-demo-workspace"
+# Start a new tmux session
+tmux new-session -d -s $SESSION_NAME
 
-SESSION="trading-app"
+# Create splits
+tmux split-window -h -t $SESSION_NAME:0
+tmux split-window -h -t $SESSION_NAME:0
+tmux split-window -v -t $SESSION_NAME:0.0
+tmux split-window -v -t $SESSION_NAME:0.3
 
-tmux new-session -d -s $SESSION
+# Adjust pane sizes
+tmux resize-pane -t $SESSION_NAME:0.0 -x "25%"
+tmux resize-pane -t $SESSION_NAME:0.2 -x "25%"
 
-# Window 1: Hardhat
-tmux rename-window -t $SESSION:0 'hardhat'
-tmux send-keys -t $SESSION:0 'npx hardhat node' C-m
+# Configure panes
+# Leftmost pane (top) - Hardhat node
+tmux send-keys -t $SESSION_NAME:0.0 "yarn hardhat node" C-m
 
-# Window 2: Frontend
-tmux new-window -t $SESSION:1 -n 'frontend'
-tmux send-keys -t $SESSION:1 'yarn dev' C-m
+# Leftmost pane (bottom) - Contract deployment
+tmux send-keys -t $SESSION_NAME:0.1 "sleep 5; yarn noir_demo_deploy" C-m
 
-# Window 3: PartyA Backend
-tmux new-window -t $SESSION:2 -n 'partyB'
-tmux send-keys -t $SESSION:2 'yarn server:b' C-m
+# Center pane - Frontend (starts after deployment)
+tmux send-keys -t $SESSION_NAME:0.2 "sleep 12; yarn dev" C-m
 
-# Window 4: PartyB Backend
-tmux new-window -t $SESSION:3 -n 'partyA'
-tmux send-keys -t $SESSION:3 'sleep 5; yarn server:a' C-m
+# Right panes - Servers (B starts first, then A)
+tmux send-keys -t $SESSION_NAME:0.4 "sleep 10; yarn server:b" C-m
+tmux send-keys -t $SESSION_NAME:0.3 "sleep 15; yarn server:a" C-m
 
-# Attach to session
-tmux attach-session -t $SESSION
+tmux attach -t $SESSION_NAME

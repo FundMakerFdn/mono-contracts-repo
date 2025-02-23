@@ -1,10 +1,37 @@
 const WebSocket = require('ws');
+const fs = require('fs');
+const path = require('path');
+
+const STORAGE_PATH = path.join(__dirname, 'storage', 'storageB.json');
+
+if (!fs.existsSync(path.dirname(STORAGE_PATH))) {
+  fs.mkdirSync(path.dirname(STORAGE_PATH), { recursive: true });
+}
 
 let seq = { a: 1, b: 1 };
 let storage = {
   messages: [],
   orders: [],
   lastQuote: null
+};
+
+try {
+  const data = fs.readFileSync(STORAGE_PATH, 'utf8');
+  if (data) {
+    storage = JSON.parse(data);
+  }
+} catch (error) {
+  console.error('Error loading storage:', error);
+  fs.writeFileSync(STORAGE_PATH, JSON.stringify(storage, null, 2));
+}
+
+const saveStorage = () => {
+  try {
+    console.log("Storage B: ", storage);
+    fs.writeFileSync(STORAGE_PATH, JSON.stringify(storage, null, 2));
+  } catch (error) {
+    console.error('Error saving storage:', error);
+  }
 };
 
 const partyClient = "0xPartyA";
@@ -65,23 +92,28 @@ wss.on('connection', (ws) => {
     const message = JSON.parse(data);
     console.log('Received from PartyA:', message);
 
-    storage.messages = [message, ...storage.messages.slice(0, 1)];
+    if (Array.isArray(storage.messages)) {
+      storage.messages = [message, ...(storage.messages.slice(0, 1) || [])];
+    } else {
+      storage.messages = [message];
+    }
 
     switch (message.StandardHeader.MsgType) {
       case 'A': // Logon
         handleLogon(ws);
         break;
-      
+
       case 'R': // QuoteRequest
         handleQuoteRequest(ws, message);
         break;
-      
+
       case 'D': // NewOrderSingle
         handleNewOrder(ws, message);
         break;
-      
+
       case 'ACK': // Acknowledgment
         console.log('Received ACK from PartyA');
+        saveStorage();
         break;
     }
   });
@@ -105,7 +137,7 @@ function handleQuoteRequest(ws, request) {
 
   const basePrice = 50000;
   const randomSpread = Math.random() * 100;
-  
+
   const quote = {
     StandardHeader: makeStandardHeader("S", false),
     QuoteReqID: request.QuoteReqID,
@@ -114,11 +146,12 @@ function handleQuoteRequest(ws, request) {
     OfferPx: (basePrice + randomSpread).toFixed(2),
     BidSize: "100",
     OfferSize: "100",
-    ValidUntilTime: getDate() + 2 * 86400 * 1_000_000_000, // 2 days
+    ValidUntilTime: getDate() + 2 * 86400 * 1_000_000_000,
     StandardTrailer: makeStandardTrailer(false),
   };
 
   storage.lastQuote = quote;
+  saveStorage();
   ws.send(JSON.stringify(quote));
 }
 
@@ -128,7 +161,7 @@ function handleNewOrder(ws, order) {
   storage.orders.push(order);
 
   const halfQty = Math.floor(order.OrderQtyData.OrderQty / 2);
-  
+
   const execReport1 = {
     StandardHeader: makeStandardHeader("8", false),
     OrderID: `ORD${Date.now()}`,
@@ -167,6 +200,7 @@ function handleNewOrder(ws, order) {
     };
 
     ws.send(JSON.stringify(execReport2));
+    saveStorage();
   }, 2000);
 }
 

@@ -1,0 +1,70 @@
+{
+  "messages": [
+    {
+      "StandardHeader": {
+        "BeginString": "pSymm.FIX.2.0",
+        "MsgType": "ACK",
+        "DeploymentID": 101,
+        "SenderCompID": "0xPartyA",
+        "TargetCompID": "0xPartyB",
+        "MsgSeqNum": 5,
+        "CustodyID": "0xCustody123",
+        "SendingTime": 1740274878448000000
+      },
+      "RefMsgSeqNum": 0,
+      "StandardTrailer": {
+        "PublicKey": "0xPartyA",
+        "Signature": "0xSignature"
+      }
+    },
+    {
+      "StandardHeader": {
+        "BeginString": "pSymm.FIX.2.0",
+        "MsgType": "ACK",
+        "DeploymentID": 101,
+        "SenderCompID": "0xPartyA",
+        "TargetCompID": "0xPartyB",
+        "MsgSeqNum": 4,
+        "CustodyID": "0xCustody123",
+        "SendingTime": 1740274876466000000
+      },
+      "RefMsgSeqNum": 0,
+      "StandardTrailer": {
+        "PublicKey": "0xPartyA",
+        "Signature": "0xSignature"
+      }
+    }
+  ],
+  "orders": [
+    {
+      "StandardHeader": {
+        "BeginString": "pSymm.FIX.2.0",
+        "MsgType": "D",
+        "DeploymentID": 101,
+        "SenderCompID": "0xPartyA",
+        "TargetCompID": "0xPartyB",
+        "MsgSeqNum": 3,
+        "CustodyID": "0xCustody123",
+        "SendingTime": 1740274876424000000
+      },
+      "ClOrdID": "ORD1740274876424",
+      "Instrument": {
+        "Symbol": "BTC/USD",
+        "InstrumentID": "PSYMM0000131104",
+        "InstrumentType": "PERP"
+      },
+      "Price": "3",
+      "Side": "1",
+      "TransactTime": 1740274876424000000,
+      "OrderQtyData": {
+        "OrderQty": "14"
+      },
+      "OrdType": "2",
+      "StandardTrailer": {
+        "PublicKey": "0xPartyA",
+        "Signature": "0xSignature"
+      }
+    }
+  ],
+  "lastQuote": null
+}

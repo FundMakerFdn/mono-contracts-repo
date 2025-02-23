@@ -1,11 +1,19 @@
 const express = require('express');
 const WebSocket = require('ws');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+const STORAGE_PATH = path.join(__dirname, 'storage', 'storageA.json');
+
+
+if (!fs.existsSync(path.dirname(STORAGE_PATH))) {
+  fs.mkdirSync(path.dirname(STORAGE_PATH), { recursive: true })
+}
 
 let seq = { a: 1, b: 1 };
 let storage = {
@@ -13,6 +21,24 @@ let storage = {
   messages: [],
   balance: '1000',
   upnl: '0'
+};
+
+try {
+  const data = fs.readFileSync(STORAGE_PATH, 'utf8');
+  if (data) {
+    storage = JSON.parse(data);
+  }
+} catch (error) {
+  console.error('Error loading storage:', error);
+  fs.writeFileSync(STORAGE_PATH, JSON.stringify(storage, null, 2));
+}
+
+const saveStorage = () => {
+  try {
+    fs.writeFileSync(STORAGE_PATH, JSON.stringify(storage, null, 2));
+  } catch (error) {
+    console.error('Error saving storage:', error);
+  }
 };
 
 const partyClient = "0xPartyA";
@@ -60,17 +86,21 @@ wsClient.on('message', (data) => {
   const message = JSON.parse(data);
   console.log('Received from PartyB:', message);
 
-  storage.messages = [message, ...storage.messages.slice(0, 1)];
+  if (Array.isArray(storage.messages)) {
+    storage.messages = [message, ...(storage.messages.slice(0, 1) || [])];
+  } else {
+    storage.messages = [message];
+  }
 
   switch (message.StandardHeader.MsgType) {
     case 'PPM':
       wsClient.send(JSON.stringify(makeAck()));
       break;
-    
+
     case 'S':
       wsClient.send(JSON.stringify(makeAck()));
       break;
-    
+
     case '8':
       handleExecutionReport(message);
       wsClient.send(JSON.stringify(makeAck()));
@@ -101,19 +131,20 @@ function handleExecutionReport(report) {
     const qty = parseFloat(pos.CumQty);
     const price = parseFloat(pos.Price);
     const lastPrice = parseFloat(pos.LastPx);
-    const pnl = pos.Side === '1' 
-      ? (lastPrice - price) * qty 
+    const pnl = pos.Side === '1'
+      ? (lastPrice - price) * qty
       : (price - lastPrice) * qty;
     return sum + pnl;
   }, 0);
 
   storage.upnl = totalValue.toFixed(2);
+  saveStorage();
 }
 
 // API Routes
 app.post('/api/partyA/buy', (req, res) => {
   const { price, quantity } = req.body;
-  
+
   const newOrderSingle = {
     StandardHeader: makeStandardHeader("D", true),
     ClOrdID: `ORD${Date.now()}`,
@@ -131,7 +162,7 @@ app.post('/api/partyA/buy', (req, res) => {
     OrdType: "2", // Limit order
     StandardTrailer: makeStandardTrailer(true),
   };
-  
+
   wsClient.send(JSON.stringify(newOrderSingle));
   res.json({ success: true });
 });
