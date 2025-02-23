@@ -61,7 +61,7 @@ console.log("combinedPub", combinedPub);
   const publicClient = await hre.viem.getPublicClient();
   const noirPsymm = await hre.viem.deployContract("noirPsymm", []);
   const mockUSDC = await hre.viem.deployContract("MockUSDC", []);
-  return { noirPsymm, mockUSDC, deployer, partyA, partyB, publicClient };
+  return { noirPsymm, mockUSDC, deployer, partyA, partyB, combinedClient, partyAPub, partyBPub, combinedPub, publicClient };
 }
 
 function shouldDeployNoirPsymm() {
