@@ -39,18 +39,17 @@ contract noirPsymm is EIP712 {
     mapping(bytes32 => uint256) private custodyMsgLength;
     
     // Mapping for custody balances (for custody-to-address transfers)
-    mapping(bytes32 => mapping(address => uint256)) public custodyBalances;
-    // Mapping for whitelisted signers Merkle roots (PPMs)
+    mapping(bytes32 => mapping(address => uint256)) public seizedBalances; // _id -> _token -> _amount
+    // Mapping of custody id to PPM 
     mapping(bytes32 => bytes32) public PPMs;
 
-    constructor() EIP712("MockPPM", "1.0") {
+    constructor() EIP712("noirPsymm", "1.0") {
         // Precompute the zero hashes for each level.
         uint256 currentZero = 0;
         for (uint256 i = 0; i < TREE_LEVELS; i++) {
             zeros[i] = bytes32(currentZero);
             currentZero = uint256(keccak256(abi.encodePacked(currentZero, currentZero)));
         }
-        // Initialize the global root (an empty tree has the top-level zero value).
         MERKLE_ROOT = zeros[TREE_LEVELS - 1];
     }
 
@@ -103,8 +102,8 @@ contract noirPsymm is EIP712 {
         return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
     }
 
-    modifier checkCustodyState(bytes32 _id) {
-        require(custodyState[_id] == 0, "State isn't 0");
+    modifier checkCustodyState(bytes32 _id, uint8 _state) {
+        require(custodyState[_id] == _state, "State isn't 0");
         _;
     }
 
@@ -113,13 +112,9 @@ contract noirPsymm is EIP712 {
         _;
     }
     
-    modifier checkCustodyBalance(bytes32 _id, address _token, uint256 _amount) {
-        require(custodyBalances[_id][_token] >= _amount, "Insufficient custody balance");
+    modifier checkExpiry(uint256 _timestamp) {
+        require(_timestamp <= block.timestamp, "Signature expired");
         _;
-    }
-
-    function _processDeposit() internal {
-        // Implement deposit processing logic if needed.
     }
 
     /// @notice Moves an address-based deposit into custody.
@@ -129,7 +124,6 @@ contract noirPsymm is EIP712 {
 
         uint32 insertedIndex = _insert(_commitment);
         commitments[_commitment] = true;
-        _processDeposit();
 
         emit Deposit(_commitment, insertedIndex, block.timestamp);
     }
@@ -140,22 +134,24 @@ contract noirPsymm is EIP712 {
     /// @param _destination The destination address.
     /// @param _amount The amount to transfer.
     /// @param _timestamp The timestamp for the signature.
-    /// @param signer The signer address that is whitelisted.
-    /// @param signature The ECDSA signature.
-    /// @param merkleProof The Merkle proof for whitelisting.
+    /// @param _signer The signer address that is whitelisted.
+    /// @param _signature The ECDSA signature.
+    /// @param _merkleProof The Merkle proof for whitelisting.
+    /// @param _commitment Partial withdrawal commitment.
+    /// @param _nullifier The nullifier associated with the deposit.
     function custodyToAddress(
         bytes32 _id,
         address _token,
         address _destination,
         uint256 _amount,
         uint256 _timestamp,
-        address signer,
-        bytes calldata signature,
-        bytes32[] calldata merkleProof
-    ) external checkCustodyState(_id) checkCustodyBalance(_id, _token, _amount) {
-        // Verify timestamp.
-        require(_timestamp <= block.timestamp, "Signature expired");
-
+        address _signer,
+        bytes calldata _signature,
+        bytes32[] calldata _merkleProof,
+        bytes32 _nullifier,
+        bytes32 _commitment
+    ) external checkCustodyState(_id, 0) checkExpiry(_timestamp)checkNullifier(_nullifier) {
+        nullifier[_nullifier] = true;
         // Verify the signer is whitelisted via Merkle proof.
         bytes32 leaf = keccak256(abi.encode(
             "custodyToAddress",
@@ -163,9 +159,9 @@ contract noirPsymm is EIP712 {
             address(this),
             custodyState[_id],
             _destination,
-            signer
+            _signer
         ));
-        require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
+        require(MerkleProof.verify(_merkleProof, _getPPM(_id), leaf), "Invalid merkle proof");
 
         // Verify signature using ECDSA.
         bytes32 message = keccak256(abi.encode(
@@ -174,53 +170,92 @@ contract noirPsymm is EIP712 {
             _id,
             _token,
             _destination,
-            _amount
+            _amount,
+            _commitment,
+            _nullifier
         ));
         bytes32 ethSignedMessageHash = _toEthSignedMessageHash(message);
-        address recoveredSigner = ECDSA.recover(ethSignedMessageHash, signature);
-        require(recoveredSigner == signer, "Invalid signature");
+        address recoveredSigner = ECDSA.recover(ethSignedMessageHash, _signature);
+        require(recoveredSigner == _signer, "Invalid signature");
 
-        custodyBalances[_id][_token] -= _amount;
         IERC20(_token).safeTransfer(_destination, _amount);
+
+        /*Verify(bytes calldata _zkProof,
+            bytes32 _nullifier,
+            bytes32 _commitment,
+            bytes32 _id)
+        */
     }
 
     /// @notice Transfers custody from one account to another within the system.
     /// @param _id The custody identifier.
-    /// @param _token The token address.
-    /// @param _amount The amount to transfer.
     /// @param _timestamp The timestamp for the signature.
-    /// @param signer The signer address that is whitelisted.
-    /// @param signature The ECDSA signature.
-    /// @param merkleProof The Merkle proof for whitelisting.
+    /// @param _signer The signer address that is whitelisted.
+    /// @param _signature The ECDSA signature.
+    /// @param _merkleProof The Merkle proof for whitelisting.
+    /// @param _nullifier The nullifier associated with the deposit.
+    /// @param _commitment1 Partial commitment.
+    /// @param _commitment2 Partial commitment.
     function custodyToCustody(
         bytes32 _id,
-        address _token,
-        uint256 _amount,
         uint256 _timestamp,
-        address signer,
-        bytes calldata signature,
-        bytes32[] calldata merkleProof
-    ) external checkCustodyState(_id) {
-        // Implementation for custody-to-custody transfer would go here.
+        address _signer,
+        bytes calldata _signature,
+        bytes32[] calldata _merkleProof,
+        bytes32 _nullifier,
+        bytes32 _commitment1,
+        bytes32 _commitment2
+    ) external checkCustodyState(_id, 0) checkExpiry(_timestamp) checkNullifier(_nullifier) {
+        nullifier[_nullifier] = true;
+        bytes32 leaf = keccak256(abi.encode(
+            "custodyToCustody",
+            block.chainid,
+            address(this),
+            custodyState[_id],
+            _signer
+        ));
+        require(MerkleProof.verify(_merkleProof, _getPPM(_id), leaf), "Invalid merkle proof");
+
+        // Verify signature using ECDSA.
+        bytes32 message = keccak256(abi.encode(
+            _timestamp,
+            "custodyToCustody",
+            _id,
+            _commitment1,
+            _commitment2,
+            _nullifier
+        ));
+        bytes32 ethSignedMessageHash = _toEthSignedMessageHash(message);
+        address recoveredSigner = ECDSA.recover(ethSignedMessageHash, _signature);
+        require(recoveredSigner == _signer, "Invalid signature");
+
+        addressToCustody(_commitment1);
+        addressToCustody(_commitment2);
+
+        
+        /*Verify(bytes calldata _zkProof,
+            bytes32 _nullifier,
+            bytes32 _commitment1,
+            bytes32 _commitment2,
+            bytes32 _id)
+        */
     }
 
     /// @notice Changes the custody state.
     /// @param _id The custody identifier.
     /// @param _state The new state.
     /// @param _timestamp The timestamp for the signature.
-    /// @param signer The signer address that is whitelisted.
-    /// @param signature The ECDSA signature.
-    /// @param merkleProof The Merkle proof for whitelisting.
+    /// @param _signer The signer address that is whitelisted.
+    /// @param _signature The ECDSA signature.
+    /// @param _merkleProof The Merkle proof for whitelisting.
     function changeCustodyState(
         bytes32 _id,
         uint8 _state,
         uint256 _timestamp,
-        address signer,
-        bytes calldata signature,
-        bytes32[] calldata merkleProof
-    ) external checkCustodyState(_id) {
-        // Verify timestamp.
-        require(_timestamp <= block.timestamp, "Signature expired");
+        address _signer,
+        bytes calldata _signature,
+        bytes32[] calldata _merkleProof
+    ) external checkExpiry(_timestamp) {
 
         // Verify the signer is whitelisted via Merkle proof.
         bytes32 leaf = keccak256(abi.encode(
@@ -229,9 +264,9 @@ contract noirPsymm is EIP712 {
             address(this),
             custodyState[_id],
             _state,
-            signer
+            _signer
         ));
-        require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
+        require(MerkleProof.verify(_merkleProof, _getPPM(_id), leaf), "Invalid merkle proof");
 
         // Verify signature using ECDSA.
         bytes32 message = keccak256(abi.encode(
@@ -241,10 +276,43 @@ contract noirPsymm is EIP712 {
             _state
         ));
         bytes32 ethSignedMessageHash = _toEthSignedMessageHash(message);
-        address recoveredSigner = ECDSA.recover(ethSignedMessageHash, signature);
-        require(recoveredSigner == signer, "Invalid signature");
+        address recoveredSigner = ECDSA.recover(ethSignedMessageHash, _signature);
+        require(recoveredSigner == _signer, "Invalid signature");
 
         custodyState[_id] = _state;
         emit CustodyStateChanged(_id, _state);
     }
+
+    function executeDisputeSettlement(
+        bytes32 _id,
+        address _token,
+        uint256 _amount,
+        bytes32 _nullifier,
+        bytes32[] calldata _merkleProof
+    ) public checkCustodyState(_id, 2) { 
+        bytes32 leaf = keccak256(abi.encode(
+            "executeDisputeSettlement",
+            block.chainid,
+            address(this),
+            custodyState[_id],
+            msg.sender // check msg.sender is SettleMaker
+        ));
+        require(MerkleProof.verify(_merkleProof, _getPPM(_id), leaf), "Invalid merkle proof");
+
+        nullifier[_nullifier] = true;
+        seizedBalances[_id][_token] -= _amount;
+
+        /*Verify(bytes calldata _zkProof,
+            bytes32 _nullifier,
+            bytes32 _commitment,
+            bytes32 _id)
+        */
+    }
+
+    function _getPPM(bytes32 _id) internal returns (bytes32) {
+        if (PPMs[_id] == bytes32(0)) {
+            PPMs[_id] = _id; // or assign the correct bytes32 root
+        }
+        return PPMs[_id];
+    }   
 }
