@@ -11,7 +11,7 @@ using SafeERC20 for IERC20;
 
 contract noirPsymm is EIP712 {
     // --- Events ---
-    event Deposit(bytes32 indexed commitment, uint32 index, uint256 timestamp);
+    event Deposit(bytes32 indexed commitment, uint32 index, uint256 timestamp, uint256 amount, address token, address sender);
     event CustodyStateChanged(bytes32 indexed id, uint8 newState);
     event SMADeployed(bytes32 indexed id, address factoryAddress, address smaAddress);
 
@@ -57,7 +57,7 @@ contract noirPsymm is EIP712 {
     /// @dev Updates the tree upward while preserving all previously inserted data.
     /// @param _commitment The commitment (leaf) to insert.
     /// @return index The index at which the commitment was inserted.
-    function _insert(bytes32 _commitment) public returns (uint32 index) {
+    function _insert(bytes32 _commitment) internal returns (uint32 index) {
         index = nextIndex;
         require(index < MAX_LEAVES, "Merkle tree is full");
         
@@ -127,7 +127,7 @@ contract noirPsymm is EIP712 {
 
         // deposit erc20
         IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
-        emit Deposit(_commitment, insertedIndex, block.timestamp);
+        emit Deposit(_commitment, insertedIndex, block.timestamp, _amount, _token, msg.sender);
     }
 
     /// @notice Transfers funds from custody to an external address.

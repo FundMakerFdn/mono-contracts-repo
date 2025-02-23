@@ -4,6 +4,7 @@ const { keccak256, toHex } = require("viem");
 const hre = require("hardhat");
 const { deployTestFixture } = require("./noirPsymm.deployment");
 
+//@notice insert is internal, for testing purposes we need to switch to public in the contract
 function shouldInsert() {
 describe("Test _insert", function () {
   it("should insert a commitment and update leaves and nextIndex", async function () {

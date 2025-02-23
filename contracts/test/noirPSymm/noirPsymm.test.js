@@ -4,7 +4,8 @@ const { keccak256, toHex } = require("viem");
 const hre = require("hardhat");
 const { shouldInsert } = require("./insert.test");
 const { shouldCustodyToAddress } = require("./custodyToAddress.test");
+const { shouldDeployNoirPsymm } = require("./noirPsymm.deployment");
 
+//shouldDeployNoirPsymm();
 //shouldInsert();
 shouldCustodyToAddress();
-
