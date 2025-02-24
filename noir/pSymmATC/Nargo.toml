@@ -1,5 +1,5 @@
 [package]
-name = "pSymm"
+name = "pSymmATC"
 type = "bin"
 authors = [""]
 

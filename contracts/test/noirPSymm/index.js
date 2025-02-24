@@ -3,6 +3,27 @@ const {
   loadFixture,
 } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
 const hre = require("hardhat");
+const { keccak256, concat, toBytes } = require("viem");
+
+function hashNote(note, custodyId) {
+  // Convert amounts to little-endian bytes if they're numbers
+  const amount = typeof note.amount === 'number' || typeof note.amount === 'bigint' 
+    ? toBytes(note.amount, { size: 32, endian: 'little' })
+    : note.amount;
+
+  // Concatenate all fields in order matching Noir:
+  // nullifier (32) + amount (32) + token (32) + custody_id (32) + secret_nonce (32)
+  const concatenated = concat([
+    note.nullifier,
+    amount,
+    note.token,
+    custodyId,
+    note.secret_nonce
+  ]);
+
+  // Hash with keccak256
+  return keccak256(concatenated);
+}
 
 async function deployFixture() {
   const [deployer] = await hre.viem.getWalletClients();
@@ -52,8 +73,8 @@ describe("noirPsymm", function () {
     const { noirPsymm, mockUSDC, deployer } = await loadFixture(deployFixture);
 
     // Test commitment matching Python test
-    const commitment =
-      "0x1cb1b16d77322dc69122683e8d4576fa3a1315a6a8231ce36fb5b3913f44a93a";
+    // const commitment =
+    //   "0x1cb1b16d77322dc69122683e8d4576fa3a1315a6a8231ce36fb5b3913f44a93a";
     const depositAmount = 1000000000n; // 1000 USDC with 6 decimals
 
     // Approve noirPsymm to spend USDC

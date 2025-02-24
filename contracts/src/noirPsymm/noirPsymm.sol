@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import {UltraVerifier as VerifierCTC} from "./VerifierCTC.sol";
+import {UltraVerifier as VerifierATC} from "./VerifierATC.sol";
 
 using SafeERC20 for IERC20;
 
@@ -43,12 +44,14 @@ contract noirPsymm {
     // Mapping of custody id to PPM 
     mapping(bytes32 => bytes32) public PPMs;
 
+    VerifierATC public verifierATC;
     VerifierCTC public verifierCTC;
 
     // --- Constructor ---
     // Precompute the zero hashes for each level.
-    constructor(address _verifierAddress) {
-        verifierCTC = VerifierCTC(_verifierAddress);
+    constructor(address _vATC, address _vCTC) {
+        verifierATC = VerifierATC(_vATC);
+        verifierCTC = VerifierCTC(_vCTC);
         uint256 currentZero = 0;
         for (uint256 i = 0; i < TREE_LEVELS; i++) {
             zeros[i] = bytes32(currentZero);
@@ -123,8 +126,22 @@ contract noirPsymm {
 
     /// @notice Moves an address-based deposit into custody.
     /// @param _commitment The commitment associated with the deposit.
-    function addressToCustody(bytes32 _commitment, uint256 _amount, address _token) public {
+    function addressToCustody(bytes calldata _zkProof, bytes32 _commitment, uint256 _amount, address _token) public {
         require(!commitments[_commitment], "The commitment has been submitted");
+
+        bytes32[] memory inputs = new bytes32[](96); // 32 bytes * 3 parameters
+        
+        bytes32[] memory amountBytes = chopBytes32(bytes32(_amount));
+        bytes32[] memory tokenBytes = chopBytes32(bytes32(bytes20(uint160(_token))));
+        bytes32[] memory commitmentBytes = chopBytes32(_commitment);
+        
+        for(uint i = 0; i < 32; i++) {
+            inputs[i] = amountBytes[i];
+            inputs[i + 32] = tokenBytes[i];
+            inputs[i + 64] = commitmentBytes[i];
+        }
+
+        require(verifierCTC.verify(_zkProof, inputs), "ZK proof failed");
 
         uint32 insertedIndex = _insert(_commitment);
         commitments[_commitment] = true;

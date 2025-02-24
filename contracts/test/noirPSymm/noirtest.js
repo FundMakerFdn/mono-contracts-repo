@@ -18,16 +18,12 @@ const os = require("node:os");
 const hre = require("hardhat");
 const TOML = require("@iarna/toml");
 
+const jsondata = require("#root/noir/pSymmCTC/target/pSymmCTC.json");
+
 async function deployFixture() {
   const [deployer] = await hre.viem.getWalletClients();
   const publicClient = await hre.viem.getPublicClient();
 
-  // Initialize the Barretenberg backend
-  const jsondata = JSON.parse(
-    fs.readFileSync(
-      path.resolve(__dirname, "../../../noir/pSymm/target/pSymm.json")
-    )
-  );
   const backend = new NativeUltraPlonkBackend(
     path.join(os.homedir(), ".bb", "bb"),
     jsondata
@@ -35,12 +31,16 @@ async function deployFixture() {
   const noir = new Noir(jsondata);
 
   // Deploy NoirTest contract
-  const verifier = await hre.viem.deployContract(
+  const vATC = await hre.viem.deployContract(
+    "contracts/src/noirPsymm/VerifierATC.sol:UltraVerifier"
+  );
+  const vCTC = await hre.viem.deployContract(
     "contracts/src/noirPsymm/VerifierCTC.sol:UltraVerifier"
   );
 
   return {
-    verifier,
+    vATC,
+    vCTC,
     noir,
     backend,
     deployer,
@@ -48,14 +48,14 @@ async function deployFixture() {
   };
 }
 
-describe("NoirTest pSymm", function () {
+describe("NoirTest - pSymmCTC", function () {
   it("Should verify a valid proof for note splitting", async function () {
-    const { verifier, backend, noir } = await loadFixture(deployFixture);
+    const { vCTC, backend, noir } = await loadFixture(deployFixture);
 
     // Load test data from Prover.toml
     const tomlData = TOML.parse(
       fs.readFileSync(
-        path.resolve(__dirname, "../../../noir/pSymm/Prover.toml"),
+        path.resolve(__dirname, "../../../noir/pSymmCTC/Prover.toml"),
         "utf8"
       )
     );
@@ -88,7 +88,7 @@ describe("NoirTest pSymm", function () {
     console.log("publicInputs", publicInputs);
 
     const proofHex = bytesToHex(proof);
-    const result = await verifier.read.verify([proofHex, publicInputs]);
+    const result = await vCTC.read.verify([proofHex, publicInputs]);
     assert.equal(result, true, "Valid proof should verify");
   });
 });

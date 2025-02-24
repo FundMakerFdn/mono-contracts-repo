@@ -1,0 +1,6 @@
+[package]
+name = "pSymmCTC"
+type = "bin"
+authors = [""]
+
+[dependencies]
