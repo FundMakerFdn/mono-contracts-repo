@@ -1,23 +1,23 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import {UltraVerifier as VerifierCTC} from "./VerifierCTC.sol";
 
 using SafeERC20 for IERC20;
 
-contract noirPsymm is EIP712 {
+contract noirPsymm {
     // --- Events ---
-    event Deposit(bytes32 indexed commitment, uint32 index, uint256 timestamp);
+    event Deposit(bytes32 indexed commitment, uint32 index, uint256 timestamp, uint256 amount, address token, address sender);
     event CustodyStateChanged(bytes32 indexed id, uint8 newState);
     event SMADeployed(bytes32 indexed id, address factoryAddress, address smaAddress);
 
     // --- Merkle Tree Parameters ---
-    // TREE_LEVELS is set to 30, which gives us 2^30 leaves.
-    uint256 public constant TREE_LEVELS = 30;
+    // TREE_LEVELS is set to 10, which gives us 2^10 leaves.
+    uint256 public constant TREE_LEVELS = 10;
     uint256 public constant MAX_LEAVES = 2 ** TREE_LEVELS;
     
     // The current Merkle root of the tree.
@@ -43,8 +43,11 @@ contract noirPsymm is EIP712 {
     // Mapping of custody id to PPM 
     mapping(bytes32 => bytes32) public PPMs;
 
-    constructor() EIP712("noirPsymm", "1.0") {
-        // Precompute the zero hashes for each level.
+    VerifierCTC public verifierCTC = new VerifierCTC();
+
+    // --- Constructor ---
+    // Precompute the zero hashes for each level.
+    constructor() {
         uint256 currentZero = 0;
         for (uint256 i = 0; i < TREE_LEVELS; i++) {
             zeros[i] = bytes32(currentZero);
@@ -57,7 +60,7 @@ contract noirPsymm is EIP712 {
     /// @dev Updates the tree upward while preserving all previously inserted data.
     /// @param _commitment The commitment (leaf) to insert.
     /// @return index The index at which the commitment was inserted.
-    function _insert(bytes32 _commitment) public returns (uint32 index) {
+    function _insert(bytes32 _commitment) internal returns (uint32 index) {
         index = nextIndex;
         require(index < MAX_LEAVES, "Merkle tree is full");
         
@@ -127,7 +130,7 @@ contract noirPsymm is EIP712 {
 
         // deposit erc20
         IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
-        emit Deposit(_commitment, insertedIndex, block.timestamp);
+        emit Deposit(_commitment, insertedIndex, block.timestamp, _amount, _token, msg.sender);
     }
 
     /// @notice Transfers funds from custody to an external address.
@@ -152,7 +155,7 @@ contract noirPsymm is EIP712 {
         bytes32[] calldata _merkleProof,
         bytes32 _nullifier,
         bytes32 _commitment
-    ) external checkCustodyState(_id, 0) checkExpiry(_timestamp)checkNullifier(_nullifier) {
+    ) external checkCustodyState(_id, 0) checkExpiry(_timestamp) checkNullifier(_nullifier) {
         nullifier[_nullifier] = true;
         // Verify the signer is whitelisted via Merkle proof.
         bytes32 leaf = keccak256(abi.encode(
@@ -160,7 +163,6 @@ contract noirPsymm is EIP712 {
             block.chainid,
             address(this),
             custodyState[_id],
-            _destination,
             _signer
         ));
         require(MerkleProof.verify(_merkleProof, _getPPM(_id), leaf), "Invalid merkle proof");
@@ -182,9 +184,10 @@ contract noirPsymm is EIP712 {
 
         IERC20(_token).safeTransfer(_destination, _amount);
 
+        addressToCustody(_commitment, 0, address(0));
+
         /*Verify(bytes calldata _zkProof,
             bytes32 _nullifier,
-            bytes32 _commitment,
             bytes32 _id)
         */
     }
@@ -199,6 +202,7 @@ contract noirPsymm is EIP712 {
     /// @param _commitment1 Partial commitment.
     /// @param _commitment2 Partial commitment.
     function custodyToCustody(
+		bytes calldata _zkProof,
         bytes32 _id,
         uint256 _timestamp,
         address _signer,
@@ -234,13 +238,11 @@ contract noirPsymm is EIP712 {
         addressToCustody(_commitment1, 0, address(0));
         addressToCustody(_commitment2, 0, address(0));
 
-        
         /*Verify(bytes calldata _zkProof,
             bytes32 _nullifier,
-            bytes32 _commitment1,
-            bytes32 _commitment2,
             bytes32 _id)
         */
+		// require(VerifierCTC.verify(_zkProof, ), "ZK proof failed");
     }
 
     /// @notice Changes the custody state.
@@ -281,10 +283,17 @@ contract noirPsymm is EIP712 {
         address recoveredSigner = ECDSA.recover(ethSignedMessageHash, _signature);
         require(recoveredSigner == _signer, "Invalid signature");
 
+
         custodyState[_id] = _state;
         emit CustodyStateChanged(_id, _state);
     }
 
+    /// @notice Executes dispute settlement.
+    /// @param _id The custody identifier.
+    /// @param _token The token address.
+    /// @param _amount The amount involved in the dispute.
+    /// @param _nullifier The nullifier associated with the dispute.
+    /// @param _merkleProof The Merkle proof for whitelisting.
     function executeDisputeSettlement(
         bytes32 _id,
         address _token,
@@ -304,17 +313,21 @@ contract noirPsymm is EIP712 {
         nullifier[_nullifier] = true;
         seizedBalances[_id][_token] -= _amount;
 
+    
         /*Verify(bytes calldata _zkProof,
             bytes32 _nullifier,
-            bytes32 _commitment,
             bytes32 _id)
         */
     }
 
+    /// @notice Retrieves or sets the PPM for a given custody id.
+    /// @param _id The custody identifier.
+    /// @return The PPM associated with the given id.
     function _getPPM(bytes32 _id) internal returns (bytes32) {
         if (PPMs[_id] == bytes32(0)) {
             PPMs[_id] = _id; // or assign the correct bytes32 root
-            }
-            return PPMs[_id];
-        }   
+        }
+        return PPMs[_id];
+    }   
 }
+

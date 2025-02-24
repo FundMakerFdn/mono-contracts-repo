@@ -19,19 +19,9 @@ let seq = { a: 1, b: 1 };
 let storage = {
   positions: [],
   messages: [],
-  balance: '1000',
+  balance: '0',
   upnl: '0'
 };
-
-try {
-  const data = fs.readFileSync(STORAGE_PATH, 'utf8');
-  if (data) {
-    storage = JSON.parse(data);
-  }
-} catch (error) {
-  console.error('Error loading storage:', error);
-  fs.writeFileSync(STORAGE_PATH, JSON.stringify(storage, null, 2));
-}
 
 const saveStorage = () => {
   try {
@@ -40,6 +30,18 @@ const saveStorage = () => {
     console.error('Error saving storage:', error);
   }
 };
+
+const resetStorage = () => {
+  storage = {
+    positions: [],
+    messages: [],
+    balance: '0',
+    upnl: '0'
+  };
+  saveStorage();
+};
+
+resetStorage();
 
 const partyClient = "0xPartyA";
 const partyBroker = "0xPartyB";
@@ -177,6 +179,13 @@ app.post('/api/partyA/collateral', (req, res) => {
     upnl: storage.upnl
   });
 });
+
+// app.post('/api/partyA/collateral', (req, res) => {
+//   res.json({
+//     balance: '0',
+//     upnl: storage.upnl
+//   });
+// });
 
 // Start server
 const PORT = 3001;
