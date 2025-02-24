@@ -62,6 +62,7 @@ if __name__ == "__main__":
     # Hash the note data as first leaf
     leaves = [raw_zero for _ in range(1024)]
     leaves[idx] = keccak256(note_data)
+    print(keccak256(note_data))
     
     # Build the full tree level by level
     current_level = leaves
