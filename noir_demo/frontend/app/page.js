@@ -13,6 +13,7 @@ const MOCK_TOKEN_ADDRESS = contracts.MockToken;
 const NOIR_PSYMM_ADDRESS = contracts.noirPsymm;
 
 export default function TradingInterface() {
+  const [depositBalance, setDepositBalance] = useState('0');
   const [isDeposited, setIsDeposited] = useState(false);
   const [positions, setPositions] = useState([]);
   const [collateral, setCollateral] = useState({ balance: '0', upnl: '0' });
@@ -293,6 +294,7 @@ export default function TradingInterface() {
               </div>
               <div className="p-2 bg-gray-100 rounded">
                 <div>Custody Balance: {collateral.balance} USDC</div>
+                  <div>Deposit Balance: {depositBalance} USDC</div>
                 <div>uPNL: {collateral.upnl} USDC</div>
               </div>
             </div>
