@@ -102,6 +102,13 @@ contract noirPsymm {
         return keccak256(abi.encodePacked(left, right));
     }
 
+	// DEBUG
+    function setRoot(
+        bytes32 _newRoot
+    ) external {
+        MERKLE_ROOT = _newRoot;
+    }
+
     /// @notice Helper function to mimic the behavior of ECDSA.toEthSignedMessageHash.
     /// @param hash The hash to convert.
     /// @return The Ethereum signed message hash.
@@ -277,6 +284,9 @@ contract noirPsymm {
             inputs[i + 32] = rootBytes[i];
             inputs[i + 64] = idBytes[i];
         }
+        // for(uint i = 0; i < 96; i++) {
+			// console.log("%s,", uint256(inputs[i]));
+		// }
         
         require(verifierCTC.verify(_zkProof, inputs), "ZK proof failed");
 

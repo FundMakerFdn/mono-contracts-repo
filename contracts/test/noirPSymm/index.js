@@ -282,18 +282,17 @@ describe("noirPsymm", function () {
     const custodyIdA = toHex(new Uint8Array(32));
     const custodyIdB = toHex(new Uint8Array(32));
 
-    // Calculate commitments
-    const commitment = hashNote(note, custodyId);
-    console.log("COMMITMENT", commitment);
-    const commitmentA = hashNote(noteA, custodyIdA);
-    const commitmentB = hashNote(noteB, custodyIdB);
-
     const inputs = TOML.parse(
       fs.readFileSync(
         path.resolve(__dirname, "../../../noir/pSymmCTC/Prover.toml"),
         "utf8"
       )
     );
+    // Calculate commitments
+    const commitment = hashNote(note, custodyId);
+    console.log("COMMITMENT", commitment);
+    const commitmentA = toHex(new Uint8Array(inputs.noteA_commitment));
+    const commitmentB = toHex(new Uint8Array(inputs.noteB_commitment));
 
     // Generate the proof
     console.log("Generating witness...");
@@ -303,12 +302,20 @@ describe("noirPsymm", function () {
       Buffer.from(witness)
     );
     console.log("Generated proof");
+    console.log(
+      "Public inputs (CTC):",
+      publicInputs.map((x) => parseInt(x))
+    );
 
+    await noirPsymm.write.setRoot([
+      // hotfix
+      "0x1e2e5e090d22e6f02d413de9d556e0ad8c2d3b2cdac66263a671ddd020a96380",
+    ]);
     // Execute the CTC operation
     await noirPsymm.write.custodyToCustody([
       bytesToHex(proof),
-      custodyId,
-      keccak256(note.nullifier),
+      toHex(pad(0)), // custody id
+      keccak256(pad(0)),
       commitmentA,
       commitmentB,
     ]);
