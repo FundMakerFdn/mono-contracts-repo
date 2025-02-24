@@ -7,9 +7,9 @@
         "DeploymentID": 101,
         "SenderCompID": "0xPartyA",
         "TargetCompID": "0xPartyB",
-        "MsgSeqNum": 5,
+        "MsgSeqNum": 2,
         "CustodyID": "0xCustody123",
-        "SendingTime": 1740274878448000000
+        "SendingTime": 1740359173001000000
       },
       "RefMsgSeqNum": 0,
       "StandardTrailer": {
@@ -20,15 +20,15 @@
     {
       "StandardHeader": {
         "BeginString": "pSymm.FIX.2.0",
-        "MsgType": "ACK",
+        "MsgType": "A",
         "DeploymentID": 101,
         "SenderCompID": "0xPartyA",
         "TargetCompID": "0xPartyB",
-        "MsgSeqNum": 4,
+        "MsgSeqNum": 1,
         "CustodyID": "0xCustody123",
-        "SendingTime": 1740274876466000000
+        "SendingTime": 1740359172984000000
       },
-      "RefMsgSeqNum": 0,
+      "HeartBtInt": 10,
       "StandardTrailer": {
         "PublicKey": "0xPartyA",
         "Signature": "0xSignature"
