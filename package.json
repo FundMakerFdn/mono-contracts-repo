@@ -35,6 +35,7 @@
     "write": "hardhat write --network localhost",
     "scenario": "./demo/tmux/scenario.sh",
     "party": "./demo/tmux/party.sh",
+    "hardhat-noir": "hardhat test contracts/test/noirPSymm/index.js",
     "noir_demo": "./demo/tmux/noir_demo.sh",
     "server:a": "cd noir_demo && node server_A.js",
     "server:b": "cd noir_demo && node server_B.js",

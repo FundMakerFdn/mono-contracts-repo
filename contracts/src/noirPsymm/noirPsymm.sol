@@ -224,46 +224,47 @@ contract noirPsymm {
 
     /// @notice Transfers custody from one account to another within the system.
     /// @param _id The custody identifier.
-    /// @param _timestamp The timestamp for the signature.
-    /// @param _signer The signer address that is whitelisted.
-    /// @param _signature The ECDSA signature.
-    /// @param _merkleProof The Merkle proof for whitelisting.
+    // /// @param _timestamp The timestamp for the signature.
+    // /// @param _signer The signer address that is whitelisted.
+    // /// @param _signature The ECDSA signature.
+    // /// @param _merkleProof The Merkle proof for whitelisting.
     /// @param _nullifier The nullifier (hash) associated with the deposit.
     /// @param _commitment1 commitment 1.
     /// @param _commitment2 commitment 2.
     function custodyToCustody(
 		bytes calldata _zkProof,
         bytes32 _id,
-        uint256 _timestamp,
-        address _signer,
-        bytes calldata _signature,
-        bytes32[] calldata _merkleProof,
+        // uint256 _timestamp,
+        // address _signer,
+        // bytes calldata _signature,
+        // bytes32[] calldata _merkleProof,
         bytes32 _nullifier,
         bytes32 _commitment1,
         bytes32 _commitment2
-    ) external checkCustodyState(_id, 0) checkExpiry(_timestamp) checkNullifier(_nullifier) {
+    ) external checkCustodyState(_id, 0) /*checkExpiry(_timestamp)*/
+		checkNullifier(_nullifier) {
         nullifier[_nullifier] = true;
-        bytes32 leaf = keccak256(abi.encode(
-            "custodyToCustody",
-            block.chainid,
-            address(this),
-            custodyState[_id],
-            _signer
-        ));
-        require(MerkleProof.verify(_merkleProof, _getPPM(_id), leaf), "Invalid merkle proof");
+        // bytes32 leaf = keccak256(abi.encode(
+        //     "custodyToCustody",
+        //     block.chainid,
+        //     address(this),
+        //     custodyState[_id],
+        //     _signer
+        // ));
+        // require(MerkleProof.verify(_merkleProof, _getPPM(_id), leaf), "Invalid merkle proof");
 
-        // Verify signature using ECDSA.
-        bytes32 message = keccak256(abi.encode(
-            _timestamp,
-            "custodyToCustody",
-            _id,
-            _commitment1,
-            _commitment2,
-            _nullifier
-        ));
-        bytes32 ethSignedMessageHash = _toEthSignedMessageHash(message);
-        address recoveredSigner = ECDSA.recover(ethSignedMessageHash, _signature);
-        require(recoveredSigner == _signer, "Invalid signature");
+        // // Verify signature using ECDSA.
+        // bytes32 message = keccak256(abi.encode(
+        //     _timestamp,
+        //     "custodyToCustody",
+        //     _id,
+        //     _commitment1,
+        //     _commitment2,
+        //     _nullifier
+        // ));
+        // bytes32 ethSignedMessageHash = _toEthSignedMessageHash(message);
+        // address recoveredSigner = ECDSA.recover(ethSignedMessageHash, _signature);
+        // require(recoveredSigner == _signer, "Invalid signature");
 
         bytes32[] memory inputs = new bytes32[](96); // 32 bytes * 3 parameters
         
