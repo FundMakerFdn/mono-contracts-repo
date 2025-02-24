@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import {UltraVerifier as VerifierCTC} from "./VerifierCTC.sol";
 
 using SafeERC20 for IERC20;
 
@@ -15,8 +16,8 @@ contract noirPsymm {
     event SMADeployed(bytes32 indexed id, address factoryAddress, address smaAddress);
 
     // --- Merkle Tree Parameters ---
-    // TREE_LEVELS is set to 30, which gives us 2^30 leaves.
-    uint256 public constant TREE_LEVELS = 30;
+    // TREE_LEVELS is set to 10, which gives us 2^10 leaves.
+    uint256 public constant TREE_LEVELS = 10;
     uint256 public constant MAX_LEAVES = 2 ** TREE_LEVELS;
     
     // The current Merkle root of the tree.
@@ -41,6 +42,8 @@ contract noirPsymm {
     mapping(bytes32 => mapping(address => uint256)) public seizedBalances; // _id -> _token -> _amount
     // Mapping of custody id to PPM 
     mapping(bytes32 => bytes32) public PPMs;
+
+    VerifierCTC public verifierCTC = new VerifierCTC();
 
     // --- Constructor ---
     // Precompute the zero hashes for each level.
@@ -199,6 +202,7 @@ contract noirPsymm {
     /// @param _commitment1 Partial commitment.
     /// @param _commitment2 Partial commitment.
     function custodyToCustody(
+		bytes calldata _zkProof,
         bytes32 _id,
         uint256 _timestamp,
         address _signer,
@@ -238,6 +242,7 @@ contract noirPsymm {
             bytes32 _nullifier,
             bytes32 _id)
         */
+		// require(VerifierCTC.verify(_zkProof, ), "ZK proof failed");
     }
 
     /// @notice Changes the custody state.
@@ -325,3 +330,4 @@ contract noirPsymm {
         return PPMs[_id];
     }   
 }
+
