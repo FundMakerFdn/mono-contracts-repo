@@ -196,13 +196,13 @@ contract noirPsymm {
     ) external checkCustodyState(_id, 0) checkExpiry(_timestamp) checkNullifier(_nullifier) {
         nullifier[_nullifier] = true;
         // Verify the signer is whitelisted via Merkle proof.
-        bytes32 leaf = keccak256(abi.encode(
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(
             "custodyToAddress",
             block.chainid,
             address(this),
             custodyState[_id],
             _signer
-        ));
+        ))));
         require(MerkleProof.verify(_merkleProof, _getPPM(_id), leaf), "Invalid merkle proof");
 
         // Verify signature using ECDSA.
@@ -329,13 +329,13 @@ contract noirPsymm {
         /// HOTFIX
         /*
         // Verify the signer is whitelisted via Merkle proof.
-        bytes32 leaf = keccak256(abi.encode(
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(
             "updatePPM",
             block.chainid,
             address(this),
             custodyState[_id],
             _signer
-        ));
+        ))));
         require(MerkleProof.verify(_merkleProof, _getPPM(_id), leaf), "Invalid merkle proof");
 
         // Verify signature.
@@ -369,14 +369,14 @@ contract noirPsymm {
     ) external checkExpiry(_timestamp) {
 
         // Verify the signer is whitelisted via Merkle proof.
-        bytes32 leaf = keccak256(abi.encode(
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(
             "updateCustodyState",
             block.chainid,
             address(this),
             custodyState[_id],
             _state,
             _signer
-        ));
+        ))));
         require(MerkleProof.verify(_merkleProof, _getPPM(_id), leaf), "Invalid merkle proof");
 
         // Verify signature using ECDSA.
@@ -408,13 +408,13 @@ contract noirPsymm {
         bytes32 _nullifier,
         bytes32[] calldata _merkleProof
     ) public checkCustodyState(_id, 2) { 
-        bytes32 leaf = keccak256(abi.encode(
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(
             "executeDisputeSettlement",
             block.chainid,
             address(this),
             custodyState[_id],
             msg.sender // check msg.sender is SettleMaker
-        ));
+        ))));
         require(MerkleProof.verify(_merkleProof, _getPPM(_id), leaf), "Invalid merkle proof");
 
         nullifier[_nullifier] = true;
