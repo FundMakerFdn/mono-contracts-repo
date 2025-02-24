@@ -14,6 +14,7 @@ const { NativeUltraPlonkBackend } = require("./plonk.js");
 const { Noir } = require("@noir-lang/noir_js");
 const path = require("path");
 const fs = require("fs");
+const os = require("node:os");
 const hre = require("hardhat");
 const TOML = require("@iarna/toml");
 
@@ -27,7 +28,7 @@ async function deployFixture() {
       path.resolve(__dirname, "../../../noir/pSymm/target/pSymm.json")
     )
   );
-  const backend = new NativeUltraPlonkBackend("~/.bb/bb", jsondata);
+  const backend = new NativeUltraPlonkBackend(path.join(os.homedir(), ".bb", "bb"), jsondata);
   const noir = new Noir(jsondata);
 
   // Deploy NoirTest contract
