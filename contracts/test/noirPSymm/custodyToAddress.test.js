@@ -1,6 +1,6 @@
 const assert = require("node:assert/strict");
 const { loadFixture } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
-const { parseEther, keccak256, padHex } = require("viem");
+const { parseEther, keccak256, padHex, encodeAbiParameters} = require("viem");
 const hre = require("hardhat");
 const { deployTestFixture } = require("./noirPsymm.deployment");
 const { CHAIN_ID } = require("./globalVariables");
@@ -62,8 +62,7 @@ function shouldCustodyToAddress() {
       const _commitment = padHex("0x6869", 66);
       const _nullifier = padHex("0x6869", 66);
 
-      // Build the message to sign.
-      const { encodeAbiParameters } = require("viem");
+
       const types = [
         "uint256",
         "string",
@@ -84,6 +83,7 @@ function shouldCustodyToAddress() {
         _commitment,
         _nullifier,
       ];
+      console.log("types", valuesForMessage);
       const encodedMessage = encodeAbiParameters(types, valuesForMessage);
       const messageHash = keccak256(encodedMessage);
 

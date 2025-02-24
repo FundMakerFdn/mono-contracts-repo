@@ -160,7 +160,6 @@ contract noirPsymm {
             block.chainid,
             address(this),
             custodyState[_id],
-            _destination,
             _signer
         ));
         require(MerkleProof.verify(_merkleProof, _getPPM(_id), leaf), "Invalid merkle proof");
