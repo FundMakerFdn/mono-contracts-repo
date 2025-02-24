@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -124,15 +125,31 @@ contract noirPsymm {
         _;
     }
 
+    /// @notice Internal helper to handle address to custody operations
+    /// @param _commitment The commitment associated with the deposit
+    /// @param _amount The amount to transfer (0 if no transfer needed)
+    /// @param _token The token address (address(0) if no transfer needed)
+    function doATC(bytes32 _commitment, uint256 _amount, address _token) internal {
+        require(!commitments[_commitment], "The commitment has been submitted");
+        
+        uint32 insertedIndex = _insert(_commitment);
+        commitments[_commitment] = true;
+
+        // Only do the transfer if amount > 0 and token is specified
+        if (_amount > 0 && _token != address(0)) {
+            IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
+        }
+        
+        emit Deposit(_commitment, insertedIndex, block.timestamp, _amount, _token, msg.sender);
+    }
+
     /// @notice Moves an address-based deposit into custody.
     /// @param _commitment The commitment associated with the deposit.
     function addressToCustody(bytes calldata _zkProof, bytes32 _commitment, uint256 _amount, address _token) public {
-        require(!commitments[_commitment], "The commitment has been submitted");
-
         bytes32[] memory inputs = new bytes32[](96); // 32 bytes * 3 parameters
         
-        bytes32[] memory amountBytes = chopBytes32(bytes32(_amount));
-        bytes32[] memory tokenBytes = chopBytes32(bytes32(bytes20(uint160(_token))));
+        bytes32[] memory amountBytes = chopBytes32(bytes32(uint256(_amount)));
+        bytes32[] memory tokenBytes = chopBytes32(bytes32(uint256(uint160(_token))));
         bytes32[] memory commitmentBytes = chopBytes32(_commitment);
         
         for(uint i = 0; i < 32; i++) {
@@ -141,14 +158,9 @@ contract noirPsymm {
             inputs[i + 64] = commitmentBytes[i];
         }
 
-        require(verifierCTC.verify(_zkProof, inputs), "ZK proof failed");
+        require(verifierATC.verify(_zkProof, inputs), "ZK proof failed");
 
-        uint32 insertedIndex = _insert(_commitment);
-        commitments[_commitment] = true;
-
-        // deposit erc20
-        IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
-        emit Deposit(_commitment, insertedIndex, block.timestamp, _amount, _token, msg.sender);
+        doATC(_commitment, _amount, _token);
     }
 
     /// @notice Transfers funds from custody to an external address.
@@ -202,7 +214,7 @@ contract noirPsymm {
 
         IERC20(_token).safeTransfer(_destination, _amount);
 
-        addressToCustody(_commitment, 0, address(0));
+        doATC(_commitment, 0, address(0));
 
         /*Verify(bytes calldata _zkProof,
             bytes32 _nullifier,
@@ -267,8 +279,8 @@ contract noirPsymm {
         
         require(verifierCTC.verify(_zkProof, inputs), "ZK proof failed");
 
-        addressToCustody(_commitment1, 0, address(0));
-        addressToCustody(_commitment2, 0, address(0));
+        doATC(_commitment1, 0, address(0));
+        doATC(_commitment2, 0, address(0));
 
     }
 

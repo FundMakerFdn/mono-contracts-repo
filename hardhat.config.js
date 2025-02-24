@@ -96,6 +96,7 @@ module.exports = {
     overrides: {
       "contracts/src/NoirTest/NoirTest.sol": verifierConf,
       "contracts/src/noirPsymm/VerifierCTC.sol": verifierConf,
+      "contracts/src/noirPsymm/VerifierATC.sol": verifierConf,
     },
   },
   networks: {
