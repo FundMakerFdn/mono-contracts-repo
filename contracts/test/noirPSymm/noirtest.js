@@ -28,7 +28,10 @@ async function deployFixture() {
       path.resolve(__dirname, "../../../noir/pSymm/target/pSymm.json")
     )
   );
-  const backend = new NativeUltraPlonkBackend(path.join(os.homedir(), ".bb", "bb"), jsondata);
+  const backend = new NativeUltraPlonkBackend(
+    path.join(os.homedir(), ".bb", "bb"),
+    jsondata
+  );
   const noir = new Noir(jsondata);
 
   // Deploy NoirTest contract

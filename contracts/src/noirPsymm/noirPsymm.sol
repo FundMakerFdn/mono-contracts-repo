@@ -43,11 +43,12 @@ contract noirPsymm {
     // Mapping of custody id to PPM 
     mapping(bytes32 => bytes32) public PPMs;
 
-    VerifierCTC public verifierCTC = new VerifierCTC();
+    VerifierCTC public verifierCTC;
 
     // --- Constructor ---
     // Precompute the zero hashes for each level.
-    constructor() {
+    constructor(address _verifierAddress) {
+        verifierCTC = VerifierCTC(_verifierAddress);
         uint256 currentZero = 0;
         for (uint256 i = 0; i < TREE_LEVELS; i++) {
             zeros[i] = bytes32(currentZero);
@@ -198,9 +199,9 @@ contract noirPsymm {
     /// @param _signer The signer address that is whitelisted.
     /// @param _signature The ECDSA signature.
     /// @param _merkleProof The Merkle proof for whitelisting.
-    /// @param _nullifier The nullifier associated with the deposit.
-    /// @param _commitment1 Partial commitment.
-    /// @param _commitment2 Partial commitment.
+    /// @param _nullifier The nullifier (hash) associated with the deposit.
+    /// @param _commitment1 commitment 1.
+    /// @param _commitment2 commitment 2.
     function custodyToCustody(
 		bytes calldata _zkProof,
         bytes32 _id,
@@ -235,14 +236,39 @@ contract noirPsymm {
         address recoveredSigner = ECDSA.recover(ethSignedMessageHash, _signature);
         require(recoveredSigner == _signer, "Invalid signature");
 
+        bytes32[] memory inputs = new bytes32[](96); // 32 bytes * 3 parameters
+        
+        bytes32[] memory nullifierBytes = chopBytes32(_nullifier);
+        bytes32[] memory rootBytes = chopBytes32(MERKLE_ROOT);
+        bytes32[] memory idBytes = chopBytes32(_id);
+        
+        for(uint i = 0; i < 32; i++) {
+            inputs[i] = nullifierBytes[i];
+            inputs[i + 32] = rootBytes[i];
+            inputs[i + 64] = idBytes[i];
+        }
+        
+        require(verifierCTC.verify(_zkProof, inputs), "ZK proof failed");
+
         addressToCustody(_commitment1, 0, address(0));
         addressToCustody(_commitment2, 0, address(0));
 
-        /*Verify(bytes calldata _zkProof,
-            bytes32 _nullifier,
-            bytes32 _id)
-        */
-		// require(VerifierCTC.verify(_zkProof, ), "ZK proof failed");
+    }
+
+    /// @notice Splits a bytes32 into an array of 32 bytes32, each containing a single byte padded with zeros
+    /// @param _input The bytes32 to split
+    /// @return result Array of 32 bytes32, each containing a single byte from the input
+    function chopBytes32(bytes32 _input) internal pure returns (bytes32[] memory) {
+        bytes32[] memory result = new bytes32[](32);
+        
+        for (uint i = 0; i < 32; i++) {
+            // Shift right by (31-i)*8 bits to get the desired byte to the rightmost position
+            // Then mask with 0xff to keep only that byte
+            uint8 byteVal = uint8(uint256(_input) >> ((31-i) * 8) & 0xff);
+            result[i] = bytes32(uint256(byteVal));
+        }
+        
+        return result;
     }
 
     /// @notice Changes the custody state.
@@ -292,7 +318,7 @@ contract noirPsymm {
     /// @param _id The custody identifier.
     /// @param _token The token address.
     /// @param _amount The amount involved in the dispute.
-    /// @param _nullifier The nullifier associated with the dispute.
+    /// @param _nullifier The nullifier (hash) associated with the dispute.
     /// @param _merkleProof The Merkle proof for whitelisting.
     function executeDisputeSettlement(
         bytes32 _id,
