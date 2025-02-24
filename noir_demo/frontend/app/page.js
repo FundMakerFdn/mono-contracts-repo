@@ -132,24 +132,41 @@ export default function TradingInterface() {
         eventName: 'Deposit',
         fromBlock: 0n
       });
-
+  
       const deposits = await publicClient.getFilterLogs({
         filter: depositFilter
       });
-
-      console.log('Deposit events:', deposits);
-
+  
+      console.log('Found deposit events:', deposits);
+  
+      // Calculate total deposits by summing up the amounts directly from events
       const totalDeposits = deposits.reduce((acc, log) => {
         if (log && log.args) {
-          const { commitment, index, timestamp } = log.args;
-          console.log('Deposit event details:', { commitment, index, timestamp });
+          // The amount is now directly available in the event
+          const amount = log.args.amount || BigInt(0);
+          const sender = log.args.sender;
+          
+          // Only count deposits from the current account
+          if (sender?.toLowerCase() === account?.toLowerCase()) {
+            console.log('Found deposit:', {
+              amount: amount.toString(),
+              sender,
+              timestamp: log.args.timestamp
+            });
+            return acc + amount;
+          }
         }
         return acc;
       }, BigInt(0));
-
-      setDepositBalance(totalDeposits.toString());
+  
+      // Convert to human readable format
+      const formattedDeposits = (Number(totalDeposits) / 1e18).toString();
+      console.log('Total deposits for account:', formattedDeposits);
+      setDepositBalance(formattedDeposits);
+  
     } catch (error) {
-      console.error('Error fetching deposit events:', error);
+      console.error('Error calculating deposit balance:', error);
+      setDepositBalance('0'); // Set to 0 if there's an error
     }
   };
 
@@ -175,7 +192,8 @@ export default function TradingInterface() {
         args: [account]
       });
 
-      setMintedBalance(balance.toString());
+      const formattedBalance = (Number(balance) / 1e18).toString();
+      setMintedBalance(formattedBalance);
     } catch (error) {
       console.error('Error fetching minted balance:', error);
     }
@@ -293,8 +311,7 @@ export default function TradingInterface() {
                 <div>Minted Balance: {mintedBalance} mUSDC</div>
               </div>
               <div className="p-2 bg-gray-100 rounded">
-                <div>Custody Balance: {collateral.balance} USDC</div>
-                  <div>Deposit Balance: {depositBalance} USDC</div>
+                <div>Deposit Balance: {depositBalance} USDC</div>
                 <div>uPNL: {collateral.upnl} USDC</div>
               </div>
             </div>

@@ -33,16 +33,6 @@ let storage = {
 	lastQuote: null,
 };
 
-try {
-	const data = fs.readFileSync(STORAGE_PATH, "utf8");
-	if (data) {
-		storage = JSON.parse(data);
-	}
-} catch (error) {
-	console.error("Error loading storage:", error);
-	fs.writeFileSync(STORAGE_PATH, JSON.stringify(storage, null, 2));
-}
-
 const saveStorage = () => {
 	try {
 		console.log("Storage B: ", storage);
@@ -51,6 +41,17 @@ const saveStorage = () => {
 		console.error("Error saving storage:", error);
 	}
 };
+
+const resetStorage = () => {
+	storage = {
+		messages: [],
+		orders: [],
+		lastQuote: null,
+	};
+	saveStorage();
+};
+
+resetStorage();
 
 const partyClient = "0xPartyA";
 const partyBroker = "0xPartyB";
@@ -93,7 +94,7 @@ async function setupInitialState() {
 		});
 
 		const account = privateKeyToAccount(
-			"0xdf57089febbacf7ba0bc227dafbffa9fc08a93fdc68e1e42411a14efcf23656e"
+			"0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
 		);
 		const walletClient = createWalletClient({
 			chain: hardhat,
