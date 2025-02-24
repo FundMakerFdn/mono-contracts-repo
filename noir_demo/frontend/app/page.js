@@ -118,6 +118,40 @@ export default function TradingInterface() {
     }
   };
 
+  const updateDepositBalance = async (account) => {
+    try {
+      const publicClient = createPublicClient({
+        chain: hardhat,
+        transport: custom(window.ethereum)
+      });
+
+      const depositFilter = await publicClient.createContractEventFilter({
+        address: NOIR_PSYMM_ADDRESS,
+        abi: NoirPsymmAbi,
+        eventName: 'Deposit',
+        fromBlock: 0n
+      });
+
+      const deposits = await publicClient.getFilterLogs({
+        filter: depositFilter
+      });
+
+      console.log('Deposit events:', deposits);
+
+      const totalDeposits = deposits.reduce((acc, log) => {
+        if (log && log.args) {
+          const { commitment, index, timestamp } = log.args;
+          console.log('Deposit event details:', { commitment, index, timestamp });
+        }
+        return acc;
+      }, BigInt(0));
+
+      setDepositBalance(totalDeposits.toString());
+    } catch (error) {
+      console.error('Error fetching deposit events:', error);
+    }
+  };
+
   const handleApproveWithdraw = async () => {
     alert('Approve withdraw functionality coming soon!');
   };
@@ -161,14 +195,14 @@ export default function TradingInterface() {
       const response = await fetch('http://localhost:3001/api/partyA/buy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           price: orderPrice,
           quantity: orderQuantity
         })
       });
-      
+
       if (!response.ok) throw new Error('Buy order failed');
-      
+
       alert('Buy order sent successfully!');
       setOrderPrice('');
       setOrderQuantity('');
@@ -185,6 +219,7 @@ export default function TradingInterface() {
         if (window.ethereum) {
           const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' });
           await updateMintedBalance(account);
+          await updateDepositBalance(account);
         }
 
         // Fetch positions
@@ -207,6 +242,7 @@ export default function TradingInterface() {
       }
     };
 
+    fetchData();
     const interval = setInterval(fetchData, 5000);
     return () => clearInterval(interval);
   }, []);
@@ -220,31 +256,31 @@ export default function TradingInterface() {
         <CardContent className="space-y-4">
           <div className="flex gap-4">
             <div className="flex flex-col gap-2">
-              <button 
+              <button
                 onClick={handleMint}
                 className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
               >
                 Mint
               </button>
-              <button 
+              <button
                 onClick={handleApproveDeposit}
                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
               >
                 Approve Deposit
               </button>
-              <button 
+              <button
                 onClick={handleAddressToCustody}
                 className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
               >
                 Address To Custody
               </button>
-              <button 
+              <button
                 onClick={handleApproveWithdraw}
                 className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
               >
                 Approve Withdraw
               </button>
-              <button 
+              <button
                 onClick={handleWithdraw}
                 className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
               >
@@ -261,7 +297,7 @@ export default function TradingInterface() {
               </div>
             </div>
           </div>
-          
+
           <div className="flex gap-4 items-center mt-4">
             <input
               type="number"
