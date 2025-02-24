@@ -6,7 +6,7 @@ const { CHAIN_ID, partyAKey, partyBKey } = require("./globalVariables");
 const { secp256k1 } = require("@noble/curves/secp256k1");
 
 
-
+/*
 function getEthAddress(pubKey) {
   const uncompressed = pubKey.toRawBytes(false).slice(1);
   const address = '0x' + keccak256(bytesToHex(uncompressed)).slice(-40);
@@ -27,11 +27,11 @@ const combinedPubKey = secp256k1.ProjectivePoint.BASE.multiply(combinedPrivKey);
 const partyAPubKey0 = getPrivateKey(privKey1);    
 const partyBPubKey0 = getPrivateKey(privKey2);
 const combinedPubKey0 = getPrivateKey(combinedPrivKey);
-
+*/
 async function deployTestFixture() {
   const [deployer] = await hre.viem.getWalletClients();
   const rpcUrl = process.env.RPC_URL || "http://localhost:8545";
-  
+  /*
   const partyA = createWalletClient({
     account: partyAPubKey0, 
     chain: CHAIN_ID.HARDHAT,
@@ -57,7 +57,7 @@ async function deployTestFixture() {
   
 console.log("combinedPubKey", getEthAddress(combinedPubKey));
 console.log("combinedPub", combinedPub);
-
+*/
   const publicClient = await hre.viem.getPublicClient();
   const noirPsymm = await hre.viem.deployContract("noirPsymm", []);
   const mockUSDC = await hre.viem.deployContract("MockUSDC", []);

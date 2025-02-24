@@ -360,7 +360,7 @@ describe("noirPsymm", function () {
     const storedCommitmentA = await noirPsymm.read.leaves([1]);
     const storedCommitmentB = await noirPsymm.read.leaves([2]);
     assert.equal(
-      storedCommitmentA,
+      storedCommitmentA,  
       commitmentA,
       "Commitment A should be stored"
     );
