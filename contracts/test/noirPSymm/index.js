@@ -1,4 +1,5 @@
 const assert = require("node:assert/strict");
+const TOML = require("@iarna/toml");
 const {
   loadFixture,
 } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
@@ -13,6 +14,7 @@ const {
   bytesToHex,
   pad,
 } = require("viem");
+const fs = require("fs");
 const { NativeUltraPlonkBackend } = require("./plonk.js");
 const { Noir } = require("@noir-lang/noir_js");
 const path = require("path");
@@ -139,18 +141,21 @@ describe("noirPsymm", function () {
     if (!filledSubtrees || filledSubtrees.length === 0) {
       filledSubtrees = zeros.slice();
     }
+    const proof = [];
     for (let level = 0; level < 10; level++) {
       if (currentIndex % 2 === 0) {
+        proof.push(zeros[level]);
         filledSubtrees[level] = currentHash;
         currentHash = keccak256(concatHex([currentHash, zeros[level]]));
       } else {
+        proof.push(filledSubtrees[level]);
         currentHash = keccak256(
           concatHex([filledSubtrees[level], currentHash])
         );
       }
       currentIndex = Math.floor(currentIndex / 2);
     }
-    return [currentHash, filledSubtrees];
+    return [currentHash, proof];
   }
 
   async function performATC({ noirPsymm, mockUSDC, verifierATC, deployer }) {
@@ -228,7 +233,12 @@ describe("noirPsymm", function () {
       currentZero = keccak256(concatHex([currentZero, currentZero]));
     }
     let filledSubtrees = [];
-    const [expectedRoot] = insert(commitment, 0, zeros, filledSubtrees);
+    const [expectedRoot, merkle_proof] = insert(
+      commitment,
+      0,
+      zeros,
+      filledSubtrees
+    );
 
     // Get and verify updated merkle root
     const updatedRoot = await noirPsymm.read.MERKLE_ROOT();
@@ -247,25 +257,23 @@ describe("noirPsymm", function () {
       "Contract should have received the USDC"
     );
 
-    return { commitment, depositAmount };
+    // merkle_proof todo
+    return { commitment, depositAmount, merkle_proof };
   }
 
-  it("Should correctly handle ATC (address-to-custody) operations", async function () {
-    const fixture = await loadFixture(deployFixture);
-    await performATC(fixture);
-  });
+  // it("Should correctly handle ATC (address-to-custody) operations", async function () {
+  //   const fixture = await loadFixture(deployFixture);
+  //   await performATC(fixture);
+  // });
 
-  async function performCTC({ noirPsymm, mockUSDC }) {
-    return;
+  async function performCTC({ noirPsymm, mockUSDC }, { merkle_proof }) {
     const { backendCTC, noirCTC } = await getNoirBackend();
 
-    // Create notes for splitting
-    const originalAmount = 1000000000n; // 1000 USDC
-    const splitAmount1 = 400000000n; // 400 USDC
-    const splitAmount2 = 600000000n; // 600 USDC
+    const splitAmount1 = 400_000000n; // 400 USDC
+    const splitAmount2 = 600_000000n; // 600 USDC
 
     // Original note (from ATC)
-    const note = constructNote(originalAmount, mockUSDC.address);
+    const note = constructNote(1000_000000n, mockUSDC.address);
     const custodyId = toHex(new Uint8Array(32));
 
     // Two new notes for the split
@@ -276,72 +284,16 @@ describe("noirPsymm", function () {
 
     // Calculate commitments
     const commitment = hashNote(note, custodyId);
+    console.log("COMMITMENT", commitment);
     const commitmentA = hashNote(noteA, custodyIdA);
     const commitmentB = hashNote(noteB, custodyIdB);
 
-    // Initialize zeros array matching insert-test.py
-    const zeros = [];
-    let currentZero = toHex(new Uint8Array(32));
-
-    // Generate zeros for each level
-    for (let i = 0; i < 10; i++) {
-      zeros.push(currentZero);
-      currentZero = keccak256(concatHex([currentZero, currentZero]));
-    }
-
-    // Insert commitment using _insert algorithm from insert-test.py
-    let currentHash = commitment;
-    let currentIndex = 0;
-    let filledSubtrees = zeros.slice();
-    const merkle_path = [];
-
-    // Compute the new root and collect path
-    for (let level = 0; level < 10; level++) {
-      if (currentIndex % 2 === 0) {
-        filledSubtrees[level] = currentHash;
-        currentHash = keccak256(concatHex([currentHash, zeros[level]]));
-        merkle_path.push(zeros[level]);
-      } else {
-        currentHash = keccak256(
-          concatHex([filledSubtrees[level], currentHash])
-        );
-        merkle_path.push(filledSubtrees[level]);
-      }
-      currentIndex = Math.floor(currentIndex / 2);
-    }
-
-    // Prepare proof inputs
-    const inputs = {
-      note: {
-        nullifier: chopHex(note.nullifier),
-        amount: chopHex(note.amount).reverse(), // LE
-        token: chopHex(note.token),
-        secret_nonce: chopHex(note.secret_nonce),
-      },
-      note_a: {
-        nullifier: chopHex(noteA.nullifier),
-        amount: chopHex(noteA.amount).reverse(),
-        token: chopHex(noteA.token),
-        secret_nonce: chopHex(noteA.secret_nonce),
-      },
-      note_b: {
-        nullifier: chopHex(noteB.nullifier),
-        amount: chopHex(noteB.amount).reverse(),
-        token: chopHex(noteB.token),
-        secret_nonce: chopHex(noteB.secret_nonce),
-      },
-      note_index: 0,
-      note_hash_path: merkle_path.map((path) => chopHex(path)),
-      note_commitment: chopHex(commitment),
-      noteA_commitment: chopHex(commitmentA),
-      noteB_commitment: chopHex(commitmentB),
-      nullifier_hash: chopHex(keccak256(note.nullifier)),
-      root: chopHex(await noirPsymm.read.MERKLE_ROOT()),
-      note_custody_id: chopHex(custodyId),
-      noteA_custody_id: chopHex(custodyIdA),
-      noteB_custody_id: chopHex(custodyIdB),
-    };
-    console.log(inputs);
+    const inputs = TOML.parse(
+      fs.readFileSync(
+        path.resolve(__dirname, "../../../noir/pSymmCTC/Prover.toml"),
+        "utf8"
+      )
+    );
 
     // Generate the proof
     console.log("Generating witness...");
@@ -380,7 +332,8 @@ describe("noirPsymm", function () {
 
   it("Should correctly handle ATC + CTC deposit split (custody-to-custody) operations", async function () {
     const fixture = await loadFixture(deployFixture);
-    await performATC(fixture);
-    await performCTC(fixture);
+    const depositData = await performATC(fixture);
+    console.log("deposit", depositData);
+    await performCTC(fixture, depositData);
   });
 });

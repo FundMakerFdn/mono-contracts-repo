@@ -44,11 +44,11 @@ def main(leaf: bytes, index: int, hash_path: list, root: bytes) -> bytes:
 
 if __name__ == "__main__":
     # Create test note data
-    nullifier = b'\xAA'*32
-    amount = (1234).to_bytes(32, 'little')  # 1234 in little-endian
-    token = b'\x88' * 32
-    secret_nonce = b"nonc"*8
-    custody_id = b"\x11"*32
+    nullifier = b'\x00'*32
+    amount = (1000 * 1000000).to_bytes(32, 'little')  # 1234 in little-endian
+    token = b'\x00' * 12 + bytes.fromhex('cf7ed3acca5a467e9e704c703e8d87f634fb0fc9')
+    secret_nonce = b"\x00"*32
+    custody_id = b"\x00"*32
 
     # Concatenate note fields (same as hashNote in Noir)
     note_data = nullifier + amount + token + custody_id + secret_nonce
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     # Hash the note data as first leaf
     leaves = [raw_zero for _ in range(1024)]
     leaves[idx] = keccak256(note_data)
-    print(keccak256(note_data))
+    # print(keccak256(note_data))
     
     # Build the full tree level by level
     current_level = leaves
@@ -95,28 +95,28 @@ if __name__ == "__main__":
     computed_root = main(leaves[idx], idx, proof, root)
     
     # Create noteA and noteB that sum to original note
-    amount_a = 500  # First split amount
-    amount_b = 734  # Second split amount (500 + 734 = 1234)
+    amount_a = 600 * 1000000
+    amount_b = 400 * 1000000
     
     # Create noteA
     noteA = {
-        'nullifier': b'\xBB'*32,
+        'nullifier': b'\x00'*32,
         'amount': amount_a.to_bytes(32, 'little'),
         'token': token,  # Same token as original
-        'secret_nonce': b"nncA"*8
+        'secret_nonce': b"\x00"*32
     }
-    noteA_custody_id = b"\x22"*32
+    noteA_custody_id = b"\x00"*32
     noteA_data = noteA['nullifier'] + noteA['amount'] + noteA['token'] + noteA_custody_id + noteA['secret_nonce']
     noteA_commitment = keccak256(noteA_data)
 
     # Create noteB
     noteB = {
-        'nullifier': b'\xCC'*32,
+        'nullifier': b'\x00'*32,
         'amount': amount_b.to_bytes(32, 'little'),
         'token': token,  # Same token as original
-        'secret_nonce': b"nncB"*8
+        'secret_nonce': b'\x00'*32,
     }
-    noteB_custody_id = b"\x33"*32
+    noteB_custody_id = b"\x00"*32
     noteB_data = noteB['nullifier'] + noteB['amount'] + noteB['token'] + noteB_custody_id + noteB['secret_nonce']
     noteB_commitment = keccak256(noteB_data)
 
