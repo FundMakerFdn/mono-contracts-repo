@@ -18,7 +18,7 @@ async function deployFixture() {
   // Initialize the Barretenberg backend
   const jsondata = JSON.parse(
     fs.readFileSync(
-      path.resolve(__dirname, "../../../noir/pSymm/target/pSymm.json")
+      path.resolve(__dirname, "../../../noir/merkle/target/pSymm.json")
     )
   );
   const backend = new UltraPlonkBackend(jsondata.bytecode, { threads: 32 });

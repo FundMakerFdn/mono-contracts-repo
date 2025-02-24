@@ -71,6 +71,16 @@ subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS).setAction(
   }
 );
 
+const verifierConf = {
+  version: "0.8.27",
+  settings: {
+    optimizer: {
+      enabled: true,
+      runs: 2000,
+    },
+  },
+};
+
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
@@ -84,15 +94,8 @@ module.exports = {
       },
     ],
     overrides: {
-      "contracts/src/NoirTest/NoirTest.sol": {
-        version: "0.8.27",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 200,
-          },
-        },
-      },
+      "contracts/src/NoirTest/NoirTest.sol": verifierConf,
+      "contracts/src/noirPsymm/VerifierCTC.sol": verifierConf,
     },
   },
   networks: {

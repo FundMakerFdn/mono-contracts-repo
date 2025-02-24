@@ -5,6 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "@aztec/bb.js": "0.72.1",
+    "@iarna/toml": "^2.2.5",
     "@noir-lang/backend_barretenberg": "^0.36.0",
     "@noir-lang/noir_js": "1.0.0-beta.2",
     "@noir-lang/noir_wasm": "1.0.0-beta.2",
