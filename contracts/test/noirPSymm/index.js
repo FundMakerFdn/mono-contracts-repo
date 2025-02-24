@@ -19,6 +19,9 @@ const { NativeUltraPlonkBackend } = require("./plonk.js");
 const { Noir } = require("@noir-lang/noir_js");
 const path = require("path");
 const os = require("node:os");
+const { CHAIN_ID } = require("./globalVariables");
+const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
+const { encodeAbiParameters } = require('viem');
 
 const jsondataATC = require("#root/noir/pSymmATC/target/pSymmATC.json");
 const jsondataCTC = require("#root/noir/pSymmCTC/target/pSymmCTC.json");
@@ -266,7 +269,7 @@ describe("noirPsymm", function () {
   //   await performATC(fixture);
   // });
 
-  async function performCTC({ noirPsymm, mockUSDC }, { merkle_proof }) {
+  async function performCTC({ noirPsymm, mockUSDC, deployer }, { merkle_proof }) {
     const { backendCTC, noirCTC } = await getNoirBackend();
 
     const splitAmount1 = 400_000000n; // 400 USDC
@@ -311,14 +314,47 @@ describe("noirPsymm", function () {
       // hotfix
       "0x1e2e5e090d22e6f02d413de9d556e0ad8c2d3b2cdac66263a671ddd020a96380",
     ]);
-    // Execute the CTC operation
-    await noirPsymm.write.custodyToCustody([
-      bytesToHex(proof),
-      toHex(pad(0)), // custody id
-      keccak256(pad(0)),
-      commitmentA,
-      commitmentB,
+
+    
+    // --- Build the Merkle tree for custodyToCustody ---
+    // NOTE: The off-chain leaf now exactly mirrors the on-chain leaf construction:
+    // keccak256(abi.encode("custodyToCustody", chainId, address(this), custodyState (0), _signer))
+    const leafData = [
+      ["custodyToCustody", CHAIN_ID.HARDHAT, noirPsymm.address, 0, deployer.account.address],
+    ];
+    const tree = StandardMerkleTree.of(leafData, [
+      "string",
+      "uint256",
+      "address",
+      "uint8",
+      "address",
     ]);
+    let merkleRoot = tree.root;
+    // Convert the merkleRoot to a bytes32 value.
+    merkleRoot = toHex(hexToBytes(merkleRoot));
+    // Convert each proof element to bytes32.
+    const merkleProof = tree.getProof(0).map((node) => toHex(hexToBytes(node.data)));
+
+    // Update the PPM mapping in the contract with the new Merkle root.
+    await noirPsymm.write.updatePPM([toHex(pad(0)), merkleRoot]);
+    const storedPPM = await noirPsymm.read.PPMs([toHex(pad(0))]);
+    assert.equal(storedPPM, merkleRoot, "PPM should be updated");
+
+    // --- Call custodyToCustody ---
+    // The parameters must match the on-chain expectation:
+    // _zkProof, _id, _nullifier, _commitment1, _commitment2, _signer, _merkleProof
+    // console.log("hello", CHAIN_ID.HARDHAT, noirPsymm.address, 0, deployer.account.address )
+    await noirPsymm.write.custodyToCustody([
+      bytesToHex(proof),         // _zkProof
+      toHex(pad(0)),             // _id (custody id)
+      keccak256(pad(0)),         // _nullifier
+      commitmentA,               // _commitment1
+      commitmentB,               // _commitment2
+      deployer.account.address,  // _signer (whitelisted signer)
+      0,                         // _state
+      merkleProof,               // _merkleProof
+    ]);
+
 
     // Verify the new commitments were stored
     const storedCommitmentA = await noirPsymm.read.leaves([1]);

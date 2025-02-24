@@ -11,6 +11,7 @@ import {UltraVerifier as VerifierATC} from "./VerifierATC.sol";
 
 using SafeERC20 for IERC20;
 
+/// @notice ECDSA to be upgrade to shnorr
 contract noirPsymm {
     // --- Events ---
     event Deposit(bytes32 indexed commitment, uint32 index, uint256 timestamp, uint256 amount, address token, address sender);
@@ -241,37 +242,42 @@ contract noirPsymm {
     function custodyToCustody(
 		bytes calldata _zkProof,
         bytes32 _id,
-        // uint256 _timestamp,
-        // address _signer,
-        // bytes calldata _signature,
-        // bytes32[] calldata _merkleProof,
         bytes32 _nullifier,
         bytes32 _commitment1,
-        bytes32 _commitment2
-    ) external checkCustodyState(_id, 0) /*checkExpiry(_timestamp)*/
+        bytes32 _commitment2,
+        // Merkle
+        address _signer,
+        uint8 _state,
+        bytes32[] calldata _merkleProof
+        // Schnorr
+        // bytes calldata _signature,
+        // uint256 _expiration,
+    ) external checkCustodyState(_id, _state) /*checkExpiry(_timestamp)*/
 		checkNullifier(_nullifier) {
         nullifier[_nullifier] = true;
-        // bytes32 leaf = keccak256(abi.encode(
-        //     "custodyToCustody",
-        //     block.chainid,
-        //     address(this),
-        //     custodyState[_id],
-        //     _signer
-        // ));
-        // require(MerkleProof.verify(_merkleProof, _getPPM(_id), leaf), "Invalid merkle proof");
-
-        // // Verify signature using ECDSA.
-        // bytes32 message = keccak256(abi.encode(
-        //     _timestamp,
-        //     "custodyToCustody",
-        //     _id,
-        //     _commitment1,
-        //     _commitment2,
-        //     _nullifier
-        // ));
-        // bytes32 ethSignedMessageHash = _toEthSignedMessageHash(message);
-        // address recoveredSigner = ECDSA.recover(ethSignedMessageHash, _signature);
-        // require(recoveredSigner == _signer, "Invalid signature");
+        
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(
+            "custodyToCustody",
+            block.chainid,
+            address(this),
+            _state,
+            _signer
+        ))));
+        require(MerkleProof.verify(_merkleProof, _getPPM(_id), leaf), "Invalid merkle proof");
+/*
+         // Verify signature using ECDSA.
+         bytes32 message = keccak256(abi.encode(
+             _expiration,
+             "custodyToCustody",
+             _id,
+             _commitment1,
+             _commitment2,
+             _nullifier
+         ));
+         bytes32 ethSignedMessageHash = _toEthSignedMessageHash(message);
+        address recoveredSigner = ECDSA.recover(ethSignedMessageHash, _signature);
+        require(recoveredSigner == _signer, "Invalid signature");
+        */
 
         bytes32[] memory inputs = new bytes32[](96); // 32 bytes * 3 parameters
         
@@ -311,14 +317,49 @@ contract noirPsymm {
         return result;
     }
 
-    /// @notice Changes the custody state.
+    /// @notice
+    function updatePPM(
+        bytes32 _id, 
+        bytes32 _ppm
+        // bytes32 _timestamp,
+        // address _signer,
+        // bytes calldata _signature,
+        // bytes32[] calldata _merkleProof
+    ) external {
+        /// HOTFIX
+        /*
+        // Verify the signer is whitelisted via Merkle proof.
+        bytes32 leaf = keccak256(abi.encode(
+            "updatePPM",
+            block.chainid,
+            address(this),
+            custodyState[_id],
+            _signer
+        ));
+        require(MerkleProof.verify(_merkleProof, _getPPM(_id), leaf), "Invalid merkle proof");
+
+        // Verify signature.
+        bytes32 message = keccak256(abi.encode(
+            _timestamp,
+            "updatePPM",
+            _id,
+            _ppm
+        ));
+        bytes32 ethSignedMessageHash = _toEthSignedMessageHash(message);
+        address recoveredSigner = ECDSA.recover(ethSignedMessageHash, _signature);
+        require(recoveredSigner == _signer, "Invalid signature");
+        */
+        PPMs[_id] = _ppm;
+    }
+
+    /// @notice Changes the custody state. 0 normal, 1 for freeze order with SettleMaker settlement, 2 pause.
     /// @param _id The custody identifier.
     /// @param _state The new state.
     /// @param _timestamp The timestamp for the signature.
     /// @param _signer The signer address that is whitelisted.
     /// @param _signature The ECDSA signature.
     /// @param _merkleProof The Merkle proof for whitelisting.
-    function changeCustodyState(
+    function updateCustodyState(
         bytes32 _id,
         uint8 _state,
         uint256 _timestamp,
@@ -329,7 +370,7 @@ contract noirPsymm {
 
         // Verify the signer is whitelisted via Merkle proof.
         bytes32 leaf = keccak256(abi.encode(
-            "changeCustodyState",
+            "updateCustodyState",
             block.chainid,
             address(this),
             custodyState[_id],
@@ -341,7 +382,7 @@ contract noirPsymm {
         // Verify signature using ECDSA.
         bytes32 message = keccak256(abi.encode(
             _timestamp,
-            "changeCustodyState",
+            "updateCustodyState",
             _id,
             _state
         ));
