@@ -6,10 +6,9 @@ const { createPublicClient, http, createWalletClient } = require("viem");
 const { privateKeyToAccount } = require("viem/accounts");
 const { hardhat } = require("viem/chains");
 
-const MockTokenAbi =
-	require("./frontend/artifacts/contracts/MockPPM.sol/MockToken.json").abi;
-const MockDepositAbi =
-	require("./frontend/artifacts/contracts/MockPPM.sol/MockDeposit.json").abi;
+const MockTokenAbi = require("./frontend/artifacts/contracts/MockPPM.sol/MockToken.json").abi;
+const MockDepositAbi = require("./frontend/artifacts/contracts/MockPPM.sol/MockDeposit.json").abi;
+const NoirPsymmAbi = require("./frontend/artifacts/contracts/noirPsymm.sol/noirPsymm.json").abi;
 
 const contracts = require("./frontend/src/contracts.json").contracts;
 
@@ -19,6 +18,7 @@ const depositAmount = TOKEN_UNIT * BigInt(1000);
 
 const MOCK_TOKEN_ADDRESS = contracts.MockToken;
 const MOCK_DEPOSIT_ADDRESS = contracts.MockDeposit;
+const NOIR_PSYMM_ADDRESS = contracts.noirPsymm;
 
 const STORAGE_PATH = path.join(__dirname, "storage", "storageB.json");
 
@@ -92,7 +92,6 @@ async function setupInitialState() {
 			transport: http(),
 		});
 
-		// Use your deployment private key here
 		const account = privateKeyToAccount(
 			"0xdf57089febbacf7ba0bc227dafbffa9fc08a93fdc68e1e42411a14efcf23656e"
 		);
@@ -102,7 +101,6 @@ async function setupInitialState() {
 			account,
 		});
 
-		// 1. Mint tokens
 		const mintTx = await walletClient.writeContract({
 			address: MOCK_TOKEN_ADDRESS,
 			abi: MockTokenAbi,
@@ -110,24 +108,27 @@ async function setupInitialState() {
 			args: [account.address, depositAmount],
 		});
 		await publicClient.waitForTransactionReceipt({ hash: mintTx });
+		console.log("Minting completed");
 
-		// 2. Approve deposit
 		const approveTx = await walletClient.writeContract({
 			address: MOCK_TOKEN_ADDRESS,
 			abi: MockTokenAbi,
 			functionName: "approve",
-			args: [MOCK_DEPOSIT_ADDRESS, depositAmount],
+			args: [NOIR_PSYMM_ADDRESS, depositAmount],
 		});
 		await publicClient.waitForTransactionReceipt({ hash: approveTx });
+		console.log("Approval completed");
 
-		// 3. Deposit to custody
+		const commitment = "0x" + Array(64).fill("0").join("");
+
 		const depositTx = await walletClient.writeContract({
-			address: MOCK_DEPOSIT_ADDRESS,
-			abi: MockDepositAbi,
-			functionName: "deposit",
-			args: [depositAmount],
+			address: NOIR_PSYMM_ADDRESS,
+			abi: NoirPsymmAbi,
+			functionName: "addressToCustody",
+			args: [commitment, depositAmount, MOCK_TOKEN_ADDRESS],
 		});
 		await publicClient.waitForTransactionReceipt({ hash: depositTx });
+		console.log("Deposit to noirPsymm completed");
 
 		console.log("Initial setup completed successfully");
 	} catch (error) {
@@ -195,9 +196,9 @@ setupInitialState().then(() => {
 		});
 	});
 
-  wss.on("error", (error) => {
-    console.error("WebSocket server error:", error);
-  });
+	wss.on("error", (error) => {
+		console.error("WebSocket server error:", error);
+	});
 });
 
 function handleLogon(ws) {

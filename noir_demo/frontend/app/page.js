@@ -7,10 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 // Import contract artifacts
 import { contracts } from '@/src/contracts.json';
 import { abi as MockTokenAbi } from "@/artifacts/contracts/MockPPM.sol/MockToken.json";
-import { abi as MockDepositAbi } from "@/artifacts/contracts/MockPPM.sol/MockDeposit.json";
+import { abi as NoirPsymmAbi } from "@/artifacts/contracts/noirPsymm.sol/noirPsymm.json";
 
 const MOCK_TOKEN_ADDRESS = contracts.MockToken;
-const MOCK_DEPOSIT_ADDRESS = contracts.MockDeposit;
+const NOIR_PSYMM_ADDRESS = contracts.noirPsymm;
 
 export default function TradingInterface() {
   const [isDeposited, setIsDeposited] = useState(false);
@@ -59,7 +59,8 @@ export default function TradingInterface() {
         account
       });
 
-      await publicClient.waitForTransactionReceipt({ hash: mintTx });
+      const mintData = await publicClient.waitForTransactionReceipt({ hash: mintTx });
+      console.log("mint data: ", mintData);
       await updateMintedBalance(account);
       alert('Mint successful!');
     } catch (error) {
@@ -78,11 +79,12 @@ export default function TradingInterface() {
         address: MOCK_TOKEN_ADDRESS,
         abi: MockTokenAbi,
         functionName: 'approve',
-        args: [MOCK_DEPOSIT_ADDRESS, depositAmount],
+        args: [NOIR_PSYMM_ADDRESS, depositAmount],
         account
       });
 
-      await publicClient.waitForTransactionReceipt({ hash: approveTx });
+      const approveData = await publicClient.waitForTransactionReceipt({ hash: approveTx });
+      console.log("approve: ", approveData);
       alert('Approval successful!');
     } catch (error) {
       console.error('Approve error:', error);
@@ -96,15 +98,18 @@ export default function TradingInterface() {
       if (!clients) return;
       const { walletClient, publicClient, account } = clients;
 
+      const commitment = "0x" + Array(64).fill("0").join("");
+
       const depositTx = await walletClient.writeContract({
-        address: MOCK_DEPOSIT_ADDRESS,
-        abi: MockDepositAbi,
-        functionName: 'deposit',
-        args: [depositAmount],
+        address: NOIR_PSYMM_ADDRESS,
+        abi: NoirPsymmAbi,
+        functionName: 'addressToCustody',
+        args: [commitment, depositAmount, MOCK_TOKEN_ADDRESS],
         account
       });
 
-      await publicClient.waitForTransactionReceipt({ hash: depositTx });
+      const custodyData = await publicClient.waitForTransactionReceipt({ hash: depositTx });
+      console.log("custodyData: ", custodyData)
       setIsDeposited(true);
       alert('Deposit to custody successful!');
     } catch (error) {
