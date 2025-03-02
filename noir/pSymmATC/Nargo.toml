@@ -1,6 +1,0 @@
-[package]
-name = "pSymmATC"
-type = "bin"
-authors = [""]
-
-[dependencies]
