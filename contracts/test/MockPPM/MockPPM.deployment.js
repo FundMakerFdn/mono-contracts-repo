@@ -6,11 +6,10 @@ async function deployFixture() {
   const [deployer, user1, user2] = await hre.viem.getWalletClients();
   const publicClient = await hre.viem.getPublicClient();
   
-  const mockPPM = await hre.viem.deployContract("MockPPM");
-
+  const PSYMM = await hre.viem.deployContract("PSYMM");
 
   return {
-    mockPPM,
+    PSYMM,
     deployer,
     user1,
     user2,
@@ -18,14 +17,14 @@ async function deployFixture() {
   };
 }
 
-function shouldDeployMockPPM() {
+function shouldDeployPSYMM() {
   it("should deploy successfully", async function () {
-    const { mockPPM } = await loadFixture(deployFixture);
-    assert.ok(mockPPM.address, "MockPPM not deployed");
+    const { PSYMM } = await loadFixture(deployFixture);
+    assert.ok(PSYMM.address, "PSYMM not deployed");
   });
 }
 
 module.exports = {
-  shouldDeployMockPPM,
+  shouldDeployPSYMM,
   deployFixture
 };

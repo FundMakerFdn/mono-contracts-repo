@@ -15,7 +15,7 @@ interface ISMAFactory {
     function deploySMA(bytes calldata data) external returns (address);
 }
 
-contract MockPPM {
+contract PSYMM {
     using SafeERC20 for IERC20;
 
     struct VerificationData {
@@ -35,10 +35,10 @@ contract MockPPM {
     event custodyToAddressEvent(bytes32 indexed id, address token, address destination, uint256 amount);
     event custodyToSMAEvent(bytes32 indexed id, address token, address smaAddress, uint256 amount);
     event callSMAEvent(bytes32 indexed id, string smaType, address smaAddress, bytes fixedCallData, bytes tailCallData);
-    event withdrawReRoutingEvent(bytes32 indexed id, address destination);
-    event submitProvisionalEvent(bytes32 indexed id, bytes calldata, bytes msg);
-    event revokeProvisionalEvent(bytes32 indexed id, bytes calldata, bytes msg);
-    event discussProvisionalEvent(bytes32 indexed id, bytes msg, uint256 timestamp);
+    event withdrawReRoutingEvent(bytes32 indexed id, address sender, address destination);
+    event submitProvisionalEvent(bytes32 indexed id, bytes _calldata, bytes _msg);
+    event revokeProvisionalEvent(bytes32 indexed id, bytes _calldata, bytes _msg);
+    event discussProvisionalEvent(bytes32 indexed id, bytes _msg);
 
     mapping(bytes32 => bytes32) private custodys;
     mapping(bytes32 => mapping(address => uint256)) public custodyBalances; // custodyId => token address => balance
@@ -51,7 +51,7 @@ contract MockPPM {
     mapping(bytes32 => mapping(uint256 => bytes)) public custodyMsg; // custodyId => token address => balance
     mapping(bytes32 => uint256) private custodyMsgLength;
 
-    mapping(bytes32 => address) private withdrawReRouting; // custodyId => address // used for instant withdraw
+    mapping(bytes32 => mapping(address => address)) private withdrawReRoutings; // custodyId => address => address // used for instant withdraw
 
     modifier checkCustodyState(bytes32 id, uint8 state) {
         require(custodyState[id] == state, "State isn't 0");
@@ -77,7 +77,7 @@ contract MockPPM {
     function addressToCustody(bytes32 id, address token, uint256 amount) external {
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
         custodyBalances[id][token] += amount;
-        emit Deposit(id, token, amount);
+        emit addressToCustodyEvent(id, token, amount);
     }
 
     function custodyToAddress(
@@ -112,9 +112,9 @@ contract MockPPM {
             v.sig
         );
 
-        if (withdrawReRouting[v.id] != address(0)){
+        if (withdrawReRoutings[v.id][destination] != address(0)){
             custodyBalances[v.id][token] -= amount;
-            IERC20(token).safeTransfer(withdrawReRouting[v.id], amount);
+            IERC20(token).safeTransfer(withdrawReRoutings[v.id][destination], amount);
         } else {
             custodyBalances[v.id][token] -= amount;
             IERC20(token).safeTransfer(destination, amount);
@@ -350,8 +350,8 @@ contract MockPPM {
     /// SettleMaker
     function withdrawReRouting(bytes32 id, address destination) public {
         // buy the right of redirecting claims from a dispute // managed in external contract
-        require(withdrawReRouting[id][msg.sender] == address(0), "Already the custody owner");
-        withdrawReRouting[id][msg.sender] = destination;
+        require(withdrawReRoutings[id][msg.sender] == address(0), "Already the custody owner");
+        withdrawReRoutings[id][msg.sender] = destination;
         emit withdrawReRoutingEvent(id, msg.sender, destination);
     }
 
@@ -362,9 +362,9 @@ contract MockPPM {
     //          Submit and revoke are only considered if called by a validator
     //          Any user can propose a submit though discuss
     //          Solver who spam submit will be slashed by other SettleMaker validators
-    function submitProvisional(bytes32 _id, bytes _calldata, bytes _msg) external { emit submitProvisional(_id, _calldata, _msg, block.timestamp);}
-    function revokeProvisional(bytes32 _id, bytes _calldata, bytes _msg) external { emit revokeProvisional(_id, _calldata, _msg, block.timestamp);}
-    function discussProvisional(bytes32 _id, bytes _msg) external { emit discussProvisional(_id, _msg, block.timestamp);}  // submit arweave merkle leaves here
+    function submitProvisional(bytes32 _id, bytes calldata _calldata, bytes calldata _msg) external { emit submitProvisionalEvent(_id, _calldata, _msg);}
+    function revokeProvisional(bytes32 _id, bytes calldata _calldata, bytes calldata _msg) external { emit revokeProvisionalEvent(_id, _calldata, _msg);}
+    function discussProvisional(bytes32 _id, bytes calldata _msg) external { emit discussProvisionalEvent(_id, _msg);}  // submit arweave merkle leaves here
     
 
     // Read functions

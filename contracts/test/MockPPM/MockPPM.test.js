@@ -1,7 +1,7 @@
-const { shouldDeployMockPPM } = require("./MockPPM.deployment");
+const { shouldDeployPSYMM } = require("./MockPPM.deployment");
 
-describe("MockPPM", function () {
-  describe("Mock PPM Deployment", function () {
-    shouldDeployMockPPM();
+describe("PSYMM", function () {
+  describe("PSYMM Deployment", function () {
+    shouldDeployPSYMM();
   });
 });
