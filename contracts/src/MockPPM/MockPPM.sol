@@ -30,7 +30,15 @@ contract MockPPM {
     event PPMUpdated(bytes32 indexed id, bytes32 ppm, uint256 timestamp);
     event CustodyStateChanged(bytes32 indexed id, uint8 newState);
     event SMADeployed(bytes32 indexed id, address factoryAddress, address smaAddress);
-    event Deposit(bytes32 indexed id, address token, uint256 amount);
+    event addressToCustodyEvent(bytes32 indexed id, address token, uint256 amount);
+    event custodyToCustodyEvent(bytes32 indexed id, bytes32 receiverId, address token, uint256 amount);
+    event custodyToAddressEvent(bytes32 indexed id, address token, address destination, uint256 amount);
+    event custodyToSMAEvent(bytes32 indexed id, address token, address smaAddress, uint256 amount);
+    event callSMAEvent(bytes32 indexed id, string smaType, address smaAddress, bytes fixedCallData, bytes tailCallData);
+    event withdrawReRoutingEvent(bytes32 indexed id, address destination);
+    event submitProvisionalEvent(bytes32 indexed id, bytes calldata, bytes msg);
+    event revokeProvisionalEvent(bytes32 indexed id, bytes calldata, bytes msg);
+    event discussProvisionalEvent(bytes32 indexed id, bytes msg, uint256 timestamp);
 
     mapping(bytes32 => bytes32) private custodys;
     mapping(bytes32 => mapping(address => uint256)) public custodyBalances; // custodyId => token address => balance
@@ -42,8 +50,8 @@ contract MockPPM {
     mapping(bytes32 => uint8) private custodyState;
     mapping(bytes32 => mapping(uint256 => bytes)) public custodyMsg; // custodyId => token address => balance
     mapping(bytes32 => uint256) private custodyMsgLength;
-    mapping(bytes32 => ISettlement) private disputes; // custodyId => Dispute
 
+    mapping(bytes32 => address) private withdrawReRouting; // custodyId => address // used for instant withdraw
 
     modifier checkCustodyState(bytes32 id, uint8 state) {
         require(custodyState[id] == state, "State isn't 0");
@@ -104,8 +112,91 @@ contract MockPPM {
             v.sig
         );
 
+        if (withdrawReRouting[v.id] != address(0)){
+            custodyBalances[v.id][token] -= amount;
+            IERC20(token).safeTransfer(withdrawReRouting[v.id], amount);
+        } else {
+            custodyBalances[v.id][token] -= amount;
+            IERC20(token).safeTransfer(destination, amount);
+        }
+        emit custodyToAddressEvent(v.id, token, destination, amount);
+    }
+
+    function custodyToCustody(
+        address token,
+        bytes32 receiverId,
+        uint256 amount,
+        VerificationData calldata v
+    ) external checkCustodyState(v.id, v.state) checkCustodyBalance(v.id, token, amount) checkExpiry(v.timestamp) checkNullifier(v.sig.e){
+
+        VerificationUtils.verifyLeaf(
+            PPMs[v.id],
+            v.merkleProof,
+            "custodyToCustody",
+            block.chainid,
+            address(this),
+            custodyState[v.id],
+            abi.encode(receiverId),
+            v.pubKey.parity,
+            v.pubKey.x
+        );
+
+        VerificationUtils.verifySchnorr(
+            abi.encode(
+                v.timestamp,
+                "custodyToCustody",
+                v.id,
+                token,
+                receiverId,
+                amount
+            ),
+            v.pubKey,
+            v.sig
+        );
+
+  
         custodyBalances[v.id][token] -= amount;
-        IERC20(token).safeTransfer(destination, amount);
+        custodyBalances[receiverId][token] += amount;
+
+        emit custodyToCustodyEvent(v.id, receiverId, token, amount);
+    }
+
+    function custodyToSMA(
+        address token,
+        address smaAddress,
+        uint256 amount,
+        VerificationData calldata v
+    ) external checkCustodyState(v.id, v.state) checkCustodyBalance(v.id, token, amount) checkExpiry(v.timestamp) checkNullifier(v.sig.e){
+        require(smaAllowance[v.id][smaAddress], "SMA not whitelisted");
+        require(onlyCustodyOwner[smaAddress], "No permission");
+
+        VerificationUtils.verifyLeaf(
+            PPMs[v.id],
+            v.merkleProof,
+            "custodyToSMA",
+            block.chainid,
+            address(this),
+            custodyState[v.id],
+            abi.encode(smaAddress, token),
+            v.pubKey.parity,
+            v.pubKey.x
+        );
+
+        VerificationUtils.verifySchnorr(
+            abi.encode(
+                v.timestamp,
+                "custodyToSMA",
+                v.id,
+                token,
+                smaAddress,
+                amount
+            ),
+            v.pubKey,
+            v.sig
+        );
+
+        custodyBalances[v.id][token] -= amount;
+        IERC20(token).safeTransfer(smaAddress, amount);
     }
 
     function updatePPM(
@@ -182,43 +273,6 @@ contract MockPPM {
         emit SMADeployed(v.id, _factoryAddress, smaAddress);
     }
 
-    function custodyToSMA(
-        address token,
-        address smaAddress,
-        uint256 amount,
-        VerificationData calldata v
-    ) external checkCustodyState(v.id, v.state) checkCustodyBalance(v.id, token, amount) checkExpiry(v.timestamp) checkNullifier(v.sig.e){
-        require(smaAllowance[v.id][smaAddress], "SMA not whitelisted");
-        require(onlyCustodyOwner[smaAddress], "No permission");
-
-        VerificationUtils.verifyLeaf(
-            PPMs[v.id],
-            v.merkleProof,
-            "custodyToSMA",
-            block.chainid,
-            address(this),
-            custodyState[v.id],
-            abi.encode(smaAddress, token),
-            v.pubKey.parity,
-            v.pubKey.x
-        );
-
-        VerificationUtils.verifySchnorr(
-            abi.encode(
-                v.timestamp,
-                "custodyToSMA",
-                v.id,
-                token,
-                smaAddress,
-                amount
-            ),
-            v.pubKey,
-            v.sig
-        );
-
-        custodyBalances[v.id][token] -= amount;
-        IERC20(token).safeTransfer(smaAddress, amount);
-    }
 
     function callSMA(
         string calldata smaType,
@@ -257,6 +311,8 @@ contract MockPPM {
 
         (bool success, ) = smaAddress.call(fullCallData);
         require(success, "SMA call failed");
+
+        emit callSMAEvent(v.id, smaType, smaAddress, fixedCallData, tailCallData);
     }
 
     function updateCustodyState(
@@ -290,6 +346,26 @@ contract MockPPM {
         custodyState[v.id] = state;
         emit CustodyStateChanged(v.id, state);
     }
+
+    /// SettleMaker
+    function withdrawReRouting(bytes32 id, address destination) public {
+        // buy the right of redirecting claims from a dispute // managed in external contract
+        require(withdrawReRouting[id][msg.sender] == address(0), "Already the custody owner");
+        withdrawReRouting[id][msg.sender] = destination;
+        emit withdrawReRoutingEvent(id, msg.sender, destination);
+    }
+
+    /// Provisional Settlement
+    // @notice multiple provisional settlement can be emmited on the same custody, but only 1 need to not be revoked
+    //          If more than 1 provisional settlement is live during vote phase, report vote
+    //          If no proposal, dispute is considered on hold
+    //          Submit and revoke are only considered if called by a validator
+    //          Any user can propose a submit though discuss
+    //          Solver who spam submit will be slashed by other SettleMaker validators
+    function submitProvisional(bytes32 _id, bytes _calldata, bytes _msg) external { emit submitProvisional(_id, _calldata, _msg, block.timestamp);}
+    function revokeProvisional(bytes32 _id, bytes _calldata, bytes _msg) external { emit revokeProvisional(_id, _calldata, _msg, block.timestamp);}
+    function discussProvisional(bytes32 _id, bytes _msg) external { emit discussProvisional(_id, _msg, block.timestamp);}  // submit arweave merkle leaves here
+    
 
     // Read functions
 
@@ -329,7 +405,4 @@ contract MockPPM {
         return custodyMsgLength[id];
     }
 
-    function getDisputes(bytes32 id) external view returns (ISettlement) {
-        return disputes[id];
-    }
 }

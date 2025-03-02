@@ -45,6 +45,7 @@ library Schnorr {
     }
 
     function verify(PPMKey calldata key, bytes32 message, Signature calldata sig) internal view returns (bool) {
+        // case where sender is a whitelisted contract
 		if (key.parity == 0) {
 			return msg.sender == address(uint160(uint256(key.x)));
 		} else {
