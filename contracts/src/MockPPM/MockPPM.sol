@@ -2,7 +2,6 @@
 pragma solidity ^0.8.24;
 
 import "hardhat/console.sol";
-import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -10,365 +9,327 @@ import "../SettleMaker/interfaces/ISettlement.sol";
 import "./Schnorr.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-
-// Mock ERC20 Token
-contract MockToken is ERC20 {
-    constructor() ERC20("Mock USDC", "mUSDC") {
-        _mint(msg.sender, 1000000 * 10**decimals());
-    }
-
-    function mint(address to, uint256 amount) external {
-        _mint(to, amount);
-    }
-}
-
-// Mock PPM Contract for deposits
-contract MockDeposit {
-    mapping(address => uint256) public deposits;
-    MockToken public token;
-
-    event Deposit(address indexed user, uint256 amount);
-    event Withdrawal(address indexed user, uint256 amount);
-
-    constructor(address _token) {
-        token = MockToken(_token);
-    }
-
-    function deposit(uint256 amount) external {
-        require(token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
-        deposits[msg.sender] += amount;
-        emit Deposit(msg.sender, amount);
-    }
-
-    function withdraw(uint256 amount) external {
-        require(deposits[msg.sender] >= amount, "Insufficient balance");
-        deposits[msg.sender] -= amount;
-        require(token.transfer(msg.sender, amount), "Transfer failed");
-        emit Withdrawal(msg.sender, amount);
-    }
-
-    function getBalance(address user) external view returns (uint256) {
-        return deposits[user];
-    }
-}
-
-using SafeERC20 for IERC20;
+import "./VerificationUtils.sol";
 
 interface ISMAFactory {
     function deploySMA(bytes calldata data) external returns (address);
 }
 
-// Will be merged to pSymm
-contract MockPPM is EIP712 {
+contract MockPPM {
+    using SafeERC20 for IERC20;
+
+    struct VerificationData {
+        bytes32 id;
+        uint8 state;
+        uint256 timestamp;
+        Schnorr.PPMKey pubKey;
+        Schnorr.Signature sig;
+        bytes32[] merkleProof;
+    }
+
     event PPMUpdated(bytes32 indexed id, bytes32 ppm, uint256 timestamp);
     event CustodyStateChanged(bytes32 indexed id, uint8 newState);
     event SMADeployed(bytes32 indexed id, address factoryAddress, address smaAddress);
-
+    event Deposit(bytes32 indexed id, address token, uint256 amount);
 
     mapping(bytes32 => bytes32) private custodys;
     mapping(bytes32 => mapping(address => uint256)) public custodyBalances; // custodyId => token address => balance
     mapping(bytes32 => mapping(address => bool)) public smaAllowance; // custodyId => deployed SMA address => isAllowed
     mapping(address => bool) public onlyCustodyOwner; // deployed SMA address => isDeployed
-    mapping(bytes32 => bool) private signatureClaimed;
+    mapping(bytes32 => bool) private nullifier;
     mapping(bytes32 => uint256) public lastSMAUpdateTimestamp; // custodyId => timestamp
     mapping(bytes32 => bytes32) private PPMs;
     mapping(bytes32 => uint8) private custodyState;
-    // 1 PPM private key is shared inside PPM
-    // 2 In case of dispute, we reveal PPM Pk that decode 
     mapping(bytes32 => mapping(uint256 => bytes)) public custodyMsg; // custodyId => token address => balance
     mapping(bytes32 => uint256) private custodyMsgLength;
-    // SettleMaker
     mapping(bytes32 => ISettlement) private disputes; // custodyId => Dispute
 
-    constructor() EIP712("MockPPM", "1.0") {}
 
-    modifier checkCustodyState(bytes32 _id) {
-        require(custodyState[_id] == 0, "State isn't 0");
-        _;
-    }
-    modifier checkCustodyBalance(bytes32 _id, address _token, uint256 _amount) {
-        require(custodyBalances[_id][_token] >= _amount, "Out of collateral");
+    modifier checkCustodyState(bytes32 id, uint8 state) {
+        require(custodyState[id] == state, "State isn't 0");
         _;
     }
 
-    function createCustody(bytes32 _ppm) external {
-        require(_ppm == bytes32(0), "PPM already created");
-        custodys[_ppm] = _ppm;
-        // @TODO update state
-        // @TODO event
+    modifier checkCustodyBalance(bytes32 id, address token, uint256 amount) {
+        require(custodyBalances[id][token] >= amount, "Out of collateral");
+        _;
+    }
+
+    modifier checkNullifier(bytes32 _nullifier) {
+        require(!nullifier[_nullifier], "Nullifier has been used");
+        nullifier[_nullifier] = true;
+        _;
+    }
+    
+    modifier checkExpiry(uint256 _timestamp) {
+        require(_timestamp <= block.timestamp, "Signature expired");
+        _;
+    }
+
+    function addressToCustody(bytes32 id, address token, uint256 amount) external {
+        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
+        custodyBalances[id][token] += amount;
+        emit Deposit(id, token, amount);
+    }
+
+    function custodyToAddress(
+        address token,
+        address destination,
+        uint256 amount,
+        VerificationData calldata v
+    ) external checkCustodyState(v.id, v.state) checkCustodyBalance(v.id, token, amount) checkExpiry(v.timestamp) checkNullifier(v.sig.e){
+
+        VerificationUtils.verifyLeaf(
+            PPMs[v.id],
+            v.merkleProof,
+            "custodyToAddress",
+            block.chainid,
+            address(this),
+            custodyState[v.id],
+            abi.encode(destination),
+            v.pubKey.parity,
+            v.pubKey.x
+        );
+
+        VerificationUtils.verifySchnorr(
+            abi.encode(
+                v.timestamp,
+                "custodyToAddress",
+                v.id,
+                token,
+                destination,
+                amount
+            ),
+            v.pubKey,
+            v.sig
+        );
+
+        custodyBalances[v.id][token] -= amount;
+        IERC20(token).safeTransfer(destination, amount);
     }
 
     function updatePPM(
-        bytes32 _id,
         bytes32 _newPPM,
-        uint256 _timestamp,
-        Schnorr.PPMKey calldata pubKey,
-        Schnorr.Signature calldata sig,
-        bytes32[] calldata merkleProof
-    ) external checkCustodyState(_id) {
-        // Verify timestamp
-        require(_timestamp <= block.timestamp && _timestamp > lastSMAUpdateTimestamp[_id], "Signature expired");
+        VerificationData calldata v
+    ) external checkCustodyState(v.id, v.state) checkExpiry(v.timestamp) checkNullifier(v.sig.e){
+        require(v.timestamp > lastSMAUpdateTimestamp[v.id], "Signature expired");
 
-        // Verify pubkey is whitelisted for this action
-        bytes32 leaf = keccak256(abi.encode(
+        VerificationUtils.verifyLeaf(
+            PPMs[v.id],
+            v.merkleProof,
             "updatePPM",
             block.chainid,
             address(this),
-            custodyState[_id],
-            abi.encode(),
-            pubKey.parity,
-            pubKey.x
-        ));
-        require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
+            custodyState[v.id],
+            abi.encode(), // no extra parameters
+            v.pubKey.parity,
+            v.pubKey.x
+        );
 
-        // Verify signature
-        bytes32 message = keccak256(abi.encode(
-            _timestamp,
-            "updatePPM",
-            _id,
-            _newPPM
-        ));
-        require(Schnorr.verify(pubKey, message, sig), "Invalid signature");
-        bytes32 signatureHash = keccak256(abi.encode(sig.e, sig.s));
-        signatureClaimed[signatureHash] = true;
+        VerificationUtils.verifySchnorr(
+            abi.encode(
+                v.timestamp,
+                "updatePPM",
+                v.id,
+                _newPPM
+            ),
+            v.pubKey,
+            v.sig
+        );
 
-        PPMs[_id] = _newPPM;
-        lastSMAUpdateTimestamp[_id] = _timestamp;
-
-        emit PPMUpdated(_id, _newPPM, _timestamp);
+        PPMs[v.id] = _newPPM;
+        lastSMAUpdateTimestamp[v.id] = v.timestamp;
+        emit PPMUpdated(v.id, _newPPM, v.timestamp);
     }
 
     function deploySMA(
-        bytes32 _id,
         string calldata _smaType,
         address _factoryAddress,
         bytes calldata _data,
-        uint256 _timestamp,
-        Schnorr.PPMKey calldata pubKey,
-        Schnorr.Signature calldata sig,
-        bytes32[] calldata merkleProof
-    ) external checkCustodyState(_id) {
-        // Verify timestamp
-        require(_timestamp <= block.timestamp && _timestamp > lastSMAUpdateTimestamp[_id], "Signature expired");
+        VerificationData calldata v
+    ) external checkCustodyState(v.id, v.state) checkExpiry(v.timestamp) checkNullifier(v.sig.e){
+        require(v.timestamp > lastSMAUpdateTimestamp[v.id], "Signature expired");
 
-        // Verify pubkey is whitelisted for this action
-        bytes32 leaf = keccak256(abi.encode(
+        VerificationUtils.verifyLeaf(
+            PPMs[v.id],
+            v.merkleProof,
             "deploySMA",
             block.chainid,
             address(this),
-            custodyState[_id],
+            custodyState[v.id],
             abi.encode(_smaType, _factoryAddress, _data),
-            pubKey.parity,
-            pubKey.x
-        ));
-        require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
+            v.pubKey.parity,
+            v.pubKey.x
+        );
 
-        // Verify signature
-        bytes32 message = keccak256(abi.encode(
-            _timestamp,
-            "deploySMA",
-            _id,
-            _smaType,
-            _factoryAddress,
-            _data
-        ));
-        require(Schnorr.verify(pubKey, message, sig), "Invalid signature");
-        // bytes32 signatureHash = keccak256(abi.encode(sig.e, sig.s));
-        // require(!signatureClaimed[signatureHash], "Signature already claimed");
-        // signatureClaimed[signatureHash] = true;
+        VerificationUtils.verifySchnorr(
+            abi.encode(
+                v.timestamp,
+                "deploySMA",
+                v.id,
+                _smaType,
+                _factoryAddress,
+                _data
+            ),
+            v.pubKey,
+            v.sig
+        );
 
-        // Deploy SMA via factory
         address smaAddress = ISMAFactory(_factoryAddress).deploySMA(_data);
-        
-        // Whitelist the new SMA
-        smaAllowance[_id][smaAddress] = true;
+        smaAllowance[v.id][smaAddress] = true;
         onlyCustodyOwner[smaAddress] = true;
-        // lastSMAUpdateTimestamp[_id] = _timestamp;
 
-        emit SMADeployed(_id, _factoryAddress, smaAddress);
-    }
-
-    function addressToCustody(address sender, bytes32 _id, address _token, uint256 _amount, bytes memory signature) external {
-        // @TODO verify EIP712 signature
-        IERC20(_token).safeTransferFrom(sender, address(this), _amount);
-        custodyBalances[_id][_token] += _amount;
-        // @TODO event
-    }
-
-    function addressToCustody(bytes32 _id, address _token, uint256 _amount) external {
-        IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
-        custodyBalances[_id][_token] += _amount;
-        // @TODO event
-    }
-    function custodyToAddress(
-        bytes32 _id,
-        address _token,
-        address _destination,
-        uint256 _amount,
-        uint256 _timestamp,
-        Schnorr.PPMKey calldata pubKey,
-        Schnorr.Signature calldata sig,
-        bytes32[] calldata merkleProof
-    ) external checkCustodyState(_id) checkCustodyBalance(_id, _token, _amount) {
-        // Verify timestamp
-        require(_timestamp <= block.timestamp, "Signature expired");
-
-        // Verify pubkey is whitelisted for this action
-        bytes32 leaf = keccak256(abi.encode(
-            "custodyToAddress",
-            block.chainid,
-            address(this),
-            custodyState[_id],
-            abi.encode(_destination),
-            pubKey.parity,
-            pubKey.x
-        ));
-        require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
-
-        // Verify signature
-        bytes32 message = keccak256(abi.encode(
-            _timestamp,
-            "custodyToAddress",
-            _id,
-            _token,
-            _destination,
-            _amount
-        ));
-        require(Schnorr.verify(pubKey, message, sig), "Invalid signature");
-
-        custodyBalances[_id][_token] -= _amount;
-        IERC20(_token).safeTransfer(_destination, _amount);
+        emit SMADeployed(v.id, _factoryAddress, smaAddress);
     }
 
     function custodyToSMA(
-        bytes32 _id,
-        address _token,
-        address _smaAddress,
-        uint256 _amount,
-        uint256 _timestamp,
-        Schnorr.PPMKey calldata pubKey,
-        Schnorr.Signature calldata sig,
-        bytes32[] calldata merkleProof
-    ) external checkCustodyState(_id) checkCustodyBalance(_id, _token, _amount) {
-        // Verify timestamp
-        require(_timestamp <= block.timestamp, "Signature expired");
+        address token,
+        address smaAddress,
+        uint256 amount,
+        VerificationData calldata v
+    ) external checkCustodyState(v.id, v.state) checkCustodyBalance(v.id, token, amount) checkExpiry(v.timestamp) checkNullifier(v.sig.e){
+        require(smaAllowance[v.id][smaAddress], "SMA not whitelisted");
+        require(onlyCustodyOwner[smaAddress], "No permission");
 
-        // Verify SMA is whitelisted
-        require(smaAllowance[_id][_smaAddress], "SMA not whitelisted");
-		require(onlyCustodyOwner[_smaAddress], "No permission");
-
-        // Verify pubkey is whitelisted for this action
-        bytes32 leaf = keccak256(abi.encode(
+        VerificationUtils.verifyLeaf(
+            PPMs[v.id],
+            v.merkleProof,
             "custodyToSMA",
             block.chainid,
             address(this),
-            custodyState[_id],
-            abi.encode(_smaAddress, _token),
-            pubKey.parity,
-            pubKey.x
-        ));
-        require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
+            custodyState[v.id],
+            abi.encode(smaAddress, token),
+            v.pubKey.parity,
+            v.pubKey.x
+        );
 
-        // Verify signature
-        bytes32 message = keccak256(abi.encode(
-            _timestamp,
-            "custodyToSMA",
-            _id,
-            _token,
-            _smaAddress,
-            _amount
-        ));
-        require(Schnorr.verify(pubKey, message, sig), "Invalid signature");
+        VerificationUtils.verifySchnorr(
+            abi.encode(
+                v.timestamp,
+                "custodyToSMA",
+                v.id,
+                token,
+                smaAddress,
+                amount
+            ),
+            v.pubKey,
+            v.sig
+        );
 
-        custodyBalances[_id][_token] -= _amount;
-        IERC20(_token).safeTransfer(_smaAddress, _amount);
+        custodyBalances[v.id][token] -= amount;
+        IERC20(token).safeTransfer(smaAddress, amount);
     }
 
     function callSMA(
-        bytes32 _id,
-        string calldata _smaType,
-        address _smaAddress,
-        bytes calldata _fixedCallData,
-        bytes calldata _tailCallData,
-        uint256 _timestamp,
-        Schnorr.PPMKey calldata pubKey,
-        Schnorr.Signature calldata sig,
-        bytes32[] calldata merkleProof
-    ) external checkCustodyState(_id) {
-        // Verify timestamp
-        require(_timestamp <= block.timestamp, "Signature expired");
+        string calldata smaType,
+        address smaAddress,
+        bytes calldata fixedCallData,
+        bytes calldata tailCallData,
+        VerificationData calldata v
+    ) external checkCustodyState(v.id, v.state) checkExpiry(v.timestamp) checkNullifier(v.sig.e){
+        require(smaAllowance[v.id][smaAddress], "SMA not whitelisted");
 
-        // Verify SMA is whitelisted
-        require(smaAllowance[_id][_smaAddress], "SMA not whitelisted");
-
-        // Verify pubkey is whitelisted for this action
-        bytes32 leaf = keccak256(abi.encode(
+        VerificationUtils.verifyLeaf(
+            PPMs[v.id],
+            v.merkleProof,
             "callSMA",
             block.chainid,
             address(this),
-            custodyState[_id],
-            abi.encode(_smaType, _smaAddress, _fixedCallData),
-            pubKey.parity,
-            pubKey.x
-        ));
-        require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
+            custodyState[v.id],
+            abi.encode(smaType, smaAddress, fixedCallData),
+            v.pubKey.parity,
+            v.pubKey.x
+        );
 
-		// @docs _fixedCallData = bytes.concat(selector, abi.encode(partialArgs))
-		// @docs _tailCallData = abi.encode(restOfArgs)
-		bytes memory _fullCallData = bytes.concat(_fixedCallData, _tailCallData);
+        bytes memory fullCallData = bytes.concat(fixedCallData, tailCallData);
+        VerificationUtils.verifySchnorr(
+            abi.encode(
+                v.timestamp,
+                "callSMA",
+                v.id,
+                smaType,
+                smaAddress,
+                fullCallData
+            ),
+            v.pubKey,
+            v.sig
+        );
 
-        // Verify signature
-        bytes32 message = keccak256(abi.encode(
-			_timestamp,
-			"callSMA", 
-			_id,
-			_smaType,
-			_smaAddress,
-			_fullCallData
-		));
-        require(Schnorr.verify(pubKey, message, sig), "Invalid signature");
-        // bytes32 signatureHash = keccak256(abi.encode(sig.e, sig.s));
-        // require(!signatureClaimed[signatureHash], "Signature already claimed");
-        // signatureClaimed[signatureHash] = true;
-        // lastSMAUpdateTimestamp[_id] = _timestamp;
-
-        (bool success,) = _smaAddress.call(_fullCallData);
+        (bool success, ) = smaAddress.call(fullCallData);
         require(success, "SMA call failed");
     }
 
-     function changeCustodyState(
-        bytes32 _id,
-        uint8 _state,
-        uint256 _timestamp,
-        Schnorr.PPMKey calldata pubKey,
-        Schnorr.Signature calldata sig,
-        bytes32[] calldata merkleProof
-    ) external checkCustodyState(_id) {
-        // Verify timestamp
-        require(_timestamp <= block.timestamp, "Signature expired");
+    function updateCustodyState(
+        uint8 state,
+        VerificationData calldata v
+    ) external checkCustodyState(v.id, v.state) checkExpiry(v.timestamp) checkNullifier(v.sig.e){
 
-        // Verify pubkey is whitelisted for this action
-        bytes32 leaf = keccak256(abi.encode(
+        VerificationUtils.verifyLeaf(
+            PPMs[v.id],
+            v.merkleProof,
             "changeCustodyState",
             block.chainid,
             address(this),
-            custodyState[_id],
-            abi.encode(_state),
-            pubKey.parity,
-            pubKey.x
-        ));
-        require(MerkleProof.verify(merkleProof, PPMs[_id], leaf), "Invalid merkle proof");
+            custodyState[v.id],
+            abi.encode(state),
+            v.pubKey.parity,
+            v.pubKey.x
+        );
 
-        // Verify signature
-        bytes32 message = keccak256(abi.encode(
-            _timestamp,
-            "changeCustodyState",
-            _id,
-            _state
-        ));
-        require(Schnorr.verify(pubKey, message, sig), "Invalid signature");
+        VerificationUtils.verifySchnorr(
+            abi.encode(
+                v.timestamp,
+                "changeCustodyState",
+                v.id,
+                state
+            ),
+            v.pubKey,
+            v.sig
+        );
 
-        custodyState[_id] = _state;
-        emit CustodyStateChanged(_id, _state);
+        custodyState[v.id] = state;
+        emit CustodyStateChanged(v.id, state);
+    }
+
+    // Read functions
+
+    function getCustodyState(bytes32 id) external view returns (uint8) {
+        return custodyState[id];
+    }
+
+    function getPPM(bytes32 id) external view returns (bytes32) {
+        return PPMs[id];
+    }
+
+    function getCustodyBalances(bytes32 id, address token) external view returns (uint256) {
+        return custodyBalances[id][token];
+    }
+
+    function getSMAAllowance(bytes32 id, address smaAddress) external view returns (bool) {
+        return smaAllowance[id][smaAddress];
+    }
+
+    function getOnlyCustodyOwner(address smaAddress) external view returns (bool) {
+        return onlyCustodyOwner[smaAddress];
+    }
+
+    function getLastSMAUpdateTimestamp(bytes32 id) external view returns (uint256) {
+        return lastSMAUpdateTimestamp[id];
+    }
+
+    function getNullifier(bytes32 _nullifier) external view returns (bool) {
+        return nullifier[_nullifier];
+    }
+
+    function getCustodyMsg(bytes32 id, uint256 msgId) external view returns (bytes memory) {
+        return custodyMsg[id][msgId];
+    }
+
+    function getCustodyMsgLength(bytes32 id) external view returns (uint256) {
+        return custodyMsgLength[id];
+    }
+
+    function getDisputes(bytes32 id) external view returns (ISettlement) {
+        return disputes[id];
     }
 }

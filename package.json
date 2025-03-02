@@ -34,13 +34,7 @@
     "read": "hardhat read --network localhost",
     "write": "hardhat write --network localhost",
     "scenario": "./demo/tmux/scenario.sh",
-    "party": "./demo/tmux/party.sh",
-    "hardhat-noir": "hardhat test contracts/test/noirPSymm/index.js",
-    "noir_demo": "./demo/tmux/noir_demo.sh",
-    "server:a": "cd noir_demo && node server_A.js",
-    "server:b": "cd noir_demo && node server_B.js",
-    "dev": "cd noir_demo/frontend && yarn dev",
-    "noir_demo_deploy": "cd noir_demo && hardhat run scripts/deploy.js --network localhost"
+    "party": "./demo/tmux/party.sh"
   },
   "imports": {
     "#root/*": "./*",
