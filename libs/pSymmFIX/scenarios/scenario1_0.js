@@ -56,7 +56,7 @@ const makeStandardHeader = (MsgType, isPartyA, seq) => ({
 
 const makeStandardTrailer = (isA) => ({
   PublicKey: isA ? partyClient : partyBroker,
-  Signature: "0xSignature", // Either EIP712 signature, or generic FIX text msg signature
+  Signature: "0xSignature", // Either EIP712 signature, or generic FIX text msg signaturein cu
 });
 
 const makeAckA = (seq) => ({
