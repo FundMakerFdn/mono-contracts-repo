@@ -64,8 +64,8 @@ subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS).setAction(
   async (_, __, runSuper) => {
     const paths = await runSuper();
     return paths.filter(
-      // filter old pSymm and unfinished ETFMaker
-      (p) => !p.includes("/pSymm/") && !p.includes("/ETFMaker/")
+      // filter unfinished ETFMaker
+      (p) => !p.includes("/ETFMaker/")
     );
     // return paths.filter((p) => p.includes("/NoirTest/"));
   }
@@ -102,7 +102,7 @@ module.exports = {
       url: "http://127.0.0.1:8545",
       chainId: 31337,
       port: 8545,
-    }
+    },
   },
   paths: {
     sources: "./contracts/src/",
