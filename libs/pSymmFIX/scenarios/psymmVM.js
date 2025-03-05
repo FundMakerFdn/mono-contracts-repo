@@ -100,9 +100,7 @@ const custody = {
               TickSize: "0.00100000",
               MinNotional: "10.00000000",
               MaxNotional: "90000000.00000000",
-              fundingRateSource: "0xFundingRateSource",
-              FundingRate: "1",
-              FundingRatePrecision: "3",
+              FundingRate: "+2",
               cancelGracePeriod: 300,
               minContractAmount: 1000,
               maxLimitOrderFromPrice: 1.1,
@@ -112,29 +110,18 @@ const custody = {
     ],
 
 
-    ISINList: [
+    PSYMMSIN: [
         {
-            ISIN: "US1234567890",
-            AssetName: "pSymm ETF",
-            AssetSymbol: "PSYM",
-            AssetDescription: "pSymm ETF",
-            AssetLogo: "https://pSymm.com/logo.png",
-            AssetPriceFeed: "https://pSymm.com/pricefeed.json",
-            AssetPriceFeedDecimals: 18,
+            PSYMMSIN: "PSYMM1234567890",
+            Ticker: "BTCUSDT",
+            AssetType: "PERP",
+            AssetCategory: "CRYPTO",
+            Note: "",
+            PriceSource:["/binance/futures/asset:{BTCUSDT}","/bybit/futures/asset:{BTCUSDT}"],
+            FundingSource:["/binance/funding/asset:{BTCUSDT}","/bybit/funding/asset:{BTCUSDT}"],
+            PriceDecimals: 18,
         },
-    ],
-/*
-    FundingAgreementList: [
-        {
-            FundingAgreementID: "PSYMM0000131104",
-            Type:"BinanceFutures",
-            Source: "BinanceFutures"
-            1/ Before funding, counterparty sign a funding range agreement on next funding.
-1.1/ Case where counterparty reject funding range, both parties direct to close position.
-2/ At funding time, counterparty sign a funding agreement of paid funding.
-
-        },
-    ],*/
+    ],  
 
 }
 
@@ -190,17 +177,6 @@ Checks
         "maxNumAlgoOrders":5}
     ],
     "},
-
-    {
-        "ISIN": "US1234567890",
-        "AssetName": "pSymm ETF",
-        "AssetSymbol": "PSYM",
-        "AssetDescription": "pSymm ETF",
-        "AssetLogo": "https://pSymm.com/logo.png",
-        "AssetPriceFeed": "https://pSymm.com/pricefeed.json",
-        "AssetPriceFeedDecimals": 18,
-        
-      }
 
 
       
