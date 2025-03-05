@@ -95,14 +95,14 @@ module.exports = {
     ],
     overrides: {
       "contracts/src/NoirTest/NoirTest.sol": verifierConf,
-      "contracts/src/noirPsymm/VerifierCTC.sol": verifierConf,
-      "contracts/src/noirPsymm/VerifierATC.sol": verifierConf,
     },
   },
   networks: {
     localhost: {
       url: "http://127.0.0.1:8545",
-    },
+      chainId: 31337,
+      port: 8545,
+    }
   },
   paths: {
     sources: "./contracts/src/",

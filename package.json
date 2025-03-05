@@ -34,7 +34,8 @@
     "read": "hardhat read --network localhost",
     "write": "hardhat write --network localhost",
     "scenario": "./demo/tmux/scenario.sh",
-    "party": "./demo/tmux/party.sh"
+    "party": "./demo/tmux/party.sh",
+    "psymm": "hardhat test --network localhost contracts/test/pSymm/index.js"
   },
   "imports": {
     "#root/*": "./*",
