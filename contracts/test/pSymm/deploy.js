@@ -31,6 +31,9 @@ async function deployFixture() {
   // const psymm_partyA = await hre.viem.deployContract("PSYMM");
   // const psymm_partyB = await hre.viem.deployContract("PSYMM");
   const psymm = await hre.viem.deployContract("PSYMM");
+  
+  // Deploy PartyRegistry
+  const partyRegistry = await hre.viem.deployContract("PartyRegistry");
 
   // Deploy and configure mock tokens
   const USDC_PRECISION = 6;
@@ -42,6 +45,31 @@ async function deployFixture() {
   // Mint tokens to test accounts
   await USDC.write.mint([partyA.account.address, 10 * 10 ** USDC_PRECISION]);
   await USDC.write.mint([partyB.account.address, 10 * 10 ** USDC_PRECISION]);
+  
+  // Register parties in the registry
+  const partyAData = {
+    role: "Trader",
+    ipAddress: "192.168.1.100",
+    partyType: 1
+  };
+  
+  const partyBData = {
+    role: "Market Maker",
+    ipAddress: "192.168.1.200",
+    partyType: 2
+  };
+  
+  // Register partyA
+  await partyRegistry.write.registerParty(
+    [partyAData],
+    { account: partyA.account }
+  );
+  
+  // Register partyB
+  await partyRegistry.write.registerParty(
+    [partyBData],
+    { account: partyB.account }
+  );
 
   // Generate custody IDs
   // const custodyId_A = keccak256(pad(0));
@@ -49,6 +77,7 @@ async function deployFixture() {
 
   return {
     psymm,
+    partyRegistry,
     USDC,
     deployer,
     partyA,
@@ -129,6 +158,7 @@ async function main() {
   // Prepare data for output
   const outputData = {
     psymm: contracts.psymm.address,
+    partyRegistry: contracts.partyRegistry.address,
     USDC: contracts.USDC.address,
     deployer: contracts.deployer.account.address,
     partyA: contracts.partyA.account.address,
