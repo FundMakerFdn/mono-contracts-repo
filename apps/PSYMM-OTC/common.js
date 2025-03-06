@@ -43,6 +43,11 @@ async function getPartyRegisteredEvents({
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        name: "role",
+        type: "string",
+      },
+      {
         indexed: true,
         name: "party",
         type: "address",
@@ -69,6 +74,7 @@ async function getPartyRegisteredEvents({
     // Process and return the events
     return logs.map((log) => ({
       party: log.args.party,
+      role: log.args.role,
       ipAddress: log.args.ipAddress,
       blockNumber: log.blockNumber,
       transactionHash: log.transactionHash,
@@ -113,6 +119,7 @@ async function printAllRegisteredParties(rpcUrl = "http://localhost:8545") {
     parties.forEach((party, index) => {
       console.log(`Party #${index + 1}:`);
       console.log(`  Address: ${party.party}`);
+      console.log(`  Role: ${party.role}`);
       console.log(`  IP Address: ${party.ipAddress}`);
       console.log(`  Registered in block: ${party.blockNumber}`);
       console.log(`  Transaction: ${party.transactionHash}`);

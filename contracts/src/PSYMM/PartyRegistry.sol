@@ -9,7 +9,7 @@ contract PartyRegistry {
         uint8 partyType;
     }
 
-    event PartyRegistered(address indexed party, string ipAddress);
+    event PartyRegistered(string role, address indexed party, string ipAddress);
     event PartyRemoved(address indexed party);
     event ReputationSet(address indexed party, address indexed kycProvider, uint256 score);
 
@@ -21,7 +21,7 @@ contract PartyRegistry {
     /// @param partyData The party's data
     function registerParty(PartyData memory partyData) external {
         partys[msg.sender] = partyData;
-        emit PartyRegistered(msg.sender, partyData.ipAddress);
+        emit PartyRegistered(partyData.role, msg.sender, partyData.ipAddress);
     }
 
     /// @notice Set KYC type for a party

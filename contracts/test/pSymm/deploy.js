@@ -31,7 +31,7 @@ async function deployFixture() {
   // const psymm_partyA = await hre.viem.deployContract("PSYMM");
   // const psymm_partyB = await hre.viem.deployContract("PSYMM");
   const psymm = await hre.viem.deployContract("PSYMM");
-  
+
   // Deploy PartyRegistry
   const partyRegistry = await hre.viem.deployContract("PartyRegistry");
 
@@ -45,31 +45,29 @@ async function deployFixture() {
   // Mint tokens to test accounts
   await USDC.write.mint([partyA.account.address, 10 * 10 ** USDC_PRECISION]);
   await USDC.write.mint([partyB.account.address, 10 * 10 ** USDC_PRECISION]);
-  
+
   // Register parties in the registry
   const partyAData = {
     role: "Trader",
-    ipAddress: "192.168.1.100",
-    partyType: 1
+    ipAddress: "127.0.0.1",
+    partyType: 1,
   };
-  
+
   const partyBData = {
-    role: "Market Maker",
-    ipAddress: "192.168.1.200",
-    partyType: 2
+    role: "Solver",
+    ipAddress: "127.0.0.2",
+    partyType: 2,
   };
-  
+
   // Register partyA
-  await partyRegistry.write.registerParty(
-    [partyAData],
-    { account: partyA.account }
-  );
-  
+  await partyRegistry.write.registerParty([partyAData], {
+    account: partyA.account,
+  });
+
   // Register partyB
-  await partyRegistry.write.registerParty(
-    [partyBData],
-    { account: partyB.account }
-  );
+  await partyRegistry.write.registerParty([partyBData], {
+    account: partyB.account,
+  });
 
   // Generate custody IDs
   // const custodyId_A = keccak256(pad(0));
@@ -154,7 +152,7 @@ module.exports = {
 
 async function main() {
   const contracts = await deployFixture();
-  
+
   // Prepare data for output
   const outputData = {
     psymm: contracts.psymm.address,
@@ -163,19 +161,19 @@ async function main() {
     deployer: contracts.deployer.account.address,
     partyA: contracts.partyA.account.address,
     partyB: contracts.partyB.account.address,
-    USDC_PRECISION: contracts.USDC_PRECISION
+    USDC_PRECISION: contracts.USDC_PRECISION,
   };
-  
+
   // Write to file
-  const fs = require('fs');
-  fs.writeFileSync('./contracts.tmp.json', JSON.stringify(outputData, null, 2));
-  
-  console.log('Contract data written to ./contracts.tmp.json');
+  const fs = require("fs");
+  fs.writeFileSync("./contracts.tmp.json", JSON.stringify(outputData, null, 2));
+
+  console.log("Contract data written to ./contracts.tmp.json");
   return contracts;
 }
 
 if (require.main === module) {
-  main().catch(error => {
+  main().catch((error) => {
     console.error(error);
     process.exit(1);
   });
