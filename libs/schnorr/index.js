@@ -95,6 +95,37 @@ export function verifySignature(s, challenge, aggregatedPubKey, message) {
   return e === challenge;
 }
 
+/**
+ * Sign a message with a private key using Schnorr signature
+ * @param {string|Uint8Array} message - Message to sign
+ * @param {bigint|string} privateKey - Private key
+ * @returns {Object} Signature components (R, s, challenge)
+ */
+export function signMessage(message, privateKey) {
+  // Convert privateKey to BigInt if it's a string
+  const privKey =
+    typeof privateKey === "string" ? BigInt(privateKey) : privateKey;
+
+  // Get the public key from private key
+  const pubKey = secp256k1.ProjectivePoint.BASE.multiply(privKey);
+
+  // Generate a random nonce
+  const kBytes = secp256k1.utils.randomPrivateKey();
+  const k = BigInt(bytesToHex(kBytes));
+
+  // Calculate the nonce point R = k*G
+  const R = secp256k1.ProjectivePoint.BASE.multiply(k);
+
+  // Compute the challenge e = H(R || P || m)
+  const challenge = computeChallenge(R, pubKey, message);
+
+  // Calculate the signature s = k + e*x
+  const s = (k + challenge * privKey) % secp256k1.CURVE.n;
+
+  return { R, s, challenge };
+}
+
+// MuSig2
 export class SchnorrParty {
   constructor(pubKey, privateKey, v = 1) {
     this.pubKey = pubKey;
