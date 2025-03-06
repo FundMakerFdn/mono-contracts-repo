@@ -1,6 +1,9 @@
 const WebSocket = require("ws");
 const EventEmitter = require("events");
 const { getContractAddresses, getPartyRegisteredEvents } = require("./common");
+const { secp256k1 } = require("@noble/curves/secp256k1");
+const { bytesToHex } = require("viem");
+const schnorr = require("@fundmaker/schnorr");
 
 // Time logging utility
 const timeLog = (...args) =>
@@ -47,7 +50,14 @@ class OTCSolver {
     this.outputQueue = new Queue();
     this.clients = new Map(); // clientId -> websocket
     this.clientParties = new Map(); // clientId -> party info
+    this.clientState = new Map(); // clientId -> client state object
     this.contractAddresses = getContractAddresses();
+
+    // Generate Schnorr key pair
+    this.privateKey = BigInt(bytesToHex(secp256k1.utils.randomPrivateKey()));
+    this.publicKey = secp256k1.ProjectivePoint.BASE.multiply(this.privateKey);
+
+    timeLog("Generated Schnorr key pair");
   }
 
   // Initialize WebSocket server
@@ -60,11 +70,22 @@ class OTCSolver {
     timeLog(`WebSocket server started on ${this.host}:${this.port}`);
 
     this.server.on("connection", async (ws, req) => {
-      const clientId = req.socket.remoteAddress + ":" + req.socket.remotePort;
+      const clientId = req.socket.remoteAddress; //+ ":" + req.socket.remotePort;
       const clientIp = req.socket.remoteAddress;
+
+      // Check if client is already connected
+      if (this.clientState.has(clientId)) {
+        timeLog(`Client ${clientId} already connected. Rejecting connection.`);
+        ws.close(1000, "Already connected");
+        return;
+      }
+
       timeLog(`New client connected: ${clientId} from IP: ${clientIp}`);
 
       this.clients.set(clientId, ws);
+      this.clientState.set(clientId, {
+        publicKey: null, // Will store client's public key
+      }); // Initialize state object
 
       ws.on("message", (message) => {
         console.log(message);
@@ -85,6 +106,7 @@ class OTCSolver {
         timeLog(`Client disconnected: ${clientId}`);
         this.clients.delete(clientId);
         this.clientParties.delete(clientId);
+        this.clientState.delete(clientId);
       });
 
       ws.on("error", (error) => {
@@ -132,16 +154,78 @@ class OTCSolver {
       timeLog(`Processing message from ${clientId}:`);
       console.log(JSON.stringify(message, null, 2));
 
-      // Include party information if available
-      if (this.clientParties.has(clientId)) {
-        const parties = this.clientParties.get(clientId);
-        timeLog(`Message is from registered party:`);
-        parties.forEach((party, index) => {
-          timeLog(`  Party #${index + 1}: ${party.party} (${party.role})`);
+      // Handle key exchange message
+      if (message.type === "key_exchange" && message.publicKey) {
+        timeLog(`Received client's public key: ${message.publicKey}`);
+        const clientState = this.clientState.get(clientId);
+        clientState.publicKey = secp256k1.ProjectivePoint.fromHex(
+          message.publicKey.replace("0x", "")
+        );
+        this.clientState.set(clientId, clientState);
+        timeLog(`Stored client's public key in state for ${clientId}`);
+
+        // Send our public key back to the client
+        const pubKeyHex = bytesToHex(this.publicKey.toRawBytes(true));
+        timeLog(`Sending solver's public key to client: ${pubKeyHex}`);
+        
+        // Create a "hello world" message and sign it
+        const msgBytes = new TextEncoder().encode("hello world");
+        const signature = schnorr.signMessage(msgBytes, this.privateKey);
+        
+        // Send key exchange response with signature
+        const keyExchangeResponse = {
+          type: "key_exchange",
+          publicKey: pubKeyHex,
+          signature: {
+            s: signature.s.toString(),
+            challenge: signature.challenge.toString()
+          }
+        };
+        
+        // Add to output queue
+        this.outputQueue.push({
+          clientId,
+          message: keyExchangeResponse
         });
-      } else {
-        timeLog(`Message is from unregistered party`);
+        
+        // Also send an acknowledgment message
+        this.outputQueue.push({
+          clientId,
+          message: {
+            type: "ack",
+            message: "Key exchange completed successfully",
+            signature: {
+              s: signature.s.toString(),
+              challenge: signature.challenge.toString()
+            }
+          }
+        });
+
+        // If client sent a signature verification result, log it
+        if (message.verificationResult !== undefined) {
+          timeLog(
+            `Client ${clientId} signature verification result: ${message.verificationResult}`
+          );
+          timeLog(
+            `Verification details: ${
+              message.verificationDetails || "No details provided"
+            }`
+          );
+        }
+
+        continue; // Skip the echo response for key exchange messages
       }
+
+      // Include party information if available
+      // if (this.clientParties.has(clientId)) {
+      //   const parties = this.clientParties.get(clientId);
+      //   timeLog(`Message is from registered party:`);
+      //   parties.forEach((party, index) => {
+      //     timeLog(`  Party #${index + 1}: ${party.party} (${party.role})`);
+      //   });
+      // } else {
+      //   timeLog(`Message is from unregistered party`);
+      // }
 
       // For now, just echo the message back with party info
       const response = {
@@ -180,12 +264,9 @@ class OTCSolver {
 
   // Main run loop
   async run() {
-    console.log("before");
     this.initServer();
-    console.log("inbetween");
 
     while (true) {
-      console.log("inloop");
       await Promise.race([this.handleInputQueue(), this.handleOutputQueue()]);
     }
   }

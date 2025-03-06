@@ -1,5 +1,8 @@
 const WebSocket = require("ws");
 const { getContractAddresses, getPartyRegisteredEvents } = require("./common");
+const { secp256k1 } = require("@noble/curves/secp256k1");
+const { bytesToHex } = require("viem");
+const schnorr = require("@fundmaker/schnorr");
 
 // Time logging utility
 const timeLog = (...args) =>
@@ -13,6 +16,13 @@ class OTCTrader {
     this.rpcUrl = rpcUrl;
     this.contractAddresses = getContractAddresses();
     this.ws = null;
+
+    // Generate Schnorr key pair
+    this.privateKey = BigInt(bytesToHex(secp256k1.utils.randomPrivateKey()));
+    this.publicKey = secp256k1.ProjectivePoint.BASE.multiply(this.privateKey);
+    this.solverPublicKey = null;
+
+    timeLog("Generated Schnorr key pair");
   }
 
   /**
@@ -66,6 +76,15 @@ class OTCTrader {
 
         this.ws.on("open", () => {
           timeLog(`Connected to Solver at ${url}`);
+
+          // Send public key to Solver
+          const pubKeyHex = bytesToHex(this.publicKey.toRawBytes(true));
+          timeLog(`Sending public key to Solver: ${pubKeyHex}`);
+          this.sendMessage({
+            type: "key_exchange",
+            publicKey: pubKeyHex,
+          });
+
           resolve();
         });
 
@@ -74,6 +93,53 @@ class OTCTrader {
             const message = JSON.parse(data);
             timeLog("Received message from Solver:");
             console.log(JSON.stringify(message, null, 2));
+
+            // Handle key exchange response
+            if (message.type === "key_exchange" && message.publicKey) {
+              timeLog(`Received Solver's public key: ${message.publicKey}`);
+              this.solverPublicKey = secp256k1.ProjectivePoint.fromHex(
+                message.publicKey.replace("0x", "")
+              );
+              timeLog("Schnorr key exchange completed");
+            }
+
+            if (message.type === "ack" && message.signature) {
+              timeLog("Received signed message from Solver:");
+
+              try {
+                // Convert signature components from hex/string to appropriate types
+                const sig = message.signature;
+                const s = BigInt(sig.s);
+                const challenge = BigInt(sig.challenge);
+
+                // Verify the signature using schnorr library
+                const msgBytes = new TextEncoder().encode("hello world");
+                const isValid = schnorr.verifySignature(
+                  s,
+                  challenge,
+                  this.solverPublicKey,
+                  msgBytes
+                );
+
+                timeLog(
+                  `Signature verification result: ${
+                    isValid ? "VALID ✓" : "INVALID ✗"
+                  }`
+                );
+
+                // Send verification result back to solver
+                // this.sendMessage({
+                //   type: "key_exchange",
+                //   publicKey: bytesToHex(this.publicKey.toRawBytes(true)),
+                //   verificationResult: isValid,
+                //   verificationDetails: isValid
+                //     ? "Successfully verified 'hello world' signature"
+                //     : "Failed to verify signature"
+                // });
+              } catch (error) {
+                timeLog(`Error verifying signature: ${error.message}`);
+              }
+            }
           } catch (error) {
             timeLog(`Error parsing message: ${error.message}`);
           }

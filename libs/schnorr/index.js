@@ -1,8 +1,8 @@
-import { secp256k1 } from "@noble/curves/secp256k1";
-import { concatBytes } from "@noble/curves/abstract/utils";
-import { keccak256, bytesToHex, hexToBytes } from "viem";
+const { secp256k1 } = require("@noble/curves/secp256k1");
+const { concatBytes } = require("@noble/curves/abstract/utils");
+const { keccak256, bytesToHex, hexToBytes } = require("viem");
 
-export function computeChallenge(aggregatedNonce, aggregatedPubKey, message) {
+function computeChallenge(aggregatedNonce, aggregatedPubKey, message) {
   // Convert R (aggregatedNonce) to Ethereum address format
   // Take last 20 bytes of keccak256 of uncompressed point bytes (minus 0x04 prefix)
   const rBytes = aggregatedNonce.toRawBytes(false).slice(1);
@@ -24,7 +24,7 @@ export function computeChallenge(aggregatedNonce, aggregatedPubKey, message) {
   return BigInt(keccak256(encoded));
 }
 
-export function combineNonces(nonces, message) {
+function combineNonces(nonces, message) {
   if (!nonces || nonces.length === 0) throw new Error("Nonces required");
   let nonceBytes = new Uint8Array(0);
   for (const nonce of nonces) {
@@ -39,7 +39,7 @@ export function combineNonces(nonces, message) {
   return effectiveNonce;
 }
 
-export function aggregateNonces(allNonces, message) {
+function aggregateNonces(allNonces, message) {
   if (!allNonces || allNonces.length === 0) throw new Error("Nonces required");
   let aggregated = secp256k1.ProjectivePoint.ZERO;
   for (const nonces of allNonces) {
@@ -48,7 +48,7 @@ export function aggregateNonces(allNonces, message) {
   return aggregated;
 }
 
-export function aggregatePublicKeys(publicKeys) {
+function aggregatePublicKeys(publicKeys) {
   if (!publicKeys || publicKeys.length === 0)
     throw new Error("Public keys required");
   const sortedKeys = publicKeys.slice().sort((a, b) => {
@@ -68,7 +68,7 @@ export function aggregatePublicKeys(publicKeys) {
   return { keyChallenges, aggregatedKey };
 }
 
-export function combinePartialSignatures(partialSigs) {
+function combinePartialSignatures(partialSigs) {
   if (!partialSigs || partialSigs.length === 0)
     throw new Error("Signatures required");
   let s = 0n;
@@ -82,7 +82,7 @@ export function combinePartialSignatures(partialSigs) {
   return { R, s, challenge: partialSigs[0].challenge };
 }
 
-export function verifySignature(s, challenge, aggregatedPubKey, message) {
+function verifySignature(s, challenge, aggregatedPubKey, message) {
   // R = G*s - P*e
   const R = secp256k1.ProjectivePoint.BASE.multiply(s).subtract(
     aggregatedPubKey.multiply(challenge)
@@ -101,7 +101,7 @@ export function verifySignature(s, challenge, aggregatedPubKey, message) {
  * @param {bigint|string} privateKey - Private key
  * @returns {Object} Signature components (R, s, challenge)
  */
-export function signMessage(message, privateKey) {
+function signMessage(message, privateKey) {
   // Convert privateKey to BigInt if it's a string
   const privKey =
     typeof privateKey === "string" ? BigInt(privateKey) : privateKey;
@@ -126,7 +126,7 @@ export function signMessage(message, privateKey) {
 }
 
 // MuSig2
-export class SchnorrParty {
+class SchnorrParty {
   constructor(pubKey, privateKey, v = 1) {
     this.pubKey = pubKey;
     this.privateKey = BigInt(privateKey);
@@ -178,3 +178,14 @@ export class SchnorrParty {
     return { R: effectiveNonce, s, challenge };
   }
 }
+
+module.exports = {
+  computeChallenge,
+  combineNonces,
+  aggregateNonces,
+  aggregatePublicKeys,
+  combinePartialSignatures,
+  verifySignature,
+  signMessage,
+  SchnorrParty,
+};
