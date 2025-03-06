@@ -167,38 +167,25 @@ class OTCSolver {
         // Send our public key back to the client
         const pubKeyHex = bytesToHex(this.publicKey.toRawBytes(true));
         timeLog(`Sending solver's public key to client: ${pubKeyHex}`);
-        
+
         // Create a "hello world" message and sign it
         const msgBytes = new TextEncoder().encode("hello world");
         const signature = schnorr.signMessage(msgBytes, this.privateKey);
-        
+
         // Send key exchange response with signature
         const keyExchangeResponse = {
           type: "key_exchange",
           publicKey: pubKeyHex,
           signature: {
             s: signature.s.toString(),
-            challenge: signature.challenge.toString()
-          }
+            challenge: signature.challenge.toString(),
+          },
         };
-        
+
         // Add to output queue
         this.outputQueue.push({
           clientId,
-          message: keyExchangeResponse
-        });
-        
-        // Also send an acknowledgment message
-        this.outputQueue.push({
-          clientId,
-          message: {
-            type: "ack",
-            message: "Key exchange completed successfully",
-            signature: {
-              s: signature.s.toString(),
-              challenge: signature.challenge.toString()
-            }
-          }
+          message: keyExchangeResponse,
         });
 
         // If client sent a signature verification result, log it
