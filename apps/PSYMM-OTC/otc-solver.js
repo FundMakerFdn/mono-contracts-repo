@@ -88,7 +88,6 @@ class OTCSolver {
       }); // Initialize state object
 
       ws.on("message", (message) => {
-        console.log(message);
         try {
           const parsedMessage = JSON.parse(message);
           timeLog(`Received message from ${clientId}:`, parsedMessage);
@@ -174,7 +173,7 @@ class OTCSolver {
 
         // Send key exchange response with signature
         const keyExchangeResponse = {
-          type: "key_exchange",
+          type: "ack",
           publicKey: pubKeyHex,
           signature: {
             s: signature.s.toString(),
