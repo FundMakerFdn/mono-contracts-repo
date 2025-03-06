@@ -35,7 +35,11 @@ class Queue extends EventEmitter {
 
 // OTC Solver implementation
 class OTCSolver {
-  constructor(host = "127.0.0.2", port = 8080, rpcUrl = "http://localhost:8545") {
+  constructor(
+    host = "127.0.0.2",
+    port = 8080,
+    rpcUrl = "http://localhost:8545"
+  ) {
     this.host = host;
     this.port = port;
     this.rpcUrl = rpcUrl;
@@ -61,34 +65,9 @@ class OTCSolver {
       timeLog(`New client connected: ${clientId} from IP: ${clientIp}`);
 
       this.clients.set(clientId, ws);
-      
-      // Look up the party in the registry by IP address
-      try {
-        const parties = await getPartyRegisteredEvents({
-          rpcUrl: this.rpcUrl,
-          partyRegistryAddress: this.contractAddresses.partyRegistry,
-        });
-        
-        // Find parties with matching IP address
-        const matchingParties = parties.filter(party => party.ipAddress === clientIp);
-        
-        if (matchingParties.length > 0) {
-          this.clientParties.set(clientId, matchingParties);
-          timeLog(`Found ${matchingParties.length} matching parties in registry for IP ${clientIp}:`);
-          matchingParties.forEach((party, index) => {
-            timeLog(`  Party #${index + 1}:`);
-            timeLog(`    Address: ${party.party}`);
-            timeLog(`    Role: ${party.role}`);
-            timeLog(`    Registered in block: ${party.blockNumber}`);
-          });
-        } else {
-          timeLog(`No matching parties found in registry for IP ${clientIp}`);
-        }
-      } catch (error) {
-        timeLog(`Error looking up party in registry: ${error.message}`);
-      }
 
       ws.on("message", (message) => {
+        console.log(message);
         try {
           const parsedMessage = JSON.parse(message);
           timeLog(`Received message from ${clientId}:`, parsedMessage);
@@ -111,6 +90,36 @@ class OTCSolver {
       ws.on("error", (error) => {
         timeLog(`Error with client ${clientId}:`, error);
       });
+
+      // Look up the party in the registry by IP address
+      try {
+        const parties = await getPartyRegisteredEvents({
+          rpcUrl: this.rpcUrl,
+          partyRegistryAddress: this.contractAddresses.partyRegistry,
+        });
+
+        // Find parties with matching IP address
+        const matchingParties = parties.filter(
+          (party) => party.ipAddress === clientIp
+        );
+
+        if (matchingParties.length > 0) {
+          this.clientParties.set(clientId, matchingParties);
+          timeLog(
+            `Found ${matchingParties.length} matching parties in registry for IP ${clientIp}:`
+          );
+          matchingParties.forEach((party, index) => {
+            timeLog(`  Party #${index + 1}:`);
+            timeLog(`    Address: ${party.party}`);
+            timeLog(`    Role: ${party.role}`);
+            timeLog(`    Registered in block: ${party.blockNumber}`);
+          });
+        } else {
+          timeLog(`No matching parties found in registry for IP ${clientIp}`);
+        }
+      } catch (error) {
+        timeLog(`Error looking up party in registry: ${error.message}`);
+      }
     });
   }
 
@@ -122,7 +131,7 @@ class OTCSolver {
       const { clientId, message } = this.inputQueue.shift();
       timeLog(`Processing message from ${clientId}:`);
       console.log(JSON.stringify(message, null, 2));
-      
+
       // Include party information if available
       if (this.clientParties.has(clientId)) {
         const parties = this.clientParties.get(clientId);
@@ -171,9 +180,12 @@ class OTCSolver {
 
   // Main run loop
   async run() {
+    console.log("before");
     this.initServer();
+    console.log("inbetween");
 
     while (true) {
+      console.log("inloop");
       await Promise.race([this.handleInputQueue(), this.handleOutputQueue()]);
     }
   }
