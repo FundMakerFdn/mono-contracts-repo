@@ -19,7 +19,7 @@ contract PartyRegistry {
     
     /// @notice Register as a party with IP address
     /// @param partyData The party's data
-    function registerParty(PartyData memory partyData) external virtual{
+    function registerParty(PartyData memory partyData) external {
         partys[msg.sender] = partyData;
         emit PartyRegistered(msg.sender, partyData.ipAddress);
     }
@@ -27,29 +27,29 @@ contract PartyRegistry {
     /// @notice Set KYC type for a party
     /// @param kycProvider The KYC provider's address
     /// @param kycType The KYC type
-    function setKycType(address kycProvider, uint8 kycType) external virtual{
+    function setKycType(address kycProvider, uint8 kycType) external {
         kycTypes[msg.sender][kycProvider] = kycType;
     }
 
     /// @notice Set reputation for a party ( See it as an Amazon review rating)
     /// @param kycProvider The KYC provider's address
     /// @param score The reputation score
-    function setReputation(address kycProvider, uint256 score) external virtual{
+    function setReputation(address kycProvider, uint256 score) external {
         reputation[msg.sender][kycProvider] = score;
         emit ReputationSet(msg.sender, kycProvider, score);
     }
 
     /// @notice Get party's IP address
-    function getParty(address party) external virtual view returns (string memory ipAddress, uint8 partyType){
+    function getParty(address party) external view returns (string memory ipAddress, uint8 partyType){
         return (partys[party].ipAddress, partys[party].partyType);
     }
 
     /// @notice Get KYC type for a party
-    function getKycType(address party, address kycProvider) external virtual view returns (uint8 kycType){
+    function getKycType(address party, address kycProvider) external view returns (uint8 kycType){
         return kycTypes[party][kycProvider];
     }
 
-    function getReputation(address party, address kycProvider) external virtual view returns (uint256 score){
+    function getReputation(address party, address kycProvider) external view returns (uint256 score){
         return reputation[party][kycProvider];
     }
 }
