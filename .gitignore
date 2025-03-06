@@ -1,7 +1,7 @@
 *.db
 /offchain
-target/*_witness.gz
-target/*_circuit.json
+**/target/*_witness.gz
+**/target/*_circuit.json
 
 *.tmp.txt
 
