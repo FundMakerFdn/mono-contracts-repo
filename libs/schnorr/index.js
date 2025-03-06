@@ -82,14 +82,14 @@ function combinePartialSignatures(partialSigs) {
   return { R, s, challenge: partialSigs[0].challenge };
 }
 
-function verifySignature(s, challenge, aggregatedPubKey, message) {
+function verifySignature(s, challenge, pubKey, message) {
   // R = G*s - P*e
   const R = secp256k1.ProjectivePoint.BASE.multiply(s).subtract(
-    aggregatedPubKey.multiply(challenge)
+    pubKey.multiply(challenge)
   );
 
   // e' = h(R || P || m)
-  const e = computeChallenge(R, aggregatedPubKey, message);
+  const e = computeChallenge(R, pubKey, message);
 
   // check e' == e
   return e === challenge;

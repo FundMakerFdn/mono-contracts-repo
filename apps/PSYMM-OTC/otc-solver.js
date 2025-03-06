@@ -167,6 +167,11 @@ class OTCSolver {
         const pubKeyHex = bytesToHex(this.publicKey.toRawBytes(true));
         timeLog(`Sending solver's public key to client: ${pubKeyHex}`);
 
+        this.outputQueue.push({
+          clientId,
+          message: { type: "key_exchange", publicKey: pubKeyHex },
+        });
+
         // Create a "hello world" message and sign it
         const msgBytes = new TextEncoder().encode("hello world");
         const signature = schnorr.signMessage(msgBytes, this.privateKey);
@@ -212,18 +217,6 @@ class OTCSolver {
       // } else {
       //   timeLog(`Message is from unregistered party`);
       // }
-
-      // For now, just echo the message back with party info
-      const response = {
-        type: "response",
-        originalMessage: message,
-        timestamp: new Date().toISOString(),
-      };
-
-      this.outputQueue.push({
-        clientId,
-        message: response,
-      });
     }
   }
 
