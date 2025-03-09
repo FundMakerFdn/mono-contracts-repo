@@ -8,11 +8,15 @@ class pSymmVM {
     this.sessions = new Map(); // counterpartyIP => { phase, ... }
   }
 
+  createSession() {
+    return { phase: "INIT" };
+  }
+
   processMessage(counterpartyIP, inputMsg) {
     // Get or initialize session state
     let session = this.sessions.get(counterpartyIP);
     if (!session) {
-      session = { phase: "INIT" };
+      session = this.createSession();
       this.sessions.set(counterpartyIP, session);
     }
 
