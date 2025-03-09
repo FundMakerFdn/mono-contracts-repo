@@ -1,0 +1,43 @@
+Pseudocode for pSymmParty class, based on OTCSolver/SolverEngine, reusable both for trader and solver (for now, make only the base)
+
+The solver should work for multiple custodies
+
+High-level overview (A is trader, B is solver):
+
+On start: pSymmParty connects to its guardian
+Also, each "send" is sent to all parties in a trading session (guardian, counterparty, counterparty guardian, if known)
+
+0/ A ask B for PPM template, B sends (INIT => PKXCHG)
+1/ A sends login message with its pubkey and its guardian pubkey and IP
+2/ B responds to login with its guardian pubkey and iP and its pubkeys (PKXCHG => TRADE)
+
+Both parties connect to each others guardian.
+At this point both parties can construct PPM from the template.
+
+4/ A sends ack
+5/ Parties can deposit and trade
+
+
+class pSymmVM { // pure, no async functions
+	constructor {
+		map sessions {
+			counterpartyIP => {
+				phase: 'INIT' // 'INIT' | 'PKXCHG' | 'TRADE'
+			}
+		}
+	}
+	processMessage(inputMsg) -> outputMsg, may change state
+	(handlers for phase transitions)
+}
+
+class pSymmParty {  // connection management, etc
+	constructor {
+		pSymmVM
+		guardian { ip, ws, pubkey } // ip and pubkey from constructor arg
+		publicClient // abstract blockchain public client, from constructor (ignore for now)
+		binanceApi // abstract class for binance hedging, from constructor (ignore for now)
+		input & output queue
+	}
+	input queue
+	// manage connections, relay messages?
+}
