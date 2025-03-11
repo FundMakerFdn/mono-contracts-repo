@@ -4,7 +4,7 @@ const timeLog = (...args) =>
 
 class pSymmVM {
   constructor(config) {
-    this.sessions = new Map(); // counterpartyIP => session object
+    this.sessions = {}; // counterpartyIP => session object
     // session object stores {phase, mesh, counterpartyPubKey, counterpartyGuardianIP, counterpartyGuardianPubKey}
     this.binanceProvider = config.binanceProvider;
     this.rpcProvider = config.rpcProvider;
@@ -24,8 +24,11 @@ class pSymmVM {
   }
   meshMsg(counterpartyIP, msg) {
     const session = this.sessions[counterpartyIP];
+    const dest = [session.counterpartyIP];
+    if (session.counterpartyGuardianIP)
+      dest.push(session.counterpartyGuardianIP);
     return {
-      dest: [session.counterpartyIP, session.counterpartyGuardianIP],
+      dest,
       msg,
     };
   }
@@ -36,11 +39,11 @@ class pSymmVM {
 
     // init input item is pushed by pSymmParty on new connection
     if (inputItem.type == "init") {
-      // this.sessions[counterpartyIP].set(create defaultSession)
+      this.sessions[counterpartyIP] = this.createDefaultSession(counterpartyIP);
       return [];
     }
 
-    session = this.sessions.get(counterpartyIP);
+    const session = this.sessions[counterpartyIP];
 
     switch (session.phase) {
       case "INIT": // init (set before send PPM template)
@@ -58,32 +61,35 @@ class pSymmVM {
     }
   }
 
+  // will be override by concrete implementations
   handleInitPhase(counterpartyIP, inputMsg) {}
   handlePkxchgPhase(counterpartyIP, inputMsg) {}
   handleTradePhase(counterpartyIP, inputMsg) {}
 
-  createLogonMessage() {
-    // TODO: create FIX builder lib
+  createLogonMessage(counterpartyIP) {
+    const session = this.sessions[counterpartyIP];
     return {
       StandardHeader: {
         BeginString: "pSymm.FIX.2.0",
         MsgType: "A",
         DeploymentID: 101,
         SenderCompID: this.pubKey,
-        TargetCompID: this.counterpartyPubKey,
-        MsgSeqNum: this.msgSeqNum++,
+        TargetCompID: session.counterpartyPubKey,
+        MsgSeqNum: session.msgSeqNum++,
         CustodyID: "0xCustody123", // todo: PPM
         SendingTime: (Date.now() * 1000000).toString(),
       },
       HeartBtInt: 10,
+      GuardianIP: this.guardianIP,
       StandardTrailer: {
-        PublicKey: "0xPartyA",
+        // todo: sign
+        PublicKey: this.pubKey,
         Signature: "0xSignature",
       },
     };
   }
   createErrorMessage() {
-    // TODO: proper message
+    // TODO: proper logic reject message
     return { StandardHeader: { MsgType: "j" } };
   }
 }
@@ -95,23 +101,37 @@ class pSymmSolverVM extends pSymmVM {
   }
 
   handleInitPhase(counterpartyIP, inputMsg) {
-    // if (inputMsg?.StandardHeader?.MsgType === "PPMTR") { // PPM template request
-    //    return {StandardHeader: {MsgType: "PPMT"}, PPMT: this.ppmTemplate};
-    //    set sessions counterpartyIP phase to PKXCHG
-    // else return [invalid message]
+    if (inputMsg?.StandardHeader?.MsgType === "PPMTR") {
+      // PPM template request
+      const session = this.sessions[counterpartyIP];
+      session.phase = "PKXCHG";
+      this.sessions[counterpartyIP] = session;
+
+      return [
+        this.meshMsg(counterpartyIP, {
+          StandardHeader: { MsgType: "PPMT" },
+          PPMT: this.ppmTemplate,
+        }),
+      ];
+    } else {
+      return [this.meshMsg(counterpartyIP, this.createErrorMessage())];
+    }
   }
 
   handlePkxchgPhase(counterpartyIP, inputMsg) {
     if (inputMsg?.StandardHeader?.MsgType === "A") {
       // Store counterparty keys
-      // write the data below into session state:
-      // counterpartyPubKey = inputMsg.pubKey;
-      // counterpartyGuardianPubKey = inputMsg.guardianPubKey;
-      // counterpartyGuardianIP = inputMsg.guardianIP;
-      // set sesssion phase to TRADE
-      // return [this.createLogonMessage()];
+      const session = this.sessions[counterpartyIP];
+      session.counterpartyPubKey = inputMsg.StandardHeader.SenderCompID;
+      session.counterpartyGuardianPubKey = inputMsg.StandardTrailer.PublicKey;
+      session.counterpartyGuardianIP = inputMsg.GuardianIP;
+      session.phase = "TRADE";
+      this.sessions[counterpartyIP] = session;
+
+      return [this.meshMsg(counterpartyIP, this.createLogonMessage(counterpartyIP))];
+    } else {
+      return [this.meshMsg(counterpartyIP, this.createErrorMessage())];
     }
-    // else return [invalid message]
   }
 
   handleTradePhase(counterpartyIP, inputMsg) {
