@@ -5,7 +5,6 @@ const timeLog = (...args) =>
 class pSymmVM {
   constructor(config) {
     this.sessions = {}; // counterpartyIP => session object
-    // session object stores {phase, mesh, counterpartyPubKey, counterpartyGuardianIP, counterpartyGuardianPubKey}
     this.binanceProvider = config.binanceProvider;
     this.rpcProvider = config.rpcProvider;
     this.guardianIP = config.guardianIP;
@@ -128,7 +127,9 @@ class pSymmSolverVM extends pSymmVM {
       session.phase = "TRADE";
       this.sessions[counterpartyIP] = session;
 
-      return [this.meshMsg(counterpartyIP, this.createLogonMessage(counterpartyIP))];
+      return [
+        this.meshMsg(counterpartyIP, this.createLogonMessage(counterpartyIP)),
+      ];
     } else {
       return [this.meshMsg(counterpartyIP, this.createErrorMessage())];
     }
