@@ -3,33 +3,54 @@ const timeLog = (...args) =>
   console.log(`${Math.ceil(process.uptime() * 1000)}ms\t`, ...args);
 
 class pSymmVM {
-  constructor() {
-    // Session state for each counterparty
-    this.sessions = new Map(); // counterpartyIP => { phase, ... }
+  constructor(config) {
+    this.sessions = new Map(); // counterpartyIP => session object
+    // session object stores {phase, mesh, counterpartyPubKey, counterpartyGuardianIP, counterpartyGuardianPubKey}
+    this.binanceProvider = config.binanceProvider;
+    this.rpcProvider = config.rpcProvider;
+    this.guardianIP = config.guardianIP;
+    this.pubKey = config.pubKey;
   }
 
-  createSession() {
-    return { phase: "INIT" };
+  createDefaultSession(counterpartyIP) {
+    return {
+      phase: "INIT",
+      counterpartyIP,
+      counterpartyPubKey: null,
+      counterpartyGuardianIP: null, // will be added to mesh
+      counterpartyGuardianPubKey: null,
+      msgSeqNum: 1, // todo: also track counterparty seqnum
+    };
+  }
+  meshMsg(counterpartyIP, msg) {
+    const session = this.sessions[counterpartyIP];
+    return {
+      dest: [session.counterpartyIP, session.counterpartyGuardianIP],
+      msg,
+    };
   }
 
-  processMessage(counterpartyIP, inputMsg) {
-    // Get or initialize session state
-    let session = this.sessions.get(counterpartyIP);
-    if (!session) {
-      session = this.createSession();
-      this.sessions.set(counterpartyIP, session);
+  processMessage(counterpartyIP, inputItem) {
+    // inputItem: {type: 'init' | 'peer', msg: Object}
+    // return value: [meshMsg(counterpartyIP, msg)]
+
+    // init input item is pushed by pSymmParty on new connection
+    if (inputItem.type == "init") {
+      // this.sessions[counterpartyIP].set(create defaultSession)
+      return [];
     }
 
-    // Process message based on current phase
+    session = this.sessions.get(counterpartyIP);
+
     switch (session.phase) {
-      case "INIT":
-        return this.handleInitPhase(counterpartyIP, session, inputMsg);
+      case "INIT": // init (set before send PPM template)
+        return this.handleInitPhase(counterpartyIP, inputItem.msg);
 
-      case "PKXCHG":
-        return this.handlePkxchgPhase(counterpartyIP, session, inputMsg);
+      case "PKXCHG": // set before pubkeys exchange
+        return this.handlePkxchgPhase(counterpartyIP, inputItem.msg);
 
-      case "TRADE":
-        return this.handleTradePhase(counterpartyIP, session, inputMsg);
+      case "TRADE": // set to start trading
+        return this.handleTradePhase(counterpartyIP, inputItem.msg);
 
       default:
         timeLog(`Unknown phase: ${session.phase}`);
@@ -37,49 +58,65 @@ class pSymmVM {
     }
   }
 
-  handleInitPhase(counterpartyIP, session, inputMsg) {
-    // Template implementation
-    if (inputMsg.type === "request_template") {
-      // Transition to PKXCHG phase
-      session.phase = "PKXCHG";
-      return {
-        type: "template",
-        template: "PPM_TEMPLATE_PLACEHOLDER",
-      };
-    }
-    return null;
+  handleInitPhase(counterpartyIP, inputMsg) {}
+  handlePkxchgPhase(counterpartyIP, inputMsg) {}
+  handleTradePhase(counterpartyIP, inputMsg) {}
+
+  createLogonMessage() {
+    // TODO: create FIX builder lib
+    return {
+      StandardHeader: {
+        BeginString: "pSymm.FIX.2.0",
+        MsgType: "A",
+        DeploymentID: 101,
+        SenderCompID: this.pubKey,
+        TargetCompID: this.counterpartyPubKey,
+        MsgSeqNum: this.msgSeqNum++,
+        CustodyID: "0xCustody123", // todo: PPM
+        SendingTime: (Date.now() * 1000000).toString(),
+      },
+      HeartBtInt: 10,
+      StandardTrailer: {
+        PublicKey: "0xPartyA",
+        Signature: "0xSignature",
+      },
+    };
   }
-
-  handlePkxchgPhase(counterpartyIP, session, inputMsg) {
-    // Template implementation
-    if (inputMsg.type === "login") {
-      // Store counterparty keys
-      session.counterpartyPubKey = inputMsg.pubKey;
-      session.counterpartyGuardianPubKey = inputMsg.guardianPubKey;
-      session.counterpartyGuardianIP = inputMsg.guardianIP;
-
-      // Transition to TRADE phase
-      session.phase = "TRADE";
-
-      return {
-        type: "login_response",
-        pubKey: "OUR_PUBKEY_PLACEHOLDER",
-        guardianPubKey: "OUR_GUARDIAN_PUBKEY_PLACEHOLDER",
-        guardianIP: "OUR_GUARDIAN_IP_PLACEHOLDER",
-      };
-    }
-    return null;
-  }
-
-  handleTradePhase(counterpartyIP, session, inputMsg) {
-    // Template implementation
-    if (inputMsg.type === "ack") {
-      return {
-        type: "ready_to_trade",
-      };
-    }
-    return null;
+  createErrorMessage() {
+    // TODO: proper message
+    return { StandardHeader: { MsgType: "j" } };
   }
 }
 
-module.exports = { pSymmVM, timeLog };
+class pSymmSolverVM extends pSymmVM {
+  constructor(config) {
+    super(config);
+    this.ppmTemplate = config.ppmTemplate;
+  }
+
+  handleInitPhase(counterpartyIP, inputMsg) {
+    // if (inputMsg?.StandardHeader?.MsgType === "PPMTR") { // PPM template request
+    //    return {StandardHeader: {MsgType: "PPMT"}, PPMT: this.ppmTemplate};
+    //    set sessions counterpartyIP phase to PKXCHG
+    // else return [invalid message]
+  }
+
+  handlePkxchgPhase(counterpartyIP, inputMsg) {
+    if (inputMsg?.StandardHeader?.MsgType === "A") {
+      // Store counterparty keys
+      // write the data below into session state:
+      // counterpartyPubKey = inputMsg.pubKey;
+      // counterpartyGuardianPubKey = inputMsg.guardianPubKey;
+      // counterpartyGuardianIP = inputMsg.guardianIP;
+      // set sesssion phase to TRADE
+      // return [this.createLogonMessage()];
+    }
+    // else return [invalid message]
+  }
+
+  handleTradePhase(counterpartyIP, inputMsg) {
+    // TODO
+  }
+}
+
+module.exports = { pSymmVM, pSymmSolverVM, timeLog };
