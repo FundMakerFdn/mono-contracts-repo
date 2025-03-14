@@ -21,6 +21,7 @@
     "better-sqlite3": "^11.5.0",
     "express": "^4.21.2",
     "hardhat": "^2.22.16",
+    "json-stable-stringify": "^1.2.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "viem": "^2.21.51",

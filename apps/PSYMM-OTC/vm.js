@@ -8,6 +8,7 @@ class pSymmVM {
     this.binanceProvider = config.binanceProvider;
     this.rpcProvider = config.rpcProvider;
     this.guardianIP = config.guardianIP;
+    this.guardianPubKey = config.guardianPubKey;
     this.pubKey = config.pubKey;
   }
 
@@ -19,6 +20,7 @@ class pSymmVM {
       counterpartyGuardianIP: null, // will be added to mesh
       counterpartyGuardianPubKey: null,
       msgSeqNum: 1, // todo: also track counterparty seqnum
+      PPM: null,
     };
   }
   meshMsg(counterpartyIP, msg) {
@@ -58,6 +60,22 @@ class pSymmVM {
         timeLog(`Unknown phase: ${session.phase}`);
         return null;
     }
+  }
+
+  renderPPMT(counterpartyIP) {
+    // Deep clone the template to avoid modifying the original
+    const template = JSON.parse(JSON.stringify(this.ppmTemplate));
+
+    // Process each entry in the template
+    for (const entry of template) {
+      if (entry.party === "owner") {
+        entry.pubKey = this.pubKey;
+      } else if (entry.party === "guardian") {
+        entry.pubKey = this.guardianPubKey;
+      }
+    }
+
+    return template;
   }
 
   // will be override by concrete implementations
@@ -125,6 +143,7 @@ class pSymmSolverVM extends pSymmVM {
       session.counterpartyGuardianPubKey = inputMsg.StandardTrailer.PublicKey;
       session.counterpartyGuardianIP = inputMsg.GuardianIP;
       session.phase = "TRADE";
+      session.PPM = this.renderPPMT(session);
       this.sessions[counterpartyIP] = session;
 
       return [
@@ -140,4 +159,54 @@ class pSymmSolverVM extends pSymmVM {
   }
 }
 
-module.exports = { pSymmVM, pSymmSolverVM, timeLog };
+class pSymmTraderVM extends pSymmVM {
+  constructor(config) {
+    super(config);
+  }
+
+  handleInitPhase(counterpartyIP, inputMsg) {
+    // Trader initiates by requesting PPM template
+    const session = this.sessions[counterpartyIP];
+    session.phase = "PKXCHG";
+    this.sessions[counterpartyIP] = session;
+
+    return [
+      this.meshMsg(counterpartyIP, {
+        StandardHeader: { MsgType: "PPMTR" },
+      }),
+    ];
+  }
+
+  handlePkxchgPhase(counterpartyIP, inputMsg) {
+    if (inputMsg?.StandardHeader?.MsgType === "PPMT") {
+      // Received PPM template, store it and send logon
+      const session = this.sessions[counterpartyIP];
+      session.ppmTemplate = inputMsg.PPMT;
+
+      // Send logon message to initiate key exchange
+      return [
+        this.meshMsg(counterpartyIP, this.createLogonMessage(counterpartyIP)),
+      ];
+    } else if (inputMsg?.StandardHeader?.MsgType === "A") {
+      // Received logon response, store counterparty keys
+      const session = this.sessions[counterpartyIP];
+      session.counterpartyPubKey = inputMsg.StandardHeader.SenderCompID;
+      session.counterpartyGuardianPubKey = inputMsg.StandardTrailer.PublicKey;
+      session.counterpartyGuardianIP = inputMsg.GuardianIP;
+      session.phase = "TRADE";
+      this.sessions[counterpartyIP] = session;
+
+      // No response needed, we're now in TRADE phase
+      return [];
+    } else {
+      return [this.meshMsg(counterpartyIP, this.createErrorMessage())];
+    }
+  }
+
+  handleTradePhase(counterpartyIP, inputMsg) {
+    // TODO: Implement trade phase handling
+    return [];
+  }
+}
+
+module.exports = { pSymmVM, pSymmSolverVM, pSymmTraderVM, timeLog };
