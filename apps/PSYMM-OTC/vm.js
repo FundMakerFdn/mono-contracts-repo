@@ -5,9 +5,7 @@ const timeLog = (...args) =>
 class pSymmVM {
   constructor(config) {
     this.sessions = {}; // counterpartyPubKey => session object
-    this.binanceProvider = config.binanceProvider;
-    this.rpcProvider = config.rpcProvider;
-    this.guardianIP = config.guardianIP;
+    this.ppmStorage = config.ppmStorage;
     this.guardianPubKey = config.guardianPubKey;
     this.pubKey = config.pubKey;
   }
@@ -16,27 +14,14 @@ class pSymmVM {
     return {
       phase: "INIT",
       counterpartyPubKey,
-      counterpartyGuardianIP: null, // will be added to mesh
       counterpartyGuardianPubKey: null,
       msgSeqNum: 1, // todo: also track counterparty seqnum
-      PPM: null,
-    };
-  }
-
-  meshMsg(counterpartyPubKey, msg) {
-    const session = this.sessions[counterpartyPubKey];
-    const dest = [counterpartyPubKey];
-    if (session.counterpartyGuardianPubKey)
-      dest.push(session.counterpartyGuardianPubKey);
-    return {
-      dest,
-      msg,
     };
   }
 
   processMessage(counterpartyPubKey, inputItem) {
     // inputItem: {type: 'init' | 'peer', msg: Object}
-    // return value: [meshMsg(counterpartyPubKey, msg)]
+    // return value: [{counterpartyPubKey, msg}]
 
     // init input item is pushed by pSymmParty on new connection
     if (inputItem.type == "init") {
@@ -98,7 +83,6 @@ class pSymmVM {
         SendingTime: (Date.now() * 1000000).toString(),
       },
       HeartBtInt: 10,
-      GuardianIP: this.guardianIP,
       StandardTrailer: {
         // todo: sign
         PublicKey: this.pubKey,
@@ -126,13 +110,16 @@ class pSymmSolverVM extends pSymmVM {
       this.sessions[counterpartyPubKey] = session;
 
       return [
-        this.meshMsg(counterpartyPubKey, {
-          StandardHeader: { MsgType: "PPMT" },
-          PPMT: this.ppmTemplate,
-        }),
+        {
+          counterpartyPubKey,
+          msg: {
+            StandardHeader: { MsgType: "PPMT" },
+            PPMT: this.ppmTemplate,
+          },
+        },
       ];
     } else {
-      return [this.meshMsg(counterpartyPubKey, this.createErrorMessage())];
+      return [{ counterpartyPubKey, msg: this.createErrorMessage() }];
     }
   }
 
@@ -147,13 +134,13 @@ class pSymmSolverVM extends pSymmVM {
       this.sessions[counterpartyPubKey] = session;
 
       return [
-        this.meshMsg(
+        {
           counterpartyPubKey,
-          this.createLogonMessage(counterpartyPubKey)
-        ),
+          msg: this.createLogonMessage(counterpartyPubKey),
+        },
       ];
     } else {
-      return [this.meshMsg(counterpartyPubKey, this.createErrorMessage())];
+      return [{ counterpartyPubKey, msg: this.createErrorMessage() }];
     }
   }
 
@@ -174,9 +161,12 @@ class pSymmTraderVM extends pSymmVM {
     this.sessions[counterpartyPubKey] = session;
 
     return [
-      this.meshMsg(counterpartyPubKey, {
-        StandardHeader: { MsgType: "PPMTR" },
-      }),
+      {
+        counterpartyPubKey,
+        msg: {
+          StandardHeader: { MsgType: "PPMTR" },
+        },
+      },
     ];
   }
 
@@ -188,10 +178,10 @@ class pSymmTraderVM extends pSymmVM {
 
       // Send logon message to initiate key exchange
       return [
-        this.meshMsg(
+        {
           counterpartyPubKey,
-          this.createLogonMessage(counterpartyPubKey)
-        ),
+          msg: this.createLogonMessage(counterpartyPubKey),
+        },
       ];
     } else if (inputMsg?.StandardHeader?.MsgType === "A") {
       // Received logon response, store counterparty keys
@@ -204,7 +194,7 @@ class pSymmTraderVM extends pSymmVM {
       // No response needed, we're now in TRADE phase
       return [];
     } else {
-      return [this.meshMsg(counterpartyPubKey, this.createErrorMessage())];
+      return [{ counterpartyPubKey, msg: this.createErrorMessage() }];
     }
   }
 
