@@ -4,8 +4,11 @@ const { Queue } = require("./queue");
 /**
  * Time logging utility
  */
-const timeLog = (...args) =>
-  console.log(`${Math.ceil(process.uptime() * 1000)}ms\t`, ...args);
+const timeLog = (...args) => {
+  const stack = new Error().stack;
+  const callerName = stack.split('\n')[2].trim().split(' ')[1];
+  console.log(`${Math.ceil(process.uptime() * 1000)}ms\t${callerName}:`, ...args);
+};
 
 /**
  * pSymmVM class - handles TRADE phase messages
