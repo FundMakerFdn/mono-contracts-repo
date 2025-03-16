@@ -43,28 +43,33 @@ contract ETFMakerFactory {
 /*
 {
     //PPM
-    address public immutable collateralToken;
-    uint256 public immutable collateralTokenPrecision;
-    uint256 public mintFee;
-    uint256 public burnFee;
-    uint256 public managementFee;
-    uint256 public minNoticePeriod;
+        address solver;
 
-    address curator;
-    address solver;
 }
 */
 
 contract pSymmETF is ERC20 {
 
     
-    mapping(uint256 => bytes) public weights; //timestamp => weights
+    mapping(uint256 => bytes) public currentWeights; //timestamp => weights
+    mapping(uint256 => bytes) public solverWeights; //timestamp => weights
+ // hi
     uint256 public lastWeightUpdate;
 
     address public immutable pSymmAddress;
     bytes32 public immutable custodyId;
 
     uint256 public cumRebalanceSpread;
+    uint256 public lastPrice;
+
+    address public immutable collateralToken;
+    uint256 public mintFee;
+    uint256 public burnFee;
+    uint256 public managementFee;
+    uint256 public minNoticePeriod;
+
+    address public curator;
+    
 
     constructor( address _etfMakerRegistryAddress, bytes32 _custodyId, bytes memory _weights) ERC20(_name, _symbol) {
         etfMakerRegistryAddress = _etfMakerRegistryAddress;
@@ -77,11 +82,17 @@ contract pSymmETF is ERC20 {
         _;
     }
 
+    modifier onlyCurator() {
+        require(msg.sender == curator || msg.sender == pSymmAddress, "Only curator can call");
+        _;
+    }
+
     //@notice only solver
     function mint(address target, uint256 amount) external onlyPSymm {
         _mint(target, amount);
     }
 
+    //@notice only solver
     function burn(address target, uint256 amount) external onlyPSymm {
         _burn(target, amount);
     }   
@@ -97,9 +108,14 @@ contract pSymmETF is ERC20 {
         etfs[_custodyId].etfMakerRegistryAddress.updatePrice(etfs[_custodyId].etfId);
     }
 
+    // @notice only Solver can call
+    function updateSolverWeights(uint256 _timestamp, bytes memory _weights) external onlyPSymm {
+        solverWeightsUpdate[_timestamp] = _weights;
+    }
+
     // @notice only Curator can call
-    function updateWeights(uint256 _timestamp, bytes memory _weights) external onlyPSymm {
-        weights[_timestamp] = _weights;
+    function updateCurrentWeights(uint256 _timestamp, bytes memory _weights) external onlyCurator {
+        currentWeightsUpdate[_timestamp] = _weights;
     }
 
     // @notice only Curator can call
@@ -109,7 +125,27 @@ contract pSymmETF is ERC20 {
         lastWeightUpdate = _timestamp;
     }
 
+    /* --------- 
+    Getters
+    --------- */
+
     function getPrice(bytes32 _custodyId) external view returns (uint256) {
-        return etfs[_custodyId].etfMakerRegistryAddress.getPrice(etfs[_custodyId].etfId) * ( etfs[_custodyId].collateralTokenPrecision - etfs[_custodyId].cumRebalanceSpread) / etfs[_custodyId].collateralTokenPrecision;
+        return lastPrice;
+    }
+
+    function getHistoricalPrice(bytes32 _custodyId, uint256 _timestamp) external view returns (uint256) {
+        return weights[_timestamp];
+    }
+
+    function getCumRebalanceSpread(bytes32 _custodyId) external view returns (uint256) {
+        return cumRebalanceSpread;
+    }
+
+    function getCurrentWeights(bytes32 _custodyId) external view returns (bytes memory) {
+        return currentWeights[block.timestamp];
+    }
+
+    function getSolverWeights(bytes32 _custodyId) external view returns (bytes memory) {
+        return solverWeights[block.timestamp];
     }
 }

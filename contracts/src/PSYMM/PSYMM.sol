@@ -53,6 +53,9 @@ contract PSYMM {
 
     mapping(bytes32 => mapping(address => address)) private withdrawReRoutings; // custodyId => address => address // used for instant withdraw
 
+    mapping(uint256 => mapping(address => uint256)) public slashableCustody; // msgSeqNum => tokenId => amount
+    mapping(bytes32 => mapping(address => mapping(address => uint256))) public freezeOrder; // custodyId => partyId => tokenId => amount
+
     modifier checkCustodyState(bytes32 id, uint8 state) {
         require(custodyState[id] == state, "State isn't 0");
         _;

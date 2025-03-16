@@ -42,7 +42,6 @@ const transferParams = {
 const makeStandardHeader = (MsgType, isPartyA, seq) => ({
   BeginString: "pSymm.FIX.2.0",
   MsgType,
-  DeploymentID: 101,
   // (When Party B sends, SenderCompID is 0xPartyB, TargetCompID is 0xPartyA)
   // Optional: OnBehalfOfCompID, DeliverToCompID
   SenderCompID: isPartyA ? partyClient : partyBroker,

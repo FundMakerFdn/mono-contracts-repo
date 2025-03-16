@@ -4,6 +4,7 @@
   "author": "Vladyslav <web.user@ukr.net>, Max OTC maxgctwo@rasa.capital",
   "license": "MIT",
   "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.758.0",
     "@aztec/bb.js": "0.72.1",
     "@iarna/toml": "^2.2.5",
     "@noir-lang/backend_barretenberg": "^0.36.0",
