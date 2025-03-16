@@ -1,0 +1,4557 @@
+[
+  {
+    "PSYMMSIN": "PSYMM00000008",
+    "Ticker": "BTCUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BTCUSDC}",
+      "/binance/spot/asset:{BTCUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00000017",
+    "Ticker": "ETHUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ETHUSDC}",
+      "/binance/spot/asset:{ETHUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00000026",
+    "Ticker": "BNBUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BNBUSDC}",
+      "/binance/spot/asset:{BNBUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00000035",
+    "Ticker": "NEOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{NEOUSDC}",
+      "/binance/spot/asset:{NEOUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00000044",
+    "Ticker": "LTCUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{LTCUSDC}",
+      "/binance/spot/asset:{LTCUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00000053",
+    "Ticker": "QTUMUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{QTUMUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00000062",
+    "Ticker": "ADAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ADAUSDC}",
+      "/binance/spot/asset:{ADAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000071",
+    "Ticker": "XRPUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{XRPUSDC}",
+      "/binance/spot/asset:{XRPUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000080",
+    "Ticker": "EOSUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{EOSUSDC}",
+      "/binance/spot/asset:{EOSUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000099",
+    "Ticker": "TUSDUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{TUSDUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000107",
+    "Ticker": "IOTAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{IOTAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000116",
+    "Ticker": "XLMUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{XLMUSDC}",
+      "/binance/spot/asset:{XLMUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000125",
+    "Ticker": "ONTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ONTUSDC}",
+      "/binance/spot/asset:{ONTUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000134",
+    "Ticker": "TRXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{TRXUSDC}",
+      "/binance/spot/asset:{TRXUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000143",
+    "Ticker": "ETCUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ETCUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00000152",
+    "Ticker": "ICXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ICXUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000161",
+    "Ticker": "NULSUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{NULSUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000170",
+    "Ticker": "VETUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{VETUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000189",
+    "Ticker": "USDCUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{USDCUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000198",
+    "Ticker": "LINKUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{LINKUSDC}",
+      "/binance/spot/asset:{LINKUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00000206",
+    "Ticker": "ONGUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ONGUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000215",
+    "Ticker": "HOTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{HOTUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00000224",
+    "Ticker": "ZILUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ZILUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000233",
+    "Ticker": "ZRXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ZRXUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000242",
+    "Ticker": "FETUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{FETUSDC}",
+      "/binance/spot/asset:{FETUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00000251",
+    "Ticker": "BATUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BATUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000260",
+    "Ticker": "ZECUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ZECUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00000279",
+    "Ticker": "IOSTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{IOSTUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00000288",
+    "Ticker": "CELRUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CELRUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000297",
+    "Ticker": "DASHUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{DASHUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00000305",
+    "Ticker": "THETAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{THETAUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00000314",
+    "Ticker": "ENJUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ENJUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000323",
+    "Ticker": "ATOMUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ATOMUSDC}",
+      "/binance/spot/asset:{ATOMUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00000332",
+    "Ticker": "TFUELUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{TFUELUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000341",
+    "Ticker": "ONEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ONEUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000350",
+    "Ticker": "ALGOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ALGOUSDC}",
+      "/binance/spot/asset:{ALGOUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000369",
+    "Ticker": "DOGEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{DOGEUSDC}",
+      "/binance/spot/asset:{DOGEUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000378",
+    "Ticker": "DUSKUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{DUSKUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000387",
+    "Ticker": "ANKRUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ANKRUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000396",
+    "Ticker": "WINUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{WINUSDT}"
+    ],
+    "PriceDecimals": 0
+  },
+  {
+    "PSYMMSIN": "PSYMM00000404",
+    "Ticker": "COSUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{COSUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00000413",
+    "Ticker": "MTLUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{MTLUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00000422",
+    "Ticker": "DENTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{DENTUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00000431",
+    "Ticker": "WANUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{WANUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000440",
+    "Ticker": "FUNUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{FUNUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00000459",
+    "Ticker": "CVCUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CVCUSDC}",
+      "/binance/spot/asset:{CVCUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000468",
+    "Ticker": "CHZUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CHZUSDC}",
+      "/binance/spot/asset:{CHZUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000477",
+    "Ticker": "BANDUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BANDUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00000486",
+    "Ticker": "XTZUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{XTZUSDC}",
+      "/binance/spot/asset:{XTZUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00000495",
+    "Ticker": "RVNUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{RVNUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000503",
+    "Ticker": "HBARUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{HBARUSDC}",
+      "/binance/spot/asset:{HBARUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000512",
+    "Ticker": "NKNUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{NKNUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000521",
+    "Ticker": "STXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{STXUSDC}",
+      "/binance/spot/asset:{STXUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00000530",
+    "Ticker": "KAVAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{KAVAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000549",
+    "Ticker": "ARPAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ARPAUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000558",
+    "Ticker": "IOTXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{IOTXUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000567",
+    "Ticker": "RLCUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{RLCUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00000576",
+    "Ticker": "CTXCUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CTXCUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000585",
+    "Ticker": "BCHUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BCHUSDC}",
+      "/binance/spot/asset:{BCHUSDT}"
+    ],
+    "PriceDecimals": 1
+  },
+  {
+    "PSYMMSIN": "PSYMM00000594",
+    "Ticker": "TROYUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{TROYUSDC}",
+      "/binance/spot/asset:{TROYUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00000602",
+    "Ticker": "FTTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{FTTUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000611",
+    "Ticker": "EURUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{EURUSDC}",
+      "/binance/spot/asset:{EURUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000620",
+    "Ticker": "OGNUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{OGNUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000639",
+    "Ticker": "LSKUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{LSKUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00000648",
+    "Ticker": "BNTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BNTUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000657",
+    "Ticker": "LTOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{LTOUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000666",
+    "Ticker": "MBLUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{MBLUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00000675",
+    "Ticker": "COTIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{COTIUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000684",
+    "Ticker": "STPTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{STPTUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000693",
+    "Ticker": "DATAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{DATAUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000701",
+    "Ticker": "SOLUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SOLUSDC}",
+      "/binance/spot/asset:{SOLUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00000710",
+    "Ticker": "CTSIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CTSIUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000729",
+    "Ticker": "HIVEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{HIVEUSDC}",
+      "/binance/spot/asset:{HIVEUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000738",
+    "Ticker": "CHRUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CHRUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000747",
+    "Ticker": "ARDRUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ARDRUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000756",
+    "Ticker": "MDTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{MDTUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000765",
+    "Ticker": "KNCUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{KNCUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000774",
+    "Ticker": "LRCUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{LRCUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000783",
+    "Ticker": "COMPUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{COMPUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00000792",
+    "Ticker": "SCUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SCUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00000800",
+    "Ticker": "ZENUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ZENUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00000819",
+    "Ticker": "SNXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SNXUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00000828",
+    "Ticker": "VTHOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{VTHOUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00000837",
+    "Ticker": "DGBUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{DGBUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000846",
+    "Ticker": "SXPUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SXPUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000855",
+    "Ticker": "MKRUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{MKRUSDT}"
+    ],
+    "PriceDecimals": 0
+  },
+  {
+    "PSYMMSIN": "PSYMM00000864",
+    "Ticker": "DCRUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{DCRUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00000873",
+    "Ticker": "STORJUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{STORJUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000882",
+    "Ticker": "MANAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{MANAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000891",
+    "Ticker": "YFIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{YFIUSDT}"
+    ],
+    "PriceDecimals": 0
+  },
+  {
+    "PSYMMSIN": "PSYMM00000909",
+    "Ticker": "BALUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BALUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00000918",
+    "Ticker": "KMDUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{KMDUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000927",
+    "Ticker": "JSTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{JSTUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00000936",
+    "Ticker": "CRVUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CRVUSDC}",
+      "/binance/spot/asset:{CRVUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000945",
+    "Ticker": "SANDUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SANDUSDC}",
+      "/binance/spot/asset:{SANDUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000954",
+    "Ticker": "NMRUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{NMRUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00000963",
+    "Ticker": "DOTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{DOTUSDC}",
+      "/binance/spot/asset:{DOTUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00000972",
+    "Ticker": "LUNAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{LUNAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00000981",
+    "Ticker": "RSRUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{RSRUSDC}",
+      "/binance/spot/asset:{RSRUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00000990",
+    "Ticker": "PAXGUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PAXGUSDT}"
+    ],
+    "PriceDecimals": 0
+  },
+  {
+    "PSYMMSIN": "PSYMM00001007",
+    "Ticker": "TRBUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{TRBUSDC}",
+      "/binance/spot/asset:{TRBUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00001016",
+    "Ticker": "SUSHIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SUSHIUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001025",
+    "Ticker": "KSMUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{KSMUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00001034",
+    "Ticker": "EGLDUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{EGLDUSDC}",
+      "/binance/spot/asset:{EGLDUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00001043",
+    "Ticker": "DIAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{DIAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001052",
+    "Ticker": "RUNEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{RUNEUSDC}",
+      "/binance/spot/asset:{RUNEUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001061",
+    "Ticker": "FIOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{FIOUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00001070",
+    "Ticker": "UMAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{UMAUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001089",
+    "Ticker": "BELUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BELUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001098",
+    "Ticker": "WINGUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{WINGUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001106",
+    "Ticker": "UNIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{UNIUSDC}",
+      "/binance/spot/asset:{UNIUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001115",
+    "Ticker": "OXTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{OXTUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001124",
+    "Ticker": "SUNUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SUNUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00001133",
+    "Ticker": "AVAXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{AVAXUSDC}",
+      "/binance/spot/asset:{AVAXUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00001142",
+    "Ticker": "FLMUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{FLMUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001151",
+    "Ticker": "UTKUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{UTKUSDC}",
+      "/binance/spot/asset:{UTKUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00001160",
+    "Ticker": "XVSUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{XVSUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00001179",
+    "Ticker": "ALPHAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ALPHAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001188",
+    "Ticker": "AAVEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{AAVEUSDC}",
+      "/binance/spot/asset:{AAVEUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00001197",
+    "Ticker": "NEARUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{NEARUSDC}",
+      "/binance/spot/asset:{NEARUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001205",
+    "Ticker": "FILUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{FILUSDC}",
+      "/binance/spot/asset:{FILUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001214",
+    "Ticker": "INJUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{INJUSDC}",
+      "/binance/spot/asset:{INJUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00001223",
+    "Ticker": "AUDIOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{AUDIOUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001232",
+    "Ticker": "CTKUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CTKUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001241",
+    "Ticker": "AXSUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{AXSUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001250",
+    "Ticker": "HARDUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{HARDUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001269",
+    "Ticker": "STRAXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{STRAXUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00001278",
+    "Ticker": "ROSEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ROSEUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00001287",
+    "Ticker": "AVAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{AVAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001296",
+    "Ticker": "SKLUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SKLUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00001304",
+    "Ticker": "GRTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{GRTUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001313",
+    "Ticker": "JUVUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{JUVUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001322",
+    "Ticker": "PSGUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PSGUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001331",
+    "Ticker": "1INCHUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{1INCHUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001340",
+    "Ticker": "OGUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{OGUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001359",
+    "Ticker": "ATMUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ATMUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001368",
+    "Ticker": "ASRUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ASRUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001377",
+    "Ticker": "CELOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CELOUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001386",
+    "Ticker": "RIFUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{RIFUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001395",
+    "Ticker": "TRUUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{TRUUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001403",
+    "Ticker": "CKBUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CKBUSDC}",
+      "/binance/spot/asset:{CKBUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00001412",
+    "Ticker": "TWTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{TWTUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001421",
+    "Ticker": "FIROUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{FIROUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001430",
+    "Ticker": "SFPUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SFPUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001449",
+    "Ticker": "DODOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{DODOUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001458",
+    "Ticker": "CAKEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CAKEUSDC}",
+      "/binance/spot/asset:{CAKEUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001467",
+    "Ticker": "ACMUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ACMUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001476",
+    "Ticker": "BADGERUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BADGERUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001485",
+    "Ticker": "FISUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{FISUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001494",
+    "Ticker": "OMUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{OMUSDC}",
+      "/binance/spot/asset:{OMUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001502",
+    "Ticker": "PONDUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PONDUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00001511",
+    "Ticker": "DEGOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{DEGOUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001520",
+    "Ticker": "ALICEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ALICEUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001539",
+    "Ticker": "LINAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{LINAUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00001548",
+    "Ticker": "PERPUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PERPUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001557",
+    "Ticker": "SUPERUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SUPERUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001566",
+    "Ticker": "CFXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CFXUSDC}",
+      "/binance/spot/asset:{CFXUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001575",
+    "Ticker": "TKOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{TKOUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001584",
+    "Ticker": "PUNDIXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PUNDIXUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001593",
+    "Ticker": "TLMUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{TLMUSDC}",
+      "/binance/spot/asset:{TLMUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00001601",
+    "Ticker": "BARUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BARUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001610",
+    "Ticker": "FORTHUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{FORTHUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001629",
+    "Ticker": "BAKEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BAKEUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001638",
+    "Ticker": "BURGERUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BURGERUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001647",
+    "Ticker": "SLPUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SLPUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00001656",
+    "Ticker": "SHIBUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SHIBUSDC}",
+      "/binance/spot/asset:{SHIBUSDT}"
+    ],
+    "PriceDecimals": 0
+  },
+  {
+    "PSYMMSIN": "PSYMM00001665",
+    "Ticker": "ICPUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ICPUSDC}",
+      "/binance/spot/asset:{ICPUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001674",
+    "Ticker": "ARUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ARUSDC}",
+      "/binance/spot/asset:{ARUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00001683",
+    "Ticker": "MASKUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{MASKUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001692",
+    "Ticker": "LPTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{LPTUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001700",
+    "Ticker": "XVGUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{XVGUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00001719",
+    "Ticker": "ATAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ATAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001728",
+    "Ticker": "GTCUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{GTCUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001737",
+    "Ticker": "PHAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PHAUSDC}",
+      "/binance/spot/asset:{PHAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001746",
+    "Ticker": "MLNUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{MLNUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00001755",
+    "Ticker": "DEXEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{DEXEUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001764",
+    "Ticker": "C98USDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{C98USDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001773",
+    "Ticker": "QNTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{QNTUSDT}"
+    ],
+    "PriceDecimals": 1
+  },
+  {
+    "PSYMMSIN": "PSYMM00001782",
+    "Ticker": "FLOWUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{FLOWUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001791",
+    "Ticker": "MINAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{MINAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001809",
+    "Ticker": "RAYUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{RAYUSDC}",
+      "/binance/spot/asset:{RAYUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001818",
+    "Ticker": "FARMUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{FARMUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00001827",
+    "Ticker": "ALPACAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ALPACAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001836",
+    "Ticker": "QUICKUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{QUICKUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00001845",
+    "Ticker": "MBOXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{MBOXUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001854",
+    "Ticker": "REQUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{REQUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001863",
+    "Ticker": "GHSTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{GHSTUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00001872",
+    "Ticker": "WAXPUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{WAXPUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00001881",
+    "Ticker": "GNOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{GNOUSDT}"
+    ],
+    "PriceDecimals": 1
+  },
+  {
+    "PSYMMSIN": "PSYMM00001890",
+    "Ticker": "XECUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{XECUSDT}"
+    ],
+    "PriceDecimals": 0
+  },
+  {
+    "PSYMMSIN": "PSYMM00001908",
+    "Ticker": "ELFUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ELFUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001917",
+    "Ticker": "DYDXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{DYDXUSDC}",
+      "/binance/spot/asset:{DYDXUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001926",
+    "Ticker": "IDEXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{IDEXUSDC}",
+      "/binance/spot/asset:{IDEXUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00001935",
+    "Ticker": "VIDTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{VIDTUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00001944",
+    "Ticker": "USDPUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{USDPUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001953",
+    "Ticker": "GALAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{GALAUSDC}",
+      "/binance/spot/asset:{GALAUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00001962",
+    "Ticker": "ILVUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ILVUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00001971",
+    "Ticker": "YGGUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{YGGUSDC}",
+      "/binance/spot/asset:{YGGUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001980",
+    "Ticker": "SYSUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SYSUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00001999",
+    "Ticker": "DFUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{DFUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00002006",
+    "Ticker": "FIDAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{FIDAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002015",
+    "Ticker": "AGLDUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{AGLDUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002024",
+    "Ticker": "RADUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{RADUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002033",
+    "Ticker": "BETAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BETAUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00002042",
+    "Ticker": "RAREUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{RAREUSDC}",
+      "/binance/spot/asset:{RAREUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002051",
+    "Ticker": "LAZIOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{LAZIOUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002060",
+    "Ticker": "CHESSUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CHESSUSDC}",
+      "/binance/spot/asset:{CHESSUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002079",
+    "Ticker": "ADXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ADXUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002088",
+    "Ticker": "AUCTIONUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{AUCTIONUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00002097",
+    "Ticker": "BNXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BNXUSDC}",
+      "/binance/spot/asset:{BNXUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002105",
+    "Ticker": "MOVRUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{MOVRUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002114",
+    "Ticker": "CITYUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CITYUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002123",
+    "Ticker": "ENSUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ENSUSDC}",
+      "/binance/spot/asset:{ENSUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00002132",
+    "Ticker": "QIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{QIUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00002141",
+    "Ticker": "PORTOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PORTOUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002150",
+    "Ticker": "POWRUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{POWRUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002169",
+    "Ticker": "JASMYUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{JASMYUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00002178",
+    "Ticker": "AMPUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{AMPUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00002187",
+    "Ticker": "PYRUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PYRUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002196",
+    "Ticker": "ALCXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ALCXUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00002204",
+    "Ticker": "SANTOSUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SANTOSUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002213",
+    "Ticker": "BICOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BICOUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002222",
+    "Ticker": "FLUXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{FLUXUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002231",
+    "Ticker": "FXSUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{FXSUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002240",
+    "Ticker": "VOXELUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{VOXELUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002259",
+    "Ticker": "HIGHUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{HIGHUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002268",
+    "Ticker": "CVXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CVXUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002277",
+    "Ticker": "PEOPLEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PEOPLEUSDC}",
+      "/binance/spot/asset:{PEOPLEUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00002286",
+    "Ticker": "SPELLUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SPELLUSDT}"
+    ],
+    "PriceDecimals": 0
+  },
+  {
+    "PSYMMSIN": "PSYMM00002295",
+    "Ticker": "JOEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{JOEUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002303",
+    "Ticker": "ACHUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ACHUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00002312",
+    "Ticker": "IMXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{IMXUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002321",
+    "Ticker": "GLMRUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{GLMRUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002330",
+    "Ticker": "LOKAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{LOKAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002349",
+    "Ticker": "SCRTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SCRTUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002358",
+    "Ticker": "API3USDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{API3USDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002367",
+    "Ticker": "BTTCUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BTTCUSDT}"
+    ],
+    "PriceDecimals": 0
+  },
+  {
+    "PSYMMSIN": "PSYMM00002376",
+    "Ticker": "ACAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ACAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002385",
+    "Ticker": "XNOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{XNOUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002394",
+    "Ticker": "WOOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{WOOUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002402",
+    "Ticker": "ALPINEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ALPINEUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002411",
+    "Ticker": "TUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{TUSDC}",
+      "/binance/spot/asset:{TUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00002420",
+    "Ticker": "ASTRUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ASTRUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00002439",
+    "Ticker": "GMTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{GMTUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002448",
+    "Ticker": "KDAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{KDAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002457",
+    "Ticker": "APEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{APEUSDC}",
+      "/binance/spot/asset:{APEUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002466",
+    "Ticker": "BSWUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BSWUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002475",
+    "Ticker": "BIFIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BIFIUSDT}"
+    ],
+    "PriceDecimals": 1
+  },
+  {
+    "PSYMMSIN": "PSYMM00002484",
+    "Ticker": "STEEMUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{STEEMUSDC}",
+      "/binance/spot/asset:{STEEMUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002493",
+    "Ticker": "NEXOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{NEXOUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002501",
+    "Ticker": "REIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{REIUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00002510",
+    "Ticker": "LDOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{LDOUSDC}",
+      "/binance/spot/asset:{LDOUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002529",
+    "Ticker": "OPUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{OPUSDC}",
+      "/binance/spot/asset:{OPUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002538",
+    "Ticker": "LEVERUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{LEVERUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00002547",
+    "Ticker": "STGUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{STGUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002556",
+    "Ticker": "LUNCUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{LUNCUSDT}"
+    ],
+    "PriceDecimals": 0
+  },
+  {
+    "PSYMMSIN": "PSYMM00002565",
+    "Ticker": "GMXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{GMXUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00002574",
+    "Ticker": "POLYXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{POLYXUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002583",
+    "Ticker": "APTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{APTUSDC}",
+      "/binance/spot/asset:{APTUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002592",
+    "Ticker": "OSMOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{OSMOUSDC}",
+      "/binance/spot/asset:{OSMOUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002600",
+    "Ticker": "HFTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{HFTUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002619",
+    "Ticker": "PHBUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PHBUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002628",
+    "Ticker": "HOOKUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{HOOKUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002637",
+    "Ticker": "MAGICUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{MAGICUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002646",
+    "Ticker": "HIFIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{HIFIUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002655",
+    "Ticker": "RPLUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{RPLUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00002664",
+    "Ticker": "PROSUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PROSUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002673",
+    "Ticker": "GNSUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{GNSUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002682",
+    "Ticker": "SYNUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SYNUSDC}",
+      "/binance/spot/asset:{SYNUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002691",
+    "Ticker": "VIBUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{VIBUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00002709",
+    "Ticker": "SSVUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SSVUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00002718",
+    "Ticker": "LQTYUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{LQTYUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002727",
+    "Ticker": "USTCUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{USTCUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00002736",
+    "Ticker": "GASUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{GASUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002745",
+    "Ticker": "GLMUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{GLMUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002754",
+    "Ticker": "PROMUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PROMUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002763",
+    "Ticker": "QKCUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{QKCUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00002772",
+    "Ticker": "UFTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{UFTUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002781",
+    "Ticker": "IDUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{IDUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002790",
+    "Ticker": "ARBUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ARBUSDC}",
+      "/binance/spot/asset:{ARBUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002808",
+    "Ticker": "RDNTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{RDNTUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00002817",
+    "Ticker": "WBTCUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{WBTCUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00002826",
+    "Ticker": "EDUUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{EDUUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002835",
+    "Ticker": "SUIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SUIUSDC}",
+      "/binance/spot/asset:{SUIUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002844",
+    "Ticker": "AERGOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{AERGOUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002853",
+    "Ticker": "PEPEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PEPEUSDC}",
+      "/binance/spot/asset:{PEPEUSDT}"
+    ],
+    "PriceDecimals": 0
+  },
+  {
+    "PSYMMSIN": "PSYMM00002862",
+    "Ticker": "FLOKIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{FLOKIUSDC}",
+      "/binance/spot/asset:{FLOKIUSDT}"
+    ],
+    "PriceDecimals": 0
+  },
+  {
+    "PSYMMSIN": "PSYMM00002871",
+    "Ticker": "ASTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ASTUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002880",
+    "Ticker": "SNTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SNTUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00002899",
+    "Ticker": "COMBOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{COMBOUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002907",
+    "Ticker": "MAVUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{MAVUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00002916",
+    "Ticker": "PENDLEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PENDLEUSDC}",
+      "/binance/spot/asset:{PENDLEUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002925",
+    "Ticker": "ARKMUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ARKMUSDC}",
+      "/binance/spot/asset:{ARKMUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002934",
+    "Ticker": "WBETHUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{WBETHUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00002943",
+    "Ticker": "WLDUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{WLDUSDC}",
+      "/binance/spot/asset:{WLDUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002952",
+    "Ticker": "FDUSDUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{FDUSDUSDC}",
+      "/binance/spot/asset:{FDUSDUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002961",
+    "Ticker": "SEIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SEIUSDC}",
+      "/binance/spot/asset:{SEIUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002970",
+    "Ticker": "CYBERUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CYBERUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00002989",
+    "Ticker": "ARKUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ARKUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00002998",
+    "Ticker": "CREAMUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CREAMUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00003005",
+    "Ticker": "IQUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{IQUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00003014",
+    "Ticker": "NTRNUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{NTRNUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003023",
+    "Ticker": "TIAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{TIAUSDC}",
+      "/binance/spot/asset:{TIAUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003032",
+    "Ticker": "MEMEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{MEMEUSDC}",
+      "/binance/spot/asset:{MEMEUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00003041",
+    "Ticker": "ORDIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ORDIUSDC}",
+      "/binance/spot/asset:{ORDIUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00003050",
+    "Ticker": "BEAMXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BEAMXUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00003069",
+    "Ticker": "PIVXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PIVXUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003078",
+    "Ticker": "VICUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{VICUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003087",
+    "Ticker": "BLURUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BLURUSDC}",
+      "/binance/spot/asset:{BLURUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003096",
+    "Ticker": "VANRYUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{VANRYUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003104",
+    "Ticker": "AEURUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{AEURUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003113",
+    "Ticker": "JTOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{JTOUSDC}",
+      "/binance/spot/asset:{JTOUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003122",
+    "Ticker": "1000SATSUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{1000SATSUSDC}",
+      "/binance/spot/asset:{1000SATSUSDT}"
+    ],
+    "PriceDecimals": 0
+  },
+  {
+    "PSYMMSIN": "PSYMM00003131",
+    "Ticker": "BONKUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BONKUSDC}",
+      "/binance/spot/asset:{BONKUSDT}"
+    ],
+    "PriceDecimals": 0
+  },
+  {
+    "PSYMMSIN": "PSYMM00003140",
+    "Ticker": "ACEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ACEUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003159",
+    "Ticker": "NFPUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{NFPUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003168",
+    "Ticker": "AIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{AIUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003177",
+    "Ticker": "XAIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{XAIUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003186",
+    "Ticker": "MANTAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{MANTAUSDC}",
+      "/binance/spot/asset:{MANTAUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003195",
+    "Ticker": "ALTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ALTUSDC}",
+      "/binance/spot/asset:{ALTUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00003203",
+    "Ticker": "JUPUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{JUPUSDC}",
+      "/binance/spot/asset:{JUPUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003212",
+    "Ticker": "PYTHUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PYTHUSDC}",
+      "/binance/spot/asset:{PYTHUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003221",
+    "Ticker": "RONINUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{RONINUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003230",
+    "Ticker": "DYMUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{DYMUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003249",
+    "Ticker": "PIXELUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PIXELUSDC}",
+      "/binance/spot/asset:{PIXELUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00003258",
+    "Ticker": "STRKUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{STRKUSDC}",
+      "/binance/spot/asset:{STRKUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003267",
+    "Ticker": "PORTALUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PORTALUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003276",
+    "Ticker": "PDAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PDAUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00003285",
+    "Ticker": "AXLUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{AXLUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003294",
+    "Ticker": "WIFUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{WIFUSDC}",
+      "/binance/spot/asset:{WIFUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003302",
+    "Ticker": "METISUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{METISUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00003311",
+    "Ticker": "AEVOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{AEVOUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003320",
+    "Ticker": "BOMEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BOMEUSDC}",
+      "/binance/spot/asset:{BOMEUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00003339",
+    "Ticker": "ETHFIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ETHFIUSDC}",
+      "/binance/spot/asset:{ETHFIUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003348",
+    "Ticker": "ENAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ENAUSDC}",
+      "/binance/spot/asset:{ENAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003357",
+    "Ticker": "WUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{WUSDC}",
+      "/binance/spot/asset:{WUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003366",
+    "Ticker": "TNSRUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{TNSRUSDC}",
+      "/binance/spot/asset:{TNSRUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003375",
+    "Ticker": "SAGAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SAGAUSDC}",
+      "/binance/spot/asset:{SAGAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003384",
+    "Ticker": "TAOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{TAOUSDC}",
+      "/binance/spot/asset:{TAOUSDT}"
+    ],
+    "PriceDecimals": 1
+  },
+  {
+    "PSYMMSIN": "PSYMM00003393",
+    "Ticker": "OMNIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{OMNIUSDC}",
+      "/binance/spot/asset:{OMNIUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00003401",
+    "Ticker": "REZUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{REZUSDC}",
+      "/binance/spot/asset:{REZUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00003410",
+    "Ticker": "BBUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BBUSDC}",
+      "/binance/spot/asset:{BBUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003429",
+    "Ticker": "NOTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{NOTUSDC}",
+      "/binance/spot/asset:{NOTUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00003438",
+    "Ticker": "IOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{IOUSDC}",
+      "/binance/spot/asset:{IOUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003447",
+    "Ticker": "ZKUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ZKUSDC}",
+      "/binance/spot/asset:{ZKUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003456",
+    "Ticker": "LISTAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{LISTAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003465",
+    "Ticker": "ZROUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ZROUSDC}",
+      "/binance/spot/asset:{ZROUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003474",
+    "Ticker": "GUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{GUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00003483",
+    "Ticker": "BANANAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BANANAUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00003492",
+    "Ticker": "RENDERUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{RENDERUSDC}",
+      "/binance/spot/asset:{RENDERUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003500",
+    "Ticker": "TONUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{TONUSDC}",
+      "/binance/spot/asset:{TONUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003519",
+    "Ticker": "DOGSUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{DOGSUSDC}",
+      "/binance/spot/asset:{DOGSUSDT}"
+    ],
+    "PriceDecimals": 0
+  },
+  {
+    "PSYMMSIN": "PSYMM00003528",
+    "Ticker": "EURIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{EURIUSDC}",
+      "/binance/spot/asset:{EURIUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003537",
+    "Ticker": "SLFUSDC",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SLFUSDC}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003546",
+    "Ticker": "SLFUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SLFUSDC}",
+      "/binance/spot/asset:{SLFUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003555",
+    "Ticker": "POLUSDC",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{POLUSDC}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003564",
+    "Ticker": "POLUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{POLUSDC}",
+      "/binance/spot/asset:{POLUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003573",
+    "Ticker": "NEIROUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{NEIROUSDC}",
+      "/binance/spot/asset:{NEIROUSDT}"
+    ],
+    "PriceDecimals": 0
+  },
+  {
+    "PSYMMSIN": "PSYMM00003582",
+    "Ticker": "TURBOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{TURBOUSDC}",
+      "/binance/spot/asset:{TURBOUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00003591",
+    "Ticker": "1MBABYDOGEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{1MBABYDOGEUSDC}",
+      "/binance/spot/asset:{1MBABYDOGEUSDT}"
+    ],
+    "PriceDecimals": 0
+  },
+  {
+    "PSYMMSIN": "PSYMM00003609",
+    "Ticker": "CATIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CATIUSDC}",
+      "/binance/spot/asset:{CATIUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003618",
+    "Ticker": "HMSTRUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{HMSTRUSDC}",
+      "/binance/spot/asset:{HMSTRUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00003627",
+    "Ticker": "EIGENUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{EIGENUSDC}",
+      "/binance/spot/asset:{EIGENUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003636",
+    "Ticker": "SCRUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SCRUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003645",
+    "Ticker": "BNSOLUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BNSOLUSDT}"
+    ],
+    "PriceDecimals": 1
+  },
+  {
+    "PSYMMSIN": "PSYMM00003654",
+    "Ticker": "LUMIAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{LUMIAUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003663",
+    "Ticker": "KAIAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{KAIAUSDC}",
+      "/binance/spot/asset:{KAIAUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003672",
+    "Ticker": "COWUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{COWUSDC}",
+      "/binance/spot/asset:{COWUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003681",
+    "Ticker": "CETUSUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CETUSUSDC}",
+      "/binance/spot/asset:{CETUSUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003690",
+    "Ticker": "PNUTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PNUTUSDC}",
+      "/binance/spot/asset:{PNUTUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003708",
+    "Ticker": "ACTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ACTUSDC}",
+      "/binance/spot/asset:{ACTUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003717",
+    "Ticker": "USUALUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{USUALUSDC}",
+      "/binance/spot/asset:{USUALUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003726",
+    "Ticker": "THEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{THEUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003735",
+    "Ticker": "ACXUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ACXUSDC}",
+      "/binance/spot/asset:{ACXUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003744",
+    "Ticker": "ORCAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ORCAUSDC}",
+      "/binance/spot/asset:{ORCAUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003753",
+    "Ticker": "MOVEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{MOVEUSDC}",
+      "/binance/spot/asset:{MOVEUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003762",
+    "Ticker": "MEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{MEUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003771",
+    "Ticker": "VELODROMEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{VELODROMEUSDC}",
+      "/binance/spot/asset:{VELODROMEUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003780",
+    "Ticker": "VANAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{VANAUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003799",
+    "Ticker": "1000CATUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{1000CATUSDC}",
+      "/binance/spot/asset:{1000CATUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00003807",
+    "Ticker": "PENGUUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{PENGUUSDC}",
+      "/binance/spot/asset:{PENGUUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00003816",
+    "Ticker": "BIOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BIOUSDC}",
+      "/binance/spot/asset:{BIOUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003825",
+    "Ticker": "DUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{DUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00003834",
+    "Ticker": "AIXBTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{AIXBTUSDC}",
+      "/binance/spot/asset:{AIXBTUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003843",
+    "Ticker": "CGPTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{CGPTUSDC}",
+      "/binance/spot/asset:{CGPTUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003852",
+    "Ticker": "COOKIEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{COOKIEUSDC}",
+      "/binance/spot/asset:{COOKIEUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003861",
+    "Ticker": "SUSDC",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SUSDC}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003870",
+    "Ticker": "SUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SUSDC}",
+      "/binance/spot/asset:{SUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003889",
+    "Ticker": "SOLVUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SOLVUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00003898",
+    "Ticker": "TRUMPUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{TRUMPUSDC}",
+      "/binance/spot/asset:{TRUMPUSDT}"
+    ],
+    "PriceDecimals": 2
+  },
+  {
+    "PSYMMSIN": "PSYMM00003906",
+    "Ticker": "ANIMEUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{ANIMEUSDC}",
+      "/binance/spot/asset:{ANIMEUSDT}"
+    ],
+    "PriceDecimals": 5
+  },
+  {
+    "PSYMMSIN": "PSYMM00003915",
+    "Ticker": "BERAUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{BERAUSDC}",
+      "/binance/spot/asset:{BERAUSDT}"
+    ],
+    "PriceDecimals": 3
+  },
+  {
+    "PSYMMSIN": "PSYMM00003924",
+    "Ticker": "1000CHEEMSUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{1000CHEEMSUSDC}",
+      "/binance/spot/asset:{1000CHEEMSUSDT}"
+    ],
+    "PriceDecimals": 6
+  },
+  {
+    "PSYMMSIN": "PSYMM00003933",
+    "Ticker": "TSTUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{TSTUSDC}",
+      "/binance/spot/asset:{TSTUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003942",
+    "Ticker": "LAYERUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{LAYERUSDC}",
+      "/binance/spot/asset:{LAYERUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003951",
+    "Ticker": "HEIUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{HEIUSDC}",
+      "/binance/spot/asset:{HEIUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003960",
+    "Ticker": "KAITOUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{KAITOUSDC}",
+      "/binance/spot/asset:{KAITOUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003979",
+    "Ticker": "SHELLUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{SHELLUSDC}",
+      "/binance/spot/asset:{SHELLUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003988",
+    "Ticker": "REDUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{REDUSDC}",
+      "/binance/spot/asset:{REDUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00003997",
+    "Ticker": "GPSUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{GPSUSDC}",
+      "/binance/spot/asset:{GPSUSDT}"
+    ],
+    "PriceDecimals": 4
+  },
+  {
+    "PSYMMSIN": "PSYMM00004004",
+    "Ticker": "EPICUSDT",
+    "AssetType": "SPOT",
+    "AssetCategory": "CRYPTO",
+    "Note": "",
+    "PriceSource": [
+      "/binance/spot/asset:{EPICUSDT}"
+    ],
+    "PriceDecimals": 3
+  }
+]
