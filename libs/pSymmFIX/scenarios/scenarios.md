@@ -94,3 +94,8 @@ Haircut test, 1 solver use USDC as collateral and the other use ETH as collatera
 
 /* ------------ Scenario 1.3.5: ------------ */
 Funding agreement test.
+
+
+// missing MsgSeqNum and recovering it
+// my institution admin don't co-sign a message
+// counterparty institution admin don't co-sign a message

@@ -38,7 +38,7 @@ class AssetData {
       try {
         let priceModule = moduleCache[modulePath];
         if (!priceModule) {
-          priceModule = await import(modulePath);
+          priceModule = require(modulePath);
           moduleCache[modulePath] = priceModule;
         }
         // Call the module's exported getPrice(asset) function.
@@ -57,7 +57,7 @@ class AssetData {
       try {
         let fundingModule = moduleCache[modulePath];
         if (!fundingModule) {
-          fundingModule = await import(modulePath);
+          fundingModule = require(modulePath);
           moduleCache[modulePath] = fundingModule;
         }
         // Call the module's exported getFunding(asset) function.
@@ -71,7 +71,7 @@ class AssetData {
   }
 }
 
-export default AssetData;
+module.exports = AssetData;
 
 // ----- Example usage -----
 
@@ -83,11 +83,13 @@ const psymmObj = {
   Note: "",
   PriceSource: [
     `/binance/futures/asset:{BTCUSDT}`,
-    `/bybit/futures/asset:{BTCUSDT}`
+    `/bybit/futures/asset:{BTCUSDT}`,
+    `/bitget/futures/asset:{BTCUSDT}` 
   ],
   FundingSource: [
-    `/binance/funding/asset:{BTCUSDT}`,
-    `/bybit/funding/asset:{BTCUSDT}`
+    `/binance/futures/asset:{BTCUSDT}`,
+    `/bybit/futures/asset:{BTCUSDT}`,
+    `/bitget/futures/asset:{BTCUSDT}` 
   ],
   PriceDecimals: 18
 };
@@ -109,3 +111,55 @@ const psymmObj = {
     console.error("Error fetching funding:", e);
   }
 })();
+
+
+/*
+
+import { existsSync, mkdirSync, writeFileSync } from "fs";
+import { join } from "path";
+
+import SuperchainTokenList from "../superchain.tokenlist.json";
+
+async function main() {
+  const tokens: {
+    name: string;
+    decimals: number;
+    symbol: string;
+    logoURI: string;
+    opTokenId: string;
+    addresses: {
+      [chainId: string]: string;
+    };
+  }[] = [];
+  for (const token of SuperchainTokenList.tokens) {
+    const exists = tokens.find(
+      (x) => x.opTokenId === token.extensions.opTokenId
+    );
+
+    if (exists) {
+      exists.addresses[token.chainId] = token.address;
+    } else {
+      tokens.push({
+        name: token.name,
+        symbol: token.symbol,
+        decimals: token.decimals,
+        logoURI: token.logoURI,
+        opTokenId: token.extensions.opTokenId,
+        addresses: {
+          [token.chainId]: token.address,
+        },
+      });
+    }
+  }
+
+  for (const token of tokens) {
+    const folder = join(__dirname, "..", "data", token.opTokenId);
+    if (!existsSync(folder)) {
+      mkdirSync(folder);
+    }
+    writeFileSync(join(folder, "data.json"), JSON.stringify(token, null, 2));
+  }
+}
+
+main();
+*/
