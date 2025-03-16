@@ -174,14 +174,12 @@ class DemoClient {
 async function runDemo() {
   // Start the pSymmParty server
   console.log('Starting pSymmParty server...');
+  const custody = require('./otcVM');
   const party = new pSymmParty({
     host: HOST,
     port: PORT,
     pubKey: 'SOLVER',
-    ppmTemplate: [
-      { id: 1, name: 'BTC/USD', decimals: 8 },
-      { id: 2, name: 'ETH/USD', decimals: 18 }
-    ]
+    ppmTemplate: custody.parties
   });
   
   // Start the server in the background

@@ -1,13 +1,17 @@
 const WebSocket = require("ws");
 const { Queue } = require("./queue");
+const custody = require("./otcVM");
 
 /**
  * Time logging utility
  */
 const timeLog = (...args) => {
   const stack = new Error().stack;
-  const callerName = stack.split('\n')[2].trim().split(' ')[1];
-  console.log(`${Math.ceil(process.uptime() * 1000)}ms\t${callerName}:`, ...args);
+  const callerName = stack.split("\n")[2].trim().split(" ")[1];
+  console.log(
+    `${Math.ceil(process.uptime() * 1000)}ms\t${callerName}:`,
+    ...args
+  );
 };
 
 /**
@@ -18,8 +22,8 @@ class pSymmVM {
   constructor(config = {}) {
     this.sessions = {}; // counterpartyPubKey => session object
     this.ppmStorage = config.ppmStorage || {};
-    this.guardianPubKey = config.guardianPubKey || "0xDefaultGuardianPubKey";
-    this.pubKey = config.pubKey || "0xDefaultPubKey";
+    this.guardianPubKey = config.guardianPubKey;
+    this.pubKey = config.pubKey;
     this.ppmTemplate = config.ppmTemplate || [];
   }
 
@@ -44,13 +48,12 @@ class pSymmParty {
     this.vm = config.vm || new pSymmVM(config);
     this.pubKey = config.pubKey || "0xDefaultPubKey";
 
-    // Queues as shown in the architecture diagram
-    this.inputQueue = new Queue(); // Receives messages from WebSocket clients
-    this.sequencerQueue = new Queue(); // Collects validated messages for processing
-    this.outputQueue = new Queue(); // Holds processed messages for distribution
-    this.guardianQueue = new Queue(); // Manages messages for external destinations
-    this.binanceQueue = new Queue(); // Queue for Binance-bound messages
-    this.blockchainQueue = new Queue(); // Queue for blockchain transactions
+    this.inputQueue = new Queue();
+    this.sequencerQueue = new Queue();
+    this.outputQueue = new Queue();
+    this.guardianQueue = new Queue();
+    this.binanceQueue = new Queue();
+    this.blockchainQueue = new Queue();
 
     // Client connections
     this.clients = new Map(); // clientId -> websocket
@@ -58,10 +61,6 @@ class pSymmParty {
 
     // Sessions
     this.sessions = new Map(); // (pubkey, custody id) => session object
-
-    // External integrations (placeholders)
-    this.binanceApi = null;
-    this.blockchainClient = null;
   }
 
   /**
