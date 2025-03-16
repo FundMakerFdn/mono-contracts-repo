@@ -2,34 +2,30 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-// Counter for generating unique PSIN identifiers
-let psinCounter = 0;
+/**
+ * @typedef {Object} TokenData
+ * @property {string} address
+ * @property {string} symbol
+ * @property {string} name
+ * @property {number} decimals
+ * @property {number} liquidityUSD
+ */
 
 /**
- * Calculates a check digit for the PSIN identifier
- * @param {string} base - The base PSIN string (e.g., "PSYMM0000001")
- * @returns {number} - The calculated check digit
+ * @typedef {Object} PsymmObj
+ * @property {string} PSIN
+ * @property {'ERC20'} AssetType
+ * @property {string} AssetCategory
+ * @property {string} Note
+ * @property {Record<string, string>} TokenAddresses
+ * @property {string[]} PriceSources
+ * @property {number} PriceDecimals
  */
-function calculateCheckDigit(base) {
-  const sum = base.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return sum % 10;
-}
-
-/**
- * Generates a unique PSIN identifier with a check digit
- * @param {number} counter - The current counter value
- * @returns {string} - The generated PSIN (e.g., "PSYMM00000010")
- */
-function generatePSIN(counter) {
-  const base = `PSYMM${counter.toString().padStart(7, '0')}`;
-  const checkDigit = calculateCheckDigit(base);
-  return `${base}${checkDigit}`;
-}
 
 /**
  * Fetches token data from ParaSwap for a given chain
  * @param {number} chainId
- * @returns {Promise<object[]>}
+ * @returns {Promise<TokenData[]>}
  */
 async function fetchTokensFromParaSwap(chainId) {
   const endpoint = `https://apiv5.paraswap.io/tokens/${chainId}`;
@@ -46,18 +42,25 @@ async function fetchTokensFromParaSwap(chainId) {
 
 /**
  * Generates PSIN list with >$1M liquidity
- * @returns {Promise<object[]>}
+ * @returns {Promise<PsymmObj[]>}
  */
 async function generateISNList() {
   const LIQUIDITY_THRESHOLD = 1_000_000;
   const chains = [
     { id: 1, name: 'Ethereum' },
+    
     { id: 137, name: 'Polygon' },
     { id: 56, name: 'BSC' },
     { id: 10, name: 'Optimism' },
-    { id: 42161, name: 'Arbitrum' }
+    { id: 42161, name: 'Arbitrum' },
+    { id: 1101, name: 'Base' },
+    { id: 8453, name: 'Base' },
+    { id: 43114, name: 'Avalanche' }
   ];
 
+  1, 10, 56, 100, 137, 250, 1101, 8453, 42161, 43114
+
+  // Predefined price sources for all assets
   const defaultPriceSources = [
     '/paraswap/price',
     '/1inch/price',
@@ -68,7 +71,7 @@ async function generateISNList() {
   for (const chain of chains) {
     const tokens = await fetchTokensFromParaSwap(chain.id);
     for (const token of tokens) {
-      const key = `${token.symbol}-${token.name}`;
+      const key = `${token.symbol}-${token.name}`; // Unique key for token across chains
       if (!allTokens[key]) {
         allTokens[key] = {
           symbol: token.symbol,
@@ -84,9 +87,10 @@ async function generateISNList() {
   }
 
   const psinList = [];
+  let psinCounter = 1;
   for (const [_, token] of Object.entries(allTokens)) {
     if (token.totalLiquidityUSD >= LIQUIDITY_THRESHOLD) {
-      const psin = generatePSIN(psinCounter++);
+      const psin = `PSYMM${String(psinCounter++).padStart(8, '0')}`;
       psinList.push({
         PSIN: psin,
         AssetType: 'ERC20',
