@@ -264,10 +264,12 @@ class pSymmParty {
           // Logon message received
           timeLog(`Logon received from ${pubKey}`);
 
-          // Store counterparty keys
+          // Store counterparty keys and HeartBtInt
           session.counterpartyGuardianPubKey =
             message.message.StandardTrailer.PublicKey;
           session.counterpartyGuardianIP = message.message.GuardianIP;
+          session.heartBtInt = message.message.HeartBtInt || 30; // Default to 30 seconds if not provided
+          session.lastHeartbeat = Date.now();
           session.phase = "TRADE";
           this.sessions.set(pubKey, session);
 
@@ -292,11 +294,11 @@ class pSymmParty {
       StandardHeader: {
         BeginString: "pSymm.FIX.2.0",
         MsgType: "A",
-        DeploymentID: 101,
+        DeploymentID: 101, // todo
         SenderCompID: this.pubKey,
         TargetCompID: counterpartyPubKey,
         MsgSeqNum: session.msgSeqNum++,
-        CustodyID: "0xCustody123", // todo: PPM
+        CustodyID: "0xCustody123", // todo: custody ID
         SendingTime: (Date.now() * 1000000).toString(),
       },
       HeartBtInt: 10,
@@ -402,6 +404,63 @@ class pSymmParty {
   }
 
   /**
+   * Create a heartbeat message
+   */
+  createHeartbeatMessage(counterpartyPubKey) {
+    const session = this.sessions.get(counterpartyPubKey);
+    return {
+      StandardHeader: {
+        BeginString: "pSymm.FIX.2.0",
+        MsgType: "0", // Heartbeat message type
+        DeploymentID: 101,
+        SenderCompID: this.pubKey,
+        TargetCompID: counterpartyPubKey,
+        MsgSeqNum: session.msgSeqNum++,
+        CustodyID: "0xCustody123", // todo: custody
+        SendingTime: (Date.now() * 1000000).toString(),
+      },
+      StandardTrailer: {
+        // todo: sign
+        PublicKey: this.pubKey,
+        Signature: "0xSignature",
+      },
+    };
+  }
+
+  /**
+   * Heartbeat worker - sends heartbeat messages based on HeartBtInt
+   */
+  async heartbeatWorker() {
+    // Check every second for sessions that need heartbeats
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    const now = Date.now();
+
+    for (const [pubKey, session] of this.sessions.entries()) {
+      if (session.phase === "TRADE" && session.heartBtInt) {
+        // Convert heartBtInt from seconds to milliseconds
+        const heartbeatInterval = session.heartBtInt * 1000;
+
+        // Check if it's time to send a heartbeat
+        if (now - session.lastHeartbeat >= heartbeatInterval) {
+          timeLog(`Sending heartbeat to ${pubKey}`);
+
+          // Update last heartbeat time
+          session.lastHeartbeat = now;
+          this.sessions.set(pubKey, session);
+
+          // Push heartbeat message to output queue
+          this.outputQueue.push({
+            clientId: pubKey,
+            message: this.createHeartbeatMessage(pubKey),
+            destination: "user",
+          });
+        }
+      }
+    }
+  }
+
+  /**
    * Main execution loop
    */
   async run() {
@@ -416,6 +475,7 @@ class pSymmParty {
         this.handleGuardianQueue(),
         this.handleBinanceQueue(),
         this.handleBlockchainQueue(),
+        this.heartbeatWorker(),
       ]);
     }
   }

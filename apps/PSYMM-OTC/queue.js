@@ -5,6 +5,7 @@ class Queue extends EventEmitter {
   constructor() {
     super();
     this.items = [];
+    this.setMaxListeners(100); // Increase max listeners to prevent warnings
   }
 
   push(item) {
