@@ -5,17 +5,27 @@ class Queue extends EventEmitter {
   constructor() {
     super();
     this.items = [];
-    this.setMaxListeners(100); // Increase max listeners to prevent warnings
+    this.waiters = [];
   }
 
   push(item) {
     this.items.push(item);
-    this.emit("update", item);
+    // Resolve any pending waiters
+    if (this.waiters.length > 0) {
+      const resolve = this.waiters.shift();
+      resolve(item);
+    }
   }
 
   async waitForUpdate() {
+    // If there are already items, resolve immediately
+    if (this.items.length > 0) {
+      return Promise.resolve();
+    }
+    
+    // Otherwise, create a new promise and store the resolver
     return new Promise((resolve) => {
-      this.once("update", resolve);
+      this.waiters.push(resolve);
     });
   }
 

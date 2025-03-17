@@ -434,18 +434,39 @@ class pSymmParty {
   async run() {
     this.initServer();
 
-    // Process all queues in parallel
-    while (true) {
-      await Promise.race([
-        this.handleInputQueue(),
-        this.handleSequencerQueue(),
-        this.handleOutputQueue(),
-        this.handleGuardianQueue(),
-        this.handleBinanceQueue(),
-        this.handleBlockchainQueue(),
-        this.heartbeatWorker(),
-      ]);
-    }
+    // Start all queue handlers as separate tasks
+    this.startQueueHandlers();
+  }
+
+  startQueueHandlers() {
+    // avoid MaxListenersExceededWarning warning
+    this.startHandler(this.handleInputQueue.bind(this), "InputQueue");
+    this.startHandler(this.handleSequencerQueue.bind(this), "SequencerQueue");
+    this.startHandler(this.handleOutputQueue.bind(this), "OutputQueue");
+    this.startHandler(this.handleGuardianQueue.bind(this), "GuardianQueue");
+    this.startHandler(this.handleBinanceQueue.bind(this), "BinanceQueue");
+    this.startHandler(this.handleBlockchainQueue.bind(this), "BlockchainQueue");
+    this.startHandler(this.heartbeatWorker.bind(this), "HeartbeatWorker");
+  }
+
+  /**
+   * Start a handler in a continuous loop
+   */
+  startHandler(handlerFn, name) {
+    const runHandler = async () => {
+      try {
+        while (true) {
+          await handlerFn();
+        }
+      } catch (error) {
+        timeLog(`Error in ${name} handler:`, error);
+        // Restart the handler after a short delay
+        setTimeout(() => this.startHandler(handlerFn, name), 1000);
+      }
+    };
+
+    // Start the handler
+    runHandler();
   }
 }
 
