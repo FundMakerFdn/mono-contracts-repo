@@ -16,6 +16,7 @@ class DemoClient {
     this.connected = false;
     this.phase = "DISCONNECTED";
     this.msgSeqNum = 1;
+    this.custodyId = "0xDemoCustody123";
   }
 
   connect() {
@@ -27,7 +28,7 @@ class DemoClient {
       this.connected = true;
       this.phase = "CONNECTED";
 
-      // Start the protocol flow after a short delay
+      // Start by sending PPMTR after a short delay
       setTimeout(() => this.sendPPMTR(), 1000);
     });
 
@@ -59,7 +60,6 @@ class DemoClient {
 
     if (msgType === "PPMT") {
       console.log("Received PPM Template, sending Logon...");
-      this.phase = "PKXCHG";
       setTimeout(() => this.sendLogon(), 1000);
     } else if (msgType === "A") {
       console.log("Received Logon response, now in TRADE phase!");
@@ -94,7 +94,6 @@ class DemoClient {
     };
 
     this.ws.send(JSON.stringify(ppmtrMessage));
-    this.phase = "INIT";
   }
 
   sendLogon() {
@@ -111,7 +110,7 @@ class DemoClient {
           SenderCompID: DEMO_TRADER_PUBKEY,
           TargetCompID: "SOLVER",
           MsgSeqNum: this.msgSeqNum++,
-          CustodyID: "0xDemoCustody123",
+          CustodyID: this.custodyId,
           SendingTime: (Date.now() * 1000000).toString(),
         },
         HeartBtInt: 10,
@@ -141,7 +140,7 @@ class DemoClient {
           SenderCompID: DEMO_TRADER_PUBKEY,
           TargetCompID: "SOLVER",
           MsgSeqNum: this.msgSeqNum++,
-          CustodyID: "0xDemoCustody123",
+          CustodyID: this.custodyId,
           SendingTime: (Date.now() * 1000000).toString(),
         },
         ClOrdID: `order-${Date.now()}`,

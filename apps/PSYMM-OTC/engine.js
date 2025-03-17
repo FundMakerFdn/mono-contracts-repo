@@ -57,10 +57,13 @@ class pSymmParty {
 
     // Client connections
     this.clients = new Map(); // clientId -> websocket
-    this.ipStorage = new Map(); // pubKey -> IP address
+    this.nextClientId = 1; // For generating unique client IDs
+
+    // Client to session mapping
+    this.clientToSession = new Map(); // clientId -> custodyId
 
     // Sessions
-    this.sessions = new Map(); // (pubkey, custody id) => session object
+    this.sessions = new Map(); // custodyId => session object
   }
 
   /**
@@ -75,14 +78,13 @@ class pSymmParty {
     timeLog(`WebSocket server started on ${this.host}:${this.port}`);
 
     this.server.on("connection", (ws, req) => {
-      const clientId = req.socket.remoteAddress;
       const clientIp = req.socket.remoteAddress;
+      const clientId = this.nextClientId++;
 
       timeLog(`New client connected: ${clientId} from IP: ${clientIp}`);
       this.clients.set(clientId, ws);
 
-      // Initialize session for this client
-      this.initClientSession(clientId);
+      // No longer initializing session here - will wait for Logon
 
       ws.on("message", (message) => {
         try {
@@ -111,27 +113,52 @@ class pSymmParty {
   }
 
   /**
-   * Initialize a session for a new client
+   * Handle logon message
    */
-  initClientSession(clientId) {
-    // For now, we use clientId as the pubKey
-    const pubKey = clientId;
-    this.ipStorage.set(pubKey, clientId);
+  handleLogon(clientId, message) {
+    timeLog(`Logon received from ${clientId}`);
 
-    // Initialize session in INIT phase
-    this.sessions.set(pubKey, {
-      phase: "INIT",
-      pubKey,
-      custodyId: null,
+    const logonMsg = message.message;
+    const custodyId = logonMsg.StandardHeader.CustodyID;
+    const counterpartyPubKey = logonMsg.StandardHeader.SenderCompID;
+
+    // Create new session
+    const session = {
+      counterpartyPubKey,
+      custodyId,
       msgSeqNum: 1,
-    });
+      counterpartyGuardianPubKey: logonMsg.StandardTrailer.PublicKey,
+      counterpartyGuardianIP: logonMsg.GuardianIP,
+      heartBtInt: logonMsg.HeartBtInt || 30,
+      lastHeartbeat: Date.now(),
+    };
 
-    // Push initialization message to input queue
-    this.inputQueue.push({
+    // Store session
+    this.sessions.set(custodyId, session);
+    this.clientToSession.set(clientId, custodyId);
+
+    // Send logon response
+    this.outputQueue.push({
+      clientId,
+      message: this.createLogonMessage(counterpartyPubKey, custodyId),
+      destination: "user",
+    });
+  }
+
+  /**
+   * Handle PPMTR message
+   */
+  handlePPMTR(clientId, message) {
+    timeLog(`PPMTR received from ${clientId}`);
+
+    // Send PPM template
+    this.outputQueue.push({
       clientId,
       message: {
-        type: "init",
+        StandardHeader: { MsgType: "PPMT" },
+        PPMT: this.vm.ppmTemplate,
       },
+      destination: "user",
     });
   }
 
@@ -184,30 +211,40 @@ class pSymmParty {
       const { clientId, message } = this.sequencerQueue.shift();
       timeLog(`Sequencer processing message from ${clientId}`);
 
-      // Process message through VM or handle directly based on phase
-      const pubKey = clientId; // For now, clientId is the pubKey
-      const session = this.sessions.get(pubKey);
-
-      if (!session) {
-        timeLog(`No session found for ${pubKey}`);
+      // Check if this is a logon message
+      if (message.message?.StandardHeader?.MsgType === "A") {
+        this.handleLogon(clientId, message);
         continue;
       }
 
-      let responses = [];
-
-      if (session.phase === "INIT" || session.phase === "PKXCHG") {
-        // Handle INIT and PKXCHG phases directly in pSymmParty
-        responses = this.handlePreTradePhase(pubKey, message);
-      } else if (session.phase === "TRADE") {
-        // Pass to VM for TRADE phase
-        const vmResponse = this.vm.processMessage(pubKey, message);
-        if (vmResponse) {
-          responses = Array.isArray(vmResponse) ? vmResponse : [vmResponse];
-        }
+      // Check if this is a PPMTR message
+      if (message.message?.StandardHeader?.MsgType === "PPMTR") {
+        this.handlePPMTR(clientId, message);
+        continue;
       }
 
-      // Push responses to output queue
-      if (responses && responses.length > 0) {
+      // For all other messages, check if client has an established session
+      const custodyId = this.clientToSession.get(clientId);
+      if (!custodyId) {
+        timeLog(`No session found for client ${clientId}, ignoring message`);
+        continue;
+      }
+
+      const session = this.sessions.get(custodyId);
+      if (!session) {
+        timeLog(`Session ${custodyId} not found, ignoring message`);
+        continue;
+      }
+
+      // Process message through VM for established sessions
+      const vmResponse = this.vm.processMessage(
+        session.counterpartyPubKey,
+        message
+      );
+      if (vmResponse) {
+        const responses = Array.isArray(vmResponse) ? vmResponse : [vmResponse];
+
+        // Push responses to output queue
         for (const response of responses) {
           this.outputQueue.push({
             clientId: response.counterpartyPubKey || clientId,
@@ -220,76 +257,10 @@ class pSymmParty {
   }
 
   /**
-   * Handle pre-TRADE phase messages (INIT and PKXCHG)
-   */
-  handlePreTradePhase(pubKey, message) {
-    const session = this.sessions.get(pubKey);
-    const responses = [];
-
-    if (message.type === "init") {
-      // Initial connection, send PPMTR request
-      timeLog(`Initializing session for ${pubKey}`);
-
-      // For solver, wait for PPMTR from trader
-      // For trader, send PPMTR
-      // For now, assume we're the solver
-
-      // No response needed, wait for PPMTR from trader
-      return responses;
-    }
-
-    switch (session.phase) {
-      case "INIT":
-        if (message.message?.StandardHeader?.MsgType === "PPMTR") {
-          // PPM template request received
-          timeLog(`PPMTR received from ${pubKey}`);
-
-          // Update session phase
-          session.phase = "PKXCHG";
-          this.sessions.set(pubKey, session);
-
-          // Send PPM template
-          responses.push({
-            counterpartyPubKey: pubKey,
-            msg: {
-              StandardHeader: { MsgType: "PPMT" },
-              PPMT: this.vm.ppmTemplate,
-            },
-          });
-        }
-        break;
-
-      case "PKXCHG":
-        if (message.message?.StandardHeader?.MsgType === "A") {
-          // Logon message received
-          timeLog(`Logon received from ${pubKey}`);
-
-          // Store counterparty keys and HeartBtInt
-          session.counterpartyGuardianPubKey =
-            message.message.StandardTrailer.PublicKey;
-          session.counterpartyGuardianIP = message.message.GuardianIP;
-          session.heartBtInt = message.message.HeartBtInt || 30; // Default to 30 seconds if not provided
-          session.lastHeartbeat = Date.now();
-          session.phase = "TRADE";
-          this.sessions.set(pubKey, session);
-
-          // Send logon response
-          responses.push({
-            counterpartyPubKey: pubKey,
-            msg: this.createLogonMessage(pubKey),
-          });
-        }
-        break;
-    }
-
-    return responses;
-  }
-
-  /**
    * Create a logon message
    */
-  createLogonMessage(counterpartyPubKey) {
-    const session = this.sessions.get(counterpartyPubKey);
+  createLogonMessage(counterpartyPubKey, custodyId) {
+    const session = this.sessions.get(custodyId);
     return {
       StandardHeader: {
         BeginString: "pSymm.FIX.2.0",
@@ -298,7 +269,7 @@ class pSymmParty {
         SenderCompID: this.pubKey,
         TargetCompID: counterpartyPubKey,
         MsgSeqNum: session.msgSeqNum++,
-        CustodyID: "0xCustody123", // todo: custody ID
+        CustodyID: custodyId,
         SendingTime: (Date.now() * 1000000).toString(),
       },
       HeartBtInt: 10,
@@ -406,8 +377,8 @@ class pSymmParty {
   /**
    * Create a heartbeat message
    */
-  createHeartbeatMessage(counterpartyPubKey) {
-    const session = this.sessions.get(counterpartyPubKey);
+  createHeartbeatMessage(counterpartyPubKey, custodyId) {
+    const session = this.sessions.get(custodyId);
     return {
       StandardHeader: {
         BeginString: "pSymm.FIX.2.0",
@@ -416,7 +387,7 @@ class pSymmParty {
         SenderCompID: this.pubKey,
         TargetCompID: counterpartyPubKey,
         MsgSeqNum: session.msgSeqNum++,
-        CustodyID: "0xCustody123", // todo: custody
+        CustodyID: custodyId,
         SendingTime: (Date.now() * 1000000).toString(),
       },
       StandardTrailer: {
@@ -436,25 +407,42 @@ class pSymmParty {
 
     const now = Date.now();
 
-    for (const [pubKey, session] of this.sessions.entries()) {
-      if (session.phase === "TRADE" && session.heartBtInt) {
+    for (const [custodyId, session] of this.sessions.entries()) {
+      if (session.heartBtInt) {
         // Convert heartBtInt from seconds to milliseconds
         const heartbeatInterval = session.heartBtInt * 1000;
 
         // Check if it's time to send a heartbeat
         if (now - session.lastHeartbeat >= heartbeatInterval) {
-          timeLog(`Sending heartbeat to ${pubKey}`);
+          timeLog(`Sending heartbeat for session ${custodyId}`);
 
           // Update last heartbeat time
           session.lastHeartbeat = now;
-          this.sessions.set(pubKey, session);
+          this.sessions.set(custodyId, session);
 
-          // Push heartbeat message to output queue
-          this.outputQueue.push({
-            clientId: pubKey,
-            message: this.createHeartbeatMessage(pubKey),
-            destination: "user",
-          });
+          // Find clientId for this session
+          let targetClientId = null;
+          for (const [
+            clientId,
+            sessionCustodyId,
+          ] of this.clientToSession.entries()) {
+            if (sessionCustodyId === custodyId) {
+              targetClientId = clientId;
+              break;
+            }
+          }
+
+          if (targetClientId) {
+            // Push heartbeat message to output queue
+            this.outputQueue.push({
+              clientId: targetClientId,
+              message: this.createHeartbeatMessage(
+                session.counterpartyPubKey,
+                custodyId
+              ),
+              destination: "user",
+            });
+          }
         }
       }
     }
