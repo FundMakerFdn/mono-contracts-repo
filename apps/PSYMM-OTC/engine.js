@@ -2,9 +2,6 @@ const WebSocket = require("ws");
 const { Queue } = require("./queue");
 const custody = require("./otcVM");
 
-/**
- * Time logging utility
- */
 const timeLog = (...args) => {
   const stack = new Error().stack;
   const callerName = stack.split("\n")[2].trim().split(" ")[1];
@@ -30,7 +27,7 @@ class pSymmVM {
   processMessage(counterpartyPubKey, inputItem) {
     // This will be implemented in the future to handle TRADE phase messages
     timeLog(`VM processing message from ${counterpartyPubKey}`);
-    return null;
+    return [];
   }
 }
 
@@ -102,9 +99,6 @@ class pSymmParty {
     });
   }
 
-  /**
-   * Handle logon message
-   */
   handleLogon(clientId, message) {
     timeLog(`Logon received from ${clientId}`);
 
@@ -227,21 +221,17 @@ class pSymmParty {
       }
 
       // Process message through VM for established sessions
-      const vmResponse = this.vm.processMessage(
+      const responses = this.vm.processMessage(
         session.counterpartyPubKey,
         message
       );
-      if (vmResponse) {
-        const responses = Array.isArray(vmResponse) ? vmResponse : [vmResponse];
 
-        // Push responses to output queue
-        for (const response of responses) {
-          this.outputQueue.push({
-            clientId: response.counterpartyPubKey || clientId,
-            message: response.msg,
-            destination: response.destination || "user", // Default to user
-          });
-        }
+      for (const response of responses) {
+        this.outputQueue.push({
+          clientId: response.counterpartyPubKey || clientId,
+          message: response.msg,
+          destination: response.destination || "user", // Default to user
+        });
       }
     }
   }
