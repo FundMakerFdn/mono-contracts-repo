@@ -55,20 +55,12 @@ class pSymmParty {
     this.binanceQueue = new Queue();
     this.blockchainQueue = new Queue();
 
-    // Client connections
-    this.clients = new Map(); // clientId -> websocket
+    this.clients = new Map(); // clientId -> websocket connection
     this.nextClientId = 1; // For generating unique client IDs
-
-    // Client to session mapping
     this.clientToSession = new Map(); // clientId -> custodyId
-
-    // Sessions
     this.sessions = new Map(); // custodyId => session object
   }
 
-  /**
-   * Initialize WebSocket server
-   */
   initServer() {
     this.server = new WebSocket.Server({
       host: this.host,
@@ -83,8 +75,6 @@ class pSymmParty {
 
       timeLog(`New client connected: ${clientId} from IP: ${clientIp}`);
       this.clients.set(clientId, ws);
-
-      // No longer initializing session here - will wait for Logon
 
       ws.on("message", (message) => {
         try {
