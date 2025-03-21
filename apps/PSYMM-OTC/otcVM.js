@@ -16,13 +16,15 @@ const custody = {
       name: "GA1",
       pubKey: "0xGA1",
       type: "guardian",
-      toParty: "0xPartyA",
+      toParty: "A",
+      guardianIndex: 0,
     },
     {
-      name: "GB2",
-      pubKey: "0xGA2",
+      name: "GB1",
+      pubKey: "0xGB1",
       type: "guardian",
-      toParty: "0xPartyB",
+      toParty: "B",
+      guardianIndex: 0,
     },
     {
       name: "A+B", // trade
@@ -124,4 +126,3 @@ const custody = {
 //
 
 module.exports = custody;
-

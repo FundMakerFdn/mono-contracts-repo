@@ -28,8 +28,8 @@ class DemoClient {
       this.connected = true;
       this.phase = "CONNECTED";
 
-      // Start by sending PPMTR after a short delay
-      setTimeout(() => this.sendPPMTR(), 1000);
+      // Start by sending PPMH after a short delay
+      setTimeout(() => this.sendPPMH(), 1000);
     });
 
     this.ws.on("message", (data) => {
@@ -70,17 +70,16 @@ class DemoClient {
     }
   }
 
-  sendPPMTR() {
+  sendPPMH() {
     if (!this.connected) return;
 
-    console.log("Sending PPMTR (PPM Template Request)...");
+    console.log("Sending PPMH (PPM Template Request)...");
 
     const ppmtrMessage = {
       message: {
         StandardHeader: {
           BeginString: "pSymm.FIX.2.0",
-          MsgType: "PPMTR",
-          DeploymentID: 101,
+          MsgType: "PPMH",
           SenderCompID: DEMO_TRADER_PUBKEY,
           TargetCompID: "SOLVER",
           MsgSeqNum: this.msgSeqNum++,
@@ -106,7 +105,6 @@ class DemoClient {
         StandardHeader: {
           BeginString: "pSymm.FIX.2.0",
           MsgType: "A",
-          DeploymentID: 101,
           SenderCompID: DEMO_TRADER_PUBKEY,
           TargetCompID: "SOLVER",
           MsgSeqNum: this.msgSeqNum++,
@@ -114,7 +112,6 @@ class DemoClient {
           SendingTime: (Date.now() * 1000000).toString(),
         },
         HeartBtInt: 10,
-        GuardianIP: "192.168.1.100",
         StandardTrailer: {
           PublicKey: DEMO_TRADER_PUBKEY,
           Signature: "0xDemoSignature",
@@ -136,7 +133,6 @@ class DemoClient {
         StandardHeader: {
           BeginString: "pSymm.FIX.2.0",
           MsgType: "D", // New Order Single
-          DeploymentID: 101,
           SenderCompID: DEMO_TRADER_PUBKEY,
           TargetCompID: "SOLVER",
           MsgSeqNum: this.msgSeqNum++,
@@ -178,7 +174,8 @@ async function runDemo() {
     host: HOST,
     port: PORT,
     pubKey: "SOLVER",
-    ppmTemplate: custody.parties,
+    ppmTemplate: custody,
+    role: "solver",
   });
 
   // Start the server in the background

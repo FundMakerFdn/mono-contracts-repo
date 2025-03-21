@@ -17,9 +17,8 @@ const timeLog = (...args) => {
  */
 class pSymmVM {
   constructor(config = {}) {
-    this.sessions = {}; // counterpartyPubKey => session object
-    this.ppmStorage = config.ppmStorage || {};
-    this.guardianPubKey = config.guardianPubKey;
+    this.sessions = {}; // custody id => session object
+    this.guardianPubKeys = config.guardianPubKeys;
     this.pubKey = config.pubKey;
     this.ppmTemplate = config.ppmTemplate || [];
   }
@@ -56,6 +55,7 @@ class pSymmParty {
     this.nextClientId = 1; // For generating unique client IDs
     this.clientToSession = new Map(); // clientId -> custodyId
     this.sessions = new Map(); // custodyId => session object
+    this.role = role; // solver/trader
   }
 
   initServer() {
@@ -99,6 +99,44 @@ class pSymmParty {
     });
   }
 
+  getRoleKey(role) {
+    if (this.role == role) return this.pubKey;
+    else return this.counterpartyPubKey;
+  }
+  getPubKey(entry, nameType) {
+    if (entry.type == "solver" || entry.type == "trader") {
+      return getRoleKey(entry.type);
+    }
+    if (entry.type == "guardian") {
+      if (nameType.get(entry.toParty) == this.role) {
+        return this.guardianPubKeys[entry.guardianIndex];
+      } else return this.counterpartyGuardianPubKeys[entry.guardianIndex];
+    }
+    if (entry.type == "multisig") {
+      //aggregated
+      entry.name.split("+").map((name) => {
+        if (name[0] === "G") {
+          if (nameType.get(name[1]) == this.role) {
+            return "|".join(this.guardianPubKeys[entry.guardianIndex]);
+          } else
+            return "|".join(
+              this.counterpartyGuardianPubKeys[entry.guardianIndex]
+            );
+        } else return this.getRoleKey(nameType.get(name));
+      });
+    }
+  }
+
+  renderPPM(session) {
+    // copy PPM object
+    const PPM = JSON.parse(JSON.stringify(this.vm.ppmTemplate));
+    const nameType = new Map(); // name => role
+    for (let { name, type } of PPM.parties) {
+      nameType.set(name, type);
+    }
+    return;
+  }
+
   handleLogon(clientId, message) {
     timeLog(`Logon received from ${clientId}`);
 
@@ -112,10 +150,11 @@ class pSymmParty {
       custodyId,
       msgSeqNum: 1,
       counterpartyGuardianPubKey: logonMsg.StandardTrailer.PublicKey,
-      counterpartyGuardianIP: logonMsg.GuardianIP,
       heartBtInt: logonMsg.HeartBtInt || 30,
       lastHeartbeat: Date.now(),
+      PPM: null,
     };
+    session.PPM = this.vm.ppmTemplate; //renderPPM(session);
 
     // Store session
     this.sessions.set(custodyId, session);
@@ -130,10 +169,10 @@ class pSymmParty {
   }
 
   /**
-   * Handle PPMTR message
+   * Handle PPMHandshake message
    */
-  handlePPMTR(clientId, message) {
-    timeLog(`PPMTR received from ${clientId}`);
+  handlePPMHandshake(clientId, message) {
+    timeLog(`PPMHandshake received from ${clientId}`);
 
     // Send PPM template
     this.outputQueue.push({
@@ -201,9 +240,9 @@ class pSymmParty {
         continue;
       }
 
-      // Check if this is a PPMTR message
-      if (message.message?.StandardHeader?.MsgType === "PPMTR") {
-        this.handlePPMTR(clientId, message);
+      // Check if this is a PPMH message
+      if (message.message?.StandardHeader?.MsgType === "PPMH") {
+        this.handlePPMHandshake(clientId, message);
         continue;
       }
 
@@ -245,7 +284,6 @@ class pSymmParty {
       StandardHeader: {
         BeginString: "pSymm.FIX.2.0",
         MsgType: "A",
-        DeploymentID: 101, // todo
         SenderCompID: this.pubKey,
         TargetCompID: counterpartyPubKey,
         MsgSeqNum: session.msgSeqNum++,
@@ -363,7 +401,6 @@ class pSymmParty {
       StandardHeader: {
         BeginString: "pSymm.FIX.2.0",
         MsgType: "0", // Heartbeat message type
-        DeploymentID: 101,
         SenderCompID: this.pubKey,
         TargetCompID: counterpartyPubKey,
         MsgSeqNum: session.msgSeqNum++,
