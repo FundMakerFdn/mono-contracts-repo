@@ -111,6 +111,10 @@ class pSymmParty {
     }
   }
 
+  aggregatePubKeys(pubKeys) {
+    return pubKeys.join("");
+  }
+
   getPubKey(session, entry, nameType) {
     // For solver or trader types
     if (entry.type === "solver" || entry.type === "trader") {
@@ -141,9 +145,7 @@ class pSymmParty {
       }
 
       // Concatenate the pubKeys if we found any, otherwise use default
-      return pubKeys.length > 0
-        ? pubKeys.join("")
-        : entry.pubKey || "0xMultisigDefault";
+      return pubKeys.length > 0 ? this.aggregatePubKeys(pubKeys) : entry.pubKey;
     }
   }
 
