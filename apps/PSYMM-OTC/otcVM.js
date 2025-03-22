@@ -2,43 +2,36 @@ const custody = {
   parties: [
     {
       name: "A",
-      pubKey: "0xPartyA",
       address: "0xABCD",
       type: "trader",
     },
     {
       name: "B",
-      pubKey: "0xPartyB",
       address: "0xEF10",
       type: "solver",
     },
     {
       name: "GA1",
-      pubKey: "0xGA1",
       type: "guardian",
       toParty: "A",
       guardianIndex: 0,
     },
     {
       name: "GB1",
-      pubKey: "0xGB1",
       type: "guardian",
       toParty: "B",
       guardianIndex: 0,
     },
     {
       name: "A+B", // trade
-      pubKey: "0xAB1",
       type: "multisig",
     },
     {
       name: "A+B+GA", // withdraw to B
-      pubKey: "0xAB2",
       type: "multisig",
     },
     {
       name: "A+B+GB", // withdraw to A
-      pubKey: "0xAB3",
       type: "multisig",
     },
   ],

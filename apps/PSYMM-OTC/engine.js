@@ -53,9 +53,9 @@ class pSymmParty {
 
     this.clients = new Map(); // clientId -> websocket connection
     this.nextClientId = 1; // For generating unique client IDs
-    this.clientToSession = new Map(); // clientId -> custodyId
+    this.clientToCustodyId = new Map(); // clientId -> custodyId
     this.sessions = new Map(); // custodyId => session object
-    this.role = role; // solver/trader
+    this.role = config.role; // solver/trader
   }
 
   initServer() {
@@ -99,42 +99,87 @@ class pSymmParty {
     });
   }
 
-  getRoleKey(role) {
-    if (this.role == role) return this.pubKey;
-    else return this.counterpartyPubKey;
+  getRoleKey(session, role) {
+    if (this.role === role) return this.pubKey;
+    else return session.counterpartyPubKey;
   }
-  getPubKey(entry, nameType) {
-    if (entry.type == "solver" || entry.type == "trader") {
-      return getRoleKey(entry.type);
+  getRoleGuardians(session, role) {
+    if (role === this.role) {
+      return this.vm.guardianPubKeys;
+    } else {
+      return session.counterpartyGuardianPubKeys;
     }
-    if (entry.type == "guardian") {
-      if (nameType.get(entry.toParty) == this.role) {
-        return this.guardianPubKeys[entry.guardianIndex];
-      } else return this.counterpartyGuardianPubKeys[entry.guardianIndex];
+  }
+
+  getPubKey(session, entry, nameType) {
+    // For solver or trader types
+    if (entry.type === "solver" || entry.type === "trader") {
+      return this.getRoleKey(session, entry.type);
     }
-    if (entry.type == "multisig") {
-      //aggregated
-      entry.name.split("+").map((name) => {
-        if (name[0] === "G") {
-          if (nameType.get(name[1]) == this.role) {
-            return "|".join(this.guardianPubKeys[entry.guardianIndex]);
-          } else
-            return "|".join(
-              this.counterpartyGuardianPubKeys[entry.guardianIndex]
-            );
-        } else return this.getRoleKey(nameType.get(name));
-      });
+
+    // For guardian types
+    if (entry.type === "guardian") {
+      const partyRole = nameType.get(entry.toParty);
+      return this.getRoleGuardians(partyRole)[entry.guardianIndex];
+    }
+
+    // For multisig types
+    if (entry.type === "multisig") {
+      // Split the name by '+' and get the pubKey for each party
+      const parties = entry.name.split("+").map((name) => name.trim());
+      const pubKeys = [];
+
+      for (const partyName of parties) {
+        // Find the party in the PPM
+        if (!partyName.startsWith("G")) {
+          pubKeys.push(this.getRoleKey(session, nameType.get(partyName)));
+        } else {
+          const xxx = this.getRoleGuardians(
+            session,
+            nameType.get(partyName.slice(1))
+          );
+          console.log(xxx);
+          pubKeys.push(...xxx);
+        }
+      }
+
+      // Concatenate the pubKeys if we found any, otherwise use default
+      return pubKeys.length > 0
+        ? pubKeys.join("")
+        : entry.pubKey || "0xMultisigDefault";
     }
   }
 
   renderPPM(session) {
-    // copy PPM object
-    const PPM = JSON.parse(JSON.stringify(this.vm.ppmTemplate));
-    const nameType = new Map(); // name => role
-    for (let { name, type } of PPM.parties) {
-      nameType.set(name, type);
+    try {
+      // copy PPM object
+      const PPM = JSON.parse(JSON.stringify(this.vm.ppmTemplate));
+
+      // Create a map of name to type
+      const nameType = new Map(); // name => role
+      if (PPM.parties && Array.isArray(PPM.parties)) {
+        for (let party of PPM.parties) {
+          if (party.name && party.type) {
+            nameType.set(party.name, party.type);
+          }
+        }
+
+        // Update pubKeys
+        for (let entry of PPM.parties) {
+          try {
+            entry.pubKey = this.getPubKey(session, entry, nameType);
+          } catch (err) {
+            timeLog(`Error getting pubKey for ${entry.name}: ${err.message}`);
+            entry.pubKey = entry.pubKey || "0xDefaultPubKey";
+          }
+        }
+      }
+
+      return PPM;
+    } catch (err) {
+      timeLog(`Error rendering PPM: ${err.message}`);
+      return this.vm.ppmTemplate; // Return original template as fallback
     }
-    return;
   }
 
   handleLogon(clientId, message) {
@@ -149,16 +194,17 @@ class pSymmParty {
       counterpartyPubKey,
       custodyId,
       msgSeqNum: 1,
-      counterpartyGuardianPubKey: logonMsg.StandardTrailer.PublicKey,
+      counterpartyGuardianPubKeys: logonMsg.GuardianPubKeys,
       heartBtInt: logonMsg.HeartBtInt || 30,
       lastHeartbeat: Date.now(),
       PPM: null,
     };
-    session.PPM = this.vm.ppmTemplate; //renderPPM(session);
+    session.PPM = this.renderPPM(session);
+    console.log(session.PPM);
 
     // Store session
     this.sessions.set(custodyId, session);
-    this.clientToSession.set(clientId, custodyId);
+    this.clientToCustodyId.set(clientId, custodyId);
 
     // Send logon response
     this.outputQueue.push({
@@ -247,7 +293,7 @@ class pSymmParty {
       }
 
       // For all other messages, check if client has an established session
-      const custodyId = this.clientToSession.get(clientId);
+      const custodyId = this.clientToCustodyId.get(clientId);
       if (!custodyId) {
         timeLog(`No session found for client ${clientId}, ignoring message`);
         continue;
@@ -442,7 +488,7 @@ class pSymmParty {
           for (const [
             clientId,
             sessionCustodyId,
-          ] of this.clientToSession.entries()) {
+          ] of this.clientToCustodyId.entries()) {
             if (sessionCustodyId === custodyId) {
               targetClientId = clientId;
               break;

@@ -4,7 +4,7 @@ const { pSymmParty } = require("./engine");
 // Configuration
 const HOST = "127.0.0.1";
 const PORT = 8080;
-const DEMO_TRADER_PUBKEY = "0xTraderPubKey123";
+const DEMO_TRADER_PUBKEY = "0xTraderPubKey";
 
 /**
  * Demo client that connects to pSymmParty and progresses through protocol phases
@@ -112,6 +112,7 @@ class DemoClient {
           SendingTime: (Date.now() * 1000000).toString(),
         },
         HeartBtInt: 10,
+        GuardianPubKeys: ["0xTraderGuardian1"],
         StandardTrailer: {
           PublicKey: DEMO_TRADER_PUBKEY,
           Signature: "0xDemoSignature",
@@ -173,7 +174,8 @@ async function runDemo() {
   const party = new pSymmParty({
     host: HOST,
     port: PORT,
-    pubKey: "SOLVER",
+    pubKey: "0xSolverPubKey",
+    guardianPubKeys: ["0xSolverGuardian1"],
     ppmTemplate: custody,
     role: "solver",
   });
