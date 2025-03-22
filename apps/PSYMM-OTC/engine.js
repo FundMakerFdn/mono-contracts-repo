@@ -124,7 +124,6 @@ class pSymmParty {
 
     if (entry.type === "guardian") {
       const partyRole = nameType.get(entry.toParty);
-      console.log(entry, partyRole);
       return this.getRoleGuardians(session, partyRole)[entry.guardianIndex];
     }
 
