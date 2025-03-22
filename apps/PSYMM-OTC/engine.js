@@ -134,12 +134,9 @@ class pSymmParty {
         if (!partyName.startsWith("G")) {
           pubKeys.push(this.getRoleKey(session, nameType.get(partyName)));
         } else {
-          const xxx = this.getRoleGuardians(
-            session,
-            nameType.get(partyName.slice(1))
+          pubKeys.push(
+            ...this.getRoleGuardians(session, nameType.get(partyName.slice(1)))
           );
-          console.log(xxx);
-          pubKeys.push(...xxx);
         }
       }
 
