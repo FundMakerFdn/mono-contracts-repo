@@ -111,17 +111,17 @@ class pSymmParty {
     }
   }
 
+  // For Schnorr: mod add keys
   aggregatePubKeys(pubKeys) {
     return pubKeys.join("");
   }
 
+  // get pubkey based on our role and key name (A/B/...)
   getPubKey(session, entry, nameType) {
-    // For solver or trader types
     if (entry.type === "solver" || entry.type === "trader") {
       return this.getRoleKey(session, entry.type);
     }
 
-    // For guardian types
     if (entry.type === "guardian") {
       const partyRole = nameType.get(entry.toParty);
       return this.getRoleGuardians(partyRole)[entry.guardianIndex];
@@ -144,7 +144,6 @@ class pSymmParty {
         }
       }
 
-      // Concatenate the pubKeys if we found any, otherwise use default
       return pubKeys.length > 0 ? this.aggregatePubKeys(pubKeys) : entry.pubKey;
     }
   }
@@ -163,7 +162,6 @@ class pSymmParty {
           }
         }
 
-        // Update pubKeys
         for (let entry of PPM.parties) {
           try {
             entry.pubKey = this.getPubKey(session, entry, nameType);
