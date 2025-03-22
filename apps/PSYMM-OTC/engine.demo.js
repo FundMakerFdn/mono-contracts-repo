@@ -5,6 +5,7 @@ const { pSymmParty } = require("./engine");
 const HOST = "127.0.0.1";
 const PORT = 8080;
 const DEMO_TRADER_PUBKEY = "0xTraderPubKey";
+const DEMO_SOLVER_PUBKEY = "0xSolverPubKey";
 
 /**
  * Demo client that connects to pSymmParty and progresses through protocol phases
@@ -81,7 +82,7 @@ class DemoClient {
           BeginString: "pSymm.FIX.2.0",
           MsgType: "PPMH",
           SenderCompID: DEMO_TRADER_PUBKEY,
-          TargetCompID: "SOLVER",
+          TargetCompID: DEMO_SOLVER_PUBKEY,
           MsgSeqNum: this.msgSeqNum++,
           SendingTime: (Date.now() * 1000000).toString(),
         },
@@ -106,7 +107,7 @@ class DemoClient {
           BeginString: "pSymm.FIX.2.0",
           MsgType: "A",
           SenderCompID: DEMO_TRADER_PUBKEY,
-          TargetCompID: "SOLVER",
+          TargetCompID: DEMO_SOLVER_PUBKEY,
           MsgSeqNum: this.msgSeqNum++,
           CustodyID: this.custodyId,
           SendingTime: (Date.now() * 1000000).toString(),
@@ -135,7 +136,7 @@ class DemoClient {
           BeginString: "pSymm.FIX.2.0",
           MsgType: "D", // New Order Single
           SenderCompID: DEMO_TRADER_PUBKEY,
-          TargetCompID: "SOLVER",
+          TargetCompID: DEMO_SOLVER_PUBKEY,
           MsgSeqNum: this.msgSeqNum++,
           CustodyID: this.custodyId,
           SendingTime: (Date.now() * 1000000).toString(),
