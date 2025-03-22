@@ -31,10 +31,10 @@ class pSymmVM {
 }
 
 /**
- * pSymmParty class - implements the system architecture
+ * pSymmServer class - implements the system architecture
  * Handles connections, queues, and message flow according to the architecture diagram
  */
-class pSymmParty {
+class pSymmServer {
   constructor(config = {}) {
     // Server configuration
     this.host = config.host || "127.0.0.1";
@@ -550,4 +550,4 @@ class pSymmParty {
   }
 }
 
-module.exports = { pSymmVM, pSymmParty, timeLog };
+module.exports = { pSymmVM, pSymmServer, timeLog };

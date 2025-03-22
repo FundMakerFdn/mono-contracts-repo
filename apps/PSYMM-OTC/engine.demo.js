@@ -1,5 +1,5 @@
 const WebSocket = require("ws");
-const { pSymmParty } = require("./engine");
+const { pSymmServer } = require("./engine");
 
 // Configuration
 const HOST = "127.0.0.1";
@@ -8,7 +8,7 @@ const DEMO_TRADER_PUBKEY = "0xTraderPubKey";
 const DEMO_SOLVER_PUBKEY = "0xSolverPubKey";
 
 /**
- * Demo client that connects to pSymmParty and progresses through protocol phases
+ * Demo client that connects to pSymmServer and progresses through protocol phases
  */
 class DemoClient {
   constructor(url) {
@@ -74,9 +74,9 @@ class DemoClient {
   sendPPMH() {
     if (!this.connected) return;
 
-    console.log("Sending PPMH (PPM Template Request)...");
+    console.log("Sending PPMH (PPM Handshake)...");
 
-    const ppmtrMessage = {
+    const ppmhMessage = {
       message: {
         StandardHeader: {
           BeginString: "pSymm.FIX.2.0",
@@ -93,7 +93,7 @@ class DemoClient {
       },
     };
 
-    this.ws.send(JSON.stringify(ppmtrMessage));
+    this.ws.send(JSON.stringify(ppmhMessage));
   }
 
   sendLogon() {
@@ -169,10 +169,10 @@ class DemoClient {
  * Main demo function
  */
 async function runDemo() {
-  // Start the pSymmParty server
-  console.log("Starting pSymmParty server...");
+  // Start the pSymmServer server
+  console.log("Starting pSymmServer server...");
   const custody = require("./otcVM");
-  const party = new pSymmParty({
+  const party = new pSymmServer({
     host: HOST,
     port: PORT,
     pubKey: "0xSolverPubKey",
