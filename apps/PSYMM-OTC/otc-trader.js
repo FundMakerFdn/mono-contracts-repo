@@ -1,10 +1,11 @@
+const { keyFromSeed } = require("./common");
 const WebSocket = require("ws");
 
-// Configuration
-const HOST = "127.0.0.1";
+const HOST = "127.0.0.1"; // connect to
 const PORT = 8080;
-const TRADER_PUBKEY = "0xTraderPubKey";
-const SOLVER_PUBKEY = "0xSolverPubKey";
+const TRADER_PUBKEY = keyFromSeed(2).pubKey;
+const SOLVER_PUBKEY = keyFromSeed(0).pubKey;
+const GUARDIANS = [keyFromSeed(3).pubKey];
 
 /**
  * Trader client that connects to pSymmServer and progresses through protocol phases
@@ -16,7 +17,8 @@ class TraderClient {
     this.connected = false;
     this.phase = "DISCONNECTED";
     this.msgSeqNum = 1;
-    this.custodyId = "0xDemoCustody123";
+    this.custodyId =
+      "0x0000000000000000000000000000000000000000000000000000000000000001";
   }
 
   connect() {
@@ -112,7 +114,7 @@ class TraderClient {
           SendingTime: (Date.now() * 1000000).toString(),
         },
         HeartBtInt: 10,
-        GuardianPubKeys: ["0xTraderGuardian1"],
+        GuardianPubKeys: GUARDIANS,
         StandardTrailer: {
           PublicKey: TRADER_PUBKEY,
           Signature: "0xDemoSignature",

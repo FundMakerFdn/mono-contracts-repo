@@ -1,6 +1,8 @@
 const WebSocket = require("ws");
 const { Queue } = require("./queue");
 const custody = require("./otcVM");
+const { aggregatePublicKeys, signMessage } = require("../../libs/schnorr");
+const { bytesToHex } = require("viem");
 
 const timeLog = (...args) => {
   const stack = new Error().stack;
@@ -42,7 +44,8 @@ class pSymmServer {
 
     // Core components
     this.vm = config.vm || new pSymmVM(config);
-    this.pubKey = config.pubKey || "0xDefaultPubKey";
+    this.privKey = config.privKey;
+    this.pubKey = config.pubKey;
 
     this.inputQueue = new Queue();
     this.sequencerQueue = new Queue();
@@ -111,9 +114,10 @@ class pSymmServer {
     }
   }
 
-  // For Schnorr: mod add keys
   aggregatePubKeys(pubKeys) {
-    return pubKeys.join("");
+    return bytesToHex(
+      aggregatePublicKeys(pubKeys).aggregatedKey.toRawBytes(true)
+    );
   }
 
   // get pubkey based on our role and key name (A/B/...)
@@ -167,7 +171,6 @@ class pSymmServer {
             entry.pubKey = this.getPubKey(session, entry, nameType);
           } catch (err) {
             timeLog(`Error getting pubKey for ${entry.name}: ${err.message}`);
-            entry.pubKey = entry.pubKey || "0xDefaultPubKey";
           }
         }
       }
@@ -238,9 +241,6 @@ class pSymmServer {
       timeLog(`Invalid message from ${clientId}: Message is empty`);
       return false;
     }
-
-    // In a real implementation, would verify with PPM Storage
-    // and store message to Custody Storage
 
     timeLog(`Message from ${clientId} verified`);
     return true;
@@ -335,9 +335,8 @@ class pSymmServer {
       },
       HeartBtInt: 10,
       StandardTrailer: {
-        // todo: sign
         PublicKey: this.pubKey,
-        Signature: "0xSignature",
+        Signature: {}, // Will be filled in handleGuardianQueue
       },
     };
   }
@@ -398,7 +397,32 @@ class pSymmServer {
       if (this.clients.has(clientId)) {
         const ws = this.clients.get(clientId);
         if (ws.readyState === WebSocket.OPEN) {
-          timeLog(`Sending response to ${clientId}`);
+          // Sign the message using Schnorr
+          const msgBytes = new TextEncoder().encode(JSON.stringify(message));
+          const signature = signMessage(msgBytes, this.privKey);
+
+          // Add signature components to StandardTrailer if it exists
+          if (message.StandardTrailer) {
+            message.StandardTrailer.PublicKey = this.pubKey;
+            message.StandardTrailer.Signature = {
+              R: signature.R.toHex
+                ? signature.R.toHex()
+                : signature.R.toString(),
+              s: signature.s.toString(),
+              e: signature.challenge.toString(),
+            };
+          } else if (message.message && message.message.StandardTrailer) {
+            message.message.StandardTrailer.PublicKey = this.pubKey;
+            message.message.StandardTrailer.Signature = {
+              R: signature.R.toHex
+                ? signature.R.toHex()
+                : signature.R.toString(),
+              s: signature.s.toString(),
+              e: signature.challenge.toString(),
+            };
+          }
+
+          timeLog(`Sending signed response to ${clientId}`);
           ws.send(JSON.stringify(message));
         } else {
           timeLog(`Client ${clientId} connection not open, dropping message`);
@@ -451,9 +475,8 @@ class pSymmServer {
         SendingTime: (Date.now() * 1000000).toString(),
       },
       StandardTrailer: {
-        // todo: sign
         PublicKey: this.pubKey,
-        Signature: "0xSignature",
+        Signature: {}, // Will be filled in handleGuardianQueue
       },
     };
   }

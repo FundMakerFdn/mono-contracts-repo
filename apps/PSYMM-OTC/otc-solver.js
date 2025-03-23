@@ -1,9 +1,10 @@
 const { pSymmServer } = require("./engine");
+const { keyFromSeed } = require("./common");
 
-// Configuration
-const HOST = "127.0.0.1";
+const HOST = "127.0.0.1"; // host on
 const PORT = 8080;
-const SOLVER_PUBKEY = "0xSolverPubKey";
+const { privKey: SOLVER_PRIVKEY, pubKey: SOLVER_PUBKEY } = keyFromSeed(0);
+const GUARDIANS = [keyFromSeed(1).pubKey];
 
 /**
  * Main solver function
@@ -15,8 +16,9 @@ async function runSolver() {
   const party = new pSymmServer({
     host: HOST,
     port: PORT,
-    pubKey: SOLVER_PUBKEY,
-    guardianPubKeys: ["0xSolverGuardian1"],
+    privKey: SOLVER_PRIVKEY,
+    pubKey: SOLVER_PUBKEY, // can be derived from privKey
+    guardianPubKeys: GUARDIANS,
     ppmTemplate: custody,
     role: "solver",
   });
