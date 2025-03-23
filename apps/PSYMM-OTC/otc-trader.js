@@ -5,8 +5,8 @@ const { signMessage } = require("@fundmaker/schnorr");
 const HOST = "127.0.0.1"; // connect to
 const PORT = 8080;
 const { privKey: TRADER_PRIVKEY, pubKey: TRADER_PUBKEY } = keyFromSeed(2);
-const SOLVER_PUBKEY = keyFromSeed(0).pubKey;
-const GUARDIANS = [keyFromSeed(3).pubKey];
+const SOLVER_PUBKEY = keyFromSeed(1).pubKey;
+const GUARDIANS = [keyFromSeed(4).pubKey];
 
 /**
  * Trader client that connects to pSymmServer and progresses through protocol phases
@@ -78,24 +78,24 @@ class TraderClient {
     if (!message.StandardTrailer) {
       message.StandardTrailer = {};
     }
-    
+
     // Create a copy of the message without the signature for signing
     const msgCopy = JSON.parse(JSON.stringify(message));
     msgCopy.StandardTrailer = {}; // Empty trailer for signing
-    
+
     // Convert message to bytes for signing
     const msgBytes = new TextEncoder().encode(JSON.stringify(msgCopy));
-    
+
     // Sign the message using Schnorr
     const signature = signMessage(msgBytes, TRADER_PRIVKEY);
-    
+
     // Add signature components to StandardTrailer
     message.StandardTrailer.PublicKey = TRADER_PUBKEY;
     message.StandardTrailer.Signature = {
       s: signature.s.toString(),
       e: signature.challenge.toString(),
     };
-    
+
     return message;
   }
 
@@ -112,7 +112,7 @@ class TraderClient {
         TargetCompID: SOLVER_PUBKEY,
         MsgSeqNum: this.msgSeqNum++,
         SendingTime: (Date.now() * 1000000).toString(),
-      }
+      },
     };
 
     // Sign the message
@@ -137,7 +137,7 @@ class TraderClient {
         SendingTime: (Date.now() * 1000000).toString(),
       },
       HeartBtInt: 10,
-      GuardianPubKeys: GUARDIANS
+      GuardianPubKeys: GUARDIANS,
     };
 
     // Sign the message
@@ -168,7 +168,7 @@ class TraderClient {
       OrderQty: "1.0",
       OrdType: "2", // Limit
       Price: "50000.00",
-      TimeInForce: "1" // Good Till Cancel
+      TimeInForce: "1", // Good Till Cancel
     };
 
     // Sign the message
