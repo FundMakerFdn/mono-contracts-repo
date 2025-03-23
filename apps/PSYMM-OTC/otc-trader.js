@@ -1,16 +1,15 @@
 const WebSocket = require("ws");
-const { pSymmServer } = require("./engine");
 
 // Configuration
 const HOST = "127.0.0.1";
 const PORT = 8080;
-const DEMO_TRADER_PUBKEY = "0xTraderPubKey";
-const DEMO_SOLVER_PUBKEY = "0xSolverPubKey";
+const TRADER_PUBKEY = "0xTraderPubKey";
+const SOLVER_PUBKEY = "0xSolverPubKey";
 
 /**
- * Demo client that connects to pSymmServer and progresses through protocol phases
+ * Trader client that connects to pSymmServer and progresses through protocol phases
  */
-class DemoClient {
+class TraderClient {
   constructor(url) {
     this.url = url;
     this.ws = null;
@@ -81,13 +80,13 @@ class DemoClient {
         StandardHeader: {
           BeginString: "pSymm.FIX.2.0",
           MsgType: "PPMH",
-          SenderCompID: DEMO_TRADER_PUBKEY,
-          TargetCompID: DEMO_SOLVER_PUBKEY,
+          SenderCompID: TRADER_PUBKEY,
+          TargetCompID: SOLVER_PUBKEY,
           MsgSeqNum: this.msgSeqNum++,
           SendingTime: (Date.now() * 1000000).toString(),
         },
         StandardTrailer: {
-          PublicKey: DEMO_TRADER_PUBKEY,
+          PublicKey: TRADER_PUBKEY,
           Signature: "0xDemoSignature",
         },
       },
@@ -106,8 +105,8 @@ class DemoClient {
         StandardHeader: {
           BeginString: "pSymm.FIX.2.0",
           MsgType: "A",
-          SenderCompID: DEMO_TRADER_PUBKEY,
-          TargetCompID: DEMO_SOLVER_PUBKEY,
+          SenderCompID: TRADER_PUBKEY,
+          TargetCompID: SOLVER_PUBKEY,
           MsgSeqNum: this.msgSeqNum++,
           CustodyID: this.custodyId,
           SendingTime: (Date.now() * 1000000).toString(),
@@ -115,7 +114,7 @@ class DemoClient {
         HeartBtInt: 10,
         GuardianPubKeys: ["0xTraderGuardian1"],
         StandardTrailer: {
-          PublicKey: DEMO_TRADER_PUBKEY,
+          PublicKey: TRADER_PUBKEY,
           Signature: "0xDemoSignature",
         },
       },
@@ -135,8 +134,8 @@ class DemoClient {
         StandardHeader: {
           BeginString: "pSymm.FIX.2.0",
           MsgType: "D", // New Order Single
-          SenderCompID: DEMO_TRADER_PUBKEY,
-          TargetCompID: DEMO_SOLVER_PUBKEY,
+          SenderCompID: TRADER_PUBKEY,
+          TargetCompID: SOLVER_PUBKEY,
           MsgSeqNum: this.msgSeqNum++,
           CustodyID: this.custodyId,
           SendingTime: (Date.now() * 1000000).toString(),
@@ -149,7 +148,7 @@ class DemoClient {
         Price: "50000.00",
         TimeInForce: "1", // Good Till Cancel
         StandardTrailer: {
-          PublicKey: DEMO_TRADER_PUBKEY,
+          PublicKey: TRADER_PUBKEY,
           Signature: "0xDemoSignature",
         },
       },
@@ -166,40 +165,20 @@ class DemoClient {
 }
 
 /**
- * Main demo function
+ * Main trader function
  */
-async function runDemo() {
-  // Start the pSymmServer server
-  console.log("Starting pSymmServer server...");
-  const custody = require("./otcVM");
-  const party = new pSymmServer({
-    host: HOST,
-    port: PORT,
-    pubKey: "0xSolverPubKey",
-    guardianPubKeys: ["0xSolverGuardian1"],
-    ppmTemplate: custody,
-    role: "solver",
-  });
-
-  // Start the server in the background
-  const serverPromise = party.run().catch((err) => {
-    console.error("Server error:", err);
-  });
-
-  // Give the server a moment to start up
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  // Create and connect a demo client
-  const client = new DemoClient(`ws://${HOST}:${PORT}`);
+async function runTrader() {
+  // Create and connect a trader client
+  const client = new TraderClient(`ws://${HOST}:${PORT}`);
   client.connect();
 
   // Keep the demo running for a while
-  console.log("Demo running. Press Ctrl+C to exit.");
+  console.log("Trader client running. Press Ctrl+C to exit.");
 }
 
-// Run the demo if this file is executed directly
+// Run the trader if this file is executed directly
 if (require.main === module) {
-  runDemo();
+  runTrader();
 }
 
-module.exports = { DemoClient, runDemo };
+module.exports = { TraderClient, runTrader };
