@@ -8,14 +8,20 @@ contract PartyRegistry {
         string ipAddress;
         uint8 partyType;
     }
+	struct GuardianData {
+		string ipGuardian;
+		string ipParty;
+	}
 
     event PartyRegistered(string role, address indexed party, string ipAddress);
     event PartyRemoved(address indexed party);
     event ReputationSet(address indexed party, address indexed kycProvider, uint256 score);
+	event GuardianDataRegistered(string ipGuardian, string ipParty);
 
     mapping(address => PartyData) public partys;
-    mapping(address => mapping( address => uint256)) public reputation;
-    mapping(address => mapping( address => uint8)) public kycTypes;
+    mapping(address => GuardianData) public guardians;
+    mapping(address => mapping(address => uint256)) public reputation;
+    mapping(address => mapping(address => uint8)) public kycTypes;
     
     /// @notice Register as a party with IP address
     /// @param partyData The party's data
@@ -23,6 +29,10 @@ contract PartyRegistry {
         partys[msg.sender] = partyData;
         emit PartyRegistered(partyData.role, msg.sender, partyData.ipAddress);
     }
+	function registerGuardianData(GuardianData memory guardianData) external {
+		guardians[msg.sender] = guardianData;
+		emit GuardianDataRegistered(guardianData.ipGuardian, guardianData.ipParty);
+	}
 
     /// @notice Set KYC type for a party
     /// @param kycProvider The KYC provider's address

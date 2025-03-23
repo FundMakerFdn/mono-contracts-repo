@@ -49,14 +49,25 @@ async function deployFixture() {
   // Register parties in the registry
   const partyAData = {
     role: "Trader",
-    ipAddress: "127.0.0.1",
+    ipAddress: "127.0.0.2",
     partyType: 1,
   };
 
   const partyBData = {
     role: "Solver",
-    ipAddress: "127.0.0.2",
+    ipAddress: "127.0.0.1",
     partyType: 2,
+  };
+
+  // Guardian data for solver and trader
+  const guardianSolverData = {
+    ipGuardian: "127.0.0.3",
+    ipParty: "127.0.0.1", // Solver's IP
+  };
+
+  const guardianTraderData = {
+    ipGuardian: "127.0.0.4",
+    ipParty: "127.0.0.2", // Trader's IP
   };
 
   // Register partyA
@@ -67,6 +78,16 @@ async function deployFixture() {
   // Register partyB
   await partyRegistry.write.registerParty([partyBData], {
     account: partyB.account,
+  });
+
+  // Register guardian data for solver
+  await partyRegistry.write.registerGuardianData([guardianSolverData], {
+    account: partyB.account,
+  });
+
+  // Register guardian data for trader
+  await partyRegistry.write.registerGuardianData([guardianTraderData], {
+    account: partyA.account,
   });
 
   // Generate custody IDs
@@ -81,6 +102,8 @@ async function deployFixture() {
     partyA,
     partyB,
     USDC_PRECISION,
+    guardianSolverData,
+    guardianTraderData,
     // custodyId_A,
     // custodyId_B,
   };
@@ -162,6 +185,8 @@ async function main() {
     partyA: contracts.partyA.account.address,
     partyB: contracts.partyB.account.address,
     USDC_PRECISION: contracts.USDC_PRECISION,
+    guardianSolver: contracts.guardianSolverData,
+    guardianTrader: contracts.guardianTraderData,
   };
 
   // Write to file
