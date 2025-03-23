@@ -1,9 +1,10 @@
 const { keyFromSeed } = require("./common");
 const WebSocket = require("ws");
+const { signMessage } = require("@fundmaker/schnorr");
 
 const HOST = "127.0.0.1"; // connect to
 const PORT = 8080;
-const TRADER_PUBKEY = keyFromSeed(2).pubKey;
+const { privKey: TRADER_PRIVKEY, pubKey: TRADER_PUBKEY } = keyFromSeed(2);
 const SOLVER_PUBKEY = keyFromSeed(0).pubKey;
 const GUARDIANS = [keyFromSeed(3).pubKey];
 
@@ -72,27 +73,50 @@ class TraderClient {
     }
   }
 
+  signMessage(message) {
+    // Ensure StandardTrailer exists
+    if (!message.StandardTrailer) {
+      message.StandardTrailer = {};
+    }
+    
+    // Create a copy of the message without the signature for signing
+    const msgCopy = JSON.parse(JSON.stringify(message));
+    msgCopy.StandardTrailer = {}; // Empty trailer for signing
+    
+    // Convert message to bytes for signing
+    const msgBytes = new TextEncoder().encode(JSON.stringify(msgCopy));
+    
+    // Sign the message using Schnorr
+    const signature = signMessage(msgBytes, TRADER_PRIVKEY);
+    
+    // Add signature components to StandardTrailer
+    message.StandardTrailer.PublicKey = TRADER_PUBKEY;
+    message.StandardTrailer.Signature = {
+      s: signature.s.toString(),
+      e: signature.challenge.toString(),
+    };
+    
+    return message;
+  }
+
   sendPPMH() {
     if (!this.connected) return;
 
     console.log("Sending PPMH (PPM Handshake)...");
 
-    const ppmhMessage = {
-      message: {
-        StandardHeader: {
-          BeginString: "pSymm.FIX.2.0",
-          MsgType: "PPMH",
-          SenderCompID: TRADER_PUBKEY,
-          TargetCompID: SOLVER_PUBKEY,
-          MsgSeqNum: this.msgSeqNum++,
-          SendingTime: (Date.now() * 1000000).toString(),
-        },
-        StandardTrailer: {
-          PublicKey: TRADER_PUBKEY,
-          Signature: "0xDemoSignature",
-        },
-      },
+    let ppmhMessage = {
+      StandardHeader: {
+        BeginString: "pSymm.FIX.2.0",
+        MsgType: "PPMH",
+        SenderCompID: TRADER_PUBKEY,
+        TargetCompID: SOLVER_PUBKEY,
+        MsgSeqNum: this.msgSeqNum++,
+        SendingTime: (Date.now() * 1000000).toString(),
+      }
     };
+
+    // Sign the message
+    ppmhMessage = this.signMessage(ppmhMessage);
 
     this.ws.send(JSON.stringify(ppmhMessage));
   }
@@ -102,25 +126,22 @@ class TraderClient {
 
     console.log("Sending Logon message...");
 
-    const logonMessage = {
-      message: {
-        StandardHeader: {
-          BeginString: "pSymm.FIX.2.0",
-          MsgType: "A",
-          SenderCompID: TRADER_PUBKEY,
-          TargetCompID: SOLVER_PUBKEY,
-          MsgSeqNum: this.msgSeqNum++,
-          CustodyID: this.custodyId,
-          SendingTime: (Date.now() * 1000000).toString(),
-        },
-        HeartBtInt: 10,
-        GuardianPubKeys: GUARDIANS,
-        StandardTrailer: {
-          PublicKey: TRADER_PUBKEY,
-          Signature: "0xDemoSignature",
-        },
+    let logonMessage = {
+      StandardHeader: {
+        BeginString: "pSymm.FIX.2.0",
+        MsgType: "A",
+        SenderCompID: TRADER_PUBKEY,
+        TargetCompID: SOLVER_PUBKEY,
+        MsgSeqNum: this.msgSeqNum++,
+        CustodyID: this.custodyId,
+        SendingTime: (Date.now() * 1000000).toString(),
       },
+      HeartBtInt: 10,
+      GuardianPubKeys: GUARDIANS
     };
+
+    // Sign the message
+    logonMessage = this.signMessage(logonMessage);
 
     this.ws.send(JSON.stringify(logonMessage));
   }
@@ -131,30 +152,27 @@ class TraderClient {
     console.log("Sending a sample trade message...");
 
     // This is just a placeholder trade message
-    const tradeMessage = {
-      message: {
-        StandardHeader: {
-          BeginString: "pSymm.FIX.2.0",
-          MsgType: "D", // New Order Single
-          SenderCompID: TRADER_PUBKEY,
-          TargetCompID: SOLVER_PUBKEY,
-          MsgSeqNum: this.msgSeqNum++,
-          CustodyID: this.custodyId,
-          SendingTime: (Date.now() * 1000000).toString(),
-        },
-        ClOrdID: `order-${Date.now()}`,
-        Symbol: "BTC/USD",
-        Side: "1", // Buy
-        OrderQty: "1.0",
-        OrdType: "2", // Limit
-        Price: "50000.00",
-        TimeInForce: "1", // Good Till Cancel
-        StandardTrailer: {
-          PublicKey: TRADER_PUBKEY,
-          Signature: "0xDemoSignature",
-        },
+    let tradeMessage = {
+      StandardHeader: {
+        BeginString: "pSymm.FIX.2.0",
+        MsgType: "D", // New Order Single
+        SenderCompID: TRADER_PUBKEY,
+        TargetCompID: SOLVER_PUBKEY,
+        MsgSeqNum: this.msgSeqNum++,
+        CustodyID: this.custodyId,
+        SendingTime: (Date.now() * 1000000).toString(),
       },
+      ClOrdID: `order-${Date.now()}`,
+      Symbol: "BTC/USD",
+      Side: "1", // Buy
+      OrderQty: "1.0",
+      OrdType: "2", // Limit
+      Price: "50000.00",
+      TimeInForce: "1" // Good Till Cancel
     };
+
+    // Sign the message
+    tradeMessage = this.signMessage(tradeMessage);
 
     this.ws.send(JSON.stringify(tradeMessage));
   }

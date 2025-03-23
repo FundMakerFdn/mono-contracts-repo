@@ -83,13 +83,20 @@ function combinePartialSignatures(partialSigs) {
 }
 
 function verifySignature(s, challenge, pubKey, message) {
+  // Convert pubKey to ProjectivePoint if it's a hex string
+  let pubKeyPoint;
+  if (typeof pubKey == "string") {
+    const pubKeyHex = pubKey.startsWith("0x") ? pubKey.slice(2) : pubKey;
+    pubKeyPoint = secp256k1.ProjectivePoint.fromHex(pubKeyHex);
+  } else pubKeyPoint = pubKey;
+
   // R = G*s - P*e
   const R = secp256k1.ProjectivePoint.BASE.multiply(s).subtract(
-    pubKey.multiply(challenge)
+    pubKeyPoint.multiply(challenge)
   );
 
   // e' = h(R || P || m)
-  const e = computeChallenge(R, pubKey, message);
+  const e = computeChallenge(R, pubKeyPoint, message);
 
   // check e' == e
   return e === challenge;

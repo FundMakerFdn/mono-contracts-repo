@@ -1,7 +1,11 @@
 const WebSocket = require("ws");
 const { Queue } = require("./queue");
 const custody = require("./otcVM");
-const { aggregatePublicKeys, signMessage } = require("../../libs/schnorr");
+const {
+  aggregatePublicKeys,
+  signMessage,
+  verifySignature,
+} = require("@fundmaker/schnorr");
 const { bytesToHex } = require("viem");
 
 const timeLog = (...args) => {
@@ -185,7 +189,7 @@ class pSymmServer {
   handleLogon(clientId, message) {
     timeLog(`Logon received from ${clientId}`);
 
-    const logonMsg = message.message;
+    const logonMsg = message;
     const custodyId = logonMsg.StandardHeader.CustodyID;
     const counterpartyPubKey = logonMsg.StandardHeader.SenderCompID;
 
@@ -233,12 +237,54 @@ class pSymmServer {
 
   /**
    * FIX Verifier - validates incoming messages
-   * For now, just checks if message is not empty
+   * Verifies the Schnorr signature in the message trailer
    */
   verifyMessage(clientId, message) {
     // Simple verification - just check if message exists
     if (!message) {
       timeLog(`Invalid message from ${clientId}: Message is empty`);
+      return false;
+    }
+
+    // Check if message has a StandardTrailer
+    if (!message.StandardTrailer) {
+      timeLog(`Message from ${clientId} has no StandardTrailer`);
+      return false;
+    }
+
+    // Check if message has a signature in the trailer
+    if (!message.StandardTrailer.Signature) {
+      timeLog(`Message from ${clientId} has no signature`);
+      return false;
+    }
+    try {
+      // Get signature components
+      const signature = message.StandardTrailer.Signature;
+      const pubKeyHex = message.StandardTrailer.PublicKey;
+
+      // Create a copy of the message without the signature for verification
+      const msgCopy = JSON.parse(JSON.stringify(message));
+      msgCopy.StandardTrailer = {};
+
+      // Convert message to bytes for verification
+      const msgBytes = new TextEncoder().encode(JSON.stringify(msgCopy));
+
+      // Verify the signature - the library now handles pubKey conversion
+      const isValid = verifySignature(
+        BigInt(signature.s),
+        BigInt(signature.e),
+        pubKeyHex,
+        msgBytes
+      );
+
+      if (!isValid) {
+        timeLog(`Invalid signature from ${clientId}`);
+        return false;
+      }
+
+      timeLog(`Signature from ${clientId} verified successfully`);
+    } catch (error) {
+      timeLog(`Error verifying signature from ${clientId}: ${error.message}`);
       return false;
     }
 
@@ -278,13 +324,13 @@ class pSymmServer {
       timeLog(`Sequencer processing message from ${clientId}`);
 
       // Check if this is a logon message
-      if (message.message?.StandardHeader?.MsgType === "A") {
+      if (message?.StandardHeader?.MsgType === "A") {
         this.handleLogon(clientId, message);
         continue;
       }
 
       // Check if this is a PPMH message
-      if (message.message?.StandardHeader?.MsgType === "PPMH") {
+      if (message?.StandardHeader?.MsgType === "PPMH") {
         this.handlePPMHandshake(clientId, message);
         continue;
       }
@@ -333,11 +379,7 @@ class pSymmServer {
         CustodyID: custodyId,
         SendingTime: (Date.now() * 1000000).toString(),
       },
-      HeartBtInt: 10,
-      StandardTrailer: {
-        PublicKey: this.pubKey,
-        Signature: {}, // Will be filled in handleGuardianQueue
-      },
+      HeartBtInt: 10
     };
   }
 
@@ -386,6 +428,35 @@ class pSymmServer {
   }
 
   /**
+   * Sign a message with the server's private key
+   */
+  signMessage(message) {
+    // Ensure StandardTrailer exists
+    if (!message.StandardTrailer) {
+      message.StandardTrailer = {};
+    }
+    
+    // Create a copy of the message without the signature for signing
+    const msgCopy = JSON.parse(JSON.stringify(message));
+    msgCopy.StandardTrailer = {}; // Empty trailer for signing
+    
+    // Convert message to bytes for signing
+    const msgBytes = new TextEncoder().encode(JSON.stringify(msgCopy));
+    
+    // Sign the message using Schnorr
+    const signature = signMessage(msgBytes, this.privKey);
+    
+    // Add signature components to StandardTrailer
+    message.StandardTrailer.PublicKey = this.pubKey;
+    message.StandardTrailer.Signature = {
+      s: signature.s.toString(),
+      e: signature.challenge.toString(),
+    };
+    
+    return message;
+  }
+
+  /**
    * Process messages from the guardian queue
    */
   async handleGuardianQueue() {
@@ -397,33 +468,11 @@ class pSymmServer {
       if (this.clients.has(clientId)) {
         const ws = this.clients.get(clientId);
         if (ws.readyState === WebSocket.OPEN) {
-          // Sign the message using Schnorr
-          const msgBytes = new TextEncoder().encode(JSON.stringify(message));
-          const signature = signMessage(msgBytes, this.privKey);
-
-          // Add signature components to StandardTrailer if it exists
-          if (message.StandardTrailer) {
-            message.StandardTrailer.PublicKey = this.pubKey;
-            message.StandardTrailer.Signature = {
-              R: signature.R.toHex
-                ? signature.R.toHex()
-                : signature.R.toString(),
-              s: signature.s.toString(),
-              e: signature.challenge.toString(),
-            };
-          } else if (message.message && message.message.StandardTrailer) {
-            message.message.StandardTrailer.PublicKey = this.pubKey;
-            message.message.StandardTrailer.Signature = {
-              R: signature.R.toHex
-                ? signature.R.toHex()
-                : signature.R.toString(),
-              s: signature.s.toString(),
-              e: signature.challenge.toString(),
-            };
-          }
-
+          // Sign the message
+          const signedMessage = this.signMessage(message);
+          
           timeLog(`Sending signed response to ${clientId}`);
-          ws.send(JSON.stringify(message));
+          ws.send(JSON.stringify(signedMessage));
         } else {
           timeLog(`Client ${clientId} connection not open, dropping message`);
         }
@@ -473,11 +522,7 @@ class pSymmServer {
         MsgSeqNum: session.msgSeqNum++,
         CustodyID: custodyId,
         SendingTime: (Date.now() * 1000000).toString(),
-      },
-      StandardTrailer: {
-        PublicKey: this.pubKey,
-        Signature: {}, // Will be filled in handleGuardianQueue
-      },
+      }
     };
   }
 

@@ -1,5 +1,6 @@
 const { pSymmServer } = require("./engine");
 const { keyFromSeed } = require("./common");
+const custody = require("./otcVM");
 
 const HOST = "127.0.0.1"; // host on
 const PORT = 8080;
@@ -12,7 +13,6 @@ const GUARDIANS = [keyFromSeed(1).pubKey];
 async function runSolver() {
   // Start the pSymmServer server
   console.log("Starting pSymmServer solver...");
-  const custody = require("./otcVM");
   const party = new pSymmServer({
     host: HOST,
     port: PORT,
