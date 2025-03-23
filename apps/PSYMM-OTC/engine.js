@@ -1,6 +1,7 @@
 const WebSocket = require("ws");
 const { Queue } = require("./queue");
 const custody = require("./otcVM");
+const { getContractAddresses, getGuardianData } = require("./common");
 const {
   aggregatePublicKeys,
   signMessage,
@@ -45,8 +46,11 @@ class pSymmServer {
     // Server configuration
     this.host = config.host || "127.0.0.1";
     this.port = config.port || 8080;
+    this.rpcUrl = config.rpcUrl || "http://localhost:8545";
+    this.contractAddresses = getContractAddresses();
 
     // Core components
+    this.ourGuardians = []; // Will store our guardian data
     this.vm = config.vm || new pSymmVM(config);
     this.privKey = config.privKey;
     this.pubKey = config.pubKey;
@@ -379,7 +383,7 @@ class pSymmServer {
         CustodyID: custodyId,
         SendingTime: (Date.now() * 1000000).toString(),
       },
-      HeartBtInt: 10
+      HeartBtInt: 10,
     };
   }
 
@@ -435,24 +439,24 @@ class pSymmServer {
     if (!message.StandardTrailer) {
       message.StandardTrailer = {};
     }
-    
+
     // Create a copy of the message without the signature for signing
     const msgCopy = JSON.parse(JSON.stringify(message));
     msgCopy.StandardTrailer = {}; // Empty trailer for signing
-    
+
     // Convert message to bytes for signing
     const msgBytes = new TextEncoder().encode(JSON.stringify(msgCopy));
-    
+
     // Sign the message using Schnorr
     const signature = signMessage(msgBytes, this.privKey);
-    
+
     // Add signature components to StandardTrailer
     message.StandardTrailer.PublicKey = this.pubKey;
     message.StandardTrailer.Signature = {
       s: signature.s.toString(),
       e: signature.challenge.toString(),
     };
-    
+
     return message;
   }
 
@@ -470,7 +474,7 @@ class pSymmServer {
         if (ws.readyState === WebSocket.OPEN) {
           // Sign the message
           const signedMessage = this.signMessage(message);
-          
+
           timeLog(`Sending signed response to ${clientId}`);
           ws.send(JSON.stringify(signedMessage));
         } else {
@@ -522,7 +526,7 @@ class pSymmServer {
         MsgSeqNum: session.msgSeqNum++,
         CustodyID: custodyId,
         SendingTime: (Date.now() * 1000000).toString(),
-      }
+      },
     };
   }
 
@@ -579,7 +583,42 @@ class pSymmServer {
   /**
    * Main execution loop
    */
+  async fetchGuardianData() {
+    try {
+      timeLog("Fetching registered Guardian data...");
+
+      const guardianData = await getGuardianData({
+        rpcUrl: this.rpcUrl,
+        partyRegistryAddress: this.contractAddresses.partyRegistry,
+      });
+
+      // Filter guardians where ipParty matches our IP address
+      this.ourGuardians = guardianData.filter(
+        (guardian) => guardian.ipParty === this.host
+      );
+
+      if (this.ourGuardians.length === 0) {
+        timeLog("No Guardian data found for our IP address");
+      } else {
+        timeLog(
+          `Found ${this.ourGuardians.length} Guardian entries for our IP:`
+        );
+        this.ourGuardians.forEach((guardian, index) => {
+          console.log(`  Guardian #${index + 1}:`);
+          console.log(`    Guardian IP: ${guardian.ipGuardian}`);
+          console.log(`    Party IP: ${guardian.ipParty}`);
+        });
+      }
+    } catch (error) {
+      timeLog(`Error fetching Guardian data: ${error.message}`);
+      throw error;
+    }
+  }
+
   async run() {
+    // Fetch guardian data before starting server
+    await this.fetchGuardianData();
+
     this.initServer();
 
     // Start all queue handlers as separate tasks
