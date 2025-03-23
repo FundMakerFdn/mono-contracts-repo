@@ -468,20 +468,24 @@ class pSymmServer {
 
     while (this.guardianQueue.length > 0) {
       const { clientId, message } = this.guardianQueue.shift();
+      const signedMessage = this.signMessage(message);
+      const messageStr = JSON.stringify(signedMessage);
 
+      // Send to counterparty if connected
       if (this.clients.has(clientId)) {
         const ws = this.clients.get(clientId);
         if (ws.readyState === WebSocket.OPEN) {
-          // Sign the message
-          const signedMessage = this.signMessage(message);
-
-          timeLog(`Sending signed response to ${clientId}`);
-          ws.send(JSON.stringify(signedMessage));
-        } else {
-          timeLog(`Client ${clientId} connection not open, dropping message`);
+          timeLog(`Sending signed response to counterparty ${clientId}`);
+          ws.send(messageStr);
         }
-      } else {
-        timeLog(`Client ${clientId} no longer connected, dropping message`);
+      }
+
+      // Send to all our guardian connections
+      for (const guardianWs of this.guardianConnections) {
+        if (guardianWs.readyState === WebSocket.OPEN) {
+          timeLog(`Sending signed response to guardian ${guardianWs.url}`);
+          guardianWs.send(messageStr);
+        }
       }
     }
   }
@@ -583,41 +587,39 @@ class pSymmServer {
   /**
    * Main execution loop
    */
-  async fetchGuardianData() {
+  async connectToGuardians() {
     try {
-      timeLog("Fetching registered Guardian data...");
-
       const guardianData = await getGuardianData({
         rpcUrl: this.rpcUrl,
         partyRegistryAddress: this.contractAddresses.partyRegistry,
       });
 
-      // Filter guardians where ipParty matches our IP address
-      this.ourGuardians = guardianData.filter(
-        (guardian) => guardian.ipParty === this.host
+      this.ourGuardians = guardianData.filter((g) => g.ipParty === this.host);
+      if (!this.ourGuardians.length) {
+        throw new Error("No guardians found for this IP");
+      }
+
+      this.guardianConnections = await Promise.all(
+        this.ourGuardians.map(async (g) => {
+          const ws = new WebSocket(`ws://${g.ipGuardian}:8080`);
+          await new Promise((resolve, reject) => {
+            ws.on("open", resolve);
+            ws.on("error", reject);
+          });
+          return ws;
+        })
       );
 
-      if (this.ourGuardians.length === 0) {
-        timeLog("No Guardian data found for our IP address");
-      } else {
-        timeLog(
-          `Found ${this.ourGuardians.length} Guardian entries for our IP:`
-        );
-        this.ourGuardians.forEach((guardian, index) => {
-          console.log(`  Guardian #${index + 1}:`);
-          console.log(`    Guardian IP: ${guardian.ipGuardian}`);
-          console.log(`    Party IP: ${guardian.ipParty}`);
-        });
-      }
+      timeLog(`Connected to ${this.guardianConnections.length} guardians`);
     } catch (error) {
-      timeLog(`Error fetching Guardian data: ${error.message}`);
+      timeLog(`Guardian connection error: ${error.message}`);
       throw error;
     }
   }
 
   async run() {
-    // Fetch guardian data before starting server
-    await this.fetchGuardianData();
+    // Connect to guardians before starting server
+    await this.connectToGuardians();
 
     this.initServer();
 

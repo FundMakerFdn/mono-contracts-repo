@@ -7,7 +7,7 @@ class GuardianServer {
     // Server configuration
     this.host = config.host || "127.0.0.1";
     this.port = config.port || 8080;
-    
+
     // Generate keys from seed if provided, otherwise use config
     if (config.seed !== undefined) {
       const keys = keyFromSeed(config.seed);
@@ -26,7 +26,9 @@ class GuardianServer {
     this.server = null;
 
     if (!this.privateKey || !this.publicKey) {
-      throw new Error("Guardian requires either seed or privateKey/publicKey configuration");
+      throw new Error(
+        "Guardian requires either seed or privateKey/publicKey configuration"
+      );
     }
   }
 
@@ -68,30 +70,30 @@ class GuardianServer {
     if (!message.StandardTrailer) {
       message.StandardTrailer = {};
     }
-    
+
     // Create a copy of the message without the signature for signing
     const msgCopy = JSON.parse(JSON.stringify(message));
     msgCopy.StandardTrailer = {}; // Empty trailer for signing
-    
+
     // Convert message to bytes for signing
     const msgBytes = new TextEncoder().encode(JSON.stringify(msgCopy));
-    
+
     // Sign the message using Schnorr
     const signature = signMessage(msgBytes, this.privateKey);
-    
+
     // Add signature components to StandardTrailer
     message.StandardTrailer.PublicKey = this.publicKey;
     message.StandardTrailer.Signature = {
       s: signature.s.toString(),
       e: signature.challenge.toString(),
     };
-    
+
     return message;
   }
 
   handleMessage(message) {
-    // Log all messages
-    console.log("Received message:", JSON.stringify(message, null, 2));
+    // Log only message type and sequence number
+    console.log("Received message type ", message?.StandardHeader?.MsgType);
 
     // Extract custody ID and sequence number if present
     const custodyId = message?.StandardHeader?.CustodyID;
@@ -132,15 +134,16 @@ class GuardianServer {
           RefMsgSeqNum: incomingSeqNum,
           CustodyID: custodyId,
           SendingTime: (Date.now() * 1000000).toString(),
-        }
+        },
       };
 
       // Sign the ACK message
       const signedAck = this.signMessage(ackMessage);
 
       // Send ACK to all connected clients
-      this.server.clients.forEach(client => {
+      this.server.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
+          console.log("Sending ACK:", signedAck);
           client.send(JSON.stringify(signedAck));
         }
       });
@@ -157,7 +160,7 @@ class GuardianServer {
 
 // Run the guardian if this file is executed directly
 if (require.main === module) {
-  const host = process.argv[2] || "127.0.0.1"; 
+  const host = process.argv[2] || "127.0.0.1";
   const seed = parseInt(process.argv[3]);
   const guardian = new GuardianServer({ host, seed });
   guardian.start();
