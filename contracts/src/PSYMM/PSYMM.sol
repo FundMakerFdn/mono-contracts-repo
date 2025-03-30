@@ -80,13 +80,7 @@ contract PSYMM {
     function addressToCustody(bytes32 id, address token, uint256 amount) external {
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
         custodyBalances[id][token] += amount;
-        emit addressToCustodyEvent(id, token, amount);
-    }
-    function addressToCustody(bytes32 id, address token, uint256 amount, bytes32 _ppm) external {
-		require(PPMs[id] == bytes32(0), "PPM isn't empty");
-        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
-        custodyBalances[id][token] += amount;
-		PPMs[id] = _ppm;
+		PPMs[id] = id;
         emit addressToCustodyEvent(id, token, amount);
     }
 
