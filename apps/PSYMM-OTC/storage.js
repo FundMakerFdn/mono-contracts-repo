@@ -1,4 +1,5 @@
 // Generic storage class for key-value operations
+// Can be later integrated with a database
 class Storage {
   constructor() {
     this.data = {};

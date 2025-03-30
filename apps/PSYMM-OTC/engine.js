@@ -25,7 +25,6 @@ const timeLog = (...args) => {
 class pSymmVM {
   constructor(config = {}) {
     this.sessions = {}; // custody id => session object
-    this.guardianPubKeys = config.guardianPubKeys;
     this.pubKey = config.pubKey;
     this.ppmTemplate = config.ppmTemplate || [];
   }
