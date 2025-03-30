@@ -384,6 +384,7 @@ class pSymmServer {
         SendingTime: (Date.now() * 1000000).toString(),
       },
       HeartBtInt: 10,
+      GuardianPubKeys: this.guardianPubKeys,
     };
   }
 
@@ -594,8 +595,6 @@ class pSymmServer {
         partyRegistryAddress: this.contractAddresses.partyRegistry,
         myGuardianPubKeys: this.guardianPubKeys,
       });
-
-      console.log(this.guardianPubKeys);
 
       if (!guardianData.length) {
         throw new Error("Guardian not found");

@@ -137,7 +137,7 @@ class TraderClient {
         SendingTime: (Date.now() * 1000000).toString(),
       },
       HeartBtInt: 10,
-      GuardianPubKey: GUARDIAN_PUBKEY,
+      GuardianPubKeys: [GUARDIAN_PUBKEY],
     };
 
     // Sign the message

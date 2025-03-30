@@ -24,7 +24,7 @@ tmux resize-pane -t $SESSION_NAME:0.2 -x "33%"
 tmux send-keys -t $SESSION_NAME:0.0 "yarn hardhat node" C-m
 
 # Second panel (bottom-left) - Deploy pSymm
-tmux send-keys -t $SESSION_NAME:0.1 "sleep 5; yarn deploy-psymm" C-m
+tmux send-keys -t $SESSION_NAME:0.1 "sleep 5; yarn deploy-psymm; node apps/PSYMM-OTC/guardian.js 127.0.0.4 3" C-m
 
 # Third panel (top-middle) - Start solver
 tmux send-keys -t $SESSION_NAME:0.2 "sleep 8; yarn solver" C-m
