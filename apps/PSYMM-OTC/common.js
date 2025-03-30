@@ -55,57 +55,76 @@ function getContractAddresses() {
 async function getGuardianData({
   rpcUrl,
   partyRegistryAddress,
+  myGuardianPubKeys,
   beforeBlock = "latest",
   fromBlock = 0n,
 }) {
-  // Create a public client with the provided RPC URL
   const publicClient = createPublicClient({
     transport: http(rpcUrl),
   });
 
-  // Define the ABI for the GuardianDataRegistered event
-  const guardianDataEventAbi = {
+  // Updated event ABI to include pubKey
+  const partyRegisteredEventAbi = {
     anonymous: false,
     inputs: [
+      { indexed: false, name: "role", type: "string" },
+      { indexed: true, name: "party", type: "address" },
+      { indexed: false, name: "ipAddress", type: "string" },
       {
         indexed: false,
-        name: "ipGuardian",
-        type: "string",
-      },
-      {
-        indexed: false,
-        name: "ipParty",
-        type: "string",
+        name: "pubKey",
+        type: "tuple",
+        components: [
+          { name: "parity", type: "uint8" },
+          { name: "x", type: "bytes32" },
+        ],
       },
     ],
-    name: "GuardianDataRegistered",
+    name: "PartyRegistered",
     type: "event",
   };
 
   try {
-    // Get logs for the GuardianDataRegistered event
     const logs = await publicClient.getLogs({
       address: partyRegistryAddress,
-      event: guardianDataEventAbi,
+      event: partyRegisteredEventAbi,
       fromBlock,
       toBlock: beforeBlock,
     });
 
-    // Process and return the events
-    return logs.map((log) => ({
-      ipGuardian: log.args.ipGuardian,
-      ipParty: log.args.ipParty,
-      blockNumber: log.blockNumber,
-      transactionHash: log.transactionHash,
-    }));
+    // Filter only guardian entries matching our pubkeys
+    return logs
+      .filter(
+        (log) =>
+          log.args.role === "Guardian" &&
+          myGuardianPubKeys.some(
+            (key) => key === convertPubKey(log.args.pubKey)
+          )
+      )
+      .map((log) => ({
+        ipAddress: log.args.ipAddress,
+        pubKey: log.args.pubKey,
+        blockNumber: log.blockNumber,
+        transactionHash: log.transactionHash,
+      }));
   } catch (error) {
     console.error("Error fetching PartyRegistered events:", error);
     throw new Error("Failed to fetch PartyRegistered events");
   }
 }
 
+function convertPubKey(pubKey) {
+  // Convert parity from 27/28 to 2/3 for compressed format
+  const prefix = (pubKey.parity - 27 + 2).toString(16).padStart(2, "0");
+  // Remove 0x prefix from x coordinate if present
+  const x = pubKey.x.startsWith("0x") ? pubKey.x.slice(2) : pubKey.x;
+  // Combine prefix and x coordinate
+  return "0x" + prefix + x;
+}
+
 module.exports = {
   keyFromSeed,
   getContractAddresses,
   getGuardianData,
+  convertPubKey,
 };

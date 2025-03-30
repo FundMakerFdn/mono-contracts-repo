@@ -155,6 +155,7 @@ class GuardianServer {
   start() {
     this.initServer();
     console.log("Guardian server running. Press Ctrl+C to exit.");
+    console.log(this.publicKey);
   }
 }
 

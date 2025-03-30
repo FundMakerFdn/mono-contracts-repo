@@ -1,6 +1,8 @@
 const assert = require("node:assert/strict");
 const hre = require("hardhat");
 const { keccak256, pad, hexToBytes, bytesToHex } = require("viem");
+const { keyFromSeed } = require("#root/apps/PSYMM-OTC/common.js");
+const { secp256k1 } = require("@noble/curves/secp256k1");
 
 const CHAIN_ID = {
   ARBITRUM: 42161,
@@ -46,47 +48,61 @@ async function deployFixture() {
   await USDC.write.mint([partyA.account.address, 10 * 10 ** USDC_PRECISION]);
   await USDC.write.mint([partyB.account.address, 10 * 10 ** USDC_PRECISION]);
 
-  // Register parties in the registry
+  // Generate keys for all parties
+  const solverKey = keyFromSeed(0);
+  const traderKey = keyFromSeed(1);
+  const guardianSolverKey = keyFromSeed(2);
+  const guardianTraderKey = keyFromSeed(3);
+
+  // Convert keys to PPMKey format
+  function toPPMKey(pubKeyHex) {
+    const point = secp256k1.ProjectivePoint.fromHex(hexToBytes(pubKeyHex));
+    return {
+      parity: point.hasEvenY() ? 27 : 28,
+      x: `0x${point.x.toString(16).padStart(64, "0")}`,
+    };
+  }
+
+  // Register parties with their pubkeys
   const partyAData = {
     role: "Trader",
     ipAddress: "127.0.0.2",
     partyType: 1,
+    pubKey: toPPMKey(traderKey.pubKey),
   };
 
   const partyBData = {
     role: "Solver",
     ipAddress: "127.0.0.1",
     partyType: 2,
+    pubKey: toPPMKey(solverKey.pubKey),
   };
 
-  // Guardian data for solver and trader
   const guardianSolverData = {
-    ipGuardian: "127.0.0.3",
-    ipParty: "127.0.0.1", // Solver's IP
+    role: "Guardian",
+    ipAddress: "127.0.0.3",
+    partyType: 3,
+    pubKey: toPPMKey(guardianSolverKey.pubKey),
   };
 
   const guardianTraderData = {
-    ipGuardian: "127.0.0.4",
-    ipParty: "127.0.0.2", // Trader's IP
+    role: "Guardian",
+    ipAddress: "127.0.0.4",
+    partyType: 3,
+    pubKey: toPPMKey(guardianTraderKey.pubKey),
   };
 
-  // Register partyA
+  // Register all parties
   await partyRegistry.write.registerParty([partyAData], {
     account: partyA.account,
   });
-
-  // Register partyB
   await partyRegistry.write.registerParty([partyBData], {
     account: partyB.account,
   });
-
-  // Register guardian data for solver
-  await partyRegistry.write.registerGuardianData([guardianSolverData], {
+  await partyRegistry.write.registerParty([guardianSolverData], {
     account: partyB.account,
   });
-
-  // Register guardian data for trader
-  await partyRegistry.write.registerGuardianData([guardianTraderData], {
+  await partyRegistry.write.registerParty([guardianTraderData], {
     account: partyA.account,
   });
 

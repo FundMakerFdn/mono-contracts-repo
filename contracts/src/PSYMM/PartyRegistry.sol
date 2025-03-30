@@ -1,38 +1,31 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
+import "./Schnorr.sol";
+
 /// @title IP Registry Contract & KYC Provider Registry
 contract PartyRegistry {
     struct PartyData {
-		string role;
+        string role;
         string ipAddress;
         uint8 partyType;
+        Schnorr.PPMKey pubKey;
     }
-	struct GuardianData {
-		string ipGuardian;
-		string ipParty;
-	}
 
-    event PartyRegistered(string role, address indexed party, string ipAddress);
+    event PartyRegistered(string role, address indexed party, string ipAddress, Schnorr.PPMKey pubKey);
     event PartyRemoved(address indexed party);
     event ReputationSet(address indexed party, address indexed kycProvider, uint256 score);
-	event GuardianDataRegistered(string ipGuardian, string ipParty);
 
     mapping(address => PartyData) public partys;
-    mapping(address => GuardianData) public guardians;
     mapping(address => mapping(address => uint256)) public reputation;
     mapping(address => mapping(address => uint8)) public kycTypes;
     
-    /// @notice Register as a party with IP address
-    /// @param partyData The party's data
+    /// @notice Register as a party with IP address and public key
+    /// @param partyData The party's data including Schnorr public key
     function registerParty(PartyData memory partyData) external {
         partys[msg.sender] = partyData;
-        emit PartyRegistered(partyData.role, msg.sender, partyData.ipAddress);
+        emit PartyRegistered(partyData.role, msg.sender, partyData.ipAddress, partyData.pubKey);
     }
-	function registerGuardianData(GuardianData memory guardianData) external {
-		guardians[msg.sender] = guardianData;
-		emit GuardianDataRegistered(guardianData.ipGuardian, guardianData.ipParty);
-	}
 
     /// @notice Set KYC type for a party
     /// @param kycProvider The KYC provider's address

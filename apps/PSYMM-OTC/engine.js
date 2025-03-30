@@ -7,7 +7,7 @@ const {
   signMessage,
   verifySignature,
 } = require("@fundmaker/schnorr");
-const { bytesToHex } = require("viem");
+const { bytesToHex, hexToBytes } = require("viem");
 
 const timeLog = (...args) => {
   const stack = new Error().stack;
@@ -53,6 +53,7 @@ class pSymmServer {
     this.vm = config.vm || new pSymmVM(config);
     this.privKey = config.privKey;
     this.pubKey = config.pubKey;
+    this.guardianPubKeys = config.guardianPubKeys || [];
 
     this.inputQueue = new Queue();
     this.sequencerQueue = new Queue();
@@ -115,7 +116,7 @@ class pSymmServer {
   }
   getRoleGuardians(session, role) {
     if (role === this.role) {
-      return this.vm.guardianPubKeys;
+      return this.guardianPubKeys;
     } else {
       return session.counterpartyGuardianPubKeys;
     }
@@ -449,7 +450,6 @@ class pSymmServer {
     // Sign the message using Schnorr
     const signature = signMessage(msgBytes, this.privKey);
 
-    // Add signature components to StandardTrailer
     message.StandardTrailer.PublicKey = this.pubKey;
     message.StandardTrailer.Signature = {
       s: signature.s.toString(),
@@ -479,12 +479,13 @@ class pSymmServer {
         }
       }
 
-      // Send to all our guardian connections
-      for (const guardianWs of this.guardianConnections) {
-        if (guardianWs.readyState === WebSocket.OPEN) {
-          timeLog(`Sending signed response to guardian ${guardianWs.url}`);
-          guardianWs.send(messageStr);
-        }
+      // Send to our guardian connection
+      if (
+        this.guardianConnection &&
+        this.guardianConnection.readyState === WebSocket.OPEN
+      ) {
+        timeLog(`Sending signed response to guardian`);
+        this.guardianConnection.send(messageStr);
       }
     }
   }
@@ -591,25 +592,25 @@ class pSymmServer {
       const guardianData = await getGuardianData({
         rpcUrl: this.rpcUrl,
         partyRegistryAddress: this.contractAddresses.partyRegistry,
+        myGuardianPubKeys: this.guardianPubKeys,
       });
 
-      this.ourGuardians = guardianData.filter((g) => g.ipParty === this.host);
-      if (!this.ourGuardians.length) {
-        throw new Error("No guardians found for this IP");
+      console.log(this.guardianPubKeys);
+
+      if (!guardianData.length) {
+        throw new Error("Guardian not found");
       }
 
-      this.guardianConnections = await Promise.all(
-        this.ourGuardians.map(async (g) => {
-          const ws = new WebSocket(`ws://${g.ipGuardian}:8080`);
-          await new Promise((resolve, reject) => {
-            ws.on("open", resolve);
-            ws.on("error", reject);
-          });
-          return ws;
-        })
+      const guardian = guardianData[0];
+      this.guardianConnection = new WebSocket(
+        `ws://${guardian.ipAddress}:8080`
       );
+      await new Promise((resolve, reject) => {
+        this.guardianConnection.on("open", resolve);
+        this.guardianConnection.on("error", reject);
+      });
 
-      timeLog(`Connected to ${this.guardianConnections.length} guardians`);
+      timeLog(`Connected to guardian at ${guardian.ipAddress}`);
     } catch (error) {
       timeLog(`Guardian connection error: ${error.message}`);
       throw error;

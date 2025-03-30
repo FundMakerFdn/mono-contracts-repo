@@ -4,9 +4,9 @@ const { signMessage } = require("@fundmaker/schnorr");
 
 const HOST = "127.0.0.1"; // connect to
 const PORT = 8080;
-const { privKey: TRADER_PRIVKEY, pubKey: TRADER_PUBKEY } = keyFromSeed(2);
-const SOLVER_PUBKEY = keyFromSeed(1).pubKey;
-const GUARDIANS = [keyFromSeed(4).pubKey];
+const { privKey: TRADER_PRIVKEY, pubKey: TRADER_PUBKEY } = keyFromSeed(1);
+const SOLVER_PUBKEY = keyFromSeed(0).pubKey;
+const { pubKey: GUARDIAN_PUBKEY } = keyFromSeed(3); // Guardian for trader
 
 /**
  * Trader client that connects to pSymmServer and progresses through protocol phases
@@ -89,7 +89,7 @@ class TraderClient {
     // Sign the message using Schnorr
     const signature = signMessage(msgBytes, TRADER_PRIVKEY);
 
-    // Add signature components to StandardTrailer
+    // Add signature components to StandardTrailer - convert 0x02/0x03 format to y-coordinate
     message.StandardTrailer.PublicKey = TRADER_PUBKEY;
     message.StandardTrailer.Signature = {
       s: signature.s.toString(),
@@ -137,7 +137,7 @@ class TraderClient {
         SendingTime: (Date.now() * 1000000).toString(),
       },
       HeartBtInt: 10,
-      GuardianPubKeys: GUARDIANS,
+      GuardianPubKey: GUARDIAN_PUBKEY,
     };
 
     // Sign the message
