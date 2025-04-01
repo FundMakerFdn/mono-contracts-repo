@@ -1,0 +1,8 @@
+{
+    "name": "PanteraCapital",
+    "ticker": "SYPC",
+    "note": "Pantera Capital Portfolio",
+    "params": {
+        "initialPrice": 1000
+    }
+}

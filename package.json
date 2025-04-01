@@ -20,6 +20,7 @@
     "@openzeppelin/contracts": "^5.1.0",
     "@openzeppelin/merkle-tree": "^1.0.7",
     "better-sqlite3": "^11.5.0",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "hardhat": "^2.22.16",
     "json-stable-stringify": "^1.2.1",
