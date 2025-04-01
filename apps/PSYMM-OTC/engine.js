@@ -190,7 +190,7 @@ class pSymmServer {
     }
   }
 
-  handleLogon(clientId, message) {
+  async handleLogon(clientId, message) {
     timeLog(`Logon received from ${clientId}`);
 
     const logonMsg = message;
@@ -206,9 +206,13 @@ class pSymmServer {
       heartBtInt: logonMsg.HeartBtInt || 30,
       lastHeartbeat: Date.now(),
       PPM: null,
+      guardianConnections: new Map(), // Store guardian WebSocket connections
     };
     session.PPM = this.renderPPM(session);
     console.log(session.PPM);
+
+    // Connect to counterparty guardians
+    await this.connectToCounterpartyGuardians(session);
 
     // Store session
     this.sessions.set(custodyId, session);
@@ -480,12 +484,23 @@ class pSymmServer {
         }
       }
 
+      // Get the session for this client
+      const custodyId = this.clientToCustodyId.get(clientId);
+      const session = custodyId ? this.sessions.get(custodyId) : null;
+
+      // Send to all guardian connections in the session mesh
+      if (session?.guardianConnections) {
+        for (const [guardianPubKey, ws] of session.guardianConnections) {
+          if (ws.readyState === WebSocket.OPEN) {
+            timeLog(`Sending signed response to counterparty guardian ${guardianPubKey}`);
+            ws.send(messageStr);
+          }
+        }
+      }
+
       // Send to our guardian connection
-      if (
-        this.guardianConnection &&
-        this.guardianConnection.readyState === WebSocket.OPEN
-      ) {
-        timeLog(`Sending signed response to guardian`);
+      if (this.guardianConnection?.readyState === WebSocket.OPEN) {
+        timeLog(`Sending signed response to our guardian`);
         this.guardianConnection.send(messageStr);
       }
     }
@@ -588,6 +603,60 @@ class pSymmServer {
   /**
    * Main execution loop
    */
+  async connectToCounterpartyGuardians(session) {
+    try {
+      // Get guardian data for all counterparty guardian public keys
+      const guardianPromises = session.counterpartyGuardianPubKeys.map(pubKey => 
+        getGuardianData({
+          rpcUrl: this.rpcUrl,
+          partyRegistryAddress: this.contractAddresses.partyRegistry,
+          myGuardianPubKeys: [pubKey],
+        })
+      );
+
+      const guardiansData = await Promise.all(guardianPromises);
+
+      // Connect to each guardian
+      for (let i = 0; i < guardiansData.length; i++) {
+        const guardianData = guardiansData[i][0]; // Take first result for each guardian
+        if (!guardianData) {
+          timeLog(`Guardian not found for pubKey: ${session.counterpartyGuardianPubKeys[i]}`);
+          continue;
+        }
+
+        const guardianPubKey = session.counterpartyGuardianPubKeys[i];
+        const ws = new WebSocket(`ws://${guardianData.ipAddress}:8080`);
+
+        // Set up connection handlers
+        ws.on("open", () => {
+          timeLog(`Connected to counterparty guardian ${guardianPubKey} at ${guardianData.ipAddress}`);
+        });
+
+        ws.on("error", (error) => {
+          timeLog(`Error with counterparty guardian ${guardianPubKey}:`, error);
+        });
+
+        ws.on("close", () => {
+          timeLog(`Disconnected from counterparty guardian ${guardianPubKey}`);
+          // Remove from connections map
+          session.guardianConnections.delete(guardianPubKey);
+        });
+
+        // Wait for connection to establish
+        await new Promise((resolve, reject) => {
+          ws.once("open", resolve);
+          ws.once("error", reject);
+        });
+
+        // Store the connection
+        session.guardianConnections.set(guardianPubKey, ws);
+      }
+    } catch (error) {
+      timeLog(`Error connecting to counterparty guardians:`, error);
+      throw error;
+    }
+  }
+
   async connectToGuardians() {
     try {
       const guardianData = await getGuardianData({
