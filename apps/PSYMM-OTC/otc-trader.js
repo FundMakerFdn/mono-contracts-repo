@@ -1,4 +1,4 @@
-const { keyFromSeed } = require("./common");
+const { keyFromSeed, getContractAddresses, getGuardianData } = require("./common");
 const WebSocket = require("ws");
 const { signMessage } = require("@fundmaker/schnorr");
 
@@ -12,17 +12,61 @@ const { pubKey: GUARDIAN_PUBKEY } = keyFromSeed(3); // Guardian for trader
  * Trader client that connects to pSymmServer and progresses through protocol phases
  */
 class TraderClient {
-  constructor(url) {
-    this.url = url;
+  constructor(config = {}) {
+    this.url = config.url;
     this.ws = null;
+    this.guardianConnection = null;
     this.connected = false;
     this.phase = "DISCONNECTED";
     this.msgSeqNum = 1;
-    this.custodyId =
-      "0x0000000000000000000000000000000000000000000000000000000000000001";
+    this.custodyId = "0x0000000000000000000000000000000000000000000000000000000000000001";
+    
+    // Configuration
+    this.rpcUrl = config.rpcUrl || "http://localhost:8545";
+    this.contractAddresses = getContractAddresses();
+    this.guardianPubKeys = [GUARDIAN_PUBKEY];
   }
 
-  connect() {
+  async connectToGuardians() {
+    try {
+      const guardianData = await getGuardianData({
+        rpcUrl: this.rpcUrl,
+        partyRegistryAddress: this.contractAddresses.partyRegistry,
+        myGuardianPubKeys: this.guardianPubKeys,
+      });
+
+      if (!guardianData.length) {
+        throw new Error("Guardian not found");
+      }
+
+      const guardian = guardianData[0];
+      this.guardianConnection = new WebSocket(`ws://${guardian.ipAddress}:8080`);
+      
+      await new Promise((resolve, reject) => {
+        this.guardianConnection.on("open", resolve);
+        this.guardianConnection.on("error", reject);
+      });
+
+      console.log(`Connected to guardian at ${guardian.ipAddress}`);
+      
+      this.guardianConnection.on("message", (data) => {
+        try {
+          const message = JSON.parse(data);
+          console.log("Received message from guardian:", message);
+        } catch (error) {
+          console.error("Error parsing guardian message:", error);
+        }
+      });
+
+    } catch (error) {
+      console.log(`Guardian connection error: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async connect() {
+    // First connect to guardian
+    await this.connectToGuardians();
     console.log(`Connecting to ${this.url}...`);
     this.ws = new WebSocket(this.url);
 
@@ -117,8 +161,15 @@ class TraderClient {
 
     // Sign the message
     ppmhMessage = this.signMessage(ppmhMessage);
+    const messageStr = JSON.stringify(ppmhMessage);
 
-    this.ws.send(JSON.stringify(ppmhMessage));
+    // Send to solver
+    this.ws.send(messageStr);
+
+    // Send to guardian
+    if (this.guardianConnection && this.guardianConnection.readyState === WebSocket.OPEN) {
+      this.guardianConnection.send(messageStr);
+    }
   }
 
   sendLogon() {
@@ -143,7 +194,15 @@ class TraderClient {
     // Sign the message
     logonMessage = this.signMessage(logonMessage);
 
-    this.ws.send(JSON.stringify(logonMessage));
+    const messageStr = JSON.stringify(logonMessage);
+
+    // Send to solver
+    this.ws.send(messageStr);
+
+    // Send to guardian
+    if (this.guardianConnection && this.guardianConnection.readyState === WebSocket.OPEN) {
+      this.guardianConnection.send(messageStr);
+    }
   }
 
   sendTradeMessage() {
@@ -174,7 +233,15 @@ class TraderClient {
     // Sign the message
     tradeMessage = this.signMessage(tradeMessage);
 
-    this.ws.send(JSON.stringify(tradeMessage));
+    const messageStr = JSON.stringify(tradeMessage);
+
+    // Send to solver
+    this.ws.send(messageStr);
+
+    // Send to guardian
+    if (this.guardianConnection && this.guardianConnection.readyState === WebSocket.OPEN) {
+      this.guardianConnection.send(messageStr);
+    }
   }
 
   disconnect() {
@@ -189,8 +256,12 @@ class TraderClient {
  */
 async function runTrader() {
   // Create and connect a trader client
-  const client = new TraderClient(`ws://${HOST}:${PORT}`);
-  client.connect();
+  const client = new TraderClient({
+    url: `ws://${HOST}:${PORT}`,
+    rpcUrl: "http://localhost:8545"
+  });
+  
+  await client.connect();
 
   // Keep the demo running for a while
   console.log("Trader client running. Press Ctrl+C to exit.");
