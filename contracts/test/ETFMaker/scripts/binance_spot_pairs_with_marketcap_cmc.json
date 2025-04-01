@@ -1,0 +1,1199 @@
+{
+  "BTCUSDC": {
+    "marketCap": 1640789978105.754
+  },
+  "ETHUSDC": {
+    "marketCap": 220361781495.4071
+  },
+  "XRPUSDC": {
+    "marketCap": 121713255802.38495
+  },
+  "SOLUSDC": {
+    "marketCap": 64378093796.585106
+  },
+  "BNBUSDC": {
+    "marketCap": 86317576877.03557
+  },
+  "SUIUSDC": {
+    "marketCap": 7220060459.920706
+  },
+  "DOGEUSDT": {
+    "marketCap": 24724546571.81153
+  },
+  "ADAUSDC": {
+    "marketCap": 23345861296.635647
+  },
+  "LAYERUSDC": {
+    "marketCap": 301579474.88151324
+  },
+  "TONUSDC": {
+    "marketCap": 10112868833.203093
+  },
+  "BERAUSDC": {
+    "marketCap": 740362967.8231328
+  },
+  "EOSUSDC": {
+    "marketCap": 961509768.673855
+  },
+  "SUSDC": {
+    "marketCap": 1400319871.3642294
+  },
+  "AAVEUSDC": {
+    "marketCap": 2413225977.2772083
+  },
+  "ENAUSDT": {
+    "marketCap": 1843419238.5871735
+  },
+  "NEIROUSDC": {
+    "marketCap": 82731383.54705182
+  },
+  "PEPEUSDC": {
+    "marketCap": 3024491116.5123487
+  },
+  "CRVUSDC": {
+    "marketCap": 653951219.7909633
+  },
+  "UNIUSDC": {
+    "marketCap": 3767611447.327121
+  },
+  "PNUTUSDC": {
+    "marketCap": 181471093.45487085
+  },
+  "FLOKIUSDC": {
+    "marketCap": 565191213.1073505
+  },
+  "ZROUSDC": {
+    "marketCap": 306734750.6868991
+  },
+  "NEARUSDC": {
+    "marketCap": 3029501450.7256184
+  },
+  "PARTIUSDC": {
+    "marketCap": null
+  },
+  "TUTUSDC": {
+    "marketCap": 36639041.62372514
+  },
+  "HBARUSDC": {
+    "marketCap": 6921150196.6779
+  },
+  "JUPUSDC": {
+    "marketCap": 1195049687.0075443
+  },
+  "PENGUUSDC": {
+    "marketCap": 343375201.01005816
+  },
+  "KAITOUSDC": {
+    "marketCap": null
+  },
+  "BROCCOLI714USDC": {
+    "marketCap": null
+  },
+  "REDUSDC": {
+    "marketCap": 142758316.70239723
+  },
+  "CAKEUSDC": {
+    "marketCap": 583712670.9180807
+  },
+  "MUBARAKUSDC": {
+    "marketCap": null
+  },
+  "SHIBUSDC": {
+    "marketCap": 7298075284.26873
+  },
+  "AUCTIONUSDT": {
+    "marketCap": 103874389.06500566
+  },
+  "API3USDT": {
+    "marketCap": 96541018.60309103
+  },
+  "PENDLEUSDC": {
+    "marketCap": 441290133.69391704
+  },
+  "RUNEUSDC": {
+    "marketCap": 401450551.678065
+  },
+  "LUNCUSDT": {
+    "marketCap": 324534799.93134534
+  },
+  "GALAUSDC": {
+    "marketCap": 668745003.5581061
+  },
+  "ORCAUSDC": {
+    "marketCap": 122764450.39046425
+  },
+  "ICPUSDC": {
+    "marketCap": 2571789630.1292443
+  },
+  "TAOUSDC": {
+    "marketCap": 1917595374.2084985
+  },
+  "MLNUSDT": {
+    "marketCap": 38792997.55480998
+  },
+  "NILUSDC": {
+    "marketCap": null
+  },
+  "NEOUSDT": {
+    "marketCap": 373852409.11873007
+  },
+  "HIVEUSDC": {
+    "marketCap": 117189593.28229487
+  },
+  "PYTHUSDC": {
+    "marketCap": 507832183.56120586
+  },
+  "TSTUSDC": {
+    "marketCap": 65005389.78594906
+  },
+  "CELOUSDT": {
+    "marketCap": 187124582.02496985
+  },
+  "VETUSDT": {
+    "marketCap": 1940899681.4375947
+  },
+  "JTOUSDC": {
+    "marketCap": 730468845.6230224
+  },
+  "SUPERUSDT": {
+    "marketCap": 279418628.79253143
+  },
+  "ALPACAUSDT": {
+    "marketCap": 7994871.589740628
+  },
+  "IOSTUSDT": {
+    "marketCap": 88985658.13673529
+  },
+  "ZECUSDT": {
+    "marketCap": 621841243.9229887
+  },
+  "BANANAS31USDC": {
+    "marketCap": 53357204.11710846
+  },
+  "AIXBTUSDC": {
+    "marketCap": 90104945.94090801
+  },
+  "RAYUSDC": {
+    "marketCap": 498011561.6869176
+  },
+  "1000CHEEMSUSDC": {
+    "marketCap": 307485047.0079225
+  },
+  "WAXPUSDT": {
+    "marketCap": 96352872.04323338
+  },
+  "BMTUSDC": {
+    "marketCap": 32936251.292055238
+  },
+  "DOGSUSDC": {
+    "marketCap": 73890440.91917582
+  },
+  "ACXUSDC": {
+    "marketCap": 96338800.18844421
+  },
+  "SKLUSDT": {
+    "marketCap": 129843550.82538415
+  },
+  "DFUSDC": {
+    "marketCap": 73678387.21041362
+  },
+  "COTIUSDT": {
+    "marketCap": 123350837.47962363
+  },
+  "THEUSDC": {
+    "marketCap": 29483272.149408106
+  },
+  "OPUSDC": {
+    "marketCap": 1192559905.4705572
+  },
+  "HMSTRUSDC": {
+    "marketCap": 138575171.4626329
+  },
+  "LPTUSDT": {
+    "marketCap": 188927701.6278446
+  },
+  "WUSDC": {
+    "marketCap": 241177352.6489472
+  },
+  "YGGUSDC": {
+    "marketCap": 81060587.66937995
+  },
+  "USTCUSDT": {
+    "marketCap": 63860477.656338125
+  },
+  "LDOUSDC": {
+    "marketCap": 787182223.0706395
+  },
+  "PIXELUSDC": {
+    "marketCap": 84722979.46020362
+  },
+  "SXPUSDT": {
+    "marketCap": 117406570.69039373
+  },
+  "CFXUSDC": {
+    "marketCap": 400808305.14532226
+  },
+  "ARKMUSDC": {
+    "marketCap": 114269012.85367453
+  },
+  "ELFUSDT": {
+    "marketCap": 169548738.01677108
+  },
+  "TRUMPUSDC": {
+    "marketCap": 2006790629.58449
+  },
+  "PROMUSDT": {
+    "marketCap": 110002578.86998615
+  },
+  "DEGOUSDT": {
+    "marketCap": 37749304.36450498
+  },
+  "BEAMXUSDC": {
+    "marketCap": null
+  },
+  "BANANAUSDT": {
+    "marketCap": 69631375.97412938
+  },
+  "OGUSDT": {
+    "marketCap": 17687631.56446333
+  },
+  "ADXUSDT": {
+    "marketCap": 15258782.51599071
+  },
+  "EPICUSDC": {
+    "marketCap": 26709077.10182064
+  },
+  "BICOUSDT": {
+    "marketCap": 104970700.0546478
+  },
+  "LUNAUSDT": {
+    "marketCap": 131231824.19627807
+  },
+  "GMTUSDT": {
+    "marketCap": 130592880.23039955
+  },
+  "REZUSDC": {
+    "marketCap": 34292219.66476464
+  },
+  "AMPUSDT": {
+    "marketCap": 320665118.01347876
+  },
+  "SLPUSDT": {
+    "marketCap": 65826372.05584015
+  },
+  "MBLUSDT": {
+    "marketCap": 39738815.657403834
+  },
+  "FARMUSDT": {
+    "marketCap": 20302266.049903024
+  },
+  "OSMOUSDC": {
+    "marketCap": 187743009.3476081
+  },
+  "ZENUSDT": {
+    "marketCap": 140466215.4672046
+  },
+  "QUICKUSDT": {
+    "marketCap": 20547323.68245833
+  },
+  "GLMUSDT": {
+    "marketCap": 258022863.80157912
+  },
+  "AEVOUSDT": {
+    "marketCap": 97575223.1983081
+  },
+  "RAREUSDC": {
+    "marketCap": 49627020.79314776
+  },
+  "HIFIUSDT": {
+    "marketCap": 32738121.64409231
+  },
+  "CVXUSDT": {
+    "marketCap": 206745487.13912678
+  },
+  "IOTXUSDT": {
+    "marketCap": 163927291.54931277
+  },
+  "REQUSDT": {
+    "marketCap": 105262778.96114227
+  },
+  "BELUSDT": {
+    "marketCap": 57821462.11274231
+  },
+  "FTTUSDT": {
+    "marketCap": 367845020.69054145
+  },
+  "BBUSDC": {
+    "marketCap": 61941528.72103835
+  },
+  "PROSUSDT": {
+    "marketCap": 18145619.38189253
+  },
+  "GHSTUSDT": {
+    "marketCap": 32723611.6408791
+  },
+  "VIBUSDT": {
+    "marketCap": 7419179.070315278
+  },
+  "ZKUSDC": {
+    "marketCap": 241878256.07908255
+  },
+  "WINGUSDT": {
+    "marketCap": 16576882.908506753
+  },
+  "EDUUSDT": {
+    "marketCap": 47503694.07076991
+  },
+  "CTKUSDT": {
+    "marketCap": 49301168.8493278
+  },
+  "AIUSDT": {
+    "marketCap": 45608179.375739194
+  },
+  "COWUSDC": {
+    "marketCap": 112628771.89271523
+  },
+  "DGBUSDT": {
+    "marketCap": 148501210.4045512
+  },
+  "MAGICUSDT": {
+    "marketCap": 34699404.40945739
+  },
+  "BSWUSDT": {
+    "marketCap": 17550495.192712266
+  },
+  "VANRYUSDC": {
+    "marketCap": 53711031.682856135
+  },
+  "HEIUSDC": {
+    "marketCap": null
+  },
+  "TFUELUSDT": {
+    "marketCap": 235660868.62264305
+  },
+  "ARKUSDT": {
+    "marketCap": 57154292.16469872
+  },
+  "WOOUSDT": {
+    "marketCap": 143234598.92203176
+  },
+  "HIGHUSDT": {
+    "marketCap": 38818363.44383839
+  },
+  "AUDIOUSDT": {
+    "marketCap": 99685913.40232922
+  },
+  "XVSUSDT": {
+    "marketCap": 90342115.2940362
+  },
+  "TROYUSDC": {
+    "marketCap": 10262537.329302268
+  },
+  "1000CATUSDC": {
+    "marketCap": 42454135.50148788
+  },
+  "CREAMUSDT": {
+    "marketCap": 9558135.088768892
+  },
+  "FIROUSDT": {
+    "marketCap": 16555080.351037154
+  },
+  "DUSDT": {
+    "marketCap": 32195112.62306384
+  },
+  "RADUSDT": {
+    "marketCap": 39199948.34964871
+  },
+  "GPSUSDC": {
+    "marketCap": 45863040.5688321
+  },
+  "UTKUSDC": {
+    "marketCap": 25017326.29201903
+  },
+  "FXSUSDT": {
+    "marketCap": 171356044.17423227
+  },
+  "ALTUSDC": {
+    "marketCap": 98814114.9603058
+  },
+  "MOVEUSDC": {
+    "marketCap": 986860397.8812612
+  },
+  "NULSUSDT": {
+    "marketCap": 12300377.520832779
+  },
+  "SYSUSDT": {
+    "marketCap": 33064797.483329214
+  },
+  "LEVERUSDT": {
+    "marketCap": 28306540.756762747
+  },
+  "SCRUSDT": {
+    "marketCap": 53173707.97875045
+  },
+  "SLFUSDC": {
+    "marketCap": 22050120.156952552
+  },
+  "ALCXUSDT": {
+    "marketCap": 23789769.87758182
+  },
+  "BIFIUSDT": {
+    "marketCap": 13619956.334794857
+  },
+  "1000SATSUSDC": {
+    "marketCap": 149559806.05106118
+  },
+  "FDUSDUSDC": {
+    "marketCap": 2583618066.653347
+  },
+  "TRXUSDC": {
+    "marketCap": 22700262361.721924
+  },
+  "FUNUSDT": {
+    "marketCap": 49228155.076579556
+  },
+  "OMUSDC": {
+    "marketCap": 6136126016.81978
+  },
+  "DOTUSDC": {
+    "marketCap": 6291040802.152056
+  },
+  "WBTCUSDT": {
+    "marketCap": 10636908824.648682
+  },
+  "ARBUSDC": {
+    "marketCap": 1515184795.5603764
+  },
+  "VANAUSDC": {
+    "marketCap": 184192010.5303354
+  },
+  "DYDXUSDC": {
+    "marketCap": 482089282.36419606
+  },
+  "TIAUSDC": {
+    "marketCap": 1782034600.003203
+  },
+  "ATOMUSDC": {
+    "marketCap": 1706404798.1647696
+  },
+  "RSRUSDC": {
+    "marketCap": 353677757.9012611
+  },
+  "FILUSDC": {
+    "marketCap": 1795275081.3895493
+  },
+  "XLMUSDC": {
+    "marketCap": 8112734312.658959
+  },
+  "XUSDUSDT": {
+    "marketCap": 30963509.608236175
+  },
+  "APEUSDC": {
+    "marketCap": 354870752.8513014
+  },
+  "WLDUSDC": {
+    "marketCap": 936740812.0683243
+  },
+  "EURIUSDC": {
+    "marketCap": 38104934.920637086
+  },
+  "BONKUSDC": {
+    "marketCap": 878843570.6099498
+  },
+  "POLUSDC": {
+    "marketCap": 2099315319.880961
+  },
+  "ETCUSDT": {
+    "marketCap": 2532429004.743944
+  },
+  "LTCUSDC": {
+    "marketCap": 6292819820.756213
+  },
+  "ALGOUSDC": {
+    "marketCap": 1535984097.8224072
+  },
+  "ACTUSDC": {
+    "marketCap": 178731444.45622548
+  },
+  "TUSDUSDT": {
+    "marketCap": 494129763.97570944
+  },
+  "AVAXUSDC": {
+    "marketCap": 7785442209.067872
+  },
+  "WIFUSDC": {
+    "marketCap": 419177645.505819
+  },
+  "SAGAUSDC": {
+    "marketCap": 33067284.79637597
+  },
+  "SANDUSDC": {
+    "marketCap": 672043944.9501687
+  },
+  "INJUSDC": {
+    "marketCap": 871650861.2118062
+  },
+  "CHZUSDC": {
+    "marketCap": 400545635.3646093
+  },
+  "APTUSDC": {
+    "marketCap": 3181053499.5521073
+  },
+  "KDAUSDT": {
+    "marketCap": 127060414.02057114
+  },
+  "MKRUSDC": {
+    "marketCap": 1108806268.9661238
+  },
+  "USUALUSDC": {
+    "marketCap": 92089576.15912952
+  },
+  "USDPUSDT": {
+    "marketCap": 79524078.69569808
+  },
+  "ACHUSDT": {
+    "marketCap": 190564583.13117725
+  },
+  "ANIMEUSDC": {
+    "marketCap": 94258223.44030173
+  },
+  "YFIUSDT": {
+    "marketCap": 161685415.4868039
+  },
+  "STRKUSDC": {
+    "marketCap": 408850012.00123197
+  },
+  "SPELLUSDT": {
+    "marketCap": 92495043.28416865
+  },
+  "ORDIUSDC": {
+    "marketCap": 173835888.51257244
+  },
+  "AXSUSDT": {
+    "marketCap": 467600064.10181195
+  },
+  "STPTUSDT": {
+    "marketCap": 80052903.82698163
+  },
+  "BOMEUSDT": {
+    "marketCap": 91339884.16482474
+  },
+  "DEXEUSDT": {
+    "marketCap": 1497978987.1050231
+  },
+  "LINKUSDC": {
+    "marketCap": 8885922305.179386
+  },
+  "KAVAUSDT": {
+    "marketCap": 468452953.06621736
+  },
+  "ENSUSDC": {
+    "marketCap": 564092270.8375221
+  },
+  "IOTAUSDC": {
+    "marketCap": 622687131.2893529
+  },
+  "NOTUSDC": {
+    "marketCap": 233318890.80030626
+  },
+  "FETUSDC": {
+    "marketCap": 1089546858.3064878
+  },
+  "COMPUSDT": {
+    "marketCap": 353400122.0213532
+  },
+  "PEOPLEUSDC": {
+    "marketCap": 75016921.00566444
+  },
+  "SOLVUSDT": {
+    "marketCap": 44759898.848669566
+  },
+  "ETHFIUSDC": {
+    "marketCap": 132482002.19776928
+  },
+  "MEMEUSDC": {
+    "marketCap": 87837216.8514802
+  },
+  "POLYXUSDT": {
+    "marketCap": 127587248.28681356
+  },
+  "MANAUSDT": {
+    "marketCap": 475058823.443938
+  },
+  "EGLDUSDC": {
+    "marketCap": 450684219.3331363
+  },
+  "1MBABYDOGEUSDC": {
+    "marketCap": null
+  },
+  "ASTRUSDT": {
+    "marketCap": 223160109.37991327
+  },
+  "MASKUSDT": {
+    "marketCap": 206947103.48779467
+  },
+  "RENDERUSDC": {
+    "marketCap": 1762476485.7477698
+  },
+  "UFTUSDT": {
+    "marketCap": 6258980.307902768
+  },
+  "THETAUSDT": {
+    "marketCap": 805106460.9538134
+  },
+  "ZRXUSDT": {
+    "marketCap": 205618772.98456657
+  },
+  "JASMYUSDT": {
+    "marketCap": 525827911.32974005
+  },
+  "TURBOUSDC": {
+    "marketCap": 133381168.5284923
+  },
+  "ARUSDC": {
+    "marketCap": 417198299.1946168
+  },
+  "IOUSDC": {
+    "marketCap": 110162717.84838025
+  },
+  "ANKRUSDT": {
+    "marketCap": 176045342.1619
+  },
+  "DIAUSDT": {
+    "marketCap": 41179563.95324322
+  },
+  "CKBUSDC": {
+    "marketCap": 216326907.28139642
+  },
+  "BCHUSDC": {
+    "marketCap": 6012975175.322168
+  },
+  "MINAUSDT": {
+    "marketCap": 291848700.51737976
+  },
+  "AXLUSDT": {
+    "marketCap": 343926338.29201674
+  },
+  "GASUSDT": {
+    "marketCap": 152667089.73634282
+  },
+  "1INCHUSDT": {
+    "marketCap": null
+  },
+  "SHELLUSDC": {
+    "marketCap": 55511679.68236524
+  },
+  "TWTUSDT": {
+    "marketCap": 350195614.41458905
+  },
+  "IDUSDT": {
+    "marketCap": 209619776.58732873
+  },
+  "ROSEUSDT": {
+    "marketCap": 199774802.70595926
+  },
+  "ARPAUSDT": {
+    "marketCap": 39185061.03609138
+  },
+  "VICUSDT": {
+    "marketCap": 26436866.903100036
+  },
+  "CETUSUSDC": {
+    "marketCap": 68977492.728393
+  },
+  "WBETHUSDT": {
+    "marketCap": 4012500988.2392616
+  },
+  "BLURUSDC": {
+    "marketCap": 234687601.56206468
+  },
+  "GRTUSDT": {
+    "marketCap": 859847688.5923827
+  },
+  "GMXUSDC": {
+    "marketCap": 120777794.34856303
+  },
+  "SCUSDT": {
+    "marketCap": 168743645.20663014
+  },
+  "STXUSDC": {
+    "marketCap": 921415738.6881347
+  },
+  "FLUXUSDT": {
+    "marketCap": 91259726.97570701
+  },
+  "COOKIEUSDC": {
+    "marketCap": 46676693.04591815
+  },
+  "BIOUSDC": {
+    "marketCap": 101558972.05823337
+  },
+  "XVGUSDT": {
+    "marketCap": 75273877.9076089
+  },
+  "BAKEUSDT": {
+    "marketCap": 37533062.21491806
+  },
+  "VTHOUSDT": {
+    "marketCap": 198366712.19125545
+  },
+  "FIDAUSDT": {
+    "marketCap": 94163379.19277598
+  },
+  "BADGERUSDT": {
+    "marketCap": 28787428.650526207
+  },
+  "STORJUSDT": {
+    "marketCap": 106344216.4691354
+  },
+  "C98USDT": {
+    "marketCap": 56504230.48515886
+  },
+  "SANTOSUSDT": {
+    "marketCap": 27148490.76146737
+  },
+  "ONEUSDT": {
+    "marketCap": 154805073.12027067
+  },
+  "TNSRUSDC": {
+    "marketCap": 58423797.29110057
+  },
+  "MOVRUSDT": {
+    "marketCap": 52731126.00653121
+  },
+  "BNSOLUSDT": {
+    "marketCap": 1017614844.60988
+  },
+  "SNXUSDT": {
+    "marketCap": 258328423.37336716
+  },
+  "HFTUSDT": {
+    "marketCap": 34331233.68331415
+  },
+  "AGLDUSDT": {
+    "marketCap": 65569663.03930405
+  },
+  "MAVUSDT": {
+    "marketCap": 33144632.06494849
+  },
+  "KSMUSDT": {
+    "marketCap": 257309167.82740536
+  },
+  "FIOUSDT": {
+    "marketCap": 12798667.746221323
+  },
+  "DASHUSDT": {
+    "marketCap": 271980216.43373746
+  },
+  "KAIAUSDC": {
+    "marketCap": 612928992.1478612
+  },
+  "SFPUSDT": {
+    "marketCap": 252989291.00798023
+  },
+  "STGUSDT": {
+    "marketCap": 40457374.064687826
+  },
+  "KNCUSDT": {
+    "marketCap": 62820335.405768
+  },
+  "CYBERUSDT": {
+    "marketCap": 48725098.81974726
+  },
+  "STEEMUSDC": {
+    "marketCap": 64515579.9510303
+  },
+  "CGPTUSDC": {
+    "marketCap": 65999737.1825703
+  },
+  "METISUSDT": {
+    "marketCap": 96119839.06219418
+  },
+  "FISUSDT": {
+    "marketCap": 16674571.575141067
+  },
+  "SUNUSDT": {
+    "marketCap": 163495312.53499287
+  },
+  "MEUSDT": {
+    "marketCap": 133137694.5348225
+  },
+  "RVNUSDT": {
+    "marketCap": 166012496.03427455
+  },
+  "XAIUSDT": {
+    "marketCap": 66525462.97137568
+  },
+  "WINUSDT": {
+    "marketCap": 54683887.1377682
+  },
+  "QNTUSDT": {
+    "marketCap": 826198414.328301
+  },
+  "JOEUSDT": {
+    "marketCap": 67170010.31104168
+  },
+  "AVAUSDT": {
+    "marketCap": 36517102.56643725
+  },
+  "IQUSDT": {
+    "marketCap": 85674410.5145041
+  },
+  "ZILUSDT": {
+    "marketCap": 223222977.1490159
+  },
+  "CATIUSDC": {
+    "marketCap": 45131763.84691771
+  },
+  "PHAUSDC": {
+    "marketCap": 79543652.87219478
+  },
+  "JUVUSDC": {
+    "marketCap": 9799492.084768727
+  },
+  "SUSHIUSDT": {
+    "marketCap": 157101202.83410546
+  },
+  "UMAUSDT": {
+    "marketCap": 100742854.56087734
+  },
+  "BETAUSDT": {
+    "marketCap": 18803799.95197115
+  },
+  "IMXUSDT": {
+    "marketCap": 946260987.1308327
+  },
+  "JSTUSDT": {
+    "marketCap": 308949903.5497274
+  },
+  "PERPUSDT": {
+    "marketCap": 21690173.118515484
+  },
+  "MBOXUSDT": {
+    "marketCap": 30872813.829684626
+  },
+  "HOTUSDT": {
+    "marketCap": 178356701.88437983
+  },
+  "GNOUSDT": {
+    "marketCap": 305843586.00040644
+  },
+  "RONINUSDT": {
+    "marketCap": null
+  },
+  "ONTUSDC": {
+    "marketCap": 126915231.1018354
+  },
+  "SYNUSDC": {
+    "marketCap": 30135211.09220477
+  },
+  "ILVUSDT": {
+    "marketCap": 74611967.37247965
+  },
+  "QKCUSDT": {
+    "marketCap": 46481898.99518418
+  },
+  "SCRTUSDT": {
+    "marketCap": 60243904.516275056
+  },
+  "NTRNUSDT": {
+    "marketCap": 43315976.16821968
+  },
+  "SEIUSDC": {
+    "marketCap": 841153526.3647918
+  },
+  "SSVUSDT": {
+    "marketCap": 79936552.97182374
+  },
+  "ENJUSDT": {
+    "marketCap": 146892812.13762394
+  },
+  "PORTALUSDT": {
+    "marketCap": 39999558.97919587
+  },
+  "BATUSDT": {
+    "marketCap": 204674572.291924
+  },
+  "PYRUSDT": {
+    "marketCap": 47595586.17335892
+  },
+  "PHBUSDT": {
+    "marketCap": 27007986.689968638
+  },
+  "CVCUSDT": {
+    "marketCap": 90859753.83103514
+  },
+  "REIUSDT": {
+    "marketCap": 22905588.618642617
+  },
+  "TUSDC": {
+    "marketCap": 154484025.36424065
+  },
+  "RDNTUSDT": {
+    "marketCap": 27236172.143246982
+  },
+  "XECUSDT": {
+    "marketCap": 392415163.32949185
+  },
+  "QTUMUSDT": {
+    "marketCap": 202110727.47029418
+  },
+  "LISTAUSDT": {
+    "marketCap": 32968494.388324182
+  },
+  "NFPUSDT": {
+    "marketCap": 29691929.5211558
+  },
+  "STRAXUSDT": {
+    "marketCap": 74291638.92619747
+  },
+  "BARUSDT": {
+    "marketCap": 15827735.935972618
+  },
+  "HOOKUSDT": {
+    "marketCap": 29464819.47357913
+  },
+  "IDEXUSDC": {
+    "marketCap": 24154152.530839115
+  },
+  "NMRUSDT": {
+    "marketCap": 64236516.94788334
+  },
+  "ACEUSDT": {
+    "marketCap": 33876251.01768986
+  },
+  "FLOWUSDT": {
+    "marketCap": 598549183.5763108
+  },
+  "MANTAUSDC": {
+    "marketCap": 92081906.51724333
+  },
+  "RLCUSDT": {
+    "marketCap": 86801041.1764944
+  },
+  "ICXUSDT": {
+    "marketCap": 98440647.39733537
+  },
+  "CHESSUSDC": {
+    "marketCap": 15472767.517609926
+  },
+  "XTZUSDC": {
+    "marketCap": 677665139.1129875
+  },
+  "ONGUSDT": {
+    "marketCap": 77969127.30501777
+  },
+  "CTXCUSDT": {
+    "marketCap": 31434818.166799378
+  },
+  "TRBUSDC": {
+    "marketCap": 71268058.57219788
+  },
+  "GUSDT": {
+    "marketCap": 133243398.3441912
+  },
+  "CELRUSDT": {
+    "marketCap": 70939639.56227256
+  },
+  "ASRUSDT": {
+    "marketCap": 8539338.758707324
+  },
+  "LQTYUSDT": {
+    "marketCap": 61102254.74401482
+  },
+  "FORTHUSDT": {
+    "marketCap": 34106875.043614745
+  },
+  "GLMRUSDT": {
+    "marketCap": 71013621.94236423
+  },
+  "ATMUSDT": {
+    "marketCap": 7861501.459011886
+  },
+  "DYMUSDT": {
+    "marketCap": 78835617.68559395
+  },
+  "TRUUSDT": {
+    "marketCap": 43621293.785980985
+  },
+  "VELODROMEUSDC": {
+    "marketCap": null
+  },
+  "LRCUSDT": {
+    "marketCap": 133995611.00038494
+  },
+  "SNTUSDT": {
+    "marketCap": 93375027.10233958
+  },
+  "ARDRUSDT": {
+    "marketCap": 56678428.3822802
+  },
+  "RPLUSDT": {
+    "marketCap": 92851184.64679818
+  },
+  "PDAUSDT": {
+    "marketCap": 11058372.626792807
+  },
+  "ATAUSDT": {
+    "marketCap": 34182580.11004159
+  },
+  "NEXOUSDT": {
+    "marketCap": 697247956.0904728
+  },
+  "PUNDIXUSDT": {
+    "marketCap": 69634145.87517242
+  },
+  "DENTUSDT": {
+    "marketCap": 71440293.47954199
+  },
+  "LOKAUSDT": {
+    "marketCap": 19022056.37611582
+  },
+  "TLMUSDC": {
+    "marketCap": 30067744.4609631
+  },
+  "EIGENUSDC": {
+    "marketCap": 218740579.68875325
+  },
+  "ALICEUSDT": {
+    "marketCap": 45192419.18206447
+  },
+  "QIUSDT": {
+    "marketCap": 48615130.614205845
+  },
+  "CHRUSDT": {
+    "marketCap": 81967224.74464759
+  },
+  "XNOUSDT": {
+    "marketCap": 118356649.09865841
+  },
+  "PONDUSDT": {
+    "marketCap": 79704938.99467947
+  },
+  "CTSIUSDT": {
+    "marketCap": 56498066.90891007
+  },
+  "PSGUSDT": {
+    "marketCap": 17533700.95805847
+  },
+  "VOXELUSDT": {
+    "marketCap": 15880298.917487789
+  },
+  "OXTUSDT": {
+    "marketCap": 62348671.80354143
+  },
+  "DATAUSDT": {
+    "marketCap": 19392243.691579748
+  },
+  "RIFUSDT": {
+    "marketCap": 40741235.042103186
+  },
+  "OMNIUSDC": {
+    "marketCap": 43494736.76233272
+  },
+  "OGNUSDT": {
+    "marketCap": 40373572.946022905
+  },
+  "BANDUSDT": {
+    "marketCap": 115257244.80861713
+  },
+  "ALPINEUSDT": {
+    "marketCap": 11897230.774959706
+  },
+  "TKOUSDT": {
+    "marketCap": 30674785.019671537
+  },
+  "DODOUSDT": {
+    "marketCap": 46409864.31064529
+  },
+  "DUSKUSDT": {
+    "marketCap": 36916052.98362296
+  },
+  "GNSUSDT": {
+    "marketCap": 40977782.02922125
+  },
+  "LUMIAUSDT": {
+    "marketCap": 47346164.32351111
+  },
+  "POWRUSDT": {
+    "marketCap": 87543211.63400291
+  },
+  "PORTOUSDT": {
+    "marketCap": 11514460.232900891
+  },
+  "HARDUSDT": {
+    "marketCap": 20600216.150993936
+  },
+  "CITYUSDT": {
+    "marketCap": 9132171.444227656
+  },
+  "FORMUSDC": {
+    "marketCap": 891853259.7270612
+  },
+  "AEURUSDT": {
+    "marketCap": 56496803.27783037
+  },
+  "LSKUSDT": {
+    "marketCap": 90184950.58830622
+  },
+  "NKNUSDT": {
+    "marketCap": 32649830.928706393
+  },
+  "KMDUSDT": {
+    "marketCap": 19967243.81768481
+  },
+  "WANUSDT": {
+    "marketCap": 19996337.204332583
+  },
+  "PIVXUSDT": {
+    "marketCap": 12846574.860750202
+  },
+  "BALUSDT": {
+    "marketCap": 82883832.99122337
+  },
+  "ALPHAUSDT": {
+    "marketCap": 31675527.434531797
+  },
+  "LAZIOUSDT": {
+    "marketCap": 12303432.211341599
+  },
+  "DCRUSDT": {
+    "marketCap": 189664765.1584509
+  },
+  "FLMUSDT": {
+    "marketCap": 17324886.540695798
+  },
+  "MTLUSDT": {
+    "marketCap": 59191981.02684286
+  },
+  "LTOUSDT": {
+    "marketCap": 24041104.300681137
+  },
+  "BTTCUSDT": {
+    "marketCap": null
+  },
+  "GTCUSDT": {
+    "marketCap": 29307243.465564497
+  },
+  "BNTUSDT": {
+    "marketCap": 47632563.34258812
+  },
+  "USDCUSDT": {
+    "marketCap": 60072119493.78658
+  },
+  "AERGOUSDT": {
+    "marketCap": 27414682.112382412
+  },
+  "LINAUSDT": {
+    "marketCap": 2959486.1172067667
+  },
+  "BURGERUSDT": {
+    "marketCap": 740985.7889765715
+  },
+  "COMBOUSDT": {
+    "marketCap": 1450651.6668346976
+  },
+  "ASTUSDT": {
+    "marketCap": 4558578.619026789
+  }
+}

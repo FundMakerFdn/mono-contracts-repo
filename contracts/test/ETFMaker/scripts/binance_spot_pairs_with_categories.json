@@ -1,0 +1,4888 @@
+{
+  "BTCUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "FTX Holdings",
+      "Proof of Work (PoW)",
+      "Bitcoin Ecosystem",
+      "GMCI 30 Index",
+      "GMCI Index",
+      "Coinbase 50 Index"
+    ]
+  },
+  "ETHUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Ethereum Ecosystem",
+      "FTX Holdings",
+      "Multicoin Capital Portfolio",
+      "Proof of Stake (PoS)",
+      "Alameda Research Portfolio",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "GMCI Layer 1 Index",
+      "GMCI 30 Index",
+      "Delphi Ventures Portfolio",
+      "Galaxy Digital Portfolio",
+      "GMCI Index",
+      "World Liberty Financial Portfolio",
+      "Coinbase 50 Index"
+    ]
+  },
+  "XRPUSDC": {
+    
+    "categories": [
+      "FTX Holdings",
+      "Pantera Capital Portfolio",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "XRP Ledger Ecosystem",
+      "GMCI 30 Index",
+      "Blockchain Capital Portfolio",
+      "GMCI Index",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "SOLUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Solana Ecosystem",
+      "Layer 1 (L1)",
+      "Alleged SEC Securities",
+      "FTX Holdings",
+      "Multicoin Capital Portfolio",
+      "Proof of Stake (PoS)",
+      "Alameda Research Portfolio",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "GMCI Layer 1 Index",
+      "GMCI 30 Index",
+      "Delphi Ventures Portfolio",
+      "GMCI Index",
+      "Polychain Capital Portfolio",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "BNBUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Exchange-based Tokens",
+      "BNB Chain Ecosystem",
+      "Centralized Exchange (CEX) Token",
+      "Layer 1 (L1)",
+      "Ethereum Ecosystem",
+      "Alleged SEC Securities",
+      "FTX Holdings",
+      "Proof of Stake (PoS)",
+      "GMCI Layer 1 Index",
+      "GMCI 30 Index",
+      "GMCI Index"
+    ]
+  },
+  "SUIUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Binance Launchpool",
+      "Layer 1 (L1)",
+      "Sui Ecosystem",
+      "Coinbase Ventures Portfolio",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "GMCI Layer 1 Index",
+      "Circle Ventures Portfolio",
+      "GMCI Index",
+      "Made in USA"
+    ]
+  },
+  "DOGEUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Meme",
+      "Binance-Peg Tokens"
+    ]
+  },
+  "ADAUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Cardano Ecosystem",
+      "Alleged SEC Securities",
+      "Proof of Stake (PoS)",
+      "GMCI Layer 1 Index",
+      "GMCI 30 Index",
+      "GMCI Index",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "LAYERUSDC": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Solana Ecosystem",
+      "LSDFi",
+      "Restaking",
+      "Stablecoin Protocol",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Binance HODLer Airdrops",
+      "Polychain Capital Portfolio"
+    ]
+  },
+  "TONUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "BNB Chain Ecosystem",
+      "Layer 1 (L1)",
+      "Ethereum Ecosystem",
+      "Animoca Brands Portfolio",
+      "Alleged SEC Securities",
+      "DWF Labs Portfolio",
+      "TON Ecosystem",
+      "Proof of Stake (PoS)",
+      "Pantera Capital Portfolio",
+      "GMCI Layer 1 Index",
+      "GMCI 30 Index",
+      "GMCI Index"
+    ]
+  },
+  "BERAUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Decentralized Finance (DeFi)",
+      "Layer 1 (L1)",
+      "Berachain Ecosystem",
+      "Binance HODLer Airdrops",
+      "Outlier Ventures Portfolio",
+      "Polychain Capital Portfolio"
+    ]
+  },
+  "EOSUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "DWF Labs Portfolio",
+      "GMCI Layer 1 Index",
+      "GMCI Index",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "SUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Sonic Ecosystem"
+    ]
+  },
+  "AAVEUSDC": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "BNB Chain Ecosystem",
+      "Lending/Borrowing Protocols",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Near Protocol Ecosystem",
+      "Fantom Ecosystem",
+      "Harmony Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Base Ecosystem",
+      "Index Coop Defi Index",
+      "Energi Ecosystem",
+      "Sora Ecosystem",
+      "Huobi ECO Chain Ecosystem",
+      "GMCI DeFi Index",
+      "Blockchain Capital Portfolio",
+      "Index Coop Index",
+      "GMCI Index",
+      "World Liberty Financial Portfolio",
+      "Coinbase 50 Index"
+    ]
+  },
+  "ENAUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Binance Launchpool",
+      "Ethereum Ecosystem",
+      "Stablecoin Protocol",
+      "DragonFly Capital Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Delphi Ventures Portfolio",
+      "OKX Ventures Portfolio",
+      "World Liberty Financial Portfolio"
+    ]
+  },
+  "NEIROUSDC": {
+    
+    "categories": [
+      "Meme",
+      "Tron Ecosystem",
+      "Sun Pump Ecosystem",
+      "TRON Meme"
+    ]
+  },
+  "PEPEUSDC": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Meme",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Frog-Themed",
+      "GMCI Meme Index",
+      "GMCI Index",
+      "The Boy’s Club"
+    ]
+  },
+  "CRVUSDC": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Exchange-based Tokens",
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "Automated Market Maker (AMM)",
+      "Polygon Ecosystem",
+      "Fantom Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Curve Ecosystem",
+      "DWF Labs Portfolio",
+      "Stablecoin Protocol",
+      "Energi Ecosystem",
+      "Sora Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "GMCI DeFi Index",
+      "GMCI Index",
+      "Coinbase 50 Index"
+    ]
+  },
+  "UNIUSDC": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Exchange-based Tokens",
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "Automated Market Maker (AMM)",
+      "BNB Chain Ecosystem",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Near Protocol Ecosystem",
+      "Gnosis Chain Ecosystem",
+      "Harmony Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Paradigm Portfolio",
+      "Coinbase Ventures Portfolio",
+      "Index Coop Defi Index",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "Energi Ecosystem",
+      "Sora Ecosystem",
+      "Huobi ECO Chain Ecosystem",
+      "GMCI DeFi Index",
+      "GMCI 30 Index",
+      "Blockchain Capital Portfolio",
+      "Index Coop Index",
+      "GMCI Index",
+      "Polychain Capital Portfolio",
+      "Made in USA",
+      "Unichain Ecosystem",
+      "Coinbase 50 Index"
+    ]
+  },
+  "PNUTUSDC": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "Meme",
+      "Solana Meme",
+      "Zoo-Themed"
+    ]
+  },
+  "FLOKIUSDC": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "NFT",
+      "BNB Chain Ecosystem",
+      "Metaverse",
+      "Meme",
+      "Play To Earn",
+      "Ethereum Ecosystem",
+      "Telegram Apps",
+      "Dog-Themed",
+      "DWF Labs Portfolio",
+      "RPG",
+      "On-chain Gaming",
+      "TokenFi Launchpad",
+      "GMCI Meme Index",
+      "GMCI Index"
+    ]
+  },
+  "ZROUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "BNB Chain Ecosystem",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Base Ecosystem",
+      "Multicoin Capital Portfolio",
+      "Layer 0 (L0)",
+      "Cross-chain Communication",
+      "Circle Ventures Portfolio",
+      "Sequoia Capital Portfolio",
+      "OKX Ventures Portfolio"
+    ]
+  },
+  "NEARUSDC": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Near Protocol Ecosystem",
+      "Ethereum Ecosystem",
+      "Alleged SEC Securities",
+      "FTX Holdings",
+      "Data Availability",
+      "Coinbase Ventures Portfolio",
+      "Multicoin Capital Portfolio",
+      "Proof of Stake (PoS)",
+      "Alameda Research Portfolio",
+      "DragonFly Capital Portfolio",
+      "Pantera Capital Portfolio",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "GMCI Layer 1 Index",
+      "GMCI 30 Index",
+      "Circle Ventures Portfolio",
+      "GMCI Index",
+      "Made in USA",
+      "Coinbase 50 Index",
+      "Chain Abstraction"
+    ]
+  },
+  "PARTIUSDC": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "BNB Chain Ecosystem",
+      "Layer 1 (L1)",
+      "Base Ecosystem",
+      "Account Abstraction",
+      "Cross-chain Communication",
+      "Binance HODLer Airdrops",
+      "Chain Abstraction"
+    ]
+  },
+  "TUTUSDC": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Meme",
+      "AI Meme",
+      "AI Agents",
+      "Four.meme Ecosystem"
+    ]
+  },
+  "HBARUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Hedera Ecosystem",
+      "GMCI Layer 1 Index",
+      "GMCI 30 Index",
+      "GMCI Index",
+      "Outlier Ventures Portfolio",
+      "Made in USA",
+      "Directed Acyclic Graph (DAG)"
+    ]
+  },
+  "JUPUSDC": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Decentralized Finance (DeFi)",
+      "Solana Ecosystem",
+      "GMCI DeFi Index",
+      "Dex Aggregator",
+      "GMCI Index",
+      "Made in USA"
+    ]
+  },
+  "PENGUUSDC": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "Meme",
+      "Solana Meme",
+      "Binance HODLer Airdrops",
+      "Airdropped Tokens by NFT Projects",
+      "Made in USA"
+    ]
+  },
+  "KAITOUSDC": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Analytics",
+      "Base Ecosystem",
+      "Binance HODLer Airdrops"
+    ]
+  },
+  "BROCCOLI714USDC": {
+    
+    "categories": []
+  },
+  "REDUSDC": {
+    
+    "categories": [
+      "Ethereum Ecosystem"
+    ]
+  },
+  "CAKEUSDC": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Exchange-based Tokens",
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "Automated Market Maker (AMM)",
+      "BNB Chain Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Aptos Ecosystem",
+      "ZkSync Ecosystem",
+      "Linea Ecosystem",
+      "Base Ecosystem",
+      "Polygon zkEVM Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "opBNB Ecosystem",
+      "GMCI DeFi Index",
+      "GMCI Index"
+    ]
+  },
+  "MUBARAKUSDC": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "Meme",
+      "Solana Meme",
+      "Pump.fun Ecosystem"
+    ]
+  },
+  "SHIBUSDC": {
+    
+    "categories": [
+      "Meme",
+      "Ethereum Ecosystem",
+      "Animoca Brands Portfolio",
+      "Dog-Themed",
+      "GMCI Meme Index",
+      "GMCI 30 Index",
+      "GMCI Index",
+      "Coinbase 50 Index"
+    ]
+  },
+  "AUCTIONUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Launchpad",
+      "Ethereum Ecosystem",
+      "DWF Labs Portfolio",
+      "Coinbase Ventures Portfolio",
+      "Pantera Capital Portfolio",
+      "Blockchain Capital Portfolio"
+    ]
+  },
+  "API3USDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Oracle",
+      "Ethereum Ecosystem",
+      "DWF Labs Portfolio",
+      "Pantera Capital Portfolio"
+    ]
+  },
+  "PENDLEUSDC": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "Automated Market Maker (AMM)",
+      "BNB Chain Ecosystem",
+      "Derivatives",
+      "Lending/Borrowing Protocols",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Fixed Interest",
+      "Real World Assets (RWA)",
+      "LSDFi",
+      "Base Ecosystem",
+      "Restaking",
+      "LRTfi",
+      "Liquid Restaking Governance Tokens",
+      "Yield Tokenization Protocol",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "GMCI DeFi Index",
+      "Sonic Ecosystem",
+      "Liquid Staking",
+      "GMCI Index",
+      "BTCfi"
+    ]
+  },
+  "RUNEUSDC": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Infrastructure",
+      "Smart Contract Platform",
+      "Exchange-based Tokens",
+      "Decentralized Finance (DeFi)",
+      "Bridge Governance Tokens",
+      "Multicoin Capital Portfolio",
+      "Proof of Stake (PoS)",
+      "Delphi Ventures Portfolio"
+    ]
+  },
+  "LUNCUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Decentralized Finance (DeFi)",
+      "Coinbase Ventures Portfolio",
+      "DeFiance Capital Portfolio",
+      "Pantera Capital Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Galaxy Digital Portfolio"
+    ]
+  },
+  "GALAUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Gaming (GameFi)",
+      "NFT",
+      "Layer 1 (L1)",
+      "Play To Earn",
+      "Ethereum Ecosystem",
+      "DWF Labs Portfolio",
+      "Gaming Platform",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "GalaChain Ecosystem",
+      "Made in USA"
+    ]
+  },
+  "ORCAUSDC": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "Automated Market Maker (AMM)",
+      "Solana Ecosystem",
+      "Coinbase Ventures Portfolio",
+      "DeFiance Capital Portfolio",
+      "Made in USA"
+    ]
+  },
+  "ICPUSDC": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Infrastructure",
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Internet Computer Ecosystem",
+      "Alleged SEC Securities",
+      "Multicoin Capital Portfolio",
+      "Layer 0 (L0)",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "GMCI Layer 1 Index",
+      "GMCI 30 Index",
+      "Blockchain Capital Portfolio",
+      "GMCI Index",
+      "Polychain Capital Portfolio",
+      "Coinbase 50 Index"
+    ]
+  },
+  "TAOUSDC": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "DePIN",
+      "Bittensor Ecosystem",
+      "Polychain Capital Portfolio"
+    ]
+  },
+  "MLNUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Asset Manager",
+      "Polygon Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Real World Assets (RWA)",
+      "DeFiance Capital Portfolio"
+    ]
+  },
+  "NILUSDC": {
+    
+    "categories": [
+      "Infrastructure",
+      "Binance Launchpool"
+    ]
+  },
+  "NEOUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Proof of Stake (PoS)",
+      "Made in China"
+    ]
+  },
+  "HIVEUSDC": {
+    
+    "categories": [
+      "Solana Ecosystem"
+    ]
+  },
+  "PYTHUSDC": {
+    
+    "categories": [
+      "Business Services",
+      "Infrastructure",
+      "Decentralized Finance (DeFi)",
+      "Oracle",
+      "Solana Ecosystem",
+      "Neon Ecosystem",
+      "Manta Network Ecosystem",
+      "Multicoin Capital Portfolio",
+      "GMCI DeFi Index",
+      "Delphi Ventures Portfolio",
+      "GMCI Index"
+    ]
+  },
+  "TSTUSDC": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Meme",
+      "Binance Alpha Spotlight",
+      "Four.meme Ecosystem"
+    ]
+  },
+  "CELOUSDT": {
+    
+    "categories": [
+      "Arbitrum Ecosystem",
+      "Wormhole Assets",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Bridged-Tokens"
+    ]
+  },
+  "VETUSDT": {
+    
+    "categories": [
+      "Internet of Things (IOT)",
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "VeChain Ecosystem",
+      "Made in China"
+    ]
+  },
+  "JTOUSDC": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Solana Ecosystem",
+      "Liquid Staking Governance Tokens",
+      "Multicoin Capital Portfolio",
+      "Alameda Research Portfolio",
+      "Delphi Ventures Portfolio",
+      "Liquid Staking",
+      "Made in USA"
+    ]
+  },
+  "SUPERUSDT": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "NFT",
+      "Collectibles",
+      "Polygon Ecosystem",
+      "Ethereum Ecosystem",
+      "Animoca Brands Portfolio",
+      "Gaming Blockchains",
+      "Made in USA"
+    ]
+  },
+  "ALPACAUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "BNB Chain Ecosystem",
+      "Yield Aggregator",
+      "Lending/Borrowing Protocols",
+      "Fantom Ecosystem"
+    ]
+  },
+  "IOSTUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Proof of Stake (PoS)",
+      "Sequoia Capital Portfolio"
+    ]
+  },
+  "ZECUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Privacy",
+      "Layer 1 (L1)",
+      "Zero Knowledge (ZK)",
+      "Proof of Work (PoW)",
+      "Pantera Capital Portfolio",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "BANANAS31USDC": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Meme",
+      "Binance Alpha Spotlight"
+    ]
+  },
+  "AIXBTUSDC": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "Meme",
+      "Base Ecosystem",
+      "AI Meme",
+      "AI Agents",
+      "Virtuals Protocol Ecosystem",
+      "Binance Alpha Spotlight",
+      "DeFAI"
+    ]
+  },
+  "RAYUSDC": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "Automated Market Maker (AMM)",
+      "Solana Ecosystem",
+      "Launchpad",
+      "GMCI DeFi Index",
+      "GMCI Index"
+    ]
+  },
+  "1000CHEEMSUSDC": {
+    
+    "categories": [
+      "Meme"
+    ]
+  },
+  "WAXPUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Gaming (GameFi)",
+      "NFT",
+      "Layer 1 (L1)",
+      "Play To Earn",
+      "Ethereum Ecosystem",
+      "Animoca Brands Portfolio",
+      "Gaming Blockchains",
+      "Pantera Capital Portfolio",
+      "OKX Ventures Portfolio"
+    ]
+  },
+  "BMTUSDC": {
+    
+    "categories": [
+      "Analytics",
+      "BNB Chain Ecosystem",
+      "Solana Ecosystem",
+      "Binance HODLer Airdrops"
+    ]
+  },
+  "DOGSUSDC": {
+    
+    "categories": [
+      "Meme",
+      "Dog-Themed",
+      "TON Ecosystem",
+      "TON Meme"
+    ]
+  },
+  "ACXUSDC": {
+    
+    "categories": [
+      "Polygon Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Bridge Governance Tokens",
+      "Cross-chain Communication",
+      "Intent",
+      "Boba Network Ecosystem",
+      "Blockchain Capital Portfolio",
+      "Made in USA"
+    ]
+  },
+  "SKLUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Gaming (GameFi)",
+      "Layer 1 (L1)",
+      "Ethereum Ecosystem",
+      "Modular Blockchain",
+      "Account Abstraction",
+      "Multicoin Capital Portfolio",
+      "Gaming Blockchains",
+      "Gaming Utility Token",
+      "Skale Ecosystem",
+      "Consensys Portfolio",
+      "Galaxy Digital Portfolio",
+      "Made in USA"
+    ]
+  },
+  "DFUSDC": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "BNB Chain Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Multicoin Capital Portfolio",
+      "Energi Ecosystem"
+    ]
+  },
+  "COTIUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Ethereum Ecosystem",
+      "Zero Knowledge (ZK)",
+      "Alleged SEC Securities",
+      "Privacy Blockchain"
+    ]
+  },
+  "THEUSDC": {
+    
+    "categories": [
+      "Ethereum Ecosystem"
+    ]
+  },
+  "OPUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Optimism Ecosystem",
+      "Layer 2 (L2)",
+      "Paradigm Portfolio",
+      "Rollup",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "GMCI Layer 2 Index",
+      "GMCI Index",
+      "Optimism Superchain Ecosystem",
+      "Made in USA"
+    ]
+  },
+  "HMSTRUSDC": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "Play To Earn",
+      "Telegram Apps",
+      "TON Ecosystem",
+      "Tap to Earn",
+      "Arcade Games"
+    ]
+  },
+  "LPTUSDT": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Harmony Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "DePIN",
+      "Coinbase Ventures Portfolio",
+      "Multicoin Capital Portfolio",
+      "Pantera Capital Portfolio",
+      "GMCI DePIN Index",
+      "GMCI Index",
+      "Coinbase 50 Index"
+    ]
+  },
+  "WUSDC": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Interoperability",
+      "Base Ecosystem",
+      "Multicoin Capital Portfolio",
+      "Cross-chain Communication",
+      "Made in USA"
+    ]
+  },
+  "YGGUSDC": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "NFT",
+      "BNB Chain Ecosystem",
+      "Metaverse",
+      "Collectibles",
+      "Polygon Ecosystem",
+      "Play To Earn",
+      "Harmony Ecosystem",
+      "Guild and Scholarship",
+      "Ethereum Ecosystem",
+      "Animoca Brands Portfolio",
+      "Base Ecosystem",
+      "DWF Labs Portfolio",
+      "Ronin Ecosystem",
+      "Gaming Governance Token",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "Delphi Ventures Portfolio"
+    ]
+  },
+  "USTCUSDT": {
+    
+    "categories": [
+      "Crypto-Backed Tokens",
+      "Stablecoins",
+      "USD Stablecoin",
+      "BNB Chain Ecosystem",
+      "Seigniorage",
+      "Wrapped-Tokens",
+      "Solana Ecosystem",
+      "Polygon Ecosystem",
+      "Fantom Ecosystem",
+      "Harmony Ecosystem",
+      "Ethereum Ecosystem",
+      "Aurora Ecosystem",
+      "Sora Ecosystem",
+      "Fiat-backed Stablecoin"
+    ]
+  },
+  "LDOUSDC": {
+    
+    "categories": [
+      "Infrastructure",
+      "Decentralized Finance (DeFi)",
+      "Polygon Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Liquid Staking Governance Tokens",
+      "eGirl Capital Portfolio",
+      "Paradigm Portfolio",
+      "Coinbase Ventures Portfolio",
+      "Multicoin Capital Portfolio",
+      "Index Coop Defi Index",
+      "Alameda Research Portfolio",
+      "DragonFly Capital Portfolio",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "GMCI DeFi Index",
+      "Delphi Ventures Portfolio",
+      "Liquid Staking",
+      "Index Coop Index",
+      "GMCI Index",
+      "Coinbase 50 Index"
+    ]
+  },
+  "PIXELUSDC": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Ethereum Ecosystem"
+    ]
+  },
+  "SXPUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Harmony Ecosystem",
+      "Ethereum Ecosystem",
+      "Alameda Research Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "CFXUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "DWF Labs Portfolio",
+      "Proof of Work (PoW)",
+      "GMCI Layer 1 Index",
+      "Sequoia Capital Portfolio",
+      "GMCI Index",
+      "Made in China"
+    ]
+  },
+  "ARKMUSDC": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Exchange-based Tokens",
+      "Analytics",
+      "Derivatives",
+      "Perpetuals",
+      "Centralized Exchange (CEX) Token",
+      "Ethereum Ecosystem",
+      "Binance Launchpad",
+      "Coinbase Ventures Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Made in USA"
+    ]
+  },
+  "ELFUSDT": {
+    
+    "categories": [
+      "Ethereum Ecosystem"
+    ]
+  },
+  "TRUMPUSDC": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "Meme",
+      "Solana Meme",
+      "PolitiFi",
+      "Made in USA"
+    ]
+  },
+  "PROMUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "BNB Chain Ecosystem",
+      "Ethereum Ecosystem",
+      "Layer 2 (L2)"
+    ]
+  },
+  "DEGOUSDT": {
+    
+    "categories": [
+      "NFT",
+      "BNB Chain Ecosystem",
+      "Solana Ecosystem",
+      "Ethereum Ecosystem",
+      "Binance Launchpad"
+    ]
+  },
+  "BEAMXUSDC": {
+    
+    "categories": []
+  },
+  "BANANAUSDT": {
+    
+    "categories": [
+      "Solana Ecosystem"
+    ]
+  },
+  "OGUSDT": {
+    
+    "categories": [
+      "Entertainment",
+      "Sports",
+      "Binance Launchpool",
+      "Fan Token",
+      "Chiliz Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "ADXUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Ethereum Ecosystem"
+    ]
+  },
+  "EPICUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Ethereum Ecosystem",
+      "Layer 2 (L2)",
+      "Real World Assets (RWA)"
+    ]
+  },
+  "BICOUSDT": {
+    
+    "categories": [
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Account Abstraction",
+      "Coinbase Ventures Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Consensys Portfolio",
+      "Outlier Ventures Portfolio"
+    ]
+  },
+  "LUNAUSDT": {
+    
+    "categories": [
+      "Alleged SEC Securities",
+      "Osmosis Ecosystem",
+      "DeFiance Capital Portfolio",
+      "Pantera Capital Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Delphi Ventures Portfolio",
+      "Galaxy Digital Portfolio",
+      "OKX Ventures Portfolio"
+    ]
+  },
+  "GMTUSDT": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "NFT",
+      "BNB Chain Ecosystem",
+      "Solana Ecosystem",
+      "Polygon Ecosystem",
+      "Play To Earn",
+      "Move To Earn",
+      "Ethereum Ecosystem",
+      "Binance Launchpad",
+      "Gaming Governance Token",
+      "Sports Games",
+      "Alameda Research Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Sequoia Capital Portfolio"
+    ]
+  },
+  "REZUSDC": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Binance Launchpool",
+      "Ethereum Ecosystem",
+      "Restaking",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "OKX Ventures Portfolio"
+    ]
+  },
+  "AMPUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Near Protocol Ecosystem",
+      "Ethereum Ecosystem",
+      "Payment Solutions",
+      "Alleged SEC Securities",
+      "Pantera Capital Portfolio",
+      "Energi Ecosystem",
+      "Made in USA"
+    ]
+  },
+  "SLPUSDT": {
+    
+    "categories": [
+      "Entertainment",
+      "Gaming (GameFi)",
+      "NFT",
+      "Axie Infinity Ecosystem",
+      "Play To Earn",
+      "Ethereum Ecosystem",
+      "Ronin Ecosystem",
+      "Gaming Utility Token"
+    ]
+  },
+  "MBLUSDT": {
+    
+    "categories": [
+      "DWF Labs Portfolio"
+    ]
+  },
+  "FARMUSDT": {
+    
+    "categories": [
+      "Launchpad",
+      "Ethereum Ecosystem"
+    ]
+  },
+  "OSMOUSDC": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Decentralized Finance (DeFi)",
+      "Automated Market Maker (AMM)",
+      "Cosmos Ecosystem",
+      "Osmosis Ecosystem",
+      "Paradigm Portfolio",
+      "Proof of Stake (PoS)",
+      "Evmos Ecosystem",
+      "Secret Ecosystem",
+      "GMCI DeFi Index",
+      "GMCI Index",
+      "Made in USA"
+    ]
+  },
+  "ZENUSDT": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "Meme",
+      "AI Meme",
+      "Pump.fun Ecosystem"
+    ]
+  },
+  "QUICKUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Exchange-based Tokens",
+      "Decentralized Finance (DeFi)",
+      "Derivatives",
+      "Perpetuals",
+      "Polygon Ecosystem",
+      "Ethereum Ecosystem",
+      "DWF Labs Portfolio",
+      "Manta Network Ecosystem",
+      "Dogechain Ecosystem",
+      "Polygon zkEVM Ecosystem"
+    ]
+  },
+  "GLMUSDT": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Ethereum Ecosystem",
+      "DePIN",
+      "Energi Ecosystem",
+      "GMCI DePIN Index",
+      "GMCI Index"
+    ]
+  },
+  "AEVOUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Decentralized Finance (DeFi)",
+      "Binance Launchpool",
+      "Derivatives",
+      "Perpetuals",
+      "Ethereum Ecosystem",
+      "Layer 2 (L2)",
+      "DragonFly Capital Portfolio",
+      "Pantera Capital Portfolio"
+    ]
+  },
+  "RAREUSDC": {
+    
+    "categories": [
+      "NFT",
+      "Ethereum Ecosystem",
+      "Sora Ecosystem"
+    ]
+  },
+  "HIFIUSDT": {
+    
+    "categories": [
+      "Tokenized Real Estate",
+      "Decentralized Finance (DeFi)",
+      "Tokenized Assets",
+      "Lending/Borrowing Protocols",
+      "Ethereum Ecosystem",
+      "Real World Assets (RWA)",
+      "Made in USA"
+    ]
+  },
+  "CVXUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "Yield Aggregator",
+      "Ethereum Ecosystem",
+      "Metagovernance",
+      "Curve Ecosystem",
+      "Yield Optimizer"
+    ]
+  },
+  "IOTXUSDT": {
+    
+    "categories": [
+      "Internet of Things (IOT)",
+      "Ethereum Ecosystem",
+      "DePIN",
+      "Base Ecosystem",
+      "Account Abstraction",
+      "GMCI DePIN Index",
+      "GMCI Index",
+      "Made in USA"
+    ]
+  },
+  "REQUSDT": {
+    
+    "categories": [
+      "Business Services",
+      "Polygon Ecosystem",
+      "Ethereum Ecosystem"
+    ]
+  },
+  "BELUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "BNB Chain Ecosystem",
+      "Binance Launchpool",
+      "Yield Aggregator",
+      "Ethereum Ecosystem",
+      "Manta Network Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "FTTUSDT": {
+    
+    "categories": [
+      "Exchange-based Tokens",
+      "Centralized Exchange (CEX) Token",
+      "Solana Ecosystem",
+      "Ethereum Ecosystem",
+      "Alleged SEC Securities",
+      "FTX Holdings",
+      "Paradigm Portfolio",
+      "Coinbase Ventures Portfolio",
+      "Multicoin Capital Portfolio",
+      "Alameda Research Portfolio",
+      "Pantera Capital Portfolio",
+      "Energi Ecosystem",
+      "Sora Ecosystem",
+      "Viction Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Circle Ventures Portfolio",
+      "Sequoia Capital Portfolio"
+    ]
+  },
+  "BBUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Ethereum Ecosystem",
+      "Restaking",
+      "Proof of Stake (PoS)",
+      "DeFiance Capital Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Binance Megadrop",
+      "Blockchain Capital Portfolio",
+      "OKX Ventures Portfolio"
+    ]
+  },
+  "PROSUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "BNB Chain Ecosystem",
+      "Ethereum Ecosystem",
+      "Base Ecosystem"
+    ]
+  },
+  "GHSTUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Gaming (GameFi)",
+      "NFT",
+      "Metaverse",
+      "Collectibles",
+      "Polygon Ecosystem",
+      "Meme",
+      "Play To Earn",
+      "Ethereum Ecosystem",
+      "Gotchiverse",
+      "Base Ecosystem",
+      "Layer 3 (L3)",
+      "RPG",
+      "Gaming Governance Token",
+      "Gaming Utility Token",
+      "Energi Ecosystem"
+    ]
+  },
+  "VIBUSDT": {
+    
+    "categories": [
+      "Entertainment",
+      "Music",
+      "Analytics",
+      "Ethereum Ecosystem"
+    ]
+  },
+  "ZKUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 2 (L2)",
+      "Zero Knowledge (ZK)",
+      "ZkSync Ecosystem",
+      "Consensys Portfolio",
+      "Blockchain Capital Portfolio",
+      "OKX Ventures Portfolio"
+    ]
+  },
+  "WINGUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Binance Launchpool",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "EDUUSDT": {
+    
+    "categories": [
+      "Education",
+      "BNB Chain Ecosystem",
+      "Polygon Ecosystem",
+      "Ethereum Ecosystem",
+      "Binance Launchpad",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "CTKUSDT": {
+    
+    "categories": [
+      "Business Services",
+      "Ethereum Ecosystem"
+    ]
+  },
+  "AIUSDT": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "BNB Chain Ecosystem",
+      "Binance Launchpool",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "COWUSDC": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Decentralized Finance (DeFi)",
+      "Gnosis Chain Ecosystem",
+      "MEV Protection",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Intent",
+      "Delphi Ventures Portfolio",
+      "Blockchain Capital Portfolio"
+    ]
+  },
+  "DGBUSDT": {
+    
+    "categories": [
+      "Internet of Things (IOT)",
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Proof of Work (PoW)",
+      "Made in USA"
+    ]
+  },
+  "MAGICUSDT": {
+    
+    "categories": [
+      "Meme",
+      "Ethereum Ecosystem"
+    ]
+  },
+  "BSWUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "VANRYUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Gaming (GameFi)",
+      "NFT",
+      "Layer 1 (L1)",
+      "Polygon Ecosystem",
+      "Ethereum Ecosystem",
+      "Vanar Chain Ecosystem"
+    ]
+  },
+  "HEIUSDC": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Binance Launchpool",
+      "Ethereum Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "TFUELUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "DePIN",
+      "Proof of Stake (PoS)",
+      "Made in USA"
+    ]
+  },
+  "ARKUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem"
+    ]
+  },
+  "WOOUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Exchange-based Tokens",
+      "Decentralized Finance (DeFi)",
+      "Automated Market Maker (AMM)",
+      "BNB Chain Ecosystem",
+      "Derivatives",
+      "Perpetuals",
+      "Centralized Exchange (CEX) Token",
+      "Solana Ecosystem",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Near Protocol Ecosystem",
+      "Fantom Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "ZkSync Ecosystem",
+      "Mantle Ecosystem",
+      "Linea Ecosystem",
+      "Base Ecosystem",
+      "DragonFly Capital Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "HIGHUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Binance Launchpool",
+      "Metaverse",
+      "Impossible Finance Launchpad",
+      "Ethereum Ecosystem",
+      "Animoca Brands Portfolio",
+      "DWF Labs Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "AUDIOUSDT": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "Wormhole Assets",
+      "Bridged-Tokens"
+    ]
+  },
+  "XVSUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "BNB Chain Ecosystem",
+      "Binance Launchpool",
+      "Lending/Borrowing Protocols",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "ZkSync Ecosystem",
+      "opBNB Ecosystem",
+      "Unichain Ecosystem"
+    ]
+  },
+  "TROYUSDC": {
+    
+    "categories": [
+      "Business Services",
+      "BNB Chain Ecosystem",
+      "Binance Launchpad",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "1000CATUSDC": {
+    
+    "categories": [
+      "Meme",
+      "Cat-Themed",
+      "Binance HODLer Airdrops"
+    ]
+  },
+  "CREAMUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Decentralized Finance (DeFi)",
+      "Automated Market Maker (AMM)",
+      "Yearn Ecosystem",
+      "Lending/Borrowing Protocols",
+      "Near Protocol Ecosystem",
+      "Fantom Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Alameda Research Portfolio",
+      "Energi Ecosystem",
+      "Sora Ecosystem"
+    ]
+  },
+  "FIROUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Privacy",
+      "Masternodes",
+      "Zero Knowledge (ZK)",
+      "Proof of Work (PoW)"
+    ]
+  },
+  "DUSDT": {
+    
+    "categories": [
+      "Masternodes",
+      "BNB Chain Ecosystem"
+    ]
+  },
+  "RADUSDT": {
+    
+    "categories": [
+      "Infrastructure",
+      "Ethereum Ecosystem",
+      "DePIN",
+      "Galaxy Digital Portfolio"
+    ]
+  },
+  "GPSUSDC": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Base Ecosystem",
+      "Cybersecurity",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "OKX Ventures Portfolio",
+      "Binance Alpha Spotlight"
+    ]
+  },
+  "UTKUSDC": {
+    
+    "categories": [
+      "Ethereum Ecosystem",
+      "MultiversX Ecosystem",
+      "Payment Solutions",
+      "Cybersecurity"
+    ]
+  },
+  "FXSUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "Automated Market Maker (AMM)",
+      "BNB Chain Ecosystem",
+      "Seigniorage",
+      "Solana Ecosystem",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Fantom Ecosystem",
+      "Harmony Ecosystem",
+      "Arbitrum Ecosystem",
+      "Moonriver Ecosystem",
+      "Ethereum Ecosystem",
+      "Liquid Staking Governance Tokens",
+      "Curve Ecosystem",
+      "Stablecoin Protocol",
+      "Polygon zkEVM Ecosystem",
+      "Evmos Ecosystem",
+      "Fraxtal Ecosystem",
+      "GMCI DeFi Index",
+      "Liquid Staking",
+      "GMCI Index",
+      "Made in USA"
+    ]
+  },
+  "ALTUSDC": {
+    
+    "categories": [
+      "Aptos Ecosystem"
+    ]
+  },
+  "MOVEUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Ethereum Ecosystem",
+      "Layer 2 (L2)",
+      "Zero Knowledge (ZK)",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "OKX Ventures Portfolio",
+      "Binance HODLer Airdrops",
+      "World Liberty Financial Portfolio",
+      "Made in USA"
+    ]
+  },
+  "NULSUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "DWF Labs Portfolio"
+    ]
+  },
+  "SYSUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Masternodes",
+      "Layer 1 (L1)",
+      "Decentralized Identifier (DID)",
+      "Layer 2 (L2)",
+      "Zero Knowledge (ZK)",
+      "Rollux Ecosystem",
+      "DWF Labs Portfolio",
+      "Data Availability",
+      "Modular Blockchain",
+      "Rollup",
+      "Proof of Work (PoW)"
+    ]
+  },
+  "LEVERUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Ethereum Ecosystem",
+      "DWF Labs Portfolio",
+      "Alameda Research Portfolio"
+    ]
+  },
+  "SCRUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 2 (L2)"
+    ]
+  },
+  "SLFUSDC": {
+    
+    "categories": [
+      "Infrastructure",
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Account Abstraction",
+      "Intent"
+    ]
+  },
+  "ALCXUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "Lending/Borrowing Protocols",
+      "Near Protocol Ecosystem",
+      "Olympus Pro Ecosystem",
+      "Ethereum Ecosystem",
+      "eGirl Capital Portfolio",
+      "Alameda Research Portfolio",
+      "Delphi Ventures Portfolio"
+    ]
+  },
+  "BIFIUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Lending/Borrowing Protocols",
+      "Fantom Ecosystem",
+      "Ethereum Ecosystem"
+    ]
+  },
+  "1000SATSUSDC": {
+    
+    "categories": [
+      "BRC-20",
+      "Inscriptions"
+    ]
+  },
+  "FDUSDUSDC": {
+    
+    "categories": [
+      "Stablecoins",
+      "USD Stablecoin",
+      "BNB Chain Ecosystem",
+      "Ethereum Ecosystem",
+      "Sui Ecosystem",
+      "Fiat-backed Stablecoin"
+    ]
+  },
+  "TRXUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Alleged SEC Securities",
+      "FTX Holdings",
+      "DWF Labs Portfolio",
+      "Tron Ecosystem",
+      "Proof of Stake (PoS)",
+      "GMCI Layer 1 Index",
+      "GMCI 30 Index",
+      "GMCI Index",
+      "World Liberty Financial Portfolio",
+      "Made in China"
+    ]
+  },
+  "FUNUSDT": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "Meme",
+      "Pump.fun Ecosystem"
+    ]
+  },
+  "OMUSDC": {
+    
+    "categories": [
+      "Infrastructure",
+      "Smart Contract Platform",
+      "BNB Chain Ecosystem",
+      "Layer 1 (L1)",
+      "Polygon Ecosystem",
+      "Ethereum Ecosystem",
+      "Real World Assets (RWA)",
+      "Base Ecosystem",
+      "Osmosis Ecosystem",
+      "Mantra Ecosystem"
+    ]
+  },
+  "DOTUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Polkadot Ecosystem",
+      "Proof of Stake (PoS)",
+      "Layer 0 (L0)",
+      "Pantera Capital Portfolio",
+      "GMCI 30 Index",
+      "GMCI Index",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "WBTCUSDT": {
+    
+    "categories": [
+      "Polygon Ecosystem",
+      "Bridged WBTC",
+      "Bridged-Tokens"
+    ]
+  },
+  "ARBUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Arbitrum Nova Ecosystem",
+      "Layer 2 (L2)",
+      "eGirl Capital Portfolio",
+      "Rollup",
+      "Alameda Research Portfolio",
+      "Pantera Capital Portfolio",
+      "GMCI Layer 2 Index",
+      "GMCI 30 Index",
+      "GMCI Index",
+      "Polychain Capital Portfolio",
+      "Made in USA"
+    ]
+  },
+  "VANAUSDC": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Paradigm Portfolio",
+      "Coinbase Ventures Portfolio",
+      "DeFiance Capital Portfolio",
+      "Polychain Capital Portfolio",
+      "Vana Ecosystem"
+    ]
+  },
+  "DYDXUSDC": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Smart Contract Platform",
+      "Decentralized Finance (DeFi)",
+      "Cosmos Ecosystem",
+      "Perpetuals",
+      "Layer 1 (L1)",
+      "Osmosis Ecosystem",
+      "Appchains",
+      "DragonFly Capital Portfolio",
+      "DeFiance Capital Portfolio",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "GMCI DeFi Index",
+      "Delphi Ventures Portfolio",
+      "GMCI Index",
+      "Polychain Capital Portfolio",
+      "Made in USA"
+    ]
+  },
+  "TIAUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Cosmos Ecosystem",
+      "Layer 1 (L1)",
+      "Data Availability",
+      "Modular Blockchain",
+      "Osmosis Ecosystem",
+      "eGirl Capital Portfolio",
+      "Coinbase Ventures Portfolio",
+      "Proof of Stake (PoS)",
+      "Secret Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Delphi Ventures Portfolio",
+      "Galaxy Digital Portfolio",
+      "Blockchain Capital Portfolio",
+      "OKX Ventures Portfolio",
+      "Polychain Capital Portfolio"
+    ]
+  },
+  "ATOMUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "BNB Chain Ecosystem",
+      "Cosmos Ecosystem",
+      "Canto Ecosystem",
+      "Alleged SEC Securities",
+      "Osmosis Ecosystem",
+      "Paradigm Portfolio",
+      "Proof of Stake (PoS)",
+      "Kava Ecosystem",
+      "Layer 0 (L0)",
+      "DragonFly Capital Portfolio",
+      "Pantera Capital Portfolio",
+      "Archway Ecosystem",
+      "Evmos Ecosystem",
+      "GMCI 30 Index",
+      "GMCI Index",
+      "Outlier Ventures Portfolio",
+      "Polychain Capital Portfolio",
+      "Coinbase 50 Index"
+    ]
+  },
+  "RSRUSDC": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Real World Assets (RWA)",
+      "Base Ecosystem",
+      "Coinbase Ventures Portfolio",
+      "Energi Ecosystem",
+      "Made in USA"
+    ]
+  },
+  "FILUSDC": {
+    
+    "categories": [
+      "Infrastructure",
+      "Smart Contract Platform",
+      "Storage",
+      "Layer 1 (L1)",
+      "DePIN",
+      "Alleged SEC Securities",
+      "Pantera Capital Portfolio",
+      "GMCI DePIN Index",
+      "GMCI 30 Index",
+      "Sequoia Capital Portfolio",
+      "Blockchain Capital Portfolio",
+      "GMCI Index",
+      "Made in USA"
+    ]
+  },
+  "XLMUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Stellar Ecosystem",
+      "GMCI 30 Index",
+      "GMCI Index",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "XUSDUSDT": {
+    
+    "categories": [
+      "Rootstock Ecosystem"
+    ]
+  },
+  "APEUSDC": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "NFT",
+      "Polygon Ecosystem",
+      "Ethereum Ecosystem",
+      "Animoca Brands Portfolio",
+      "Gaming Blockchains",
+      "Gaming Governance Token",
+      "Gaming Utility Token",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "ApeChain Ecosystem",
+      "Airdropped Tokens by NFT Projects",
+      "Coinbase 50 Index"
+    ]
+  },
+  "WLDUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Ethereum Ecosystem",
+      "Decentralized Identifier (DID)",
+      "Optimism Ecosystem",
+      "Coinbase Ventures Portfolio",
+      "Multicoin Capital Portfolio",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "Blockchain Capital Portfolio",
+      "Optimism Superchain Ecosystem",
+      "World Chain Ecosystem",
+      "Made in USA"
+    ]
+  },
+  "EURIUSDC": {
+    
+    "categories": [
+      "Stablecoins",
+      "EUR Stablecoin",
+      "BNB Chain Ecosystem",
+      "Ethereum Ecosystem"
+    ]
+  },
+  "BONKUSDC": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Solana Ecosystem",
+      "Polygon Ecosystem",
+      "Meme",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Aptos Ecosystem",
+      "Dog-Themed",
+      "Solana Meme",
+      "Neon Ecosystem",
+      "GMCI Meme Index",
+      "GMCI Index",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "POLUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Polygon Ecosystem",
+      "Ethereum Ecosystem",
+      "Layer 2 (L2)"
+    ]
+  },
+  "ETCUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Proof of Work (PoW)",
+      "Coinbase 50 Index"
+    ]
+  },
+  "LTCUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Proof of Work (PoW)",
+      "GMCI 30 Index",
+      "GMCI Index",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "ALGOUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Algorand Ecosystem",
+      "Real World Assets (RWA)",
+      "Alleged SEC Securities",
+      "DWF Labs Portfolio",
+      "Multicoin Capital Portfolio",
+      "Proof of Stake (PoS)",
+      "GMCI Layer 1 Index",
+      "GMCI Index",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "ACTUSDC": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "Meme",
+      "Solana Meme",
+      "AI Meme",
+      "Pump.fun Ecosystem"
+    ]
+  },
+  "TUSDUSDT": {
+    
+    "categories": [
+      "Stablecoins",
+      "USD Stablecoin",
+      "BNB Chain Ecosystem",
+      "Avalanche Ecosystem",
+      "Ethereum Ecosystem",
+      "Tron Ecosystem",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "Fiat-backed Stablecoin"
+    ]
+  },
+  "AVAXUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Avalanche Ecosystem",
+      "Proof of Stake (PoS)",
+      "DragonFly Capital Portfolio",
+      "DeFiance Capital Portfolio",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "GMCI Layer 1 Index",
+      "GMCI 30 Index",
+      "Galaxy Digital Portfolio",
+      "GMCI Index",
+      "Polychain Capital Portfolio",
+      "World Liberty Financial Portfolio",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "WIFUSDC": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "Meme",
+      "Dog-Themed",
+      "Solana Meme",
+      "GMCI Meme Index",
+      "GMCI Index"
+    ]
+  },
+  "SAGAUSDC": {
+    
+    "categories": [
+      "Wrapped-Tokens",
+      "Saga Ecosystem"
+    ]
+  },
+  "SANDUSDC": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "NFT",
+      "Metaverse",
+      "Polygon Ecosystem",
+      "Play To Earn",
+      "Harmony Ecosystem",
+      "Ethereum Ecosystem",
+      "Animoca Brands Portfolio",
+      "Alleged SEC Securities",
+      "Binance Launchpad",
+      "Gaming Utility Token",
+      "Simulation Games",
+      "Energi Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Coinbase 50 Index"
+    ]
+  },
+  "INJUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Decentralized Finance (DeFi)",
+      "BNB Chain Ecosystem",
+      "Cosmos Ecosystem",
+      "Layer 1 (L1)",
+      "Ethereum Ecosystem",
+      "Binance Launchpad",
+      "Osmosis Ecosystem",
+      "Proof of Stake (PoS)",
+      "Pantera Capital Portfolio",
+      "Secret Ecosystem",
+      "GMCI Layer 1 Index",
+      "GMCI Index",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "CHZUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Sports",
+      "NFT",
+      "Layer 1 (L1)",
+      "Ethereum Ecosystem",
+      "Alleged SEC Securities",
+      "Chiliz Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Coinbase 50 Index"
+    ]
+  },
+  "APTUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Aptos Ecosystem",
+      "FTX Holdings",
+      "Coinbase Ventures Portfolio",
+      "Multicoin Capital Portfolio",
+      "Proof of Stake (PoS)",
+      "DragonFly Capital Portfolio",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "GMCI Layer 1 Index",
+      "GMCI 30 Index",
+      "Circle Ventures Portfolio",
+      "GMCI Index",
+      "Made in USA"
+    ]
+  },
+  "KDAUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Kadena Ecosystem",
+      "Multicoin Capital Portfolio",
+      "Proof of Work (PoW)",
+      "Made in USA"
+    ]
+  },
+  "MKRUSDC": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Lending/Borrowing Protocols",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Ethereum Ecosystem",
+      "Real World Assets (RWA)",
+      "Paradigm Portfolio",
+      "Index Coop Defi Index",
+      "Stablecoin Protocol",
+      "DragonFly Capital Portfolio",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "Energi Ecosystem",
+      "Sora Ecosystem",
+      "GMCI DeFi Index",
+      "RWA Protocol",
+      "Index Coop Index",
+      "GMCI Index",
+      "Polychain Capital Portfolio",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "USUALUSDC": {
+    
+    "categories": [
+      "IOU tokens"
+    ]
+  },
+  "USDPUSDT": {
+    
+    "categories": [
+      "Stablecoins",
+      "USD Stablecoin",
+      "Solana Ecosystem",
+      "Ethereum Ecosystem",
+      "Multicoin Capital Portfolio",
+      "Fiat-backed Stablecoin"
+    ]
+  },
+  "ACHUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Ethereum Ecosystem",
+      "Payment Solutions",
+      "DWF Labs Portfolio"
+    ]
+  },
+  "ANIMEUSDC": {
+    
+    "categories": [
+      "Meme",
+      "Base Ecosystem",
+      "Base Meme"
+    ]
+  },
+  "YFIUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "Yield Aggregator",
+      "Yearn Ecosystem",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Near Protocol Ecosystem",
+      "Gnosis Chain Ecosystem",
+      "Fantom Ecosystem",
+      "Harmony Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Base Ecosystem",
+      "Index Coop Defi Index",
+      "Alameda Research Portfolio",
+      "Energi Ecosystem",
+      "Sora Ecosystem",
+      "Huobi ECO Chain Ecosystem",
+      "Blockchain Capital Portfolio",
+      "Index Coop Index"
+    ]
+  },
+  "STRKUSDC": {
+    
+    "categories": [
+      "Infrastructure",
+      "Smart Contract Platform",
+      "Ethereum Ecosystem",
+      "Layer 2 (L2)",
+      "Zero Knowledge (ZK)",
+      "Starknet Ecosystem",
+      "Paradigm Portfolio",
+      "Coinbase Ventures Portfolio",
+      "Rollup",
+      "Multicoin Capital Portfolio",
+      "Alameda Research Portfolio",
+      "Pantera Capital Portfolio",
+      "GMCI Layer 2 Index",
+      "Consensys Portfolio",
+      "Sequoia Capital Portfolio",
+      "GMCI Index",
+      "Polychain Capital Portfolio"
+    ]
+  },
+  "SPELLUSDT": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "Meme",
+      "Pump.fun Ecosystem"
+    ]
+  },
+  "ORDIUSDC": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "BRC-20",
+      "Bitcoin Ecosystem",
+      "Inscriptions"
+    ]
+  },
+  "AXSUSDT": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "NFT",
+      "BNB Chain Ecosystem",
+      "Axie Infinity Ecosystem",
+      "Metaverse",
+      "Play To Earn",
+      "Harmony Ecosystem",
+      "Ethereum Ecosystem",
+      "Animoca Brands Portfolio",
+      "Alleged SEC Securities",
+      "Binance Launchpad",
+      "Ronin Ecosystem",
+      "Card Games",
+      "Breeding",
+      "Paradigm Portfolio",
+      "Gaming Governance Token",
+      "Gaming Utility Token",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "Energi Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Consensys Portfolio",
+      "Coinbase 50 Index"
+    ]
+  },
+  "STPTUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Derivatives",
+      "Synthetic Issuer",
+      "Ethereum Ecosystem",
+      "Base Ecosystem",
+      "Synthetic"
+    ]
+  },
+  "BOMEUSDT": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "Meme",
+      "Frog-Themed",
+      "Solana Meme",
+      "GMCI Meme Index",
+      "GMCI Index"
+    ]
+  },
+  "DEXEUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "BNB Chain Ecosystem",
+      "Ethereum Ecosystem"
+    ]
+  },
+  "LINKUSDC": {
+    
+    "categories": [
+      "Business Services",
+      "Infrastructure",
+      "Smart Contract Platform",
+      "Decentralized Finance (DeFi)",
+      "Oracle",
+      "BNB Chain Ecosystem",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Near Protocol Ecosystem",
+      "Gnosis Chain Ecosystem",
+      "Fantom Ecosystem",
+      "Harmony Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Real World Assets (RWA)",
+      "Base Ecosystem",
+      "Osmosis Ecosystem",
+      "Energi Ecosystem",
+      "Sora Ecosystem",
+      "Huobi ECO Chain Ecosystem",
+      "Milkomeda (Cardano) Ecosystem",
+      "GMCI DeFi Index",
+      "GMCI 30 Index",
+      "GMCI Index",
+      "World Liberty Financial Portfolio",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "KAVAUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Binance Launchpad",
+      "DWF Labs Portfolio",
+      "Osmosis Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Made in USA"
+    ]
+  },
+  "ENSUSDC": {
+    
+    "categories": [
+      "NFT",
+      "Ethereum Ecosystem",
+      "Decentralized Identifier (DID)",
+      "Name Service"
+    ]
+  },
+  "IOTAUSDC": {
+    
+    "categories": [
+      "Internet of Things (IOT)",
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "DePIN",
+      "DWF Labs Portfolio",
+      "IOTA EVM Ecosystem",
+      "Outlier Ventures Portfolio",
+      "Directed Acyclic Graph (DAG)"
+    ]
+  },
+  "NOTUSDC": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "Binance Launchpool",
+      "Meme",
+      "Play To Earn",
+      "TON Ecosystem",
+      "TON Meme",
+      "Tap to Earn"
+    ]
+  },
+  "FETUSDC": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "NFT",
+      "BNB Chain Ecosystem",
+      "Ethereum Ecosystem",
+      "Binance Launchpad",
+      "DWF Labs Portfolio",
+      "Osmosis Ecosystem",
+      "AI Agents",
+      "GMCI DePIN Index",
+      "GMCI Index",
+      "Outlier Ventures Portfolio"
+    ]
+  },
+  "COMPUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "BNB Chain Ecosystem",
+      "Lending/Borrowing Protocols",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Near Protocol Ecosystem",
+      "Harmony Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Base Ecosystem",
+      "Paradigm Portfolio",
+      "Index Coop Defi Index",
+      "Energi Ecosystem",
+      "Sora Ecosystem",
+      "Index Coop Index",
+      "Polychain Capital Portfolio",
+      "Made in USA"
+    ]
+  },
+  "PEOPLEUSDC": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "Wormhole Assets",
+      "Bridged-Tokens"
+    ]
+  },
+  "SOLVUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Binance Megadrop",
+      "BTCfi"
+    ]
+  },
+  "ETHFIUSDC": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Binance Launchpool",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Restaking",
+      "Liquid Restaking Governance Tokens",
+      "Ether.fi Ecosystem",
+      "Consensys Portfolio",
+      "OKX Ventures Portfolio"
+    ]
+  },
+  "MEMEUSDC": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "Meme",
+      "Solana Meme",
+      "Pump.fun Ecosystem"
+    ]
+  },
+  "POLYXUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Real World Assets (RWA)",
+      "RWA Protocol"
+    ]
+  },
+  "MANAUSDT": {
+    
+    "categories": [
+      "Entertainment",
+      "Gaming (GameFi)",
+      "NFT",
+      "Metaverse",
+      "Polygon Ecosystem",
+      "Play To Earn",
+      "Ethereum Ecosystem",
+      "Animoca Brands Portfolio",
+      "Alleged SEC Securities",
+      "Simulation Games",
+      "Coinbase 50 Index"
+    ]
+  },
+  "EGLDUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "MultiversX Ecosystem",
+      "Binance Launchpad",
+      "DWF Labs Portfolio",
+      "Proof of Stake (PoS)",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "GMCI Layer 1 Index",
+      "GMCI Index",
+      "Coinbase 50 Index"
+    ]
+  },
+  "1MBABYDOGEUSDC": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "Meme",
+      "Dog-Themed",
+      "Solana Meme",
+      "Gaming Utility Token"
+    ]
+  },
+  "ASTRUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Polkadot Ecosystem",
+      "Layer 1 (L1)",
+      "Layer 2 (L2)",
+      "Alameda Research Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "OKX Ventures Portfolio"
+    ]
+  },
+  "MASKUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Polygon Ecosystem",
+      "Ethereum Ecosystem",
+      "Animoca Brands Portfolio",
+      "DWF Labs Portfolio",
+      "Alameda Research Portfolio",
+      "Energi Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "RENDERUSDC": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "NFT",
+      "Metaverse",
+      "Solana Ecosystem",
+      "Polygon Ecosystem",
+      "Ethereum Ecosystem",
+      "DePIN",
+      "Multicoin Capital Portfolio",
+      "Alameda Research Portfolio",
+      "GMCI DePIN Index",
+      "GMCI 30 Index",
+      "GMCI Index",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "UFTUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "BNB Chain Ecosystem",
+      "Lending/Borrowing Protocols",
+      "Polygon Ecosystem",
+      "Ethereum Ecosystem"
+    ]
+  },
+  "THETAUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "DePIN",
+      "Theta Ecosystem",
+      "Blockchain Capital Portfolio",
+      "Made in USA"
+    ]
+  },
+  "ZRXUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Decentralized Finance (DeFi)",
+      "Avalanche Ecosystem",
+      "Harmony Ecosystem",
+      "Ethereum Ecosystem",
+      "Coinbase Ventures Portfolio",
+      "Pantera Capital Portfolio",
+      "Energi Ecosystem",
+      "GMCI DeFi Index",
+      "Blockchain Capital Portfolio",
+      "GMCI Index",
+      "Made in USA"
+    ]
+  },
+  "JASMYUSDT": {
+    
+    "categories": [
+      "Internet of Things (IOT)",
+      "Ethereum Ecosystem",
+      "DePIN",
+      "DWF Labs Portfolio",
+      "Coinbase 50 Index"
+    ]
+  },
+  "TURBOUSDC": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Ethereum Ecosystem"
+    ]
+  },
+  "ARUSDC": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Smart Contract Platform",
+      "Storage",
+      "Layer 1 (L1)",
+      "DePIN",
+      "Coinbase Ventures Portfolio",
+      "Multicoin Capital Portfolio",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "Blockchain Capital Portfolio"
+    ]
+  },
+  "IOUSDC": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Binance Launchpool",
+      "Solana Ecosystem",
+      "DePIN",
+      "Animoca Brands Portfolio",
+      "Multicoin Capital Portfolio",
+      "Delphi Ventures Portfolio",
+      "OKX Ventures Portfolio",
+      "Made in USA"
+    ]
+  },
+  "ANKRUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Fantom Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Liquid Staking Governance Tokens",
+      "Linea Ecosystem",
+      "DePIN",
+      "Scroll Ecosystem",
+      "Rollups-as-a-Service (RaaS)",
+      "Blast Ecosystem",
+      "Mode Ecosystem",
+      "Pantera Capital Portfolio",
+      "Polygon zkEVM Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Liquid Staking",
+      "Made in USA"
+    ]
+  },
+  "DIAUSDT": {
+    
+    "categories": [
+      "Infrastructure",
+      "Decentralized Finance (DeFi)",
+      "Oracle",
+      "BNB Chain Ecosystem",
+      "Ethereum Ecosystem",
+      "Real World Assets (RWA)",
+      "Sora Ecosystem",
+      "Outlier Ventures Portfolio"
+    ]
+  },
+  "CKBUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Interoperability",
+      "Layer 2 (L2)",
+      "Rollup",
+      "Multicoin Capital Portfolio",
+      "Proof of Work (PoW)",
+      "DragonFly Capital Portfolio",
+      "Sequoia Capital Portfolio",
+      "Blockchain Capital Portfolio",
+      "Polychain Capital Portfolio",
+      "Made in China"
+    ]
+  },
+  "BCHUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Bitcoin Fork",
+      "Proof of Work (PoW)",
+      "Coinbase 50 Index"
+    ]
+  },
+  "MINAUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Zero Knowledge (ZK)",
+      "FTX Holdings",
+      "Paradigm Portfolio",
+      "Coinbase Ventures Portfolio",
+      "Multicoin Capital Portfolio",
+      "Proof of Stake (PoS)",
+      "Pantera Capital Portfolio",
+      "Circle Ventures Portfolio",
+      "Privacy Blockchain",
+      "Polychain Capital Portfolio",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "AXLUSDT": {
+    
+    "categories": [
+      "Infrastructure",
+      "BNB Chain Ecosystem",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Fantom Ecosystem",
+      "Arbitrum Ecosystem",
+      "Moonbeam Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Interoperability",
+      "Bridge Governance Tokens",
+      "Base Ecosystem",
+      "Osmosis Ecosystem",
+      "Cross-chain Communication",
+      "Secret Ecosystem",
+      "Galaxy Digital Portfolio",
+      "Polychain Capital Portfolio",
+      "Made in USA"
+    ]
+  },
+  "GASUSDT": {
+    
+    "categories": [
+      "Ethereum Ecosystem"
+    ]
+  },
+  "1INCHUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Exchange-based Tokens",
+      "Decentralized Finance (DeFi)",
+      "Automated Market Maker (AMM)",
+      "BNB Chain Ecosystem",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Near Protocol Ecosystem",
+      "Harmony Ecosystem",
+      "Ethereum Ecosystem",
+      "FTX Holdings",
+      "Alameda Research Portfolio",
+      "DragonFly Capital Portfolio",
+      "Pantera Capital Portfolio",
+      "Energi Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "GMCI DeFi Index",
+      "Galaxy Digital Portfolio",
+      "Blockchain Capital Portfolio",
+      "Dex Aggregator",
+      "GMCI Index",
+      "Coinbase 50 Index"
+    ]
+  },
+  "SHELLUSDC": {
+    
+    "categories": [
+      "Bridged-Tokens"
+    ]
+  },
+  "TWTUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Wallets",
+      "Account Abstraction",
+      "Energi Ecosystem"
+    ]
+  },
+  "IDUSDT": {
+    
+    "categories": [
+      "NFT",
+      "BNB Chain Ecosystem",
+      "Ethereum Ecosystem",
+      "Binance Launchpad",
+      "DWF Labs Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "ROSEUSDT": {
+    
+    "categories": [
+      "Arbitrum Ecosystem"
+    ]
+  },
+  "ARPAUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Polygon Ecosystem",
+      "Ethereum Ecosystem",
+      "Animoca Brands Portfolio",
+      "DWF Labs Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "VICUSDT": {
+    
+    "categories": [
+      "Ethereum Ecosystem"
+    ]
+  },
+  "CETUSUSDC": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Decentralized Finance (DeFi)",
+      "Sui Ecosystem",
+      "Animoca Brands Portfolio",
+      "OKX Ventures Portfolio",
+      "Dex Aggregator"
+    ]
+  },
+  "WBETHUSDT": {
+    
+    "categories": [
+      "Crypto-Backed Tokens",
+      "BNB Chain Ecosystem",
+      "Wrapped-Tokens",
+      "Ethereum Ecosystem"
+    ]
+  },
+  "BLURUSDC": {
+    
+    "categories": [
+      "NFT",
+      "Ethereum Ecosystem",
+      "NFT Marketplace",
+      "FTX Holdings",
+      "NFTFi",
+      "eGirl Capital Portfolio",
+      "Paradigm Portfolio",
+      "GMCI DeFi Index",
+      "GMCI Index",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "GRTUSDT": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Business Services",
+      "Infrastructure",
+      "Smart Contract Platform",
+      "Analytics",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Near Protocol Ecosystem",
+      "Harmony Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "DePIN",
+      "Coinbase Ventures Portfolio",
+      "Multicoin Capital Portfolio",
+      "Proof of Stake (PoS)",
+      "Energi Ecosystem",
+      "Sora Ecosystem",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "GMXUSDC": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Derivatives",
+      "Perpetuals",
+      "Avalanche Ecosystem",
+      "Arbitrum Ecosystem"
+    ]
+  },
+  "SCUSDT": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "Meme",
+      "Cat-Themed"
+    ]
+  },
+  "STXUSDC": {
+    
+    "categories": [
+      "Infrastructure",
+      "Smart Contract Platform",
+      "Layer 2 (L2)",
+      "Bitcoin Sidechains",
+      "Stacks Ecosystem",
+      "SideChain",
+      "GMCI Layer 2 Index",
+      "GMCI 30 Index",
+      "Blockchain Capital Portfolio",
+      "GMCI Index",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "FLUXUSDT": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Smart Contract Platform",
+      "Masternodes",
+      "DePIN",
+      "Proof of Work (PoW)",
+      "Made in USA"
+    ]
+  },
+  "COOKIEUSDC": {
+    
+    "categories": [
+      "Base Ecosystem"
+    ]
+  },
+  "BIOUSDC": {
+    
+    "categories": [
+      "Binance Launchpool",
+      "Solana Ecosystem",
+      "Ethereum Ecosystem",
+      "Base Ecosystem",
+      "Decentralized Science (DeSci)"
+    ]
+  },
+  "XVGUSDT": {
+    
+    "categories": [
+      "Ethereum Ecosystem",
+      "Made in USA"
+    ]
+  },
+  "BAKEUSDT": {
+    
+    "categories": [
+      "NFT",
+      "BNB Chain Ecosystem",
+      "Harmony Ecosystem"
+    ]
+  },
+  "VTHOUSDT": {
+    
+    "categories": [
+      "Layer 1 (L1)",
+      "VeChain Ecosystem"
+    ]
+  },
+  "FIDAUSDT": {
+    
+    "categories": [
+      "Big Data",
+      "Business Services",
+      "Infrastructure",
+      "Decentralized Finance (DeFi)",
+      "Solana Ecosystem",
+      "FTX Holdings",
+      "DWF Labs Portfolio",
+      "Name Service"
+    ]
+  },
+  "BADGERUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "Yield Aggregator",
+      "Gnosis Chain Ecosystem",
+      "Fantom Ecosystem",
+      "Harmony Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Energi Ecosystem",
+      "Blockchain Capital Portfolio"
+    ]
+  },
+  "STORJUSDT": {
+    
+    "categories": [
+      "Storage",
+      "Harmony Ecosystem",
+      "Ethereum Ecosystem",
+      "DePIN",
+      "Energi Ecosystem"
+    ]
+  },
+  "C98USDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "BNB Chain Ecosystem",
+      "Solana Ecosystem",
+      "Wallets",
+      "Polygon Ecosystem",
+      "Ethereum Ecosystem",
+      "Binance Launchpad",
+      "DWF Labs Portfolio",
+      "Multicoin Capital Portfolio",
+      "Alameda Research Portfolio",
+      "Viction Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "SANTOSUSDT": {
+    
+    "categories": [
+      "Sports",
+      "BNB Chain Ecosystem",
+      "Binance Launchpool",
+      "Fan Token"
+    ]
+  },
+  "ONEUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem"
+    ]
+  },
+  "TNSRUSDC": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Solana Ecosystem",
+      "Meme",
+      "AI Agents",
+      "Pump.fun Ecosystem",
+      "AI Applications",
+      "Made in USA"
+    ]
+  },
+  "MOVRUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Moonriver Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Meter Ecosystem"
+    ]
+  },
+  "BNSOLUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Solana Ecosystem",
+      "Liquid Staking Tokens",
+      "Liquid Staked SOL",
+      "Liquid Staking"
+    ]
+  },
+  "SNXUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Exchange-based Tokens",
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "Derivatives",
+      "Synthetic Issuer",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Near Protocol Ecosystem",
+      "Fantom Ecosystem",
+      "Harmony Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Base Ecosystem",
+      "DWF Labs Portfolio",
+      "Paradigm Portfolio",
+      "Coinbase Ventures Portfolio",
+      "Index Coop Defi Index",
+      "Energi Ecosystem",
+      "Huobi ECO Chain Ecosystem",
+      "GMCI DeFi Index",
+      "Synthetic",
+      "Index Coop Index",
+      "GMCI Index",
+      "Coinbase 50 Index"
+    ]
+  },
+  "HFTUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Exchange-based Tokens",
+      "Decentralized Finance (DeFi)",
+      "BNB Chain Ecosystem",
+      "Binance Launchpool",
+      "MEV Protection",
+      "Ethereum Ecosystem",
+      "Coinbase Ventures Portfolio",
+      "Alameda Research Portfolio",
+      "DragonFly Capital Portfolio",
+      "Galaxy Digital Portfolio"
+    ]
+  },
+  "AGLDUSDT": {
+    
+    "categories": [
+      "Ethereum Ecosystem",
+      "DWF Labs Portfolio"
+    ]
+  },
+  "MAVUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Binance Launchpool",
+      "Ethereum Ecosystem",
+      "ZkSync Ecosystem",
+      "Base Ecosystem",
+      "Coinbase Ventures Portfolio",
+      "Pantera Capital Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Circle Ventures Portfolio"
+    ]
+  },
+  "KSMUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Polkadot Ecosystem",
+      "Proof of Stake (PoS)",
+      "Pantera Capital Portfolio",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "FIOUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "DASHUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Privacy",
+      "Masternodes",
+      "Alleged SEC Securities",
+      "Proof of Stake (PoS)",
+      "Proof of Work (PoW)",
+      "Made in USA"
+    ]
+  },
+  "KAIAUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)"
+    ]
+  },
+  "SFPUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Wallets",
+      "Ethereum Ecosystem",
+      "Animoca Brands Portfolio",
+      "Binance Launchpad",
+      "Energi Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "STGUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "BNB Chain Ecosystem",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Fantom Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Linea Ecosystem",
+      "Bridge Governance Tokens",
+      "Base Ecosystem",
+      "FTX Holdings"
+    ]
+  },
+  "KNCUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Decentralized Finance (DeFi)",
+      "Automated Market Maker (AMM)",
+      "BNB Chain Ecosystem",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Fantom Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "ZkSync Ecosystem",
+      "Linea Ecosystem",
+      "Pantera Capital Portfolio",
+      "Polygon zkEVM Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "CYBERUSDT": {
+    
+    "categories": [
+      "MultiversX Ecosystem"
+    ]
+  },
+  "STEEMUSDC": {
+    
+    "categories": [
+      "SocialFi"
+    ]
+  },
+  "CGPTUSDC": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Smart Contract Platform",
+      "Decentralized Finance (DeFi)",
+      "Analytics",
+      "NFT",
+      "BNB Chain Ecosystem",
+      "Launchpad",
+      "Ethereum Ecosystem",
+      "Telegram Apps",
+      "Discord Bots",
+      "ChainGPT Launchpad",
+      "Poolz Finance Launchpad",
+      "AI Agents",
+      "AI Applications",
+      "Binance Alpha Spotlight",
+      "AI Framework",
+      "DeFAI"
+    ]
+  },
+  "METISUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Ethereum Ecosystem",
+      "Metis Ecosystem",
+      "Layer 2 (L2)",
+      "DWF Labs Portfolio",
+      "Rollup",
+      "GMCI Layer 2 Index",
+      "OKX Ventures Portfolio",
+      "GMCI Index"
+    ]
+  },
+  "FISUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Ethereum Ecosystem",
+      "Liquid Staking Governance Tokens",
+      "Osmosis Ecosystem",
+      "Sora Ecosystem",
+      "Liquid Staking"
+    ]
+  },
+  "SUNUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Tron Ecosystem"
+    ]
+  },
+  "MEUSDT": {
+    
+    "categories": [
+      "NFT",
+      "Solana Ecosystem",
+      "NFT Marketplace",
+      "Paradigm Portfolio",
+      "Sequoia Capital Portfolio"
+    ]
+  },
+  "RVNUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Real World Assets (RWA)",
+      "Proof of Work (PoW)",
+      "Made in USA"
+    ]
+  },
+  "XAIUSDT": {
+    
+    "categories": [
+      "Ethereum Ecosystem"
+    ]
+  },
+  "WINUSDT": {
+    
+    "categories": [
+      "Oracle",
+      "BNB Chain Ecosystem"
+    ]
+  },
+  "QNTUSDT": {
+    
+    "categories": [
+      "Ethereum Ecosystem",
+      "Real World Assets (RWA)",
+      "Energi Ecosystem",
+      "Coinbase 50 Index"
+    ]
+  },
+  "JOEUSDT": {
+    
+    "categories": [
+      "Meme",
+      "Ethereum Ecosystem"
+    ]
+  },
+  "AVAUSDT": {
+    
+    "categories": [
+      "Tourism",
+      "Solana Ecosystem",
+      "Ethereum Ecosystem",
+      "Energi Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "IQUSDT": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "Meme",
+      "AI Meme",
+      "Pump.fun Ecosystem"
+    ]
+  },
+  "ZILUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "BNB Chain Ecosystem",
+      "GMCI Layer 1 Index",
+      "GMCI Index",
+      "Made in China"
+    ]
+  },
+  "CATIUSDC": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "Play To Earn",
+      "Telegram Apps",
+      "TON Ecosystem",
+      "Tap to Earn"
+    ]
+  },
+  "PHAUSDC": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Infrastructure",
+      "Smart Contract Platform",
+      "Oracle",
+      "Polkadot Ecosystem",
+      "Ethereum Ecosystem",
+      "Interoperability",
+      "Layer 2 (L2)",
+      "Zero Knowledge (ZK)",
+      "DePIN",
+      "DWF Labs Portfolio",
+      "Rollup",
+      "AI Agents",
+      "Sora Ecosystem",
+      "AI Framework",
+      "Made in USA"
+    ]
+  },
+  "JUVUSDC": {
+    
+    "categories": [
+      "Sports",
+      "Binance Launchpool",
+      "Fan Token",
+      "Chiliz Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "SUSHIUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Exchange-based Tokens",
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "Automated Market Maker (AMM)",
+      "BNB Chain Ecosystem",
+      "Yearn Ecosystem",
+      "Solana Ecosystem",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Near Protocol Ecosystem",
+      "Fantom Ecosystem",
+      "Harmony Ecosystem",
+      "Arbitrum Ecosystem",
+      "Celo Ecosystem",
+      "Ethereum Ecosystem",
+      "Base Ecosystem",
+      "Alameda Research Portfolio",
+      "Pantera Capital Portfolio",
+      "Energi Ecosystem",
+      "Sora Ecosystem",
+      "Blockchain Capital Portfolio"
+    ]
+  },
+  "UMAUSDT": {
+    
+    "categories": [
+      "Business Services",
+      "Decentralized Finance (DeFi)",
+      "Oracle",
+      "Derivatives",
+      "Synthetic Issuer",
+      "Avalanche Ecosystem",
+      "Ethereum Ecosystem",
+      "Blockchain Capital Portfolio",
+      "Synthetic",
+      "Made in USA"
+    ]
+  },
+  "BETAUSDT": {
+    
+    "categories": [
+      "Solana Ecosystem",
+      "Meme",
+      "Solana Meme",
+      "AI Meme",
+      "Pump.fun Ecosystem"
+    ]
+  },
+  "IMXUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Gaming (GameFi)",
+      "NFT",
+      "Play To Earn",
+      "Ethereum Ecosystem",
+      "Layer 2 (L2)",
+      "Zero Knowledge (ZK)",
+      "Animoca Brands Portfolio",
+      "Immutable zkEVM Ecosystem",
+      "Coinbase Ventures Portfolio",
+      "Rollup",
+      "Gaming Blockchains",
+      "GMCI 30 Index",
+      "GMCI Index",
+      "Gaming Marketplace",
+      "Coinbase 50 Index"
+    ]
+  },
+  "JSTUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Tron Ecosystem"
+    ]
+  },
+  "PERPUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Exchange-based Tokens",
+      "Decentralized Finance (DeFi)",
+      "Automated Market Maker (AMM)",
+      "BNB Chain Ecosystem",
+      "Derivatives",
+      "Perpetuals",
+      "Gnosis Chain Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Multicoin Capital Portfolio",
+      "Alameda Research Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "MBOXUSDT": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "NFT",
+      "BNB Chain Ecosystem",
+      "Binance Launchpool",
+      "Metaverse",
+      "Play To Earn",
+      "Arbitrum Ecosystem",
+      "Animoca Brands Portfolio",
+      "RPG",
+      "Gaming Blockchains",
+      "Gaming Governance Token",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "HOTUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Storage",
+      "Harmony Ecosystem",
+      "Ethereum Ecosystem",
+      "DePIN",
+      "Energi Ecosystem",
+      "Sora Ecosystem",
+      "GMCI DePIN Index",
+      "GMCI Index"
+    ]
+  },
+  "GNOUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Smart Contract Platform",
+      "Decentralized Finance (DeFi)",
+      "Prediction Markets",
+      "Layer 1 (L1)",
+      "Gnosis Chain Ecosystem",
+      "MEV Protection",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "SideChain",
+      "Energi Ecosystem"
+    ]
+  },
+  "RONINUSDT": {
+    
+    "categories": []
+  },
+  "ONTUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Masternodes",
+      "Proof of Stake (PoS)",
+      "Made in China"
+    ]
+  },
+  "SYNUSDC": {
+    
+    "categories": [
+      "Base Ecosystem"
+    ]
+  },
+  "ILVUSDT": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "NFT",
+      "Metaverse",
+      "Play To Earn",
+      "Ethereum Ecosystem",
+      "Animoca Brands Portfolio",
+      "RPG",
+      "Gaming Governance Token",
+      "Adventure Games",
+      "Energi Ecosystem",
+      "Delphi Ventures Portfolio"
+    ]
+  },
+  "QKCUSDT": {
+    
+    "categories": [
+      "Infrastructure",
+      "Ethereum Ecosystem",
+      "Energi Ecosystem"
+    ]
+  },
+  "SCRTUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Cosmos Ecosystem",
+      "Osmosis Ecosystem",
+      "Alameda Research Portfolio",
+      "DragonFly Capital Portfolio",
+      "DeFiance Capital Portfolio",
+      "Privacy Blockchain",
+      "Outlier Ventures Portfolio"
+    ]
+  },
+  "NTRNUSDT": {
+    
+    "categories": [
+      "Binance Launchpool",
+      "Osmosis Ecosystem",
+      "Delphi Ventures Portfolio"
+    ]
+  },
+  "SEIUSDC": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Smart Contract Platform",
+      "Decentralized Finance (DeFi)",
+      "Layer 1 (L1)",
+      "Real World Assets (RWA)",
+      "Parallelized EVM",
+      "Coinbase Ventures Portfolio",
+      "Multicoin Capital Portfolio",
+      "GMCI Layer 1 Index",
+      "Delphi Ventures Portfolio",
+      "Circle Ventures Portfolio",
+      "OKX Ventures Portfolio",
+      "GMCI Index",
+      "World Liberty Financial Portfolio",
+      "Made in USA"
+    ]
+  },
+  "SSVUSDT": {
+    
+    "categories": [
+      "Ethereum Ecosystem",
+      "Coinbase Ventures Portfolio",
+      "OKX Ventures Portfolio"
+    ]
+  },
+  "ENJUSDT": {
+    
+    "categories": [
+      "Entertainment",
+      "Smart Contract Platform",
+      "Gaming (GameFi)",
+      "NFT",
+      "Metaverse",
+      "Layer 1 (L1)",
+      "Harmony Ecosystem",
+      "Ethereum Ecosystem",
+      "Gaming Blockchains",
+      "Energi Ecosystem"
+    ]
+  },
+  "PORTALUSDT": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "Solana Ecosystem",
+      "Ethereum Ecosystem",
+      "Gaming Platform"
+    ]
+  },
+  "BATUSDT": {
+    
+    "categories": [
+      "Polygon Ecosystem"
+    ]
+  },
+  "PYRUSDT": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "NFT",
+      "Metaverse",
+      "Polygon Ecosystem",
+      "Ethereum Ecosystem",
+      "DWF Labs Portfolio",
+      "Gaming Blockchains",
+      "Gaming Platform",
+      "Action Games",
+      "MMO"
+    ]
+  },
+  "PHBUSDT": {
+    
+    "categories": [
+      "Business Services",
+      "NEO Ecosystem"
+    ]
+  },
+  "CVCUSDT": {
+    
+    "categories": [
+      "Software as a service",
+      "Polygon Ecosystem",
+      "Ethereum Ecosystem",
+      "Decentralized Identifier (DID)",
+      "Pantera Capital Portfolio",
+      "Energi Ecosystem",
+      "Blockchain Capital Portfolio"
+    ]
+  },
+  "REIUSDT": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Base Ecosystem",
+      "AI Applications",
+      "AI Agent Launchpad",
+      "AI Framework"
+    ]
+  },
+  "TUSDC": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Solana Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Base Ecosystem",
+      "Cross-chain Communication",
+      "BTCfi"
+    ]
+  },
+  "RDNTUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Binance Launchpool",
+      "Lending/Borrowing Protocols",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Base Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "XECUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Bitcoin Fork",
+      "Proof of Work (PoW)"
+    ]
+  },
+  "QTUMUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Proof of Stake (PoS)",
+      "Made in China"
+    ]
+  },
+  "LISTAUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "BNB Chain Ecosystem",
+      "Lending/Borrowing Protocols",
+      "Liquid Staking Tokens",
+      "Binance Megadrop",
+      "Liquid Staking"
+    ]
+  },
+  "NFPUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Binance Launchpool",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "STRAXUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Proof of Stake (PoS)"
+    ]
+  },
+  "BARUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Ethereum Ecosystem"
+    ]
+  },
+  "HOOKUSDT": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "BNB Chain Ecosystem",
+      "Metaverse",
+      "Binance Launchpad",
+      "Gaming Platform",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Sequoia Capital Portfolio"
+    ]
+  },
+  "IDEXUSDC": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Exchange-based Tokens",
+      "Index",
+      "Decentralized Finance (DeFi)",
+      "Perpetuals",
+      "Polygon Ecosystem",
+      "Ethereum Ecosystem",
+      "Made in USA"
+    ]
+  },
+  "NMRUSDT": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Business Services",
+      "Decentralized Finance (DeFi)",
+      "Ethereum Ecosystem",
+      "Paradigm Portfolio",
+      "DragonFly Capital Portfolio",
+      "Energi Ecosystem"
+    ]
+  },
+  "ACEUSDT": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "NFT",
+      "BNB Chain Ecosystem",
+      "Binance Launchpool",
+      "RPG",
+      "Strategy Games",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Endurance Ecosystem"
+    ]
+  },
+  "FLOWUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Sports",
+      "NFT",
+      "Layer 1 (L1)",
+      "Animoca Brands Portfolio",
+      "Alleged SEC Securities",
+      "Multicoin Capital Portfolio",
+      "Proof of Stake (PoS)",
+      "Flow Ecosystem",
+      "Andreessen Horowitz (a16z) Portfolio"
+    ]
+  },
+  "MANTAUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Polkadot Ecosystem",
+      "Binance Launchpool",
+      "Layer 2 (L2)",
+      "Manta Network Ecosystem",
+      "Multicoin Capital Portfolio",
+      "Alameda Research Portfolio",
+      "DeFiance Capital Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "RLCUSDT": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Oracle",
+      "Ethereum Ecosystem",
+      "DePIN",
+      "Energi Ecosystem",
+      "Sora Ecosystem",
+      "GMCI DePIN Index",
+      "GMCI Index"
+    ]
+  },
+  "ICXUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Cross-chain Communication",
+      "Pantera Capital Portfolio"
+    ]
+  },
+  "CHESSUSDC": {
+    
+    "categories": [
+      "Exchange-based Tokens",
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "BNB Chain Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "XTZUSDC": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)",
+      "Tezos Ecosystem",
+      "Proof of Stake (PoS)",
+      "GMCI Layer 1 Index",
+      "GMCI Index",
+      "Polychain Capital Portfolio",
+      "Made in USA",
+      "Coinbase 50 Index"
+    ]
+  },
+  "ONGUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 1 (L1)"
+    ]
+  },
+  "CTXCUSDT": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Smart Contract Platform",
+      "Layer 1 (L1)"
+    ]
+  },
+  "TRBUSDC": {
+    
+    "categories": [
+      "Business Services",
+      "Decentralized Finance (DeFi)",
+      "Oracle",
+      "Polygon Ecosystem",
+      "Gnosis Chain Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Manta Network Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Lisk Ecosystem",
+      "Made in USA"
+    ]
+  },
+  "GUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "BNB Chain Ecosystem",
+      "Layer 1 (L1)",
+      "Ethereum Ecosystem",
+      "Decentralized Identifier (DID)",
+      "Base Ecosystem",
+      "Gravity Alpha Ecosystem"
+    ]
+  },
+  "CELRUSDT": {
+    
+    "categories": [
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Bridge Governance Tokens",
+      "Binance Launchpad",
+      "Cross-chain Communication",
+      "Pantera Capital Portfolio",
+      "Energi Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "ASRUSDT": {
+    
+    "categories": [
+      "Sports",
+      "Binance Launchpool",
+      "Fan Token",
+      "Chiliz Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "LQTYUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Lending/Borrowing Protocols",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Alameda Research Portfolio",
+      "Pantera Capital Portfolio"
+    ]
+  },
+  "FORTHUSDT": {
+    
+    "categories": [
+      "Ethereum Ecosystem",
+      "Stablecoin Protocol"
+    ]
+  },
+  "GLMRUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Polkadot Ecosystem",
+      "Layer 1 (L1)",
+      "Coinbase Ventures Portfolio",
+      "Proof of Stake (PoS)",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "ATMUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Solana Ecosystem",
+      "Yield Optimizer"
+    ]
+  },
+  "DYMUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Cosmos Ecosystem",
+      "Modular Blockchain",
+      "Osmosis Ecosystem",
+      "Rollups-as-a-Service (RaaS)"
+    ]
+  },
+  "TRUUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "Lending/Borrowing Protocols",
+      "Ethereum Ecosystem",
+      "Real World Assets (RWA)",
+      "Alameda Research Portfolio",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "RWA Protocol"
+    ]
+  },
+  "VELODROMEUSDC": {
+    
+    "categories": []
+  },
+  "LRCUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Smart Contract Platform",
+      "Exchange-based Tokens",
+      "Decentralized Finance (DeFi)",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Layer 2 (L2)",
+      "Zero Knowledge (ZK)",
+      "Loopring Ecosystem",
+      "Rollup",
+      "Energi Ecosystem"
+    ]
+  },
+  "SNTUSDT": {
+    
+    "categories": [
+      "Software as a service",
+      "Ethereum Ecosystem",
+      "Energi Ecosystem"
+    ]
+  },
+  "ARDRUSDT": {
+    
+    "categories": [
+      "Infrastructure",
+      "Smart Contract Platform"
+    ]
+  },
+  "RPLUSDT": {
+    
+    "categories": [
+      "Business Services",
+      "Infrastructure",
+      "Smart Contract Platform",
+      "Decentralized Finance (DeFi)",
+      "Polygon Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Liquid Staking Governance Tokens",
+      "Coinbase Ventures Portfolio",
+      "Proof of Stake (PoS)",
+      "Index Coop Defi Index",
+      "Consensys Portfolio",
+      "Liquid Staking",
+      "Index Coop Index"
+    ]
+  },
+  "PDAUSDT": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "NFT",
+      "Metaverse",
+      "Play To Earn",
+      "Ethereum Ecosystem",
+      "Gaming Platform"
+    ]
+  },
+  "ATAUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Binance Launchpool",
+      "Polygon Ecosystem",
+      "Ethereum Ecosystem",
+      "Restaking",
+      "Alameda Research Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "NEXOUSDT": {
+    
+    "categories": [
+      "Polygon Ecosystem",
+      "Fantom Ecosystem",
+      "Ethereum Ecosystem",
+      "Alleged SEC Securities",
+      "Energi Ecosystem",
+      "Sora Ecosystem"
+    ]
+  },
+  "PUNDIXUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Wallets",
+      "Ethereum Ecosystem",
+      "Pundi AIFX Omnilayer Ecosystem"
+    ]
+  },
+  "DENTUSDT": {
+    
+    "categories": [
+      "Ethereum Ecosystem",
+      "DePIN"
+    ]
+  },
+  "LOKAUSDT": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "NFT",
+      "Metaverse",
+      "Ethereum Ecosystem",
+      "Binance Launchpad",
+      "Gaming Governance Token",
+      "Gaming Utility Token",
+      "Strategy Games",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Sequoia Capital Portfolio"
+    ]
+  },
+  "TLMUSDC": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "NFT",
+      "BNB Chain Ecosystem",
+      "Binance Launchpool",
+      "Play To Earn",
+      "Ethereum Ecosystem",
+      "Animoca Brands Portfolio",
+      "Card Games",
+      "Gaming Governance Token",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Wax Ecosystem",
+      "MMO"
+    ]
+  },
+  "EIGENUSDC": {
+    
+    "categories": [
+      "Infrastructure",
+      "Ethereum Ecosystem",
+      "Data Availability",
+      "Restaking",
+      "Polychain Capital Portfolio",
+      "Made in USA"
+    ]
+  },
+  "ALICEUSDT": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "NFT",
+      "BNB Chain Ecosystem",
+      "Binance Launchpool",
+      "Metaverse",
+      "DaoMaker Launchpad",
+      "Ethereum Ecosystem",
+      "Gaming Governance Token",
+      "Gaming Utility Token",
+      "Simulation Games",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "QIUSDT": {
+    
+    "categories": []
+  },
+  "CHRUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Decentralized Finance (DeFi)",
+      "Arbitrum Ecosystem"
+    ]
+  },
+  "XNOUSDT": {
+    
+    "categories": [
+      "Ethereum Ecosystem"
+    ]
+  },
+  "PONDUSDT": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Infrastructure",
+      "Smart Contract Platform",
+      "Decentralized Finance (DeFi)",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Zero Knowledge (ZK)",
+      "DWF Labs Portfolio",
+      "Coinbase Ventures Portfolio",
+      "Pantera Capital Portfolio",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "CTSIUSDT": {
+    
+    "categories": [
+      "Infrastructure",
+      "Smart Contract Platform",
+      "BNB Chain Ecosystem",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Layer 2 (L2)",
+      "Base Ecosystem",
+      "Binance Launchpad",
+      "Modular Blockchain",
+      "Layer 3 (L3)",
+      "Rollup",
+      "Proof of Stake (PoS)",
+      "Appchains",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "PSGUSDT": {
+    
+    "categories": [
+      "Sports",
+      "Binance Launchpool",
+      "Fan Token",
+      "Chiliz Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "VOXELUSDT": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "NFT",
+      "Polygon Ecosystem",
+      "Binance Launchpad",
+      "RPG",
+      "Gaming Utility Token",
+      "Strategy Games",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "OXTUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Ethereum Ecosystem",
+      "DePIN",
+      "Proof of Stake (PoS)",
+      "Andreessen Horowitz (a16z) Portfolio",
+      "Sequoia Capital Portfolio",
+      "Blockchain Capital Portfolio",
+      "Made in USA"
+    ]
+  },
+  "DATAUSDT": {
+    
+    "categories": [
+      "Big Data",
+      "Infrastructure",
+      "Smart Contract Platform",
+      "BNB Chain Ecosystem",
+      "Polygon Ecosystem",
+      "Gnosis Chain Ecosystem",
+      "Ethereum Ecosystem",
+      "DePIN",
+      "Layer 0 (L0)"
+    ]
+  },
+  "RIFUSDT": {
+    
+    "categories": [
+      "Rootstock Ecosystem",
+      "Outlier Ventures Portfolio"
+    ]
+  },
+  "OMNIUSDC": {
+    
+    "categories": [
+      "Artificial Intelligence (AI)",
+      "Analytics",
+      "Base Ecosystem",
+      "AI Agents",
+      "Virtuals Protocol Ecosystem"
+    ]
+  },
+  "OGNUSDT": {
+    
+    "categories": [
+      "NFT",
+      "Ethereum Ecosystem",
+      "Base Ecosystem",
+      "Pantera Capital Portfolio",
+      "Sonic Ecosystem",
+      "Made in USA"
+    ]
+  },
+  "BANDUSDT": {
+    
+    "categories": [
+      "Business Services",
+      "Decentralized Finance (DeFi)",
+      "Oracle",
+      "Fantom Ecosystem",
+      "Ethereum Ecosystem",
+      "Binance Launchpad",
+      "Osmosis Ecosystem",
+      "Energi Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Sequoia Capital Portfolio"
+    ]
+  },
+  "ALPINEUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Binance Launchpad"
+    ]
+  },
+  "TKOUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Binance Launchpad",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "DODOUSDT": {
+    
+    "categories": [
+      "Solana Ecosystem"
+    ]
+  },
+  "DUSKUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "BNB Chain Ecosystem",
+      "Layer 1 (L1)",
+      "Ethereum Ecosystem",
+      "Zero Knowledge (ZK)",
+      "Real World Assets (RWA)",
+      "Energi Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "Privacy Blockchain"
+    ]
+  },
+  "GNSUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Derivatives",
+      "Perpetuals",
+      "Polygon Ecosystem",
+      "Arbitrum Ecosystem",
+      "Base Ecosystem",
+      "ApeChain Ecosystem"
+    ]
+  },
+  "LUMIAUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 2 (L2)",
+      "Real World Assets (RWA)"
+    ]
+  },
+  "POWRUSDT": {
+    
+    "categories": [
+      "Energy",
+      "Ethereum Ecosystem",
+      "Alleged SEC Securities",
+      "Energi Ecosystem",
+      "GMCI DePIN Index",
+      "Blockchain Capital Portfolio",
+      "GMCI Index"
+    ]
+  },
+  "PORTOUSDT": {
+    
+    "categories": [
+      "Sports",
+      "BNB Chain Ecosystem",
+      "Fan Token",
+      "Binance Launchpad"
+    ]
+  },
+  "HARDUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Binance Launchpool",
+      "Lending/Borrowing Protocols",
+      "Osmosis Ecosystem",
+      "Kava Ecosystem",
+      "Energi Ecosystem",
+      "YZi Labs (Prev. Binance Labs) Portfolio"
+    ]
+  },
+  "CITYUSDT": {
+    
+    "categories": [
+      "Sports",
+      "Binance Launchpool",
+      "Fan Token",
+      "Chiliz Ecosystem"
+    ]
+  },
+  "FORMUSDC": {
+    
+    "categories": [
+      "Gaming (GameFi)",
+      "BNB Chain Ecosystem"
+    ]
+  },
+  "AEURUSDT": {
+    
+    "categories": [
+      "Stablecoins",
+      "EUR Stablecoin",
+      "BNB Chain Ecosystem",
+      "Ethereum Ecosystem"
+    ]
+  },
+  "LSKUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Ethereum Ecosystem",
+      "Layer 2 (L2)",
+      "Optimism Superchain Ecosystem",
+      "Outlier Ventures Portfolio",
+      "Lisk Ecosystem"
+    ]
+  },
+  "NKNUSDT": {
+    
+    "categories": [
+      "Communication",
+      "Ethereum Ecosystem",
+      "DePIN"
+    ]
+  },
+  "KMDUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Proof of Stake (PoS)",
+      "Proof of Work (PoW)"
+    ]
+  },
+  "WANUSDT": {
+    
+    "categories": [
+      "Infrastructure",
+      "Smart Contract Platform",
+      "Decentralized Finance (DeFi)",
+      "Layer 1 (L1)",
+      "Proof of Stake (PoS)",
+      "Cross-chain Communication",
+      "Privacy Blockchain"
+    ]
+  },
+  "PIVXUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Privacy",
+      "Masternodes",
+      "Zero Knowledge (ZK)",
+      "Proof of Stake (PoS)"
+    ]
+  },
+  "BALUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Exchange-based Tokens",
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "Automated Market Maker (AMM)",
+      "Avalanche Ecosystem",
+      "Polygon Ecosystem",
+      "Near Protocol Ecosystem",
+      "Gnosis Chain Ecosystem",
+      "Harmony Ecosystem",
+      "Arbitrum Ecosystem",
+      "Ethereum Ecosystem",
+      "Optimism Ecosystem",
+      "Base Ecosystem",
+      "Index Coop Defi Index",
+      "Alameda Research Portfolio",
+      "DeFiance Capital Portfolio",
+      "Pantera Capital Portfolio",
+      "Energi Ecosystem",
+      "Polygon zkEVM Ecosystem",
+      "Huobi ECO Chain Ecosystem",
+      "Blockchain Capital Portfolio",
+      "Index Coop Index"
+    ]
+  },
+  "ALPHAUSDT": {
+    
+    "categories": [
+      "Ethereum Ecosystem"
+    ]
+  },
+  "LAZIOUSDT": {
+    
+    "categories": [
+      "Sports",
+      "BNB Chain Ecosystem",
+      "Fan Token",
+      "Binance Launchpad"
+    ]
+  },
+  "DCRUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Privacy",
+      "Layer 1 (L1)",
+      "Proof of Stake (PoS)",
+      "Proof of Work (PoW)",
+      "Blockchain Capital Portfolio",
+      "Made in USA"
+    ]
+  },
+  "FLMUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Exchange-based Tokens",
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "Binance Launchpool",
+      "YZi Labs (Prev. Binance Labs) Portfolio",
+      "NEO Ecosystem"
+    ]
+  },
+  "MTLUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Layer 2 (L2)",
+      "Made in USA"
+    ]
+  },
+  "LTOUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "NFT",
+      "BNB Chain Ecosystem",
+      "Layer 1 (L1)",
+      "Ethereum Ecosystem",
+      "Real World Assets (RWA)",
+      "Proof of Stake (PoS)"
+    ]
+  },
+  "BTTCUSDT": {
+    
+    "categories": []
+  },
+  "GTCUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Ethereum Ecosystem"
+    ]
+  },
+  "BNTUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Exchange-based Tokens",
+      "Decentralized Finance (DeFi)",
+      "Automated Market Maker (AMM)",
+      "Ethereum Ecosystem",
+      "DeFiance Capital Portfolio",
+      "Energi Ecosystem"
+    ]
+  },
+  "USDCUSDT": {
+    
+    "categories": [
+      "BNB Chain Ecosystem",
+      "Bridged USDC",
+      "Bridged-Tokens",
+      "Bridged Stablecoins"
+    ]
+  },
+  "AERGOUSDT": {
+    
+    "categories": [
+      "Smart Contract Platform",
+      "Ethereum Ecosystem",
+      "Sequoia Capital Portfolio"
+    ]
+  },
+  "LINAUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Exchange-based Tokens",
+      "Decentralized Finance (DeFi)",
+      "Yield Farming",
+      "BNB Chain Ecosystem",
+      "Harmony Ecosystem",
+      "Ethereum Ecosystem",
+      "Real World Assets (RWA)",
+      "Binance Launchpad",
+      "Alameda Research Portfolio"
+    ]
+  },
+  "BURGERUSDT": {
+    
+    "categories": [
+      "Ethereum Ecosystem"
+    ]
+  },
+  "COMBOUSDT": {
+    
+    "categories": [
+      "Decentralized Finance (DeFi)",
+      "Polygon Ecosystem",
+      "Harmony Ecosystem",
+      "Ethereum Ecosystem",
+      "Multicoin Capital Portfolio",
+      "DeFiance Capital Portfolio"
+    ]
+  },
+  "ASTUSDT": {
+    
+    "categories": [
+      "Decentralized Exchange (DEX)",
+      "Decentralized Finance (DeFi)",
+      "AirDAO Ecosystem"
+    ]
+  }
+}
