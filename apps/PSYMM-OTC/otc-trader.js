@@ -25,6 +25,7 @@ class TraderClient {
     this.rpcUrl = config.rpcUrl || "http://localhost:8545";
     this.contractAddresses = getContractAddresses();
     this.guardianPubKeys = [GUARDIAN_PUBKEY];
+    this.counterpartyGuardianConnections = new Map();
   }
 
   async connectToGuardians() {
@@ -110,10 +111,83 @@ class TraderClient {
       setTimeout(() => this.sendLogon(), 1000);
     } else if (msgType === "A") {
       console.log("Received Logon response, now in TRADE phase!");
-      this.phase = "TRADE";
+      // Connect to counterparty guardians if they were provided
+      if (message.GuardianPubKeys && message.GuardianPubKeys.length > 0) {
+        this.connectToCounterpartyGuardians(message.GuardianPubKeys)
+          .then(() => {
+            this.phase = "TRADE";
+            // Send trade message after guardian connections are established
+            setTimeout(() => this.sendTradeMessage(), 1000);
+          })
+          .catch(error => {
+            console.error("Failed to connect to counterparty guardians:", error);
+          });
+      } else {
+        this.phase = "TRADE";
+        setTimeout(() => this.sendTradeMessage(), 1000);
+      }
+    }
+  }
 
-      // Now we can start sending trade messages
-      setTimeout(() => this.sendTradeMessage(), 1000);
+  async connectToCounterpartyGuardians(guardianPubKeys) {
+    try {
+      // Get guardian data for all counterparty guardian public keys
+      const guardianPromises = guardianPubKeys.map(pubKey => 
+        getGuardianData({
+          rpcUrl: this.rpcUrl,
+          partyRegistryAddress: this.contractAddresses.partyRegistry,
+          myGuardianPubKeys: [pubKey],
+        })
+      );
+
+      const guardiansData = await Promise.all(guardianPromises);
+
+      // Connect to each guardian
+      for (let i = 0; i < guardiansData.length; i++) {
+        const guardianData = guardiansData[i][0]; // Take first result for each guardian
+        if (!guardianData) {
+          console.log(`Guardian not found for pubKey: ${guardianPubKeys[i]}`);
+          continue;
+        }
+
+        const guardianPubKey = guardianPubKeys[i];
+        const ws = new WebSocket(`ws://${guardianData.ipAddress}:8080`);
+
+        // Set up connection handlers
+        ws.on("open", () => {
+          console.log(`Connected to counterparty guardian ${guardianPubKey} at ${guardianData.ipAddress}`);
+        });
+
+        ws.on("message", (data) => {
+          try {
+            const message = JSON.parse(data);
+            console.log(`Received message from counterparty guardian ${guardianPubKey}:`, message);
+          } catch (error) {
+            console.error(`Error parsing message from counterparty guardian ${guardianPubKey}:`, error);
+          }
+        });
+
+        ws.on("error", (error) => {
+          console.log(`Error with counterparty guardian ${guardianPubKey}:`, error);
+        });
+
+        ws.on("close", () => {
+          console.log(`Disconnected from counterparty guardian ${guardianPubKey}`);
+          this.counterpartyGuardianConnections.delete(guardianPubKey);
+        });
+
+        // Wait for connection to establish
+        await new Promise((resolve, reject) => {
+          ws.once("open", resolve);
+          ws.once("error", reject);
+        });
+
+        // Store the connection
+        this.counterpartyGuardianConnections.set(guardianPubKey, ws);
+      }
+    } catch (error) {
+      console.log(`Error connecting to counterparty guardians:`, error);
+      throw error;
     }
   }
 
@@ -238,9 +312,17 @@ class TraderClient {
     // Send to solver
     this.ws.send(messageStr);
 
-    // Send to guardian
+    // Send to our guardian
     if (this.guardianConnection && this.guardianConnection.readyState === WebSocket.OPEN) {
       this.guardianConnection.send(messageStr);
+    }
+
+    // Send to all counterparty guardians
+    for (const [guardianPubKey, ws] of this.counterpartyGuardianConnections) {
+      if (ws.readyState === WebSocket.OPEN) {
+        console.log(`Sending trade message to counterparty guardian ${guardianPubKey}`);
+        ws.send(messageStr);
+      }
     }
   }
 
@@ -248,6 +330,14 @@ class TraderClient {
     if (this.ws) {
       this.ws.close();
     }
+    if (this.guardianConnection) {
+      this.guardianConnection.close();
+    }
+    // Close all counterparty guardian connections
+    for (const ws of this.counterpartyGuardianConnections.values()) {
+      ws.close();
+    }
+    this.counterpartyGuardianConnections.clear();
   }
 }
 
