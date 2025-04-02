@@ -8,7 +8,6 @@ contract PartyRegistry {
     struct PartyData {
         string role;
         string ipAddress;
-        uint8 partyType;
         Schnorr.PPMKey pubKey;
     }
 
@@ -43,8 +42,8 @@ contract PartyRegistry {
     }
 
     /// @notice Get party's IP address
-    function getParty(address party) external view returns (string memory ipAddress, uint8 partyType){
-        return (partys[party].ipAddress, partys[party].partyType);
+    function getParty(address party) external view returns (string memory ipAddress){
+        return partys[party].ipAddress;
     }
 
     /// @notice Get KYC type for a party
