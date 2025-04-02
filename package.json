@@ -40,6 +40,7 @@
     "party": "./demo/tmux/party.sh",
     "psymm": "hardhat test --network localhost contracts/test/pSymm/index.js",
     "deploy-psymm": "hardhat run contracts/test/pSymm/deploy.js --network localhost",
+    "list-parties": "hardhat run demo/utils/listParties.task.js --network localhost",
     "solver": "hardhat run apps/PSYMM-OTC/otc-solver.js",
     "trader": "hardhat run apps/PSYMM-OTC/otc-trader.js",
     "otc": "./demo/tmux/otc.sh"
