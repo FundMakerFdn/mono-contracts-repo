@@ -1,0 +1,9 @@
+{
+    "name": "PolychainIndex",
+    "ticker": "SYPL",
+    "note": "Polychain Capital Portfolio",
+    "type": "VC",
+    "params": {
+        "initialPrice": 1000
+    }
+}

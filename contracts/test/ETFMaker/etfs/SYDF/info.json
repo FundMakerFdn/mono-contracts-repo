@@ -1,0 +1,9 @@
+{
+    "name": "DeFianceIndex",
+    "ticker": "SYDF",
+    "note": "DeFiance Capital Portfolio",
+    "type": "VC",
+    "params": {
+        "initialPrice": 1000
+    }
+}

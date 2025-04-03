@@ -1,0 +1,9 @@
+{
+    "name": "DWFIndex",
+    "ticker": "SYDW",
+    "note": "DWF Labs Portfolio",
+    "type": "VC",
+    "params": {
+        "initialPrice": 1000
+    }
+}

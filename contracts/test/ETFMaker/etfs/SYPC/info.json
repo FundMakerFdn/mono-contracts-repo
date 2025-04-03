@@ -1,7 +1,8 @@
 {
-    "name": "PanteraCapital",
+    "name": "PanteraIndex",
     "ticker": "SYPC",
     "note": "Pantera Capital Portfolio",
+    "type": "VC",
     "params": {
         "initialPrice": 1000
     }

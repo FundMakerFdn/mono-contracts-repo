@@ -1,0 +1,9 @@
+{
+    "name": "GalaxyIndex",
+    "ticker": "SYGD",
+    "note": "Galaxy Digital Portfolio",
+    "type": "VC",
+    "params": {
+        "initialPrice": 1000
+    }
+}

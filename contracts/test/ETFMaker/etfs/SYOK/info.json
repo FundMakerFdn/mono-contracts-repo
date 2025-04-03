@@ -1,0 +1,9 @@
+{
+    "name": "OKXIndex",
+    "ticker": "SYOK",
+    "note": "OKX Ventures Portfolio",
+    "type": "VC",
+    "params": {
+        "initialPrice": 1000
+    }
+}

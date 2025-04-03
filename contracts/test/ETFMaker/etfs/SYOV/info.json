@@ -1,0 +1,9 @@
+{
+    "name": "OutlierIndex",
+    "ticker": "SYOV",
+    "note": "Outlier Ventures Portfolio",
+    "type": "VC",
+    "params": {
+        "initialPrice": 1000
+    }
+}

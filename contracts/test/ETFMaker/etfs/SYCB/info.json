@@ -1,0 +1,9 @@
+{
+    "name": "CoinbaseIndex",
+    "ticker": "SYCB",
+    "note": "Coinbase Ventures Portfolio",
+    "type": "VC",
+    "params": {
+        "initialPrice": 1000
+    }
+}

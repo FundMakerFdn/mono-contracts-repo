@@ -1,0 +1,9 @@
+{
+    "name": "CircleIndex",
+    "ticker": "SYCI",
+    "note": "Circle Ventures Portfolio",
+    "type": "VC",
+    "params": {
+        "initialPrice": 1000
+    }
+}

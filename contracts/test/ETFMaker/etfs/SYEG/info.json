@@ -1,0 +1,9 @@
+{
+    "name": "eGirlIndex",
+    "ticker": "SYEG",
+    "note": "eGirl Capital Portfolio",
+    "type": "VC",
+    "params": {
+        "initialPrice": 1000
+    }
+}

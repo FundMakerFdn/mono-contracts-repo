@@ -1,0 +1,9 @@
+{
+    "name": "A16zIndex",
+    "ticker": "SYAZ",
+    "note": "Andreessen Horowitz (a16z) Portfolio",
+    "type": "VC",
+    "params": {
+        "initialPrice": 1000
+    }
+}

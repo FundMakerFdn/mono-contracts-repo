@@ -1,0 +1,9 @@
+{
+    "name": "BlockchainIndex",
+    "ticker": "SYBC",
+    "note": "Blockchain Capital Portfolio",
+    "type": "VC",
+    "params": {
+        "initialPrice": 1000
+    }
+}

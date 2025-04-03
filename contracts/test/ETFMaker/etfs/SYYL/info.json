@@ -1,0 +1,9 @@
+{
+    "name": "YZiLabsIndex",
+    "ticker": "SYYL",
+    "note": "YZi Labs (Prev. Binance Labs) Portfolio",
+    "type": "VC",
+    "params": {
+        "initialPrice": 1000
+    }
+}

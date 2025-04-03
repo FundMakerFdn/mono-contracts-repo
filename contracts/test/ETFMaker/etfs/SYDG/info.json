@@ -1,0 +1,9 @@
+{
+    "name": "DragonFlyIndex",
+    "ticker": "SYDG",
+    "note": "DragonFly Capital Portfolio",
+    "type": "VC",
+    "params": {
+        "initialPrice": 1000
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "name": "ParadigmIndex",
+    "ticker": "SYPD",
+    "note": "Paradigm Portfolio",
+    "type": "VC",
+    "params": {
+        "initialPrice": 1000
+    }
+}

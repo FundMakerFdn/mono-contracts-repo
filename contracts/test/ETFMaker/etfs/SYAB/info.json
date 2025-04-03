@@ -1,5 +1,9 @@
 {
-    "name": "AnimocaBrands",
+    "name": "AnimocaIndex",
     "ticker": "SYAB",
-    "note": "Animoca Brands Portfolio"
+    "note": "Animoca Brands Portfolio",
+    "type": "VC",
+    "params": {
+        "initialPrice": 1000
+    }
 }

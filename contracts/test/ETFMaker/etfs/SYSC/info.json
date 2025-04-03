@@ -1,0 +1,9 @@
+{
+    "name": "SequoiaIndex",
+    "ticker": "SYSC",
+    "note": "Sequoia Capital Portfolio",
+    "type": "VC",
+    "params": {
+        "initialPrice": 1000
+    }
+}

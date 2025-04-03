@@ -1,0 +1,9 @@
+{
+    "name": "DelphiIndex",
+    "ticker": "SYDV",
+    "note": "Delphi Ventures Portfolio",
+    "type": "VC",
+    "params": {
+        "initialPrice": 1000
+    }
+}

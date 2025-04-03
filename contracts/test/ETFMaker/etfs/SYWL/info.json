@@ -1,0 +1,9 @@
+{
+    "name": "WorldLibertyIndex",
+    "ticker": "SYWL",
+    "note": "World Liberty Financial Portfolio",
+    "type": "VC",
+    "params": {
+        "initialPrice": 1000
+    }
+}
