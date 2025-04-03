@@ -1,7 +1,0 @@
-{
-  "plan": "Analyst",
-  "rate_limit_request_per_minute": 500,
-  "monthly_call_credit": 500000,
-  "current_total_monthly_calls": 20030,
-  "current_remaining_monthly_calls": 479970
-}

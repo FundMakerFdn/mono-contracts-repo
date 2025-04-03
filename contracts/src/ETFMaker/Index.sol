@@ -12,24 +12,6 @@ import "./IndexRegistry.sol";
 contract pSymmIndex is ERC20
     {
 
-    struct EIP712Order {
-        address solver;
-    }
-
-    /// @notice EIP712 domain
-    bytes32 private constant EIP712_DOMAIN =
-        keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
-    /// @notice order type
-    bytes32 private constant ORDER_TYPE = keccak256(
-        "Order(uint8 order_type,uint256 expiry,uint256 nonce,address benefactor,address beneficiary,address collateral_asset,uint256 collateral_amount,uint256 usde_amount)"
-    );
-    /// @notice EIP712 domain hash
-    bytes32 private constant EIP712_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(EIP712_DOMAIN));
-    /// @notice EIP712 name
-
-    /// @notice holds EIP712 revision
-    bytes32 private constant EIP712_REVISION = keccak256("1");
-
     event Deposit(uint256 amount, address from, address frontend);
     event WithdrawRequest(uint256 amount, address from, address frontend);
     event Withdraw(uint256 amount, address to, uint256 executionPrice, uint256 executionTime, address frontend);
@@ -55,15 +37,13 @@ contract pSymmIndex is ERC20
     uint256 public frontendShare;    
 
 
-    /// @notice EIP712 nullifier for mint and withdraw
-    mapping(bytes32 => uint256) public nullifiers;  
-    /// @notice USDe minted per block
+    /// @notice token minted per block
     mapping(uint256 => uint256) public mintedPerBlock;
-    /// @notice USDe redeemed per block
+    /// @notice token redeemed per block
     mapping(uint256 => uint256) public redeemedPerBlock;
-    /// @notice max minted USDe allowed per block
+    /// @notice max minted token allowed per block
     uint256 public maxMintPerBlock;
-    /// @notice max redeemed USDe allowed per block
+    /// @notice max redeemed token allowed per block
     uint256 public maxRedeemPerBlock;
 
     /* --------------- CONSTRUCTOR --------------- */
@@ -97,15 +77,15 @@ contract pSymmIndex is ERC20
 
     /* --------------- MODIFIERS --------------- */
 
-    /// @notice ensure that the already minted USDe in the actual block plus the amount to be minted is below the maxMintPerBlock var
-    /// @param mintAmount The USDe amount to be minted
+    /// @notice ensure that the already minted token in the actual block plus the amount to be minted is below the maxMintPerBlock var
+    /// @param mintAmount The token amount to be minted
     modifier belowMaxMintPerBlock(uint256 mintAmount) {
         require(mintedPerBlock[block.number] + mintAmount > maxMintPerBlock, "MaxMintPerBlockExceeded");
         _;
     }
 
-    /// @notice ensure that the already redeemed USDe in the actual block plus the amount to be redeemed is below the maxRedeemPerBlock var
-    /// @param redeemAmount The USDe amount to be redeemed
+    /// @notice ensure that the already redeemed token in the actual block plus the amount to be redeemed is below the maxRedeemPerBlock var
+    /// @param redeemAmount The token amount to be redeemed
     modifier belowMaxRedeemPerBlock(uint256 redeemAmount) {
         require(redeemedPerBlock[block.number] + redeemAmount > maxRedeemPerBlock, "MaxRedeemPerBlockExceeded");
         _;
@@ -117,7 +97,7 @@ contract pSymmIndex is ERC20
     }
 
     //@notice only solver
-    //@TODO add EIP712 submit signature of quote
+    //@TODO submit FIX quote messagea
     function mint(address target, uint256 amount, uint256 executionPrice, uint256 executionTime, address frontend) 
         external 
         onlyPSymm 
@@ -163,12 +143,6 @@ contract pSymmIndex is ERC20
         uint256 oldMaxRedeemPerBlock = maxRedeemPerBlock;
         maxRedeemPerBlock = _maxRedeemPerBlock;
         emit MaxRedeemPerBlockChanged(oldMaxRedeemPerBlock, maxRedeemPerBlock);
-    }
-
-    /// @notice Compute the current domain separator
-    /// @return The domain separator for the token
-    function _computeDomainSeparator() internal view returns (bytes32) {
-        return keccak256(abi.encode(EIP712_DOMAIN, keccak256("bob"), EIP712_REVISION, block.chainid, address(this)));
     }
 
     /* --------- 

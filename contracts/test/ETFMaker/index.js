@@ -1,75 +1,175 @@
 const assert = require("node:assert/strict");
-const { loadFixture } = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
-const { keccak256, pad } = require("viem");
-const { deployFixture } = require("./deploy");
+const {
+  loadFixture,
+} = require("@nomicfoundation/hardhat-toolbox-viem/network-helpers");
+const {
+  keccak256,
+  concat,
+  toBytes,
+  encodeAbiParameters,
+} = require("viem");
+const fs = require("fs");
+const path = require("path");
+const os = require("node:os");
+const { StandardMerkleTree } = require("@openzeppelin/merkle-tree");
+const { deployFixture, convertAddressToX, CHAIN_ID } = require("./deploy");
 
 describe("psymm", function () {
-  // Use async function for the test
-  it("should allow deposits from address to custody", async function () {
-    // Load the fixture
-    const {
-      psymm, 
-      USDC, 
-      partyA, 
-      partyB, 
-      USDC_PRECISION,
-      custodyId_A,
-      custodyId_B
-    } = await loadFixture(deployFixture);
-    
-    console.log("psymm", psymm.address);
-    
-    // Check initial balances
-    const initialBalanceA = await psymm.read.getCustodyBalances([custodyId_A, USDC.address]);
-    console.log("Initial custody balance for partyA:", initialBalanceA.toString());
-    
-    // Check USDC balance of partyA before deposit
-    const partyABalance = await USDC.read.balanceOf([partyA.account.address]);
-    console.log("PartyA USDC balance:", partyABalance.toString());
-    
-    // We need to mint tokens to partyB first
-    await USDC.write.mint([partyB.account.address, BigInt(10 * 10 ** USDC_PRECISION)], {
-      account: partyB.account
+  async function addressToCustody(
+    psymm,
+    USDC,
+    USDE,
+    partyA,
+    partyB,
+    USDC_PRECISION,
+    USDE_PRECISION,
+    custodyId_A,
+    custodyId_B
+  ) {
+    await USDC.write.approve([psymm.address, 10 * 10 ** USDC_PRECISION], {
+      account: partyA.account,
     });
-    
-    // Approve tokens for deposit from both parties
-    await USDC.write.approve([psymm.address, BigInt(10 * 10 ** USDC_PRECISION)], {
-      account: partyA.account
+    await USDE.write.approve([psymm.address, 10 * 10 ** USDE_PRECISION], {
+      account: partyB.account,
     });
-    
-    await USDC.write.approve([psymm.address, BigInt(10 * 10 ** USDC_PRECISION)], {
-      account: partyB.account
-    });
-    
-    // Make deposits to custody
+
     await psymm.write.addressToCustody(
-      [custodyId_A, USDC.address, BigInt(10 * 10 ** USDC_PRECISION)], 
+      [custodyId_A, USDC.address, 10 * 10 ** USDC_PRECISION],
       { account: partyA.account }
     );
-    
     await psymm.write.addressToCustody(
-      [custodyId_B, USDC.address, BigInt(10 * 10 ** USDC_PRECISION)], 
+      [custodyId_B, USDE.address, 10 * 10 ** USDE_PRECISION],
       { account: partyB.account }
     );
-    
-    // Check balances after deposits
-    const postDepositBalanceA = await psymm.read.getCustodyBalances([custodyId_A, USDC.address]);
-    const postDepositBalanceB = await psymm.read.getCustodyBalances([custodyId_B, USDC.address]);
-    
-    console.log("Post-deposit balance for partyA:", postDepositBalanceA.toString());
-    console.log("Post-deposit balance for partyB:", postDepositBalanceB.toString());
-    
-    // Assert that the balances have increased by the expected amount
+
     assert.equal(
-      postDepositBalanceA.toString(), 
-      (BigInt(10 * 10 ** USDC_PRECISION)).toString(), 
-      "PartyA's deposit did not update custody balance correctly"
+      await psymm.read.getCustodyBalances([custodyId_A, USDC.address]),
+      BigInt(10 * 10 ** USDC_PRECISION),
+      "USDC balance should be 10"
     );
-    
     assert.equal(
-      postDepositBalanceB.toString(), 
-      (BigInt(10 * 10 ** USDC_PRECISION)).toString(), 
-      "PartyB's deposit did not update custody balance correctly"
+      await psymm.read.getCustodyBalances([custodyId_B, USDE.address]),
+      BigInt(10 * 10 ** USDE_PRECISION),
+      "USDE balance should be 10"
+    );
+  }
+
+  async function custodyToAddress(
+    psymm,
+    USDC,
+    partyA,
+    partyB,
+    custodyId_A,
+    USDC_PRECISION
+  ) {
+    const amount = 5n * 10n ** BigInt(USDC_PRECISION);
+    const destination = partyB.account.address;
+
+    const timestamp = BigInt(Math.floor(Date.now() / 1000));
+    const pubKey = { parity: 0, x: convertAddressToX(partyA.account.address) };
+    const sig = {
+      px: keccak256(toBytes("mock-px")),
+      e: keccak256(toBytes("mock-e")),
+      s: keccak256(toBytes("mock-s")),
+    };
+
+    // Construct the leaf exactly as the contract does
+    const leafData = encodeAbiParameters(
+      [
+        { type: "string" },
+        { type: "uint256" },
+        { type: "address" },
+        { type: "uint8" },
+        { type: "bytes" },
+        { type: "uint8" },
+        { type: "bytes32" },
+      ],
+      [
+        "custodyToAddress",
+        CHAIN_ID.HARDHAT,
+        psymm.address,
+        0,
+        encodeAbiParameters([{ type: "address" }], [destination]), // Nested encoding for encodedParams
+        0,
+        pubKey.x,
+      ]
+    );
+    const leaf = keccak256(concat([keccak256(leafData)]));
+
+    // Single-leaf tree: root = leaf, proof = []
+    const root = leaf;
+    const proof = [];
+
+    // Call custodyToAddress
+    await psymm.write.custodyToAddress(
+      [
+        USDC.address,
+        destination,
+        amount,
+        {
+          id: custodyId_A,
+          state: 0,
+          timestamp: timestamp,
+          pubKey: pubKey,
+          sig: sig,
+          merkleProof: proof,
+        },
+      ],
+      { account: partyA.account }
+    );
+
+    const custodyBalanceAfter = await psymm.read.getCustodyBalances([
+      custodyId_A,
+      USDC.address,
+    ]);
+    const destinationBalance = await USDC.read.balanceOf([destination]);
+
+    assert.equal(
+      custodyBalanceAfter,
+      5n * 10n ** BigInt(USDC_PRECISION),
+      "Custody balance should be reduced by 5"
+    );
+    assert.equal(
+      destinationBalance,
+      amount,
+      "Destination should receive 5 USDC"
+    );
+  }
+
+  it("Should correctly handle pSymm operations", async function () {
+    const {
+      psymm_partyA,
+      psymm_partyB,
+      USDC,
+      USDE,
+      partyA,
+      partyB,
+      USDC_PRECISION,
+      USDE_PRECISION,
+      custodyId_A,
+      custodyId_B,
+    } = await loadFixture(deployFixture);
+    await addressToCustody(
+      psymm_partyA,
+      USDC,
+      USDE,
+      partyA,
+      partyB,
+      USDC_PRECISION,
+      USDE_PRECISION,
+      custodyId_A,
+      custodyId_B
+    );
+    await custodyToAddress(
+      psymm_partyA,
+      USDC,
+      partyA,
+      partyB,
+      custodyId_A,
+      USDC_PRECISION,
+      USDE_PRECISION,
+      custodyId_A,
+      custodyId_B
     );
   });
 });
