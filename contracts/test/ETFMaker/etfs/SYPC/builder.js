@@ -16,7 +16,7 @@ async function readJsonFile(filename) {
 // Function to write CSV
 async function writeCsv(filename, rows) {
     const filePath = path.resolve(__dirname, filename);
-    const headers = 'timestamp,weights,quantities\n';
+    const headers = 'timestamp,weights,quantities,price,price\n';
     const csvContent = headers + rows
         .map(row => `${row.timestamp},"${row.weights}",${row.quantities || ''}`)
         .join('\n');

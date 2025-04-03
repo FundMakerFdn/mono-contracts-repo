@@ -12,15 +12,28 @@ async function deployFixture() {
     ticker: "SYPC",
     curatorFee: 1,
     }
-  const partyAData = {
-    role: "Trader",
-    ipAddress: "127.0.0.2",
-    partyType: 1,
-  };
+
+  const curratorWeights = [{
+    indexId : 1,
+    timestamp : 1743465600,
+    weights : "",
+    price : 10,
+    }]
 
   await indexRegistry.write.registerIndex([IndexDatas.name, IndexDatas.ticker, IndexDatas.curatorFee], {
     account: partyA.account,
   });
+
+  const data1 = await indexRegistry.read.getIndexDatas([1]);
+
+  const i = 0;
+  await indexRegistry.write.setCuratorWeights([curratorWeights[i].indexId, curratorWeights[i].timestamp, curratorWeights[i].weights, curratorWeights[i].price], {
+    account: partyA.account,
+  });
+  
+  const data2 = await indexRegistry.read.getData([1, 1743465600, partyA.account.address]);
+
+
 
   return {
     indexRegistry,
