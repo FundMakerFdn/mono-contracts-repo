@@ -3,12 +3,18 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+//import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "hardhat/console.sol";
 import "../PSYMM/PSYMM.sol";
+import "./IndexRegistry.sol";
 
-contract pSymmETF is ERC20, ReentrancyGuard {
+contract pSymmIndex is ERC20
+    {
+
+    struct EIP712Order {
+        address solver;
+    }
 
     /// @notice EIP712 domain
     bytes32 private constant EIP712_DOMAIN =
@@ -20,7 +26,6 @@ contract pSymmETF is ERC20, ReentrancyGuard {
     /// @notice EIP712 domain hash
     bytes32 private constant EIP712_DOMAIN_TYPEHASH = keccak256(abi.encodePacked(EIP712_DOMAIN));
     /// @notice EIP712 name
-    bytes32 private constant EIP_712_NAME = keccak256(name.));
 
     /// @notice holds EIP712 revision
     bytes32 private constant EIP712_REVISION = keccak256("1");
@@ -30,13 +35,16 @@ contract pSymmETF is ERC20, ReentrancyGuard {
     event Withdraw(uint256 amount, address to, uint256 executionPrice, uint256 executionTime, address frontend);
     event Mint(uint256 amount, address to, uint256 executionPrice, uint256 executionTime, address frontend);
     event Burn(uint256 amount, address to, uint256 chainId, address frontend);
+    event MaxMintPerBlockChanged(uint256 oldMaxMintPerBlock, uint256 maxMintPerBlock);
+    event MaxRedeemPerBlockChanged(uint256 oldMaxRedeemPerBlock, uint256 maxRedeemPerBlock);
 
+    IndexRegistry public immutable _IndexRegistry;
     address public immutable indexRegistryAddress;
     uint256 public immutable indexRegistryChainId;
     uint256 public immutable indexId;
 
-    address public immutable pSymmAddress;
     PSYMM public immutable pSymm;
+    address public immutable pSymmAddress;
     bytes32 public immutable custodyId;
 
     address public collateralToken;
@@ -44,7 +52,7 @@ contract pSymmETF is ERC20, ReentrancyGuard {
     uint256 public mintFee;
     uint256 public burnFee;
     uint256 public managementFee;
-    uint256 public frontendShare;
+    uint256 public frontendShare;    
 
 
     /// @notice EIP712 nullifier for mint and withdraw
@@ -62,6 +70,7 @@ contract pSymmETF is ERC20, ReentrancyGuard {
 
     constructor(
         address _pSymmAddress, 
+        address _IndexRegistryAddress,
         string memory _name, 
         string memory _symbol, 
         bytes32 _custodyId, 
@@ -73,16 +82,15 @@ contract pSymmETF is ERC20, ReentrancyGuard {
         uint256 _maxMintPerBlock,
         uint256 _maxRedeemPerBlock
     ) ERC20(_name, _symbol) {
+        _IndexRegistry = IndexRegistry(_IndexRegistryAddress);
         pSymmAddress = _pSymmAddress;
         pSymm = PSYMM(_pSymmAddress);
         custodyId = _custodyId;
-        curator = msg.sender;
         collateralToken = _collateralToken;
         collateralTokenPrecision = _collateralTokenPrecision;
         mintFee = _mintFee;
         burnFee = _burnFee;
         managementFee = _managementFee;
-        lastPrice = _initialPrice;  // Use the initial price parameter
         maxMintPerBlock = _maxMintPerBlock;
         maxRedeemPerBlock = _maxRedeemPerBlock;
     }
@@ -92,24 +100,19 @@ contract pSymmETF is ERC20, ReentrancyGuard {
     /// @notice ensure that the already minted USDe in the actual block plus the amount to be minted is below the maxMintPerBlock var
     /// @param mintAmount The USDe amount to be minted
     modifier belowMaxMintPerBlock(uint256 mintAmount) {
-        if (mintedPerBlock[block.number] + mintAmount > maxMintPerBlock) revert MaxMintPerBlockExceeded();
+        require(mintedPerBlock[block.number] + mintAmount > maxMintPerBlock, "MaxMintPerBlockExceeded");
         _;
     }
 
     /// @notice ensure that the already redeemed USDe in the actual block plus the amount to be redeemed is below the maxRedeemPerBlock var
     /// @param redeemAmount The USDe amount to be redeemed
     modifier belowMaxRedeemPerBlock(uint256 redeemAmount) {
-        if (redeemedPerBlock[block.number] + redeemAmount > maxRedeemPerBlock) revert MaxRedeemPerBlockExceeded();
+        require(redeemedPerBlock[block.number] + redeemAmount > maxRedeemPerBlock, "MaxRedeemPerBlockExceeded");
         _;
     }
 
     modifier onlyPSymm() {
         require(msg.sender == pSymmAddress, "Only pSymm can call");
-        _;
-    }
-
-    modifier onlyCurator() {
-        require(msg.sender == curator || msg.sender == pSymmAddress, "Only curator can call");
         _;
     }
 
@@ -147,21 +150,6 @@ contract pSymmETF is ERC20, ReentrancyGuard {
         emit Withdraw(amount, to, executionPrice, executionTime, frontend);
     }
 
-    function updateCuratorWeights(bytes memory _weights, uint256 _timestamp) external onlyCurator {
-        require(_timestamp > lastWeightUpdate, "Rebalance timestamp must be greater than the previous one");
-        curatorWeights[_timestamp] = _weights;
-        lastWeightUpdate = _timestamp;
-    }
-
-    function updateSolverWeights(bytes memory _weights, uint256 _timestamp) external onlyPSymm {
-        require(_timestamp > lastWeightUpdate, "Rebalance timestamp must be greater than the previous one");
-        solverWeights[_timestamp] = _weights;
-        lastWeightUpdate = _timestamp;
-    }
-
-    function updatePrice(uint256 _price) external onlyPSymm {
-        lastPrice = _price;
-    }
 
     /// @notice Sets the max mintPerBlock limit
     function _setMaxMintPerBlock(uint256 _maxMintPerBlock) internal {
@@ -180,27 +168,15 @@ contract pSymmETF is ERC20, ReentrancyGuard {
     /// @notice Compute the current domain separator
     /// @return The domain separator for the token
     function _computeDomainSeparator() internal view returns (bytes32) {
-        return keccak256(abi.encode(EIP712_DOMAIN, EIP_712_NAME, EIP712_REVISION, block.chainid, address(this)));
+        return keccak256(abi.encode(EIP712_DOMAIN, keccak256("bob"), EIP712_REVISION, block.chainid, address(this)));
     }
 
     /* --------- 
     Getters
     --------- */
 
-    function getCuratorWeights(uint256 _timestamp) external view returns (bytes memory) {
-        return curatorWeights[_timestamp];
-    }
-
-    function getSolverWeights(uint256 _timestamp) external view returns (bytes memory) {
-        return solverWeights[_timestamp];
-    }
-
-    function getLastWeightUpdate() external view returns (uint256) {
-        return lastWeightUpdate;
-    }
-
     function getLastPrice() external view returns (uint256) {
-        return lastPrice;
+        return _IndexRegistry.getLastPrice(indexId);
     }
 
     function getCollateralToken() external view returns (address) {
@@ -223,7 +199,5 @@ contract pSymmETF is ERC20, ReentrancyGuard {
         return managementFee;
     }
 
-    function getCurator() external view returns (address) {
-        return curator;
-    }
+
 }

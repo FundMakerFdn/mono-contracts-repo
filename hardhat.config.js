@@ -65,7 +65,7 @@ subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS).setAction(
     const paths = await runSuper();
     return paths.filter(
       // filter unfinished ETFMaker
-      (p) => !p.includes("/ETFMaker/")
+      (p) => !p.includes("/ETFEMaker/")
     );
     // return paths.filter((p) => p.includes("/NoirTest/"));
   }

@@ -1,14 +1,14 @@
-// ETF.sol
+// Index.sol
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";  
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../PSYMM/PSYMM.sol";
-import "./ETF.sol";
+import "./Index.sol";
 
-contract ETFMaker {
-    event ETFDeployed(address indexed etfAddress);
+contract IndexFactory {
+    event IndexDeployed(address indexed indexAddress);
     
     address public immutable pSymmAddress;
 
@@ -21,7 +21,8 @@ contract ETFMaker {
         _;
     }
 
-    function deployETF(
+    function deployIndex(
+        address _indexRegistryAddress,
         string memory _name, 
         string memory _symbol, 
         bytes32 _custodyId, 
@@ -30,10 +31,12 @@ contract ETFMaker {
         uint256 _mintFee,
         uint256 _burnFee,
         uint256 _managementFee,
-        uint256 _initialPrice  // Fixed spelling
+        uint256 _maxMintPerBlock,
+        uint256 _maxRedeemPerBlock
     ) external onlyPSymm returns (address) {
-        pSymmETF etf = new pSymmETF(
+        pSymmIndex index = new pSymmIndex(
             pSymmAddress, 
+            _indexRegistryAddress,
             _name, 
             _symbol, 
             _custodyId, 
@@ -42,10 +45,11 @@ contract ETFMaker {
             _mintFee, 
             _burnFee, 
             _managementFee, 
-            _initialPrice
+            _maxMintPerBlock,
+            _maxRedeemPerBlock
         );
 
-        emit ETFDeployed(address(etf));
-        return address(etf);
+        emit IndexDeployed(address(index));
+        return address(index);
     }
 }

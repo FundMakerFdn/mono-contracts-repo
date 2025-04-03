@@ -2,11 +2,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";  
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "../PSYMM/PSYMM.sol";
-import "./ETF.sol";
-
 /// @title IndexRegistry
 /// @notice This contract is used to store the index data for each index to be compatible with cross-chain deployed indexes
 contract IndexRegistry {    
@@ -14,11 +9,10 @@ contract IndexRegistry {
         string name;
         string ticker;
         address curator;
-        address solver;
         uint256 lastPrice;
         uint256 lastWeightUpdateTimestamp;
         uint256 lastPriceUpdateTimestamp;
-        uint256 curatorFee;
+        uint256 curatorFee;//hi
     }
 
     mapping(uint256 => mapping(uint256 => bytes)) public curatorWeights; // timestamp => weights // pct
@@ -33,16 +27,20 @@ contract IndexRegistry {
         _;
     }
 
-    event IndexDatasSet(uint256 indexed indexId, IndexDatas indexDatas);
+    event IndexDatasSet(uint256 indexed indexId, string name, string ticker, address curator);
     event CuratorWeightsSet(uint256 indexed indexId, uint256 timestamp, bytes weights, uint256 price);
     event SolverWeightsSet(uint256 indexed indexId, address indexed solver, uint256 timestamp, bytes weights, uint256 price);
     event CuratorUpgraded(uint256 indexed indexId, address oldCurator, address newCurator);
 
     // Set index data (initial setup)
-    function setIndexDatas(uint256 indexId, IndexDatas memory _indexDatas) public {
+    function registerIndex( string memory _name, string memory _ticker, uint256 _curatorFee) public {
         indexDatasCount++;
-        indexDatas[indexId] = _indexDatas;
-        emit IndexDatasSet(indexId, _indexDatas);
+        IndexDatas storage indexData = indexDatas[indexDatasCount];
+        indexData.name = _name;
+        indexData.ticker = _ticker;
+        indexData.curator = msg.sender;
+        indexData.curatorFee = _curatorFee;
+        emit IndexDatasSet(indexDatasCount, _name, _ticker, msg.sender);
     }
 
     // Set curator weights and price
@@ -88,7 +86,6 @@ contract IndexRegistry {
         string memory name,
         string memory ticker,
         address curator,
-        address solver,
         uint256 lastPrice,
         uint256 lastWeightUpdateTimestamp,
         uint256 lastPriceUpdateTimestamp,
@@ -99,7 +96,6 @@ contract IndexRegistry {
             data.name,
             data.ticker,
             data.curator,
-            data.solver,
             data.lastPrice,
             data.lastWeightUpdateTimestamp,
             data.lastPriceUpdateTimestamp,
