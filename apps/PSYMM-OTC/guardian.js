@@ -1,6 +1,7 @@
 const WebSocket = require("ws");
 const { signMessage } = require("@fundmaker/schnorr");
 const { keyFromSeed } = require("./common");
+const { Queue } = require("./queue");
 
 class GuardianServer {
   constructor(config = {}) {
@@ -18,12 +19,18 @@ class GuardianServer {
       this.publicKey = config.publicKey;
     }
 
+    // Queues
+    this.inputQueue = new Queue();
+    this.outputQueue = new Queue();
+    
     // Session state storage
     this.sessions = new Map(); // custodyId => session data
     this.messageHistory = new Map(); // custodyId => array of messages
-
+    
     // Server instance
     this.server = null;
+    this.clients = new Map(); // clientId => websocket connection
+    this.nextClientId = 1;
 
     if (!this.privateKey || !this.publicKey) {
       throw new Error(
@@ -43,24 +50,31 @@ class GuardianServer {
     );
 
     this.server.on("connection", (ws, req) => {
+      const clientId = this.nextClientId++;
       const clientIp = req.socket.remoteAddress;
-      console.log(`New client connected from IP: ${clientIp}`);
+      console.log(`New client connected: ${clientId} from IP: ${clientIp}`);
+      
+      this.clients.set(clientId, ws);
 
       ws.on("message", (message) => {
         try {
           const parsedMessage = JSON.parse(message);
-          this.handleMessage(parsedMessage);
+          this.inputQueue.push({
+            clientId,
+            message: parsedMessage
+          });
         } catch (error) {
-          console.error("Error parsing message:", error);
+          console.error(`Error parsing message from ${clientId}:`, error);
         }
       });
 
       ws.on("close", () => {
-        console.log(`Client disconnected from IP: ${clientIp}`);
+        console.log(`Client disconnected: ${clientId}`);
+        this.clients.delete(clientId);
       });
 
       ws.on("error", (error) => {
-        console.error(`WebSocket error:`, error);
+        console.error(`Error with client ${clientId}:`, error);
       });
     });
   }
@@ -140,20 +154,65 @@ class GuardianServer {
       // Sign the ACK message
       const signedAck = this.signMessage(ackMessage);
 
-      // Send ACK to all connected clients
-      this.server.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-          console.log("Sending ACK:", signedAck);
-          client.send(JSON.stringify(signedAck));
-        }
+      // Push ACK to output queue
+      this.outputQueue.push({
+        message: signedAck
       });
 
       this.sessions.set(custodyId, session);
     }
   }
 
+  async handleInputQueue() {
+    await this.inputQueue.waitForUpdate();
+
+    while (this.inputQueue.length > 0) {
+      const { clientId, message } = this.inputQueue.shift();
+      this.handleMessage(message);
+    }
+  }
+
+  async handleOutputQueue() {
+    await this.outputQueue.waitForUpdate();
+
+    while (this.outputQueue.length > 0) {
+      const { message } = this.outputQueue.shift();
+      const signedMessage = this.signMessage(message);
+      const messageStr = JSON.stringify(signedMessage);
+
+      // Send to all connected clients
+      this.clients.forEach((ws) => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(messageStr);
+        }
+      });
+    }
+  }
+
+  startQueueHandlers() {
+    // Start input and output queue handlers
+    this.startHandler(this.handleInputQueue.bind(this), "InputQueue");
+    this.startHandler(this.handleOutputQueue.bind(this), "OutputQueue");
+  }
+
+  startHandler(handlerFn, name) {
+    const runHandler = async () => {
+      try {
+        while (true) {
+          await handlerFn();
+        }
+      } catch (error) {
+        console.error(`Error in ${name} handler:`, error);
+        // Restart handler after delay
+        setTimeout(() => this.startHandler(handlerFn, name), 1000);
+      }
+    };
+    runHandler();
+  }
+
   start() {
     this.initServer();
+    this.startQueueHandlers();
     console.log("Guardian server running. Press Ctrl+C to exit.");
     console.log(this.publicKey);
   }

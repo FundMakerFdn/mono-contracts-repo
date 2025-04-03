@@ -42,7 +42,6 @@ async function main() {
     console.log(`\nRole: ${role}`);
     console.log(`Address: ${party}`);
     console.log(`IP Address: ${ipAddress}`);
-    console.log(`Party Type: ${partyData[2]}`);
     console.log(`Public Key:`);
     console.log(`  Parity: ${pubKey.parity}`);
     console.log(`  X: ${pubKey.x}`);

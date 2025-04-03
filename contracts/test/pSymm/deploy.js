@@ -93,11 +93,11 @@ async function deployFixture() {
   };
 
   // Register all parties
-  await partyRegistry.write.registerParty([partyAData], {
-    account: partyA.account,
-  });
   await partyRegistry.write.registerParty([partyBData], {
     account: partyB.account,
+  });
+  await partyRegistry.write.registerParty([partyAData], {
+    account: partyA.account,
   });
   await partyRegistry.write.registerParty([guardianSolverData], {
     account: partyB.account,
