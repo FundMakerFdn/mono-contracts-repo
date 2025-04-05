@@ -27,6 +27,7 @@
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "viem": "^2.21.51",
+    "vite": "^6.2.5",
     "ws": "^8.18.0"
   },
   "scripts": {

@@ -1,6 +1,9 @@
 {
-  "name": "pSymmFIX",
+  "name": "@fundmaker/pSymmFIX",
   "version": "1.0.0",
   "main": "index.js",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "jest": "^29.7.0"
+  }
 }
