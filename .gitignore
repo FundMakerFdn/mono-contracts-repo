@@ -5,6 +5,8 @@
 
 *.tmp.json
 
+.DS_Store
+
 # Aider data
 .aider.*
 
