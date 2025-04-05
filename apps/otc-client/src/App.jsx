@@ -1,34 +1,54 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [entries, setEntries] = useState([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedIP, setSelectedIP] = useState(null)
+
+  useEffect(() => {
+    // Mock function to generate IPs
+    const mockIPs = Array.from({ length: 6 }, (_, i) => `127.0.0.${i + 1}`)
+    setEntries(mockIPs)
+  }, [])
+
+  const filteredEntries = entries.filter(entry =>
+    entry.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  const handleConnect = () => {
+    console.log('Connecting...')
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="container">
+      <input
+        type="text"
+        className="search-input"
+        placeholder="Search..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      
+      <div className="entries-list">
+        {filteredEntries.map((entry, index) => (
+          <div 
+            key={index} 
+            className={`entry-item ${selectedIP === entry ? 'selected' : ''}`}
+            onClick={() => setSelectedIP(entry)}
+          >
+            {entry}
+          </div>
+        ))}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+
+      <button 
+        className={`connect-button ${selectedIP ? 'active' : ''}`}
+        onClick={handleConnect}
+      >
+        {selectedIP ? `Connect to ${selectedIP}` : 'Choose'}
+      </button>
+    </div>
   )
 }
 
