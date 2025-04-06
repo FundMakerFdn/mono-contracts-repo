@@ -118,4 +118,4 @@ const custody = {
 // ACK queeu ( queue where we verify we received ACK of a message
 //
 
-module.exports = custody;
+export default custody;

@@ -1,7 +1,7 @@
-const { secp256k1 } = require("@noble/curves/secp256k1");
-const { bytesToHex, createPublicClient, http } = require("viem");
-const fs = require("fs");
-const path = require("path");
+import { secp256k1 } from "@noble/curves/secp256k1";
+import { bytesToHex, createPublicClient, http } from "viem";
+import fs from "fs";
+import path from "path";
 
 /**
  * Generate a deterministic Schnorr key pair from a numeric seed
@@ -111,7 +111,7 @@ function convertPubKey(pubKey) {
   return "0x" + prefix + x;
 }
 
-module.exports = {
+export {
   keyFromSeed,
   getGuardianData,
   convertPubKey,

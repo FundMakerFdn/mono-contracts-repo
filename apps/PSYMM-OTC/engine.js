@@ -1,14 +1,15 @@
-const WebSocket = require("ws");
-const { Queue } = require("./queue");
-const custody = require("./otcVM");
-const { getGuardianData } = require("./common");
-const { getContractAddresses } = require("@fundmaker/pSymmFIX");
-const {
+import { WebSocket } from 'ws';
+import { WebSocketServer } from 'ws';
+import { Queue } from './queue.js';
+import custody from './otcVM.js';
+import { getGuardianData } from './common.js';
+import { getContractAddresses } from '@fundmaker/pSymmFIX';
+import {
   aggregatePublicKeys,
   signMessage,
   verifySignature,
-} = require("@fundmaker/schnorr");
-const { bytesToHex, hexToBytes } = require("viem");
+} from '@fundmaker/schnorr';
+import { bytesToHex, hexToBytes } from 'viem';
 
 const timeLog = (...args) => {
   const stack = new Error().stack;
@@ -71,7 +72,7 @@ class pSymmServer {
   }
 
   initServer() {
-    this.server = new WebSocket.Server({
+    this.server = new WebSocketServer({
       host: this.host,
       port: this.port,
     });
@@ -682,8 +683,8 @@ class pSymmServer {
         `ws://${guardian.ipAddress}:8080`
       );
       await new Promise((resolve, reject) => {
-        this.guardianConnection.on("open", resolve);
-        this.guardianConnection.on("error", reject);
+        this.guardianConnection.addEventListener("open", resolve);
+        this.guardianConnection.addEventListener("error", reject);
       });
 
       timeLog(`Connected to guardian at ${guardian.ipAddress}`);
@@ -735,4 +736,4 @@ class pSymmServer {
   }
 }
 
-module.exports = { pSymmVM, pSymmServer, timeLog };
+export { pSymmVM, pSymmServer, timeLog };

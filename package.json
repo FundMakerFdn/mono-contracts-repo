@@ -1,5 +1,6 @@
 {
   "name": "settle-maker-mono",
+  "type": "module",
   "version": "1.0",
   "author": "Vladyslav <web.user@ukr.net>, Max OTC maxgctwo@rasa.capital",
   "license": "MIT",

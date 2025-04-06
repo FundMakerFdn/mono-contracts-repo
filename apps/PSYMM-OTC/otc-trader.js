@@ -1,7 +1,7 @@
-const { keyFromSeed, getGuardianData } = require("./common");
-const { getContractAddresses } = require("@fundmaker/pSymmFIX");
-const WebSocket = require("ws");
-const { signMessage } = require("@fundmaker/schnorr");
+import { keyFromSeed, getGuardianData } from "./common.js";
+import { getContractAddresses } from "@fundmaker/pSymmFIX";
+import { WebSocket } from "ws";
+import { signMessage } from "@fundmaker/schnorr";
 
 const HOST = "127.0.0.1"; // connect to
 const PORT = 8080;
@@ -12,7 +12,7 @@ const { pubKey: GUARDIAN_PUBKEY } = keyFromSeed(3); // Guardian for trader
 /**
  * Trader client that connects to pSymmServer and progresses through protocol phases
  */
-class TraderClient {
+export class TraderClient {
   constructor(config = {}) {
     this.url = config.url;
     this.ws = null;
@@ -374,7 +374,7 @@ class TraderClient {
 /**
  * Main trader function
  */
-async function runTrader() {
+export async function runTrader() {
   // Create and connect a trader client
   const client = new TraderClient({
     url: `ws://${HOST}:${PORT}`,
@@ -387,9 +387,4 @@ async function runTrader() {
   console.log("Trader client running. Press Ctrl+C to exit.");
 }
 
-// Run the trader if this file is executed directly
-if (require.main === module) {
-  runTrader();
-}
-
-module.exports = { TraderClient, runTrader };
+runTrader();

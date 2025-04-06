@@ -1,8 +1,9 @@
-const assert = require("node:assert/strict");
-const hre = require("hardhat");
-const { keccak256, pad, hexToBytes, bytesToHex } = require("viem");
-const { keyFromSeed } = require("#root/apps/PSYMM-OTC/common.js");
-const { secp256k1 } = require("@noble/curves/secp256k1");
+import assert from 'node:assert/strict';
+import hre from 'hardhat';
+import { keccak256, pad, hexToBytes, bytesToHex } from 'viem';
+import { keyFromSeed } from '#root/apps/PSYMM-OTC/common.js';
+import { secp256k1 } from '@noble/curves/secp256k1';
+import { writeFileSync } from 'fs';
 
 const CHAIN_ID = {
   ARBITRUM: 42161,
@@ -183,7 +184,7 @@ async function deployFixtureMultichain() {
   };
 }
 
-module.exports = {
+export {
   deployFixture,
   convertAddressToX,
   CHAIN_ID,
@@ -204,8 +205,7 @@ async function main() {
   };
 
   // Write to file
-  const fs = require("fs");
-  fs.writeFileSync(
+  writeFileSync(
     "./libs/pSymmFIX/contracts.json",
     JSON.stringify(outputData, null, 2)
   );
@@ -214,7 +214,7 @@ async function main() {
   return contracts;
 }
 
-if (require.main === module) {
+if (import.meta.url === new URL(import.meta.url).href) {
   main().catch((error) => {
     console.error(error);
     process.exit(1);

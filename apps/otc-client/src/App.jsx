@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
+import { createWalletClient, custom } from "viem";
+import { hardhat } from "viem/chains";
 import "./App.css";
 import contracts from "@fundmaker/pSymmFIX/contracts.json";
+import { getParties } from "@fundmaker/pSymmFIX";
 
 function App() {
   const [entries, setEntries] = useState([]);
@@ -8,10 +11,27 @@ function App() {
   const [selectedIP, setSelectedIP] = useState(null);
 
   useEffect(() => {
-    // Mock function to generate IPs
-    const mockIPs = Array.from({ length: 6 }, (_, i) => `127.0.0.${i + 1}`);
-    setEntries(mockIPs);
     console.log(contracts);
+    const initializeParties = async () => {
+      // Create wallet client
+      const client = createWalletClient({
+        chain: hardhat,
+        transport: custom(window.ethereum),
+      });
+
+      try {
+        // Get parties using the utility function
+        const parties = await getParties(client);
+        // Extract IP addresses from parties
+        const partyIPs = parties.map((party) => party.ipAddress);
+        setEntries(partyIPs);
+      } catch (error) {
+        console.error("Error fetching parties:", error);
+        setEntries([]);
+      }
+    };
+
+    initializeParties();
   }, []);
 
   const filteredEntries = entries.filter((entry) =>

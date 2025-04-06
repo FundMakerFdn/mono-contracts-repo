@@ -1,4 +1,4 @@
-class Session {
+export class Session {
   constructor(checks = []) {
     this.checks = checks;
     this.messages = [];
@@ -35,7 +35,7 @@ class Session {
   }
 }
 
-class SeqNumCheck {
+export class SeqNumCheck {
   constructor() {
     this.name = "SeqNumCheck";
     this.seqNums = new Map();
@@ -68,10 +68,8 @@ class SeqNumCheck {
   }
 }
 
-function createSession() {
+export function createSession() {
   const seqNumCheck = new SeqNumCheck();
   const session = new Session([seqNumCheck]);
   return session;
 }
-
-module.exports = { createSession, Session, SeqNumCheck };

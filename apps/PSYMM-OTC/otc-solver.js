@@ -1,6 +1,6 @@
-const { pSymmServer } = require("./engine");
-const { keyFromSeed } = require("./common");
-const custody = require("./otcVM");
+import { pSymmServer } from './engine.js';
+import { keyFromSeed } from './common.js';
+import custody from './otcVM.js';
 
 const HOST = "127.0.0.1"; // host on
 const PORT = 8080;
@@ -33,8 +33,8 @@ async function runSolver() {
 }
 
 // Run the solver if this file is executed directly
-if (require.main === module) {
+if (import.meta.url === new URL(import.meta.url).href) {
   runSolver();
 }
 
-module.exports = { runSolver };
+export { runSolver };

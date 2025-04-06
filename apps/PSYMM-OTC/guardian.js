@@ -1,9 +1,9 @@
-const WebSocket = require("ws");
-const { signMessage } = require("@fundmaker/schnorr");
-const { keyFromSeed } = require("./common");
-const { Queue } = require("./queue");
+import { WebSocketServer } from 'ws';
+import { signMessage } from "@fundmaker/schnorr";
+import { keyFromSeed } from "./common.js";
+import { Queue } from "./queue.js";
 
-class GuardianServer {
+export class GuardianServer {
   constructor(config = {}) {
     // Server configuration
     this.host = config.host || "127.0.0.1";
@@ -22,11 +22,11 @@ class GuardianServer {
     // Queues
     this.inputQueue = new Queue();
     this.outputQueue = new Queue();
-    
+
     // Session state storage
     this.sessions = new Map(); // custodyId => session data
     this.messageHistory = new Map(); // custodyId => array of messages
-    
+
     // Server instance
     this.server = null;
     this.clients = new Map(); // clientId => websocket connection
@@ -40,7 +40,7 @@ class GuardianServer {
   }
 
   initServer() {
-    this.server = new WebSocket.Server({
+    this.server = new WebSocketServer({
       host: this.host,
       port: this.port,
     });
@@ -53,7 +53,7 @@ class GuardianServer {
       const clientId = this.nextClientId++;
       const clientIp = req.socket.remoteAddress;
       console.log(`New client connected: ${clientId} from IP: ${clientIp}`);
-      
+
       this.clients.set(clientId, ws);
 
       ws.on("message", (message) => {
@@ -61,7 +61,7 @@ class GuardianServer {
           const parsedMessage = JSON.parse(message);
           this.inputQueue.push({
             clientId,
-            message: parsedMessage
+            message: parsedMessage,
           });
         } catch (error) {
           console.error(`Error parsing message from ${clientId}:`, error);
@@ -156,7 +156,7 @@ class GuardianServer {
 
       // Push ACK to output queue
       this.outputQueue.push({
-        message: signedAck
+        message: signedAck,
       });
 
       this.sessions.set(custodyId, session);
@@ -218,12 +218,10 @@ class GuardianServer {
   }
 }
 
-// Run the guardian if this file is executed directly
-if (require.main === module) {
+function main() {
   const host = process.argv[2] || "127.0.0.1";
   const seed = parseInt(process.argv[3]);
   const guardian = new GuardianServer({ host, seed });
   guardian.start();
 }
-
-module.exports = { GuardianServer };
+main();

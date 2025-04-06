@@ -1,7 +1,11 @@
 {
   "name": "@fundmaker/pSymmFIX",
   "version": "1.0.0",
-  "main": "index.js",
+  "type": "module",
+  "module": "index.js",
+  "exports": {
+    "import": "./index.js"
+  },
   "license": "MIT",
   "dependencies": {
     "jest": "^29.7.0"
