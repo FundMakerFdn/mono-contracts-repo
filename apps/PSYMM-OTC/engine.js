@@ -1,7 +1,8 @@
 const WebSocket = require("ws");
 const { Queue } = require("./queue");
 const custody = require("./otcVM");
-const { getContractAddresses, getGuardianData } = require("./common");
+const { getGuardianData } = require("./common");
+const { getContractAddresses } = require("@fundmaker/pSymmFIX");
 const {
   aggregatePublicKeys,
   signMessage,
@@ -492,7 +493,9 @@ class pSymmServer {
       if (session?.guardianConnections) {
         for (const [guardianPubKey, ws] of session.guardianConnections) {
           if (ws.readyState === WebSocket.OPEN) {
-            timeLog(`Sending signed response to counterparty guardian ${guardianPubKey}`);
+            timeLog(
+              `Sending signed response to counterparty guardian ${guardianPubKey}`
+            );
             ws.send(messageStr);
           }
         }
@@ -606,12 +609,13 @@ class pSymmServer {
   async connectToCounterpartyGuardians(session) {
     try {
       // Get guardian data for all counterparty guardian public keys
-      const guardianPromises = session.counterpartyGuardianPubKeys.map(pubKey => 
-        getGuardianData({
-          rpcUrl: this.rpcUrl,
-          partyRegistryAddress: this.contractAddresses.partyRegistry,
-          myGuardianPubKeys: [pubKey],
-        })
+      const guardianPromises = session.counterpartyGuardianPubKeys.map(
+        (pubKey) =>
+          getGuardianData({
+            rpcUrl: this.rpcUrl,
+            partyRegistryAddress: this.contractAddresses.partyRegistry,
+            myGuardianPubKeys: [pubKey],
+          })
       );
 
       const guardiansData = await Promise.all(guardianPromises);
@@ -620,7 +624,9 @@ class pSymmServer {
       for (let i = 0; i < guardiansData.length; i++) {
         const guardianData = guardiansData[i][0]; // Take first result for each guardian
         if (!guardianData) {
-          timeLog(`Guardian not found for pubKey: ${session.counterpartyGuardianPubKeys[i]}`);
+          timeLog(
+            `Guardian not found for pubKey: ${session.counterpartyGuardianPubKeys[i]}`
+          );
           continue;
         }
 
@@ -629,7 +635,9 @@ class pSymmServer {
 
         // Set up connection handlers
         ws.on("open", () => {
-          timeLog(`Connected to counterparty guardian ${guardianPubKey} at ${guardianData.ipAddress}`);
+          timeLog(
+            `Connected to counterparty guardian ${guardianPubKey} at ${guardianData.ipAddress}`
+          );
         });
 
         ws.on("error", (error) => {

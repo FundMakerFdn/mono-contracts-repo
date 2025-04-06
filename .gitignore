@@ -3,7 +3,7 @@
 **/target/*_witness.gz
 **/target/*_circuit.json
 
-*.tmp.json
+contracts.json
 
 .DS_Store
 

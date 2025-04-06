@@ -201,15 +201,16 @@ async function main() {
     partyA: contracts.partyA.account.address,
     partyB: contracts.partyB.account.address,
     USDC_PRECISION: contracts.USDC_PRECISION,
-    guardianSolver: contracts.guardianSolverData,
-    guardianTrader: contracts.guardianTraderData,
   };
 
   // Write to file
   const fs = require("fs");
-  fs.writeFileSync("./contracts.tmp.json", JSON.stringify(outputData, null, 2));
+  fs.writeFileSync(
+    "./libs/pSymmFIX/contracts.json",
+    JSON.stringify(outputData, null, 2)
+  );
 
-  console.log("Contract data written to ./contracts.tmp.json");
+  console.log("Contract data written to ./libs/pSymmFIX/contracts.json");
   return contracts;
 }
 

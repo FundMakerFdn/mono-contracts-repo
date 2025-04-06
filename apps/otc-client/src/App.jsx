@@ -1,24 +1,26 @@
-import { useState, useEffect } from 'react'
-import './App.css'
+import { useState, useEffect } from "react";
+import "./App.css";
+import contracts from "@fundmaker/pSymmFIX/contracts.json";
 
 function App() {
-  const [entries, setEntries] = useState([])
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedIP, setSelectedIP] = useState(null)
+  const [entries, setEntries] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedIP, setSelectedIP] = useState(null);
 
   useEffect(() => {
     // Mock function to generate IPs
-    const mockIPs = Array.from({ length: 6 }, (_, i) => `127.0.0.${i + 1}`)
-    setEntries(mockIPs)
-  }, [])
+    const mockIPs = Array.from({ length: 6 }, (_, i) => `127.0.0.${i + 1}`);
+    setEntries(mockIPs);
+    console.log(contracts);
+  }, []);
 
-  const filteredEntries = entries.filter(entry =>
+  const filteredEntries = entries.filter((entry) =>
     entry.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  );
 
   const handleConnect = () => {
-    console.log('Connecting...')
-  }
+    console.log("Connecting...");
+  };
 
   return (
     <div className="container">
@@ -29,12 +31,12 @@ function App() {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      
+
       <div className="entries-list">
         {filteredEntries.map((entry, index) => (
-          <div 
-            key={index} 
-            className={`entry-item ${selectedIP === entry ? 'selected' : ''}`}
+          <div
+            key={index}
+            className={`entry-item ${selectedIP === entry ? "selected" : ""}`}
             onClick={() => setSelectedIP(entry)}
           >
             {entry}
@@ -42,14 +44,14 @@ function App() {
         ))}
       </div>
 
-      <button 
-        className={`connect-button ${selectedIP ? 'active' : ''}`}
+      <button
+        className={`connect-button ${selectedIP ? "active" : ""}`}
         onClick={handleConnect}
       >
-        {selectedIP ? `Connect to ${selectedIP}` : 'Choose'}
+        {selectedIP ? `Connect to ${selectedIP}` : "Choose"}
       </button>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

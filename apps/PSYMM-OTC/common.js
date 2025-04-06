@@ -41,17 +41,6 @@ function keyFromSeed(seed) {
   };
 }
 
-function getContractAddresses() {
-  try {
-    // Assuming the contracts.tmp.json is in the project root
-    const contractsPath = path.resolve(process.cwd(), "contracts.tmp.json");
-    const contractsData = fs.readFileSync(contractsPath, "utf8");
-    return JSON.parse(contractsData);
-  } catch (error) {
-    console.error("Error reading contracts.tmp.json:", error);
-    throw new Error("Failed to load contract addresses");
-  }
-}
 async function getGuardianData({
   rpcUrl,
   partyRegistryAddress,
@@ -124,7 +113,6 @@ function convertPubKey(pubKey) {
 
 module.exports = {
   keyFromSeed,
-  getContractAddresses,
   getGuardianData,
   convertPubKey,
 };

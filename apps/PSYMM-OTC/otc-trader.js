@@ -1,4 +1,5 @@
-const { keyFromSeed, getContractAddresses, getGuardianData } = require("./common");
+const { keyFromSeed, getGuardianData } = require("./common");
+const { getContractAddresses } = require("@fundmaker/pSymmFIX");
 const WebSocket = require("ws");
 const { signMessage } = require("@fundmaker/schnorr");
 
@@ -19,8 +20,9 @@ class TraderClient {
     this.connected = false;
     this.phase = "DISCONNECTED";
     this.msgSeqNum = 1;
-    this.custodyId = "0x0000000000000000000000000000000000000000000000000000000000000001";
-    
+    this.custodyId =
+      "0x0000000000000000000000000000000000000000000000000000000000000001";
+
     // Configuration
     this.rpcUrl = config.rpcUrl || "http://localhost:8545";
     this.contractAddresses = getContractAddresses();
@@ -41,15 +43,17 @@ class TraderClient {
       }
 
       const guardian = guardianData[0];
-      this.guardianConnection = new WebSocket(`ws://${guardian.ipAddress}:8080`);
-      
+      this.guardianConnection = new WebSocket(
+        `ws://${guardian.ipAddress}:8080`
+      );
+
       await new Promise((resolve, reject) => {
         this.guardianConnection.on("open", resolve);
         this.guardianConnection.on("error", reject);
       });
 
       console.log(`Connected to guardian at ${guardian.ipAddress}`);
-      
+
       this.guardianConnection.on("message", (data) => {
         try {
           const message = JSON.parse(data);
@@ -58,7 +62,6 @@ class TraderClient {
           console.error("Error parsing guardian message:", error);
         }
       });
-
     } catch (error) {
       console.log(`Guardian connection error: ${error.message}`);
       throw error;
@@ -119,8 +122,11 @@ class TraderClient {
             // Send trade message after guardian connections are established
             setTimeout(() => this.sendTradeMessage(), 1000);
           })
-          .catch(error => {
-            console.error("Failed to connect to counterparty guardians:", error);
+          .catch((error) => {
+            console.error(
+              "Failed to connect to counterparty guardians:",
+              error
+            );
           });
       } else {
         this.phase = "TRADE";
@@ -132,7 +138,7 @@ class TraderClient {
   async connectToCounterpartyGuardians(guardianPubKeys) {
     try {
       // Get guardian data for all counterparty guardian public keys
-      const guardianPromises = guardianPubKeys.map(pubKey => 
+      const guardianPromises = guardianPubKeys.map((pubKey) =>
         getGuardianData({
           rpcUrl: this.rpcUrl,
           partyRegistryAddress: this.contractAddresses.partyRegistry,
@@ -155,24 +161,37 @@ class TraderClient {
 
         // Set up connection handlers
         ws.on("open", () => {
-          console.log(`Connected to counterparty guardian ${guardianPubKey} at ${guardianData.ipAddress}`);
+          console.log(
+            `Connected to counterparty guardian ${guardianPubKey} at ${guardianData.ipAddress}`
+          );
         });
 
         ws.on("message", (data) => {
           try {
             const message = JSON.parse(data);
-            console.log(`Received message from counterparty guardian ${guardianPubKey}:`, message);
+            console.log(
+              `Received message from counterparty guardian ${guardianPubKey}:`,
+              message
+            );
           } catch (error) {
-            console.error(`Error parsing message from counterparty guardian ${guardianPubKey}:`, error);
+            console.error(
+              `Error parsing message from counterparty guardian ${guardianPubKey}:`,
+              error
+            );
           }
         });
 
         ws.on("error", (error) => {
-          console.log(`Error with counterparty guardian ${guardianPubKey}:`, error);
+          console.log(
+            `Error with counterparty guardian ${guardianPubKey}:`,
+            error
+          );
         });
 
         ws.on("close", () => {
-          console.log(`Disconnected from counterparty guardian ${guardianPubKey}`);
+          console.log(
+            `Disconnected from counterparty guardian ${guardianPubKey}`
+          );
           this.counterpartyGuardianConnections.delete(guardianPubKey);
         });
 
@@ -241,7 +260,10 @@ class TraderClient {
     this.ws.send(messageStr);
 
     // Send to guardian
-    if (this.guardianConnection && this.guardianConnection.readyState === WebSocket.OPEN) {
+    if (
+      this.guardianConnection &&
+      this.guardianConnection.readyState === WebSocket.OPEN
+    ) {
       this.guardianConnection.send(messageStr);
     }
   }
@@ -274,7 +296,10 @@ class TraderClient {
     this.ws.send(messageStr);
 
     // Send to guardian
-    if (this.guardianConnection && this.guardianConnection.readyState === WebSocket.OPEN) {
+    if (
+      this.guardianConnection &&
+      this.guardianConnection.readyState === WebSocket.OPEN
+    ) {
       this.guardianConnection.send(messageStr);
     }
   }
@@ -313,14 +338,19 @@ class TraderClient {
     this.ws.send(messageStr);
 
     // Send to our guardian
-    if (this.guardianConnection && this.guardianConnection.readyState === WebSocket.OPEN) {
+    if (
+      this.guardianConnection &&
+      this.guardianConnection.readyState === WebSocket.OPEN
+    ) {
       this.guardianConnection.send(messageStr);
     }
 
     // Send to all counterparty guardians
     for (const [guardianPubKey, ws] of this.counterpartyGuardianConnections) {
       if (ws.readyState === WebSocket.OPEN) {
-        console.log(`Sending trade message to counterparty guardian ${guardianPubKey}`);
+        console.log(
+          `Sending trade message to counterparty guardian ${guardianPubKey}`
+        );
         ws.send(messageStr);
       }
     }
@@ -348,9 +378,9 @@ async function runTrader() {
   // Create and connect a trader client
   const client = new TraderClient({
     url: `ws://${HOST}:${PORT}`,
-    rpcUrl: "http://localhost:8545"
+    rpcUrl: "http://localhost:8545",
   });
-  
+
   await client.connect();
 
   // Keep the demo running for a while
