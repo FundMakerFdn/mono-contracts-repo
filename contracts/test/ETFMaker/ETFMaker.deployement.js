@@ -27,7 +27,7 @@ function shouldDeployPSYMM() {
     const { PSYMM } = await loadFixture(deployFixture);
     assert.ok(PSYMM.address, "PSYMM not deployed");
   });
-}
+}-
 
 module.exports = {
   shouldDeployPSYMM,
