@@ -1,5 +1,5 @@
 import { keyFromSeed, getGuardianData } from "./common.js";
-import { getContractAddresses } from "@fundmaker/pSymmFIX";
+import { getContractAddresses } from "@fundmaker/pSymmFIX/get-contracts";
 import { WebSocket } from "ws";
 import { signMessage } from "@fundmaker/schnorr";
 

@@ -1,15 +1,15 @@
-import { WebSocket } from 'ws';
-import { WebSocketServer } from 'ws';
-import { Queue } from './queue.js';
-import custody from './otcVM.js';
-import { getGuardianData } from './common.js';
-import { getContractAddresses } from '@fundmaker/pSymmFIX';
+import { WebSocket } from "ws";
+import { WebSocketServer } from "ws";
+import { Queue } from "./queue.js";
+import custody from "./otcVM.js";
+import { getGuardianData } from "./common.js";
+import { getContractAddresses } from "@fundmaker/pSymmFIX/get-contracts";
 import {
   aggregatePublicKeys,
   signMessage,
   verifySignature,
-} from '@fundmaker/schnorr';
-import { bytesToHex, hexToBytes } from 'viem';
+} from "@fundmaker/schnorr";
+import { bytesToHex, hexToBytes } from "viem";
 
 const timeLog = (...args) => {
   const stack = new Error().stack;

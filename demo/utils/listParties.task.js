@@ -1,4 +1,5 @@
-import { getParties } from "@fundmaker/pSymmFIX";
+import { getContractAddresses } from "@fundmaker/pSymmFIX/get-contracts";
+import { pSymmUtils } from "@fundmaker/pSymmFIX";
 
 const displayParty = ({ role, address, ipAddress, pubKey }) => {
   console.log(`\nRole: ${role}`);
@@ -11,11 +12,13 @@ const displayParty = ({ role, address, ipAddress, pubKey }) => {
 
 const listParties = async () => {
   try {
-    const parties = await getParties(hre.viem);
-    
+    const parties = await new pSymmUtils(
+      await getContractAddresses()
+    ).getParties();
+
     console.log("\nRegistered Parties:");
     console.log("==================");
-    
+
     parties.forEach(displayParty);
   } catch (error) {
     console.error(error);

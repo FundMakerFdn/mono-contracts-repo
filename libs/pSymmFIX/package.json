@@ -4,7 +4,9 @@
   "type": "module",
   "module": "index.js",
   "exports": {
-    "import": "./index.js"
+    ".": "./index.js",
+    "./get-contracts": "./get-contracts.js",
+    "./contracts": "./contracts.json"
   },
   "license": "MIT",
   "dependencies": {
