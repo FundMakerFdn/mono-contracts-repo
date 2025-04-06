@@ -43,7 +43,7 @@
     "deploy-psymm": "hardhat run contracts/test/pSymm/deploy.js --network localhost",
     "list-parties": "hardhat run demo/utils/listParties.task.js --network localhost",
     "solver": "hardhat run apps/PSYMM-OTC/otc-solver.js",
-    "trader": "hardhat run apps/PSYMM-OTC/otc-trader.js",
+    "trader": "vite apps/otc-client/",
     "otc": "./demo/tmux/otc.sh"
   },
   "imports": {

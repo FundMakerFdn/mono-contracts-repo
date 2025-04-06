@@ -31,7 +31,8 @@
 }
 
 .entry-item.selected {
-  background-color: #e3f2fd;
+  background-color: #20a0ff;
+  color: white;
 }
 
 .entry-item:last-child {
