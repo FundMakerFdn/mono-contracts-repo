@@ -19,15 +19,19 @@
     "@nomicfoundation/hardhat-viem": "^2.0.5",
     "@openzeppelin/contracts": "^5.1.0",
     "@openzeppelin/merkle-tree": "^1.0.7",
+    "adm-zip": "^0.5.16",
+    "axios": "^1.8.4",
     "better-sqlite3": "^11.5.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "hardhat": "^2.22.16",
     "json-stable-stringify": "^1.2.1",
+    "node-html-parser": "^7.0.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "viem": "^2.21.51",
-    "ws": "^8.18.0"
+    "ws": "^8.18.0",
+    "xml2js": "^0.6.2"
   },
   "scripts": {
     "deploy-settlemaker": "hardhat run --network localhost apps/validator/SettleMaker/deploy.js",

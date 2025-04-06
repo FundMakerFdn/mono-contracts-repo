@@ -1,6 +1,9 @@
 const fs = require('fs').promises;
 const path = require('path');
 
+// Import info.json
+const info = require('./info.json');
+
 // Get current timestamp at 00:00 UTC
 const currentDate = new Date();
 currentDate.setUTCHours(0, 0, 0, 0);
@@ -16,7 +19,7 @@ async function readJsonFile(filename) {
 // Function to write CSV
 async function writeCsv(filename, rows) {
     const filePath = path.resolve(__dirname, filename);
-    const headers = 'timestamp,weights,quantities,price\n';
+    const headers = 'timestamp,weights,quantities,price,price\n';
     const csvContent = headers + rows
         .map(row => `${row.timestamp},"${row.weights}",${row.quantities || ''}`)
         .join('\n');
@@ -30,9 +33,8 @@ async function processPortfolio() {
         const pairsWithCategories = await readJsonFile('../../scripts/binance_spot_pairs_with_categories.json');
         const listedPairs = await readJsonFile('../../scripts/binance_spot_pairs_coingecko.json');
 
-        const portfolioName = 'MulticoinCapital';
-        const tickerName = 'SYMC';
-        const categoryToFilter = 'Multicoin Capital Portfolio';
+        // Use note from info.json as category filter
+        const categoryToFilter = info.note;
 
         // Filter pairs
         const filteredPairs = Object.entries(listedPairs)
@@ -51,7 +53,7 @@ async function processPortfolio() {
             .join(',');
 
         if (numPairs === 0) {
-            console.log("No pairs found with category 'Multicoin Capital Portfolio'");
+            console.log(`No pairs found with category '${categoryToFilter}'`);
             return;
         }
 
