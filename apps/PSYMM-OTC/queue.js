@@ -1,4 +1,4 @@
-const EventEmitter = require("events");
+import EventEmitter from "events";
 
 // Queue implementation
 class Queue extends EventEmitter {
@@ -38,4 +38,4 @@ class Queue extends EventEmitter {
   }
 }
 
-module.exports = { Queue };
+export { Queue };

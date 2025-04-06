@@ -1,7 +1,7 @@
-const { secp256k1 } = require("@noble/curves/secp256k1");
-const { bytesToHex, createPublicClient, http } = require("viem");
-const fs = require("fs");
-const path = require("path");
+import { secp256k1 } from "@noble/curves/secp256k1";
+import { bytesToHex, createPublicClient, http } from "viem";
+import fs from "fs";
+import path from "path";
 
 /**
  * Generate a deterministic Schnorr key pair from a numeric seed
@@ -41,17 +41,6 @@ function keyFromSeed(seed) {
   };
 }
 
-function getContractAddresses() {
-  try {
-    // Assuming the contracts.tmp.json is in the project root
-    const contractsPath = path.resolve(process.cwd(), "contracts.tmp.json");
-    const contractsData = fs.readFileSync(contractsPath, "utf8");
-    return JSON.parse(contractsData);
-  } catch (error) {
-    console.error("Error reading contracts.tmp.json:", error);
-    throw new Error("Failed to load contract addresses");
-  }
-}
 async function getGuardianData({
   rpcUrl,
   partyRegistryAddress,
@@ -122,9 +111,8 @@ function convertPubKey(pubKey) {
   return "0x" + prefix + x;
 }
 
-module.exports = {
+export {
   keyFromSeed,
-  getContractAddresses,
   getGuardianData,
   convertPubKey,
 };

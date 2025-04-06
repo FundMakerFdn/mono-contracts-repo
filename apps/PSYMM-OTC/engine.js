@@ -1,13 +1,15 @@
-const WebSocket = require("ws");
-const { Queue } = require("./queue");
-const custody = require("./otcVM");
-const { getContractAddresses, getGuardianData } = require("./common");
-const {
+import { WebSocket } from 'ws';
+import { WebSocketServer } from 'ws';
+import { Queue } from './queue.js';
+import custody from './otcVM.js';
+import { getGuardianData } from './common.js';
+import { getContractAddresses } from '@fundmaker/pSymmFIX';
+import {
   aggregatePublicKeys,
   signMessage,
   verifySignature,
-} = require("@fundmaker/schnorr");
-const { bytesToHex, hexToBytes } = require("viem");
+} from '@fundmaker/schnorr';
+import { bytesToHex, hexToBytes } from 'viem';
 
 const timeLog = (...args) => {
   const stack = new Error().stack;
@@ -70,7 +72,7 @@ class pSymmServer {
   }
 
   initServer() {
-    this.server = new WebSocket.Server({
+    this.server = new WebSocketServer({
       host: this.host,
       port: this.port,
     });
@@ -492,7 +494,9 @@ class pSymmServer {
       if (session?.guardianConnections) {
         for (const [guardianPubKey, ws] of session.guardianConnections) {
           if (ws.readyState === WebSocket.OPEN) {
-            timeLog(`Sending signed response to counterparty guardian ${guardianPubKey}`);
+            timeLog(
+              `Sending signed response to counterparty guardian ${guardianPubKey}`
+            );
             ws.send(messageStr);
           }
         }
@@ -606,12 +610,13 @@ class pSymmServer {
   async connectToCounterpartyGuardians(session) {
     try {
       // Get guardian data for all counterparty guardian public keys
-      const guardianPromises = session.counterpartyGuardianPubKeys.map(pubKey => 
-        getGuardianData({
-          rpcUrl: this.rpcUrl,
-          partyRegistryAddress: this.contractAddresses.partyRegistry,
-          myGuardianPubKeys: [pubKey],
-        })
+      const guardianPromises = session.counterpartyGuardianPubKeys.map(
+        (pubKey) =>
+          getGuardianData({
+            rpcUrl: this.rpcUrl,
+            partyRegistryAddress: this.contractAddresses.partyRegistry,
+            myGuardianPubKeys: [pubKey],
+          })
       );
 
       const guardiansData = await Promise.all(guardianPromises);
@@ -620,7 +625,9 @@ class pSymmServer {
       for (let i = 0; i < guardiansData.length; i++) {
         const guardianData = guardiansData[i][0]; // Take first result for each guardian
         if (!guardianData) {
-          timeLog(`Guardian not found for pubKey: ${session.counterpartyGuardianPubKeys[i]}`);
+          timeLog(
+            `Guardian not found for pubKey: ${session.counterpartyGuardianPubKeys[i]}`
+          );
           continue;
         }
 
@@ -629,7 +636,9 @@ class pSymmServer {
 
         // Set up connection handlers
         ws.on("open", () => {
-          timeLog(`Connected to counterparty guardian ${guardianPubKey} at ${guardianData.ipAddress}`);
+          timeLog(
+            `Connected to counterparty guardian ${guardianPubKey} at ${guardianData.ipAddress}`
+          );
         });
 
         ws.on("error", (error) => {
@@ -674,8 +683,8 @@ class pSymmServer {
         `ws://${guardian.ipAddress}:8080`
       );
       await new Promise((resolve, reject) => {
-        this.guardianConnection.on("open", resolve);
-        this.guardianConnection.on("error", reject);
+        this.guardianConnection.addEventListener("open", resolve);
+        this.guardianConnection.addEventListener("error", reject);
       });
 
       timeLog(`Connected to guardian at ${guardian.ipAddress}`);
@@ -727,4 +736,4 @@ class pSymmServer {
   }
 }
 
-module.exports = { pSymmVM, pSymmServer, timeLog };
+export { pSymmVM, pSymmServer, timeLog };

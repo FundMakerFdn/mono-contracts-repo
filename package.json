@@ -1,5 +1,6 @@
 {
   "name": "settle-maker-mono",
+  "type": "module",
   "version": "1.0",
   "author": "Vladyslav <web.user@ukr.net>, Max OTC maxgctwo@rasa.capital",
   "license": "MIT",
@@ -30,8 +31,8 @@
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "viem": "^2.21.51",
-    "ws": "^8.18.0",
-    "xml2js": "^0.6.2"
+    "vite": "^6.2.5",
+    "ws": "^8.18.0"
   },
   "scripts": {
     "deploy-settlemaker": "hardhat run --network localhost apps/validator/SettleMaker/deploy.js",
@@ -46,7 +47,7 @@
     "deploy-psymm": "hardhat run contracts/test/pSymm/deploy.js --network localhost",
     "list-parties": "hardhat run demo/utils/listParties.task.js --network localhost",
     "solver": "hardhat run apps/PSYMM-OTC/otc-solver.js",
-    "trader": "hardhat run apps/PSYMM-OTC/otc-trader.js",
+    "trader": "vite apps/otc-client/",
     "otc": "./demo/tmux/otc.sh"
   },
   "imports": {
