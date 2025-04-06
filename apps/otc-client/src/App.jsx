@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import { useEffect, useReducer } from "react";
+import PartyTable from "./components/PartyTable";
+import { formatPublicKey, shortenText } from "./utils";
 import { createWalletClient, custom } from "viem";
 import { hardhat } from "viem/chains";
 import "./App.css";
@@ -42,12 +44,50 @@ async function switchToHardhat() {
   }
 }
 
+const initialState = {
+  guardians: [],
+  solvers: [],
+  selectedGuardian: null,
+  selectedSolver: null,
+  account: "",
+  client: null,
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "SET_PARTIES":
+      return {
+        ...state,
+        guardians: action.parties.filter((p) => p.role === "Guardian"),
+        solvers: action.parties.filter((p) => p.role === "Solver"),
+      };
+    case "SET_SELECTED_GUARDIAN":
+      return {
+        ...state,
+        selectedGuardian: action.party,
+      };
+    case "SET_SELECTED_SOLVER":
+      return {
+        ...state,
+        selectedSolver: action.party,
+      };
+    case "SET_ACCOUNT":
+      return {
+        ...state,
+        account: action.account,
+      };
+    case "SET_CLIENT":
+      return {
+        ...state,
+        client: action.client,
+      };
+    default:
+      return state;
+  }
+}
+
 function App() {
-  const [entries, setEntries] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedIP, setSelectedIP] = useState(null);
-  const [account, setAccount] = useState("");
-  const [client, setClient] = useState(null);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
     const initializeParties = async () => {
@@ -66,16 +106,13 @@ function App() {
           transport: custom(window.ethereum),
         });
         const [address] = await walletClient.requestAddresses();
-        setAccount(address);
-
-        setClient(walletClient);
+        dispatch({ type: "SET_ACCOUNT", account: address });
+        dispatch({ type: "SET_CLIENT", client: walletClient });
         const psymm = new pSymmUtils(contracts);
 
         // Get parties using the utility function
         const parties = await psymm.getParties();
-        // Extract IP addresses from parties
-        const partyIPs = parties.map((party) => party.ipAddress);
-        setEntries(partyIPs);
+        dispatch({ type: "SET_PARTIES", parties });
       } catch (error) {
         console.error("Error fetching parties:", error);
         setEntries([]);
@@ -85,55 +122,58 @@ function App() {
     initializeParties();
   }, []);
 
-  const filteredEntries = entries.filter((entry) =>
-    entry.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleConnect = async () => {
-    if (!client) return;
-
-    try {
-      console.log("Connected to:", selectedIP);
-    } catch (error) {
-      console.error("Error connecting:", error);
-    }
-  };
-
   return (
     <div className="container">
       <div className="wallet-status">
-        {account
-          ? `Connected wallet: ${account.slice(0, 6)}...${account.slice(-4)}`
+        {state.account
+          ? `Connected wallet: ${state.account}`
           : "Wallet not connected"}
       </div>
 
-      <input
-        type="text"
-        className="search-input"
-        placeholder="Search..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-
-      <div className="entries-list">
-        {filteredEntries.map((entry, index) => (
-          <div
-            key={index}
-            className={`entry-item ${selectedIP === entry ? "selected" : ""}`}
-            onClick={() => setSelectedIP(entry)}
-          >
-            {entry}
-          </div>
-        ))}
+      <div className="tables-container">
+        <PartyTable
+          data={state.guardians}
+          title="Guardians"
+          selectedParty={state.selectedGuardian}
+          onSelectParty={(party) =>
+            dispatch({ type: "SET_SELECTED_GUARDIAN", party })
+          }
+        />
+        <PartyTable
+          data={state.solvers}
+          title="Solvers"
+          selectedParty={state.selectedSolver}
+          onSelectParty={(party) =>
+            dispatch({ type: "SET_SELECTED_SOLVER", party })
+          }
+        />
       </div>
 
-      <button
-        className={`connect-button ${selectedIP ? "active" : ""}`}
-        onClick={handleConnect}
-        disabled={!selectedIP}
-      >
-        {selectedIP ? `Connect to ${selectedIP}` : "Choose an IP"}
-      </button>
+      {(state.selectedGuardian || state.selectedSolver) && (
+        <div className="selected-party-info">
+          {state.selectedGuardian && (
+            <div>
+              <h3>Selected Guardian</h3>
+              <p>IP Address: {state.selectedGuardian.ipAddress}</p>
+              <p>
+                Public Key: {formatPublicKey(state.selectedGuardian.pubKey)}
+              </p>
+              <p>Address: {state.selectedGuardian.address}</p>
+            </div>
+          )}
+          {state.selectedSolver && (
+            <div>
+              <h3>Selected Solver</h3>
+              <p>IP Address: {state.selectedSolver.ipAddress}</p>
+              <p>Public Key: {formatPublicKey(state.selectedSolver.pubKey)}</p>
+              <p>Address: {state.selectedSolver.address}</p>
+            </div>
+          )}
+          {state.selectedGuardian && state.selectedSolver && (
+            <div className="ready-status">Ready to connect!</div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
