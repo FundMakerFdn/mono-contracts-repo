@@ -19,17 +19,17 @@ const hardhatNetwork = {
   blockExplorerUrls: [],
 };
 
-// async function addHardhatNetwork() {
-//   try {
-//     await window.ethereum.request({
-//       method: "wallet_addEthereumChain",
-//       params: [hardhatNetwork],
-//     });
-//     console.log("Hardhat network added successfully!");
-//   } catch (error) {
-//     console.error("Failed to add Hardhat network:", error);
-//   }
-// }
+async function addHardhatNetwork() {
+  try {
+    await window.ethereum.request({
+      method: "wallet_addEthereumChain",
+      params: [hardhatNetwork],
+    });
+    console.log("Hardhat network added successfully!");
+  } catch (error) {
+    console.error("Failed to add Hardhat network:", error);
+  }
+}
 
 async function switchToHardhat() {
   try {
@@ -40,7 +40,8 @@ async function switchToHardhat() {
     console.log("Switched to Hardhat network!");
   } catch (error) {
     console.error("Failed to switch network:", error);
-    // If the network hasn't been added, you can call addHardhatNetwork() here.
+    addHardhatNetwork();
+    switchToHardhat();
   }
 }
 
