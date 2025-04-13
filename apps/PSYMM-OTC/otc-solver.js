@@ -1,6 +1,7 @@
 import { pSymmServer } from './engine.js';
 import { keyFromSeed } from './common.js';
 import custody from './otcVM.js';
+import { MsgBuilder } from '@fundmaker/pSymmFIX';
 
 const HOST = "127.0.0.1"; // host on
 const PORT = 8080;
@@ -11,16 +12,23 @@ const { pubKey: GUARDIAN_PUBKEY } = keyFromSeed(2); // Guardian for solver
  * Main solver function
  */
 async function runSolver() {
+  // Create message builder instance
+  const msgBuilder = new MsgBuilder({
+    senderCompID: SOLVER_PUBKEY,
+    privateKey: SOLVER_PRIVKEY
+  });
+
   // Start the pSymmServer server
   console.log("Starting pSymmServer solver...");
   const party = new pSymmServer({
     host: HOST,
     port: PORT,
     privKey: SOLVER_PRIVKEY,
-    pubKey: SOLVER_PUBKEY, // can be derived from privKey
+    pubKey: SOLVER_PUBKEY,
     guardianPubKeys: [GUARDIAN_PUBKEY],
     ppmTemplate: custody,
     role: "solver",
+    msgBuilder: msgBuilder // Pass the message builder instance
   });
 
   // Start the server

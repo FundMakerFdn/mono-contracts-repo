@@ -4,11 +4,8 @@ import { Queue } from "./queue.js";
 import custody from "./otcVM.js";
 import { getGuardianData } from "./common.js";
 import { getContractAddresses } from "@fundmaker/pSymmFIX/get-contracts";
-import {
-  aggregatePublicKeys,
-  signMessage,
-  verifySignature,
-} from "@fundmaker/schnorr";
+import { MsgBuilder } from "@fundmaker/pSymmFIX";
+import { verifySignature } from "@fundmaker/schnorr";
 import { bytesToHex, hexToBytes } from "viem";
 
 const timeLog = (...args) => {
@@ -56,6 +53,13 @@ class pSymmServer {
     this.privKey = config.privKey;
     this.pubKey = config.pubKey;
     this.guardianPubKeys = config.guardianPubKeys || [];
+
+    // Message builder
+    this.msgBuilder = new MsgBuilder({
+      senderCompID: this.pubKey,
+      privateKey: this.privKey,
+      custodyID: null, // Will be set per session
+    });
 
     this.inputQueue = new Queue();
     this.sequencerQueue = new Queue();
@@ -378,20 +382,11 @@ class pSymmServer {
    * Create a logon message
    */
   createLogonMessage(counterpartyPubKey, custodyId) {
-    const session = this.sessions.get(custodyId);
-    return {
-      StandardHeader: {
-        BeginString: "pSymm.FIX.2.0",
-        MsgType: "A",
-        SenderCompID: this.pubKey,
-        TargetCompID: counterpartyPubKey,
-        MsgSeqNum: session.msgSeqNum++,
-        CustodyID: custodyId,
-        SendingTime: (Date.now() * 1000000).toString(),
-      },
-      HeartBtInt: 10,
-      GuardianPubKeys: this.guardianPubKeys,
-    };
+    this.msgBuilder.config.custodyID = custodyId;
+    return this.msgBuilder.createLogon(
+      counterpartyPubKey,
+      this.guardianPubKeys
+    );
   }
 
   /**
@@ -439,34 +434,6 @@ class pSymmServer {
   }
 
   /**
-   * Sign a message with the server's private key
-   */
-  signMessage(message) {
-    // Ensure StandardTrailer exists
-    if (!message.StandardTrailer) {
-      message.StandardTrailer = {};
-    }
-
-    // Create a copy of the message without the signature for signing
-    const msgCopy = JSON.parse(JSON.stringify(message));
-    msgCopy.StandardTrailer = {}; // Empty trailer for signing
-
-    // Convert message to bytes for signing
-    const msgBytes = new TextEncoder().encode(JSON.stringify(msgCopy));
-
-    // Sign the message using Schnorr
-    const signature = signMessage(msgBytes, this.privKey);
-
-    message.StandardTrailer.PublicKey = this.pubKey;
-    message.StandardTrailer.Signature = {
-      s: signature.s.toString(),
-      e: signature.challenge.toString(),
-    };
-
-    return message;
-  }
-
-  /**
    * Process messages from the guardian queue
    */
   async handleGuardianQueue() {
@@ -474,8 +441,7 @@ class pSymmServer {
 
     while (this.guardianQueue.length > 0) {
       const { clientId, message } = this.guardianQueue.shift();
-      const signedMessage = this.signMessage(message);
-      const messageStr = JSON.stringify(signedMessage);
+      const messageStr = JSON.stringify(message);
 
       // Send to counterparty if connected
       if (this.clients.has(clientId)) {
@@ -540,18 +506,8 @@ class pSymmServer {
    * Create a heartbeat message
    */
   createHeartbeatMessage(counterpartyPubKey, custodyId) {
-    const session = this.sessions.get(custodyId);
-    return {
-      StandardHeader: {
-        BeginString: "pSymm.FIX.2.0",
-        MsgType: "0", // Heartbeat message type
-        SenderCompID: this.pubKey,
-        TargetCompID: counterpartyPubKey,
-        MsgSeqNum: session.msgSeqNum++,
-        CustodyID: custodyId,
-        SendingTime: (Date.now() * 1000000).toString(),
-      },
-    };
+    this.msgBuilder.config.custodyID = custodyId;
+    return this.msgBuilder.createHeartbeat(counterpartyPubKey);
   }
 
   /**
