@@ -1,6 +1,6 @@
-const { secp256k1 } = require("@noble/curves/secp256k1");
-const { concatBytes } = require("@noble/curves/abstract/utils");
-const { keccak256, bytesToHex, hexToBytes } = require("viem");
+import { secp256k1 } from "@noble/curves/secp256k1";
+import { concatBytes } from "@noble/curves/abstract/utils";
+import { keccak256, bytesToHex, hexToBytes } from "viem";
 
 function computeChallenge(aggregatedNonce, aggregatedPubKey, message) {
   // Convert R (aggregatedNonce) to Ethereum address format
@@ -186,7 +186,7 @@ class SchnorrParty {
   }
 }
 
-module.exports = {
+export {
   computeChallenge,
   combineNonces,
   aggregateNonces,

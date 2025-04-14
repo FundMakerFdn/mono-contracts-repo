@@ -46,10 +46,8 @@ async function switchToHardhat() {
 }
 
 const initialState = {
-  guardians: [],
-  solvers: [],
-  selectedGuardian: null,
-  selectedSolver: null,
+  counterparties: [],
+  selectedCounterparty: null,
   account: "",
   client: null,
 };
@@ -59,18 +57,12 @@ function reducer(state, action) {
     case "SET_PARTIES":
       return {
         ...state,
-        guardians: action.parties.filter((p) => p.role === "Guardian"),
-        solvers: action.parties.filter((p) => p.role === "Solver"),
+        counterparties: action.parties,
       };
-    case "SET_SELECTED_GUARDIAN":
+    case "SET_SELECTED_COUNTERPARTY":
       return {
         ...state,
-        selectedGuardian: action.party,
-      };
-    case "SET_SELECTED_SOLVER":
-      return {
-        ...state,
-        selectedSolver: action.party,
+        selectedCounterparty: action.party,
       };
     case "SET_ACCOUNT":
       return {
@@ -111,9 +103,10 @@ function App() {
         dispatch({ type: "SET_CLIENT", client: walletClient });
         const psymm = new pSymmUtils(contracts);
 
-        // Get parties using the utility function
+        // Get parties using the utility function and filter for Solvers
         const parties = await psymm.getParties();
-        dispatch({ type: "SET_PARTIES", parties });
+        const solverParties = parties.filter(party => party.role === "Solver");
+        dispatch({ type: "SET_PARTIES", parties: solverParties });
       } catch (error) {
         console.error("Error fetching parties:", error);
         setEntries([]);
@@ -133,46 +126,26 @@ function App() {
 
       <div className="tables-container">
         <PartyTable
-          data={state.guardians}
-          title="Guardians"
-          selectedParty={state.selectedGuardian}
+          data={state.counterparties}
+          title="Counterparties"
+          selectedParty={state.selectedCounterparty}
           onSelectParty={(party) =>
-            dispatch({ type: "SET_SELECTED_GUARDIAN", party })
-          }
-        />
-        <PartyTable
-          data={state.solvers}
-          title="Solvers"
-          selectedParty={state.selectedSolver}
-          onSelectParty={(party) =>
-            dispatch({ type: "SET_SELECTED_SOLVER", party })
+            dispatch({ type: "SET_SELECTED_COUNTERPARTY", party })
           }
         />
       </div>
 
-      {(state.selectedGuardian || state.selectedSolver) && (
+      {state.selectedCounterparty && (
         <div className="selected-party-info">
-          {state.selectedGuardian && (
-            <div>
-              <h3>Selected Guardian</h3>
-              <p>IP Address: {state.selectedGuardian.ipAddress}</p>
-              <p>
-                Public Key: {formatPublicKey(state.selectedGuardian.pubKey)}
-              </p>
-              <p>Address: {state.selectedGuardian.address}</p>
-            </div>
-          )}
-          {state.selectedSolver && (
-            <div>
-              <h3>Selected Solver</h3>
-              <p>IP Address: {state.selectedSolver.ipAddress}</p>
-              <p>Public Key: {formatPublicKey(state.selectedSolver.pubKey)}</p>
-              <p>Address: {state.selectedSolver.address}</p>
-            </div>
-          )}
-          {state.selectedGuardian && state.selectedSolver && (
-            <div className="ready-status">Ready to connect!</div>
-          )}
+          <div>
+            <h3>Selected Counterparty</h3>
+            <p>IP Address: {state.selectedCounterparty.ipAddress}</p>
+            <p>
+              Public Key: {formatPublicKey(state.selectedCounterparty.pubKey)}
+            </p>
+            <p>Address: {state.selectedCounterparty.address}</p>
+          </div>
+          <div className="ready-status">Ready to connect!</div>
         </div>
       )}
     </div>

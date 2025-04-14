@@ -1,6 +1,6 @@
-const { secp256k1 } = require("@noble/curves/secp256k1");
-const { bytesToHex, stringToBytes } = require("viem");
-const { signMessage, verifySignature } = require("./index.js");
+import { secp256k1 } from "@noble/curves/secp256k1";
+import { bytesToHex, stringToBytes } from "viem";
+import { signMessage, verifySignature } from "./index.js";
 
 // Generate a random private key
 const privateKey = secp256k1.utils.randomPrivateKey();
