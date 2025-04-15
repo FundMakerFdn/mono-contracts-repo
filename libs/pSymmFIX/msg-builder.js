@@ -1,13 +1,9 @@
-import { signMessage } from "@fundmaker/schnorr";
-import { stringToBytes } from "viem";
-
 export class MsgBuilder {
   constructor(config = {}) {
     // Store configuration for headers
     this.config = {
       beginString: config.beginString || "pSymm.FIX.2.0",
-      senderCompID: config.senderCompID, // Public key
-      privateKey: config.privateKey, // For signing
+      senderCompID: config.senderCompID,
       custodyID: config.custodyID,
       msgSeqNum: config.msgSeqNum || 1,
     };
@@ -23,37 +19,19 @@ export class MsgBuilder {
       MsgSeqNum: this.config.msgSeqNum++,
       CustodyID: this.config.custodyID,
       SendingTime: (Date.now() * 1000000).toString(),
+      SessionHash: null,
     };
     return header;
   }
 
-  // Sign the message using Schnorr
+  // Add standard trailer with null signature
   signMessage(message) {
-    if (!this.config.privateKey) {
-      throw new Error("Private key not configured for signing");
-    }
-
     // Ensure StandardTrailer exists
     if (!message.StandardTrailer) {
       message.StandardTrailer = {};
     }
 
-    // Create a copy of the message without the signature for signing
-    const msgCopy = JSON.parse(JSON.stringify(message));
-    msgCopy.StandardTrailer = {}; // Empty trailer for signing
-
-    // Convert message to bytes for signing
-    const msgBytes = stringToBytes(JSON.stringify(msgCopy));
-
-    // Sign the message using Schnorr
-    const signature = signMessage(msgBytes, this.config.privateKey);
-
-    message.StandardTrailer.PublicKey = this.config.senderCompID;
-    message.StandardTrailer.Signature = {
-      s: signature.s.toString(),
-      e: signature.challenge.toString(),
-    };
-
+    message.StandardTrailer.Signature = null;
     return message;
   }
 
