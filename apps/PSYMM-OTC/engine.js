@@ -2,7 +2,6 @@ import { WebSocket } from "ws";
 import { WebSocketServer } from "ws";
 import { Queue } from "./queue.js";
 import custody from "./otcVM.js";
-import { getGuardianData } from "./common.js";
 import { getContractAddresses } from "@fundmaker/pSymmFIX/get-contracts";
 import { MsgBuilder } from "@fundmaker/pSymmFIX";
 import { verifySignature } from "@fundmaker/schnorr";
@@ -48,11 +47,9 @@ class pSymmServer {
     this.contractAddresses = getContractAddresses();
 
     // Core components
-    this.ourGuardians = []; // Will store our guardian data
     this.vm = config.vm || new pSymmVM(config);
     this.privKey = config.privKey;
     this.pubKey = config.pubKey;
-    this.guardianPubKeys = config.guardianPubKeys || [];
 
     // Message builder
     this.msgBuilder = new MsgBuilder({
@@ -64,7 +61,6 @@ class pSymmServer {
     this.inputQueue = new Queue();
     this.sequencerQueue = new Queue();
     this.outputQueue = new Queue();
-    this.guardianQueue = new Queue();
     this.binanceQueue = new Queue();
     this.blockchainQueue = new Queue();
 
@@ -116,85 +112,6 @@ class pSymmServer {
     });
   }
 
-  getRoleKey(session, role) {
-    if (this.role === role) return this.pubKey;
-    else return session.counterpartyPubKey;
-  }
-  getRoleGuardians(session, role) {
-    if (role === this.role) {
-      return this.guardianPubKeys;
-    } else {
-      return session.counterpartyGuardianPubKeys;
-    }
-  }
-
-  aggregatePubKeys(pubKeys) {
-    return bytesToHex(
-      aggregatePublicKeys(pubKeys).aggregatedKey.toRawBytes(true)
-    );
-  }
-
-  // get pubkey based on our role and key name (A/B/...)
-  getPubKey(session, entry, nameType) {
-    if (entry.type === "solver" || entry.type === "trader") {
-      return this.getRoleKey(session, entry.type);
-    }
-
-    if (entry.type === "guardian") {
-      const partyRole = nameType.get(entry.toParty);
-      return this.getRoleGuardians(session, partyRole)[entry.guardianIndex];
-    }
-
-    // For multisig types
-    if (entry.type === "multisig") {
-      // Split the name by '+' and get the pubKey for each party
-      const parties = entry.name.split("+").map((name) => name.trim());
-      const pubKeys = [];
-
-      for (const partyName of parties) {
-        // Find the party in the PPM
-        if (!partyName.startsWith("G")) {
-          pubKeys.push(this.getRoleKey(session, nameType.get(partyName)));
-        } else {
-          pubKeys.push(
-            ...this.getRoleGuardians(session, nameType.get(partyName.slice(1)))
-          );
-        }
-      }
-
-      return pubKeys.length > 0 ? this.aggregatePubKeys(pubKeys) : entry.pubKey;
-    }
-  }
-
-  renderPPM(session) {
-    try {
-      // copy PPM object
-      const PPM = JSON.parse(JSON.stringify(this.vm.ppmTemplate));
-
-      // Create a map of name to type
-      const nameType = new Map(); // name => role
-      if (PPM.parties && Array.isArray(PPM.parties)) {
-        for (let party of PPM.parties) {
-          if (party.name && party.type) {
-            nameType.set(party.name, party.type);
-          }
-        }
-
-        for (let entry of PPM.parties) {
-          try {
-            entry.pubKey = this.getPubKey(session, entry, nameType);
-          } catch (err) {
-            timeLog(`Error getting pubKey for ${entry.name}: ${err.message}`);
-          }
-        }
-      }
-
-      return PPM;
-    } catch (err) {
-      timeLog(`Error rendering PPM: ${err.message}`);
-      return this.vm.ppmTemplate; // Return original template as fallback
-    }
-  }
 
   async handleLogon(clientId, message) {
     timeLog(`Logon received from ${clientId}`);
@@ -208,17 +125,10 @@ class pSymmServer {
       counterpartyPubKey,
       custodyId,
       msgSeqNum: 1,
-      counterpartyGuardianPubKeys: logonMsg.GuardianPubKeys,
       heartBtInt: logonMsg.HeartBtInt || 30,
       lastHeartbeat: Date.now(),
-      PPM: null,
-      guardianConnections: new Map(), // Store guardian WebSocket connections
+      ws: this.clients.get(clientId), // Store the websocket connection for this session
     };
-    session.PPM = this.renderPPM(session);
-    console.log(session.PPM);
-
-    // Connect to counterparty guardians
-    await this.connectToCounterpartyGuardians(session);
 
     // Store session
     this.sessions.set(custodyId, session);
@@ -232,22 +142,6 @@ class pSymmServer {
     });
   }
 
-  /**
-   * Handle PPMHandshake message
-   */
-  handlePPMHandshake(clientId, message) {
-    timeLog(`PPMHandshake received from ${clientId}`);
-
-    // Send PPM template
-    this.outputQueue.push({
-      clientId,
-      message: {
-        StandardHeader: { MsgType: "PPMT" },
-        PPMT: this.vm.ppmTemplate,
-      },
-      destination: "user",
-    });
-  }
 
   /**
    * FIX Verifier - validates incoming messages
@@ -400,11 +294,14 @@ class pSymmServer {
 
       switch (destination) {
         case "user":
-          // Send to guardian queue for user delivery
-          this.guardianQueue.push({
-            clientId,
-            message,
-          });
+          // Send to user via websocket
+          if (this.clients.has(clientId)) {
+            const ws = this.clients.get(clientId);
+            if (ws.readyState === WebSocket.OPEN) {
+              timeLog(`Sending signed response to counterparty ${clientId}`);
+              ws.send(JSON.stringify(message));
+            }
+          }
           break;
 
         case "binance":
@@ -424,54 +321,14 @@ class pSymmServer {
           break;
 
         default:
-          // Default to guardian queue
-          this.guardianQueue.push({
-            clientId,
-            message,
-          });
-      }
-    }
-  }
-
-  /**
-   * Process messages from the guardian queue
-   */
-  async handleGuardianQueue() {
-    await this.guardianQueue.waitForUpdate();
-
-    while (this.guardianQueue.length > 0) {
-      const { clientId, message } = this.guardianQueue.shift();
-      const messageStr = JSON.stringify(message);
-
-      // Send to counterparty if connected
-      if (this.clients.has(clientId)) {
-        const ws = this.clients.get(clientId);
-        if (ws.readyState === WebSocket.OPEN) {
-          timeLog(`Sending signed response to counterparty ${clientId}`);
-          ws.send(messageStr);
-        }
-      }
-
-      // Get the session for this client
-      const custodyId = this.clientToCustodyId.get(clientId);
-      const session = custodyId ? this.sessions.get(custodyId) : null;
-
-      // Send to all guardian connections in the session mesh
-      if (session?.guardianConnections) {
-        for (const [guardianPubKey, ws] of session.guardianConnections) {
-          if (ws.readyState === WebSocket.OPEN) {
-            timeLog(
-              `Sending signed response to counterparty guardian ${guardianPubKey}`
-            );
-            ws.send(messageStr);
+          // Default to user websocket
+          if (this.clients.has(clientId)) {
+            const ws = this.clients.get(clientId);
+            if (ws.readyState === WebSocket.OPEN) {
+              timeLog(`Sending signed response to counterparty ${clientId}`);
+              ws.send(JSON.stringify(message));
+            }
           }
-        }
-      }
-
-      // Send to our guardian connection
-      if (this.guardianConnection?.readyState === WebSocket.OPEN) {
-        timeLog(`Sending signed response to our guardian`);
-        this.guardianConnection.send(messageStr);
       }
     }
   }
@@ -560,100 +417,7 @@ class pSymmServer {
     }
   }
 
-  /**
-   * Main execution loop
-   */
-  async connectToCounterpartyGuardians(session) {
-    try {
-      // Get guardian data for all counterparty guardian public keys
-      const guardianPromises = session.counterpartyGuardianPubKeys.map(
-        (pubKey) =>
-          getGuardianData({
-            rpcUrl: this.rpcUrl,
-            partyRegistryAddress: this.contractAddresses.partyRegistry,
-            myGuardianPubKeys: [pubKey],
-          })
-      );
-
-      const guardiansData = await Promise.all(guardianPromises);
-
-      // Connect to each guardian
-      for (let i = 0; i < guardiansData.length; i++) {
-        const guardianData = guardiansData[i][0]; // Take first result for each guardian
-        if (!guardianData) {
-          timeLog(
-            `Guardian not found for pubKey: ${session.counterpartyGuardianPubKeys[i]}`
-          );
-          continue;
-        }
-
-        const guardianPubKey = session.counterpartyGuardianPubKeys[i];
-        const ws = new WebSocket(`ws://${guardianData.ipAddress}:8080`);
-
-        // Set up connection handlers
-        ws.on("open", () => {
-          timeLog(
-            `Connected to counterparty guardian ${guardianPubKey} at ${guardianData.ipAddress}`
-          );
-        });
-
-        ws.on("error", (error) => {
-          timeLog(`Error with counterparty guardian ${guardianPubKey}:`, error);
-        });
-
-        ws.on("close", () => {
-          timeLog(`Disconnected from counterparty guardian ${guardianPubKey}`);
-          // Remove from connections map
-          session.guardianConnections.delete(guardianPubKey);
-        });
-
-        // Wait for connection to establish
-        await new Promise((resolve, reject) => {
-          ws.once("open", resolve);
-          ws.once("error", reject);
-        });
-
-        // Store the connection
-        session.guardianConnections.set(guardianPubKey, ws);
-      }
-    } catch (error) {
-      timeLog(`Error connecting to counterparty guardians:`, error);
-      throw error;
-    }
-  }
-
-  async connectToGuardians() {
-    try {
-      const guardianData = await getGuardianData({
-        rpcUrl: this.rpcUrl,
-        partyRegistryAddress: this.contractAddresses.partyRegistry,
-        myGuardianPubKeys: this.guardianPubKeys,
-      });
-
-      if (!guardianData.length) {
-        throw new Error("Guardian not found");
-      }
-
-      const guardian = guardianData[0];
-      this.guardianConnection = new WebSocket(
-        `ws://${guardian.ipAddress}:8080`
-      );
-      await new Promise((resolve, reject) => {
-        this.guardianConnection.addEventListener("open", resolve);
-        this.guardianConnection.addEventListener("error", reject);
-      });
-
-      timeLog(`Connected to guardian at ${guardian.ipAddress}`);
-    } catch (error) {
-      timeLog(`Guardian connection error: ${error.message}`);
-      throw error;
-    }
-  }
-
   async run() {
-    // Connect to guardians before starting server
-    await this.connectToGuardians();
-
     this.initServer();
 
     // Start all queue handlers as separate tasks
@@ -665,7 +429,6 @@ class pSymmServer {
     this.startHandler(this.handleInputQueue.bind(this), "InputQueue");
     this.startHandler(this.handleSequencerQueue.bind(this), "SequencerQueue");
     this.startHandler(this.handleOutputQueue.bind(this), "OutputQueue");
-    this.startHandler(this.handleGuardianQueue.bind(this), "GuardianQueue");
     this.startHandler(this.handleBinanceQueue.bind(this), "BinanceQueue");
     this.startHandler(this.handleBlockchainQueue.bind(this), "BlockchainQueue");
     this.startHandler(this.heartbeatWorker.bind(this), "HeartbeatWorker");

@@ -6,7 +6,6 @@ import { MsgBuilder } from '@fundmaker/pSymmFIX';
 const HOST = "127.0.0.1"; // host on
 const PORT = 8080;
 const { privKey: SOLVER_PRIVKEY, pubKey: SOLVER_PUBKEY } = keyFromSeed(0);
-const { pubKey: GUARDIAN_PUBKEY } = keyFromSeed(2); // Guardian for solver
 
 /**
  * Main solver function
@@ -25,7 +24,6 @@ async function runSolver() {
     port: PORT,
     privKey: SOLVER_PRIVKEY,
     pubKey: SOLVER_PUBKEY,
-    guardianPubKeys: [GUARDIAN_PUBKEY],
     ppmTemplate: custody,
     role: "solver",
     msgBuilder: msgBuilder // Pass the message builder instance
