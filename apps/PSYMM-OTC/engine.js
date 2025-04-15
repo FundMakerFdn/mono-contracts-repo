@@ -112,7 +112,6 @@ class pSymmServer {
     });
   }
 
-
   async handleLogon(clientId, message) {
     timeLog(`Logon received from ${clientId}`);
 
@@ -142,7 +141,6 @@ class pSymmServer {
     });
   }
 
-
   /**
    * FIX Verifier - validates incoming messages
    * Verifies the Schnorr signature in the message trailer
@@ -152,6 +150,14 @@ class pSymmServer {
     if (!message) {
       timeLog(`Invalid message from ${clientId}: Message is empty`);
       return false;
+    }
+
+    // Skip signature verification for PPMH messages
+    if (message?.StandardHeader?.MsgType === "PPMH") {
+      timeLog(
+        `Skipping signature verification for PPMH message from ${clientId}`
+      );
+      return true;
     }
 
     // Check if message has a StandardTrailer
@@ -221,6 +227,20 @@ class pSymmServer {
     }
   }
 
+  handlePPMHandshake(clientId) {
+    timeLog(`PPMHandshake received from ${clientId}`);
+
+    // Send PPM template
+    this.outputQueue.push({
+      clientId,
+      message: {
+        StandardHeader: { MsgType: "PPMT" },
+        PPMT: this.vm.ppmTemplate,
+      },
+      destination: "user",
+    });
+  }
+
   /**
    * Process messages from the sequencer queue
    */
@@ -239,7 +259,7 @@ class pSymmServer {
 
       // Check if this is a PPMH message
       if (message?.StandardHeader?.MsgType === "PPMH") {
-        this.handlePPMHandshake(clientId, message);
+        this.handlePPMHandshake(clientId);
         continue;
       }
 

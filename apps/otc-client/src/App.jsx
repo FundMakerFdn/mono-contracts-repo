@@ -5,7 +5,7 @@ import { createWalletClient, custom } from "viem";
 import { hardhat } from "viem/chains";
 import "./App.css";
 import contracts from "@fundmaker/pSymmFIX/contracts";
-import { pSymmUtils } from "@fundmaker/pSymmFIX";
+import { pSymmUtils, MsgBuilder } from "@fundmaker/pSymmFIX";
 
 const hardhatNetwork = {
   chainId: "0x7A69", // 31337 in hexadecimal
@@ -52,6 +52,7 @@ const initialState = {
   client: null,
   websocket: null,
   wsStatus: "disconnected", // disconnected, connecting, connected, error
+  connectionState: "idle", // idle, awaiting PPM template
   logs: [],
 };
 
@@ -87,6 +88,11 @@ function reducer(state, action) {
       return {
         ...state,
         wsStatus: action.status,
+      };
+    case "SET_CONNECTION_STATE":
+      return {
+        ...state,
+        connectionState: action.state,
       };
     case "ADD_LOG":
       return {
@@ -153,13 +159,28 @@ function App() {
     ws.onopen = () => {
       dispatch({ type: "SET_WEBSOCKET", websocket: ws, status: "connected" });
       addLog(`Connection established to ${ipAddress}:8080`);
-      const initialMessage = JSON.stringify({ hello: "world" });
-      ws.send(initialMessage);
-      addLog(`Sent message: ${initialMessage}`);
+      const msgBuilder = new MsgBuilder({
+        senderCompID: state.account,
+        custodyID: "CUSTODY_ID",
+      });
+      const ppmhMessage = msgBuilder.createPPMHandshake("COUNTERPARTY_ID");
+      const messageStr = JSON.stringify(ppmhMessage);
+      ws.send(messageStr);
+      addLog(`Sent PPMH message: ${messageStr}`);
+      dispatch({ type: "SET_CONNECTION_STATE", state: "awaiting PPM template" });
     };
 
     ws.onmessage = (event) => {
       addLog(`Received message: ${event.data}`);
+      try {
+        const message = JSON.parse(event.data);
+        if (message.StandardHeader && message.StandardHeader.MsgType === "PPMT") {
+          addLog(`Received PPM Template: ${JSON.stringify(message.PPMT, null, 2)}`);
+          dispatch({ type: "SET_CONNECTION_STATE", state: "idle" });
+        }
+      } catch (error) {
+        addLog(`Error parsing message: ${error.message}`);
+      }
     };
 
     ws.onerror = (error) => {
@@ -169,6 +190,7 @@ function App() {
 
     ws.onclose = () => {
       dispatch({ type: "SET_WS_STATUS", status: "disconnected" });
+      dispatch({ type: "SET_CONNECTION_STATE", state: "idle" });
       addLog(`Connection closed`);
     };
   };
@@ -229,6 +251,7 @@ function App() {
             Status:{" "}
             {state.wsStatus === "connecting" ? "Connecting..." : "Connected"}
           </p>
+          <p>Connection State: {state.connectionState}</p>
           {state.wsStatus === "error" && (
             <p>Error occurred. Please try again.</p>
           )}
