@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import PartyTable from "./components/PartyTable";
 import { formatPublicKey, shortenText } from "./utils";
 import { createWalletClient, custom } from "viem";
@@ -50,6 +50,9 @@ const initialState = {
   selectedCounterparty: null,
   account: "",
   client: null,
+  websocket: null,
+  wsStatus: "disconnected", // disconnected, connecting, connected, error
+  logs: [],
 };
 
 function reducer(state, action) {
@@ -74,6 +77,22 @@ function reducer(state, action) {
         ...state,
         client: action.client,
       };
+    case "SET_WEBSOCKET":
+      return {
+        ...state,
+        websocket: action.websocket,
+        wsStatus: action.status || state.wsStatus,
+      };
+    case "SET_WS_STATUS":
+      return {
+        ...state,
+        wsStatus: action.status,
+      };
+    case "ADD_LOG":
+      return {
+        ...state,
+        logs: [...state.logs, action.log],
+      };
     default:
       return state;
   }
@@ -81,6 +100,7 @@ function reducer(state, action) {
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const logContainerRef = useRef(null);
 
   useEffect(() => {
     const initializeParties = async () => {
@@ -105,7 +125,9 @@ function App() {
 
         // Get parties using the utility function and filter for Solvers
         const parties = await psymm.getParties();
-        const solverParties = parties.filter(party => party.role === "Solver");
+        const solverParties = parties.filter(
+          (party) => party.role === "Solver"
+        );
         dispatch({ type: "SET_PARTIES", parties: solverParties });
       } catch (error) {
         console.error("Error fetching parties:", error);
@@ -116,6 +138,47 @@ function App() {
     initializeParties();
   }, []);
 
+  const addLog = (message) => {
+    dispatch({
+      type: "ADD_LOG",
+      log: `[${new Date().toLocaleTimeString()}] ${message}`,
+    });
+  };
+
+  const connectToWebSocket = (ipAddress) => {
+    dispatch({ type: "SET_WS_STATUS", status: "connecting" });
+    addLog(`Attempting to connect to ${ipAddress}:8080`);
+    const ws = new WebSocket(`ws://${ipAddress}:8080`);
+
+    ws.onopen = () => {
+      dispatch({ type: "SET_WEBSOCKET", websocket: ws, status: "connected" });
+      addLog(`Connection established to ${ipAddress}:8080`);
+      const initialMessage = JSON.stringify({ hello: "world" });
+      ws.send(initialMessage);
+      addLog(`Sent message: ${initialMessage}`);
+    };
+
+    ws.onmessage = (event) => {
+      addLog(`Received message: ${event.data}`);
+    };
+
+    ws.onerror = (error) => {
+      dispatch({ type: "SET_WS_STATUS", status: "error" });
+      addLog(`WebSocket error: ${error.message || "Unknown error"}`);
+    };
+
+    ws.onclose = () => {
+      dispatch({ type: "SET_WS_STATUS", status: "disconnected" });
+      addLog(`Connection closed`);
+    };
+  };
+
+  useEffect(() => {
+    if (logContainerRef.current) {
+      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+    }
+  }, [state.logs]);
+
   return (
     <div className="container">
       <div className="wallet-status">
@@ -124,30 +187,72 @@ function App() {
           : "Wallet not connected"}
       </div>
 
-      <div className="tables-container">
-        <PartyTable
-          data={state.counterparties}
-          title="Counterparties"
-          selectedParty={state.selectedCounterparty}
-          onSelectParty={(party) =>
-            dispatch({ type: "SET_SELECTED_COUNTERPARTY", party })
-          }
-        />
-      </div>
-
-      {state.selectedCounterparty && (
-        <div className="selected-party-info">
-          <div>
-            <h3>Selected Counterparty</h3>
-            <p>IP Address: {state.selectedCounterparty.ipAddress}</p>
-            <p>
-              Public Key: {formatPublicKey(state.selectedCounterparty.pubKey)}
-            </p>
-            <p>Address: {state.selectedCounterparty.address}</p>
+      {state.wsStatus === "disconnected" || state.wsStatus === "error" ? (
+        <>
+          <div className="tables-container">
+            <PartyTable
+              data={state.counterparties}
+              title="Counterparties"
+              selectedParty={state.selectedCounterparty}
+              onSelectParty={(party) =>
+                dispatch({ type: "SET_SELECTED_COUNTERPARTY", party })
+              }
+            />
           </div>
-          <div className="ready-status">Ready to connect!</div>
+
+          {state.selectedCounterparty && state.wsStatus !== "connecting" && (
+            <div className="selected-party-info">
+              <div>
+                <h3>Selected Counterparty</h3>
+                <p>IP Address: {state.selectedCounterparty.ipAddress}</p>
+                <p>
+                  Public Key:{" "}
+                  {formatPublicKey(state.selectedCounterparty.pubKey)}
+                </p>
+                <p>Address: {state.selectedCounterparty.address}</p>
+              </div>
+              <button
+                onClick={() =>
+                  connectToWebSocket(state.selectedCounterparty.ipAddress)
+                }
+                className="ready-status"
+              >
+                Connect to {state.selectedCounterparty.ipAddress}
+              </button>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="selected-party-info">
+          <h3>WebSocket Connection Status</h3>
+          <p>
+            Status:{" "}
+            {state.wsStatus === "connecting" ? "Connecting..." : "Connected"}
+          </p>
+          {state.wsStatus === "error" && (
+            <p>Error occurred. Please try again.</p>
+          )}
         </div>
       )}
+      <div
+        className="log-container"
+        style={{
+          marginTop: "2rem",
+          backgroundColor: "#f5f5f5",
+          padding: "1rem",
+          borderRadius: "4px",
+          maxHeight: "200px",
+          overflowY: "auto",
+        }}
+        ref={logContainerRef}
+      >
+        <h3>Connection Log</h3>
+        <pre style={{ fontFamily: "monospace", margin: 0 }}>
+          {state.logs.map((log, index) => (
+            <div key={index}>{log}</div>
+          ))}
+        </pre>
+      </div>
     </div>
   );
 }
