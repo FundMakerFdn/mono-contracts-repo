@@ -1,0 +1,49 @@
+<mxfile host="65bd71144e">
+    <diagram name="Page-1" id="cLbl8Ewybvhwg7moRau-">
+        <mxGraphModel dx="1656" dy="1132" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="10" value="Solver Processes" style="swimlane;whiteSpace=wrap;html=1;fontSize=15;" parent="1" vertex="1">
+                    <mxGeometry x="54" y="80" width="720" height="480" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="Contracts" style="swimlane;whiteSpace=wrap;html=1;fontSize=15;" parent="10" vertex="1">
+                    <mxGeometry x="20" y="40" width="200" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" value="&lt;div&gt;&lt;ul&gt;&lt;li&gt;Lock&lt;/li&gt;&lt;li&gt;Fill&lt;/li&gt;&lt;li&gt;Partial fill&lt;/li&gt;&lt;li&gt;Deposit&lt;/li&gt;&lt;li&gt;Withdraw&lt;/li&gt;&lt;li&gt;Get custody&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontSize=15;" parent="11" vertex="1">
+                    <mxGeometry x="10" y="20" width="180" height="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="Exchange orders" style="swimlane;whiteSpace=wrap;html=1;fontSize=15;fillColor=none;" parent="10" vertex="1">
+                    <mxGeometry x="246" y="40" width="200" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="&lt;ul&gt;&lt;li&gt;Open order&lt;/li&gt;&lt;li&gt;Cancel order&lt;/li&gt;&lt;li&gt;Get order&lt;/li&gt;&lt;li&gt;Get balance&lt;/li&gt;&lt;/ul&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontSize=15;" parent="17" vertex="1">
+                    <mxGeometry x="10" y="30" width="180" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" value="Market data" style="swimlane;whiteSpace=wrap;html=1;fontSize=15;fillColor=none;startSize=23;" parent="10" vertex="1">
+                    <mxGeometry x="246" y="260" width="200" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="Subscribe to:&lt;br&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Tickers&lt;/span&gt;&lt;/li&gt;&lt;li&gt;Trades&lt;/li&gt;&lt;li&gt;Orderbooks&lt;/li&gt;&lt;/ul&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontSize=15;" parent="19" vertex="1">
+                    <mxGeometry x="10" y="30" width="180" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="FIX" style="swimlane;whiteSpace=wrap;html=1;fontSize=15;fillColor=none;startSize=23;" parent="10" vertex="1">
+                    <mxGeometry x="20" y="260" width="200" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="&lt;ul&gt;&lt;li&gt;Web App connection (not sure what functions will be requeired)&lt;/li&gt;&lt;/ul&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontSize=15;" parent="21" vertex="1">
+                    <mxGeometry x="10" y="30" width="180" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" value="Hedge" style="swimlane;whiteSpace=wrap;html=1;fontSize=15;fillColor=none;" parent="10" vertex="1">
+                    <mxGeometry x="486" y="40" width="200" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="24" value="&lt;ul&gt;&lt;li&gt;Creates hedging orders&lt;/li&gt;&lt;li&gt;Maintains delta-neutral position with open contracts&lt;/li&gt;&lt;/ul&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontSize=15;" parent="23" vertex="1">
+                    <mxGeometry x="10" y="30" width="180" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="25" value="Collateral" style="swimlane;whiteSpace=wrap;html=1;fontSize=15;fillColor=none;" parent="10" vertex="1">
+                    <mxGeometry x="486" y="260" width="200" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="26" value="&lt;ul&gt;&lt;li&gt;Tracks custody&lt;/li&gt;&lt;li&gt;Calculates uPNL&lt;/li&gt;&lt;li&gt;Verifies margins&lt;/li&gt;&lt;li&gt;Aproves orders&lt;/li&gt;&lt;/ul&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontSize=15;" parent="25" vertex="1">
+                    <mxGeometry x="10" y="30" width="180" height="160" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
